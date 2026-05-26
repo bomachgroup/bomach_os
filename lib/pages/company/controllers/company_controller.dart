@@ -19,6 +19,7 @@ class CompanyController extends GetxController {
   var errorMessage = ''.obs;
 
   Rxn<CompanySettings> companySettings = Rxn<CompanySettings>();
+  var fieldChoices = Rxn<CompanyFieldChoices>();
 
   // --- EXTENDED STATE (Fields missing from Model) ---
   // These allow the UI to function before the Backend/Model is updated.
@@ -86,6 +87,7 @@ class CompanyController extends GetxController {
   void onInit() {
     super.onInit();
     fetchCompanyProfile();
+    fetchCompanyChoices();
     fetchDashboardStats();
     fetchShareholders();
     fetchEquityInfo();
@@ -252,6 +254,19 @@ class CompanyController extends GetxController {
       errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchCompanyChoices() async {
+    try {
+      final token = await _storage.read(key: 'access_token');
+      if (token != null) {
+        final choices =
+            await _companyService.getCompanyFieldChoices(accessToken: token);
+        fieldChoices.value = choices;
+      }
+    } catch (e) {
+      log("Error loading company choices: $e");
     }
   }
 

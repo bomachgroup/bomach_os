@@ -253,6 +253,19 @@ class CompanyService {
     }
   }
 
+  Future<CompanyFieldChoices> getCompanyFieldChoices(
+      {required String accessToken}) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/company/company/choices',
+        options: _authOptions(accessToken),
+      );
+      return CompanyFieldChoices.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // --- AUDIT LOGS ---
   Future<({List<AuditLog> items, int count})> getAuditLogs(String token,
       {int limit = 10, int offset = 0}) async {

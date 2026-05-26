@@ -11,6 +11,7 @@ import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/branch_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:bomach_os/src/helper/language_helper.dart';
 
 import '../controllers/branch_controller.dart';
 import 'add_branch_dialog.dart';
@@ -334,7 +335,8 @@ class _BranchDetailPageState extends State<BranchDetailPage>
             if (branch.defaultCurrency.isNotEmpty)
               _DetailItem("Currency", branch.defaultCurrency),
             if (branch.languagePreference.isNotEmpty)
-              _DetailItem("Language", branch.languagePreference),
+              _DetailItem("Language",
+                  LanguageHelper.toDisplay(branch.languagePreference)),
             _DetailItem("Email", branch.contactEmail),
             _DetailItem("Phone", branch.contactPhone),
             _DetailItem("Active", branch.isActive ? "Yes" : "No"),

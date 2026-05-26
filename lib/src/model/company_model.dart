@@ -354,3 +354,40 @@ class AuditLog {
     );
   }
 }
+
+class CompanyFieldOption {
+  final String value;
+  final String label;
+
+  CompanyFieldOption({required this.value, required this.label});
+
+  factory CompanyFieldOption.fromJson(Map<String, dynamic> json) {
+    return CompanyFieldOption(
+      value: json['value'] ?? '',
+      label: json['label'] ?? '',
+    );
+  }
+}
+
+class CompanyFieldChoices {
+  final List<CompanyFieldOption> currencies;
+  final List<CompanyFieldOption> languages;
+
+  CompanyFieldChoices({
+    required this.currencies,
+    required this.languages,
+  });
+
+  factory CompanyFieldChoices.fromJson(Map<String, dynamic> json) {
+    return CompanyFieldChoices(
+      currencies: (json['currencies'] as List?)
+              ?.map((e) => CompanyFieldOption.fromJson(e))
+              .toList() ??
+          [],
+      languages: (json['languages'] as List?)
+              ?.map((e) => CompanyFieldOption.fromJson(e))
+              .toList() ??
+          [],
+    );
+  }
+}

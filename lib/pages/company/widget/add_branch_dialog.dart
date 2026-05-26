@@ -13,7 +13,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../controllers/branch_controller.dart';
-import 'package:bomach_os/src/helper/language_helper.dart';
+import '../controllers/company_controller.dart';
 
 class AddBranchDialog extends StatefulWidget {
   const AddBranchDialog({super.key, this.branchToEdit});
@@ -26,6 +26,7 @@ class AddBranchDialog extends StatefulWidget {
 
 class _AddBranchDialogState extends State<AddBranchDialog> {
   final BranchController controller = Get.find<BranchController>();
+  final CompanyController companyController = Get.find<CompanyController>();
   final _formKey = GlobalKey<FormState>();
 
   final nameCtrl = TextEditingController();
@@ -45,6 +46,20 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
   String? selectedLanguage;
   bool isActive = true;
   String? displayManager;
+
+  String? _getCurrencyLabel(String? value) {
+    if (value == null) return null;
+    final match = companyController.fieldChoices.value?.currencies
+        .firstWhereOrNull((e) => e.value == value);
+    return match?.label ?? value;
+  }
+
+  String? _getLanguageLabel(String? value) {
+    if (value == null) return null;
+    final match = companyController.fieldChoices.value?.languages
+        .firstWhereOrNull((e) => e.value == value);
+    return match?.label ?? value;
+  }
 
   bool get isEditing => widget.branchToEdit != null;
 
@@ -67,9 +82,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       selectedManagerId = branch.managerId != 0 ? branch.managerId : null;
       selectedCurrency =
           branch.defaultCurrency.isEmpty ? null : branch.defaultCurrency;
-      selectedLanguage = branch.languagePreference.isEmpty
-          ? null
-          : LanguageHelper.toDisplay(branch.languagePreference);
+      selectedLanguage =
+          branch.languagePreference.isEmpty ? null : branch.languagePreference;
       isActive = branch.isActive;
       displayManager =
           branch.managerName.isNotEmpty ? branch.managerName : null;
@@ -233,26 +247,55 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                           Expanded(
                             child: MyDropdown(
                               title: 'Default Currency',
-                              hintText: selectedCurrency ?? 'Inherit',
-                              items: const ['NGN', 'USD', 'EUR', 'GBP'],
-                              onChanged: (val) =>
-                                  setState(() => selectedCurrency = val),
+                              hintText: _getCurrencyLabel(selectedCurrency) ??
+                                  'Inherit',
+                              items: companyController
+                                      .fieldChoices.value?.currencies
+                                      .map((e) => e.label)
+                                      .toList() ??
+                                  const ['NGN', 'USD', 'EUR', 'GBP'],
+                              onChanged: (val) {
+                                final options = companyController
+                                        .fieldChoices.value?.currencies ??
+                                    const [];
+                                for (final option in options) {
+                                  if (option.label == val) {
+                                    setState(
+                                        () => selectedCurrency = option.value);
+                                    break;
+                                  }
+                                }
+                              },
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: MyDropdown(
                               title: 'Language',
-                              hintText: selectedLanguage ?? 'Inherit',
-                              items: const [
-                                'English (Nigeria)',
-                                'English (UK)',
-                                'English (US)',
-                                'French',
-                                'Spanish',
-                              ],
-                              onChanged: (val) =>
-                                  setState(() => selectedLanguage = val),
+                              hintText: _getLanguageLabel(selectedLanguage) ??
+                                  'Inherit',
+                              items: companyController
+                                      .fieldChoices.value?.languages
+                                      .map((e) => e.label)
+                                      .toList() ??
+                                  const [
+                                    'English UK',
+                                    'English US',
+                                    'French',
+                                    'Spanish'
+                                  ],
+                              onChanged: (val) {
+                                final options = companyController
+                                        .fieldChoices.value?.languages ??
+                                    const [];
+                                for (final option in options) {
+                                  if (option.label == val) {
+                                    setState(
+                                        () => selectedLanguage = option.value);
+                                    break;
+                                  }
+                                }
+                              },
                             ),
                           ),
                         ],
@@ -420,7 +463,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),
@@ -469,8 +513,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       'notes': notesCtrl.text.trim(),
       'is_active': isActive,
       if (selectedCurrency != null) 'default_currency': selectedCurrency,
-      if (selectedLanguage != null)
-        'language_preference': LanguageHelper.toCode(selectedLanguage),
+      if (selectedLanguage != null) 'language_preference': selectedLanguage,
     };
 
     if (isEditing) {

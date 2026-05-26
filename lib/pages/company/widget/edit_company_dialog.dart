@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../controllers/company_controller.dart';
-import 'package:bomach_os/src/helper/language_helper.dart';
 
 class BaseEditDialog extends StatelessWidget {
   final String title;
@@ -217,8 +216,20 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
   final CompanyController controller = Get.find<CompanyController>();
   late TextEditingController primaryCtrl, secondaryCtrl, rulesCtrl;
   String selectedCurrency = "NGN";
-  String selectedLanguage = "English (Nigeria)";
+  String selectedLanguage = "en-GB";
   String selectedTimezone = "WAT";
+
+  String _getCurrencyLabel(String value) {
+    final match = controller.fieldChoices.value?.currencies
+        .firstWhereOrNull((e) => e.value == value);
+    return match?.label ?? value;
+  }
+
+  String _getLanguageLabel(String value) {
+    final match = controller.fieldChoices.value?.languages
+        .firstWhereOrNull((e) => e.value == value);
+    return match?.label ?? value;
+  }
 
   @override
   void initState() {
@@ -231,7 +242,7 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
       selectedCurrency = data.defaultCurrency;
     }
     if (data.languagePreference.isNotEmpty) {
-      selectedLanguage = LanguageHelper.toDisplay(data.languagePreference);
+      selectedLanguage = data.languagePreference;
     }
     selectedTimezone = controller.timeZone.value;
   }
@@ -249,7 +260,7 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                 primaryColor: primaryCtrl.text,
                 secondaryColor: secondaryCtrl.text,
                 currency: selectedCurrency,
-                language: LanguageHelper.toCode(selectedLanguage),
+                language: selectedLanguage,
                 timeZoneVal: selectedTimezone,
                 rules: rulesCtrl.text);
           },
@@ -283,24 +294,49 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                       Expanded(
                           child: MyDropdown(
                               title: 'Default Currency',
-                              hintText: selectedCurrency,
-                              items: const ["NGN", "USD", "EUR"],
-                              onChanged: (v) =>
-                                  setState(() => selectedCurrency = v!))),
+                              hintText: _getCurrencyLabel(selectedCurrency),
+                              items: controller.fieldChoices.value?.currencies
+                                      .map((e) => e.label)
+                                      .toList() ??
+                                  const ["NGN", "USD", "EUR"],
+                              onChanged: (v) {
+                                final options =
+                                    controller.fieldChoices.value?.currencies ??
+                                        const [];
+                                for (final option in options) {
+                                  if (option.label == v) {
+                                    setState(
+                                        () => selectedCurrency = option.value);
+                                    break;
+                                  }
+                                }
+                              })),
                       const SizedBox(width: 16),
                       Expanded(
                           child: MyDropdown(
                               title: 'Language Preference',
-                              hintText: selectedLanguage,
-                              items: const [
-                                "English (Nigeria)",
-                                "English (UK)",
-                                "English (US)",
-                                "French",
-                                "Spanish",
-                              ],
-                              onChanged: (v) =>
-                                  setState(() => selectedLanguage = v!))),
+                              hintText: _getLanguageLabel(selectedLanguage),
+                              items: controller.fieldChoices.value?.languages
+                                      .map((e) => e.label)
+                                      .toList() ??
+                                  const [
+                                    "English UK",
+                                    "English US",
+                                    "French",
+                                    "Spanish"
+                                  ],
+                              onChanged: (v) {
+                                final options =
+                                    controller.fieldChoices.value?.languages ??
+                                        const [];
+                                for (final option in options) {
+                                  if (option.label == v) {
+                                    setState(
+                                        () => selectedLanguage = option.value);
+                                    break;
+                                  }
+                                }
+                              })),
                     ]),
                     const SizedBox(height: 20),
                     MyDropdown(
@@ -438,7 +474,8 @@ Widget _buildDialogSection({
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ],
         const SizedBox(height: 16),
