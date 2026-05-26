@@ -34,10 +34,7 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
   static const _roleOptions = [
     'Founder',
     'Co-Founder',
-    'Investor',
-    'Director',
-    'Partner',
-    'Other'
+    'Board Member',
   ];
 
   @override
@@ -68,7 +65,7 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
     setState(() {
       rows.add(_ShareholderRow(
         nameCtrl: TextEditingController(),
-        role: 'Investor',
+        role: 'Board Member',
         sharesCtrl: TextEditingController(),
         percentage: '0.00',
       ));
@@ -111,7 +108,10 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
       final data = {
         'first_name': firstName,
         'last_name': lastName,
-        'title': row.role.toLowerCase().replaceAll('-', '_'),
+        'email':
+            '${firstName.toLowerCase()}_${lastName.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}@bomach.com',
+        'title':
+            row.role.toLowerCase().replaceAll(' ', '_').replaceAll('-', '_'),
         'share_count': int.tryParse(row.sharesCtrl.text) ?? 0,
         'share_percentage': row.percentage,
         'is_board_member': false,
@@ -383,7 +383,7 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
   late TextEditingController sharesCtrl;
   late TextEditingController notesCtrl;
 
-  String selectedRole = 'Investor';
+  String selectedRole = 'Board Member';
   late bool isBoardMember = widget.defaultIsBoardMember;
   XFile? _pickedAvatar;
 
@@ -398,10 +398,7 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
   static const _roleOptions = [
     'Founder',
     'Co-Founder',
-    'Investor',
-    'Director',
-    'Partner',
-    'Other'
+    'Board Member',
   ];
 
   @override
@@ -416,8 +413,9 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
         TextEditingController(text: s != null ? '${s.shareCount}' : '');
     notesCtrl = TextEditingController(text: s?.notes ?? '');
     if (s != null) {
-      selectedRole =
-          _roleOptions.contains(s.titleDisplay) ? s.titleDisplay : 'Investor';
+      selectedRole = _roleOptions.contains(s.titleDisplay)
+          ? s.titleDisplay
+          : 'Board Member';
       isBoardMember = s.isBoardMember;
     }
   }
@@ -441,7 +439,8 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
       'last_name': lastNameCtrl.text.trim(),
       'email': emailCtrl.text.trim(),
       'phone_number': phoneCtrl.text.trim(),
-      'title': selectedRole.toLowerCase().replaceAll('-', '_'),
+      'title':
+          selectedRole.toLowerCase().replaceAll(' ', '_').replaceAll('-', '_'),
       'share_count': int.tryParse(sharesCtrl.text) ?? 0,
       'share_percentage': (controller.authorizedShares.value > 0)
           ? ((int.tryParse(sharesCtrl.text) ?? 0) /
