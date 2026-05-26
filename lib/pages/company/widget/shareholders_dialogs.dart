@@ -443,6 +443,12 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
       'phone_number': phoneCtrl.text.trim(),
       'title': selectedRole.toLowerCase().replaceAll('-', '_'),
       'share_count': int.tryParse(sharesCtrl.text) ?? 0,
+      'share_percentage': (controller.authorizedShares.value > 0)
+          ? ((int.tryParse(sharesCtrl.text) ?? 0) /
+                  controller.authorizedShares.value *
+                  100)
+              .toStringAsFixed(2)
+          : (widget.shareholder?.sharePercentage ?? '0.00'),
       'is_board_member': isBoardMember,
       'is_active': true,
       if (notesCtrl.text.trim().isNotEmpty) 'notes': notesCtrl.text.trim(),
@@ -503,9 +509,11 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
                   Expanded(
                     child: MyTextFormField(
                       controller: emailCtrl,
-                      title: 'Email',
+                      title: 'Email*',
                       hintText: 'email@example.com',
                       keyboardType: TextInputType.emailAddress,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'Required' : null,
                     ),
                   ),
                   const SizedBox(width: 16),
