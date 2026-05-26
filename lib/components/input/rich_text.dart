@@ -34,7 +34,6 @@ class _RichTextEditorState extends State<RichTextEditor> {
                   showAlignmentButtons: false,
                   showBackgroundColorButton: false,
                   showCenterAlignment: false,
-                  showClipboardCut: false,
                   showFontFamily: false,
                   showListNumbers: false,
                   showLineHeightButton: false,

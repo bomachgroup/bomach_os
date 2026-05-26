@@ -21,6 +21,7 @@ import 'package:intl/intl.dart';
 import 'controllers/company_controller.dart';
 import 'widget/edit_company_dialog.dart';
 import 'widget/shareholders_dialogs.dart';
+import 'package:bomach_os/src/helper/language_helper.dart';
 
 const List<String> _companyTabs = [
   'Profile',
@@ -250,7 +251,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                     icon: Iconsax.tick_circle,
                   ),
                   StatusChip(
-                    label: data.languagePreference,
+                    label: LanguageHelper.toDisplay(data.languagePreference),
                     tone: StatusTone.neutral,
                     icon: Iconsax.translate,
                   ),
@@ -748,7 +749,8 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
         icon: Iconsax.global,
         children: [
           _buildDetailEntry('Default Currency', data.defaultCurrency),
-          _buildDetailEntry('Language Preference', data.languagePreference),
+           _buildDetailEntry('Language Preference',
+              LanguageHelper.toDisplay(data.languagePreference)),
           _buildDetailEntry('Time Zone', controller.timeZone.value),
         ],
       ),

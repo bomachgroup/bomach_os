@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../controllers/branch_controller.dart';
+import 'package:bomach_os/src/helper/language_helper.dart';
 
 class AddBranchDialog extends StatefulWidget {
   const AddBranchDialog({super.key, this.branchToEdit});
@@ -66,8 +67,9 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       selectedManagerId = branch.managerId != 0 ? branch.managerId : null;
       selectedCurrency =
           branch.defaultCurrency.isEmpty ? null : branch.defaultCurrency;
-      selectedLanguage =
-          branch.languagePreference.isEmpty ? null : branch.languagePreference;
+      selectedLanguage = branch.languagePreference.isEmpty
+          ? null
+          : LanguageHelper.toDisplay(branch.languagePreference);
       isActive = branch.isActive;
       displayManager =
           branch.managerName.isNotEmpty ? branch.managerName : null;
@@ -247,6 +249,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                                 'English (UK)',
                                 'English (US)',
                                 'French',
+                                'Spanish',
                               ],
                               onChanged: (val) =>
                                   setState(() => selectedLanguage = val),
@@ -466,7 +469,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       'notes': notesCtrl.text.trim(),
       'is_active': isActive,
       if (selectedCurrency != null) 'default_currency': selectedCurrency,
-      if (selectedLanguage != null) 'language_preference': selectedLanguage,
+      if (selectedLanguage != null)
+        'language_preference': LanguageHelper.toCode(selectedLanguage),
     };
 
     if (isEditing) {

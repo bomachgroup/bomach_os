@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../controllers/company_controller.dart';
+import 'package:bomach_os/src/helper/language_helper.dart';
 
 class BaseEditDialog extends StatelessWidget {
   final String title;
@@ -230,7 +231,7 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
       selectedCurrency = data.defaultCurrency;
     }
     if (data.languagePreference.isNotEmpty) {
-      selectedLanguage = data.languagePreference;
+      selectedLanguage = LanguageHelper.toDisplay(data.languagePreference);
     }
     selectedTimezone = controller.timeZone.value;
   }
@@ -248,7 +249,7 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                 primaryColor: primaryCtrl.text,
                 secondaryColor: secondaryCtrl.text,
                 currency: selectedCurrency,
-                language: selectedLanguage,
+                language: LanguageHelper.toCode(selectedLanguage),
                 timeZoneVal: selectedTimezone,
                 rules: rulesCtrl.text);
           },
@@ -294,7 +295,9 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                               items: const [
                                 "English (Nigeria)",
                                 "English (UK)",
-                                "French"
+                                "English (US)",
+                                "French",
+                                "Spanish",
                               ],
                               onChanged: (v) =>
                                   setState(() => selectedLanguage = v!))),
