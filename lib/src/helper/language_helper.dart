@@ -1,8 +1,9 @@
 class LanguageHelper {
   static const Map<String, String> _displayToCode = {
-    'english (nigeria)': 'en-GB',
     'english (uk)': 'en-GB',
     'english (us)': 'en-US',
+    'english (nigeria)': 'en-GB',
+    'en-ng': 'en-GB',
     'french': 'fr',
     'spanish': 'es',
   };

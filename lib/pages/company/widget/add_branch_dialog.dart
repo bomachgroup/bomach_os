@@ -8,6 +8,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/branch_model.dart';
+import 'package:bomach_os/src/helper/language_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -513,7 +514,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       'notes': notesCtrl.text.trim(),
       'is_active': isActive,
       if (selectedCurrency != null) 'default_currency': selectedCurrency,
-      if (selectedLanguage != null) 'language_preference': selectedLanguage,
+      if (selectedLanguage != null)
+        'language_preference': LanguageHelper.toCode(selectedLanguage),
     };
 
     if (isEditing) {
