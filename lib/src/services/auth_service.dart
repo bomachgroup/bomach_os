@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:bomach_os/src/constants/api_constants.dart';
 
+import 'package:bomach_os/src/helper/error_helper.dart';
 import 'package:dio/dio.dart';
 
 
@@ -41,28 +42,20 @@ class AuthService {
     });
   }
 
-  /// Handle Dio Errors consistently
   Exception _handleError(DioException e) {
-    if (e.response != null) {
-      final data = e.response!.data;
-
-      if (data is! Map<String, dynamic>) {
-        return AuthException(
-            message: 'Server error: ${e.response?.statusCode}',
-            statusCode: e.response?.statusCode);
+    final message = ErrorHelper.getReadableErrorMessage(e);
+    Map<String, dynamic>? validationErrors;
+    if (e.response != null && e.response!.data is Map<String, dynamic>) {
+      final errors = e.response!.data['errors'];
+      if (errors is Map<String, dynamic>) {
+        validationErrors = errors;
       }
-      final message =
-          data['message'] ?? data['detail'] ?? 'An unknown error occurred';
-      final errors = data['errors'];
-
-      return AuthException(
-        message: message,
-        errors: errors is Map<String, dynamic> ? errors : null,
-        statusCode: e.response?.statusCode,
-      );
-    } else {
-      return AuthException(message: '${e.message}');
     }
+    return AuthException(
+      message: message,
+      errors: validationErrors,
+      statusCode: e.response?.statusCode,
+    );
   }
 
   // LOGIN

@@ -102,6 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             title: 'Username',
                             hintText: 'Enter your username',
                             spaceBetweenText: 8,
+                            textInputAction: TextInputAction.next,
                             leading: const Padding(
                               padding: EdgeInsets.only(left: 12, right: 8),
                               child: Icon(
@@ -118,6 +119,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             hintText: 'Enter your password',
                             spaceBetweenText: 8,
                             obscureText: authController.obscurePassword.value,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (value) =>
+                                authController.login(context),
                             leading: const Padding(
                               padding: EdgeInsets.only(left: 12, right: 8),
                               child: Icon(

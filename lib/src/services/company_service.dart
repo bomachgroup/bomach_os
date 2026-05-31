@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:bomach_os/src/constants/api_constants.dart';
+import 'package:bomach_os/src/helper/error_helper.dart';
 import 'package:dio/dio.dart';
 
 import '../model/company_model.dart';
@@ -287,22 +288,7 @@ class CompanyService {
   }
 
   Exception _handleError(DioException e) {
-    String msg = "An unexpected error occurred";
-
-    if (e.response != null) {
-      final data = e.response?.data;
-
-      if (data is Map<String, dynamic>) {
-        if (data.containsKey('detail')) {
-          msg = data['detail'];
-        } else if (data.containsKey('message')) {
-          msg = data['message'];
-        }
-      }
-    } else {
-      msg = "Connection error. Please check your internet.";
-    }
-
+    final msg = ErrorHelper.getReadableErrorMessage(e);
     return Exception(msg);
   }
 }

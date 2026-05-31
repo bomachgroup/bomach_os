@@ -30,6 +30,7 @@ class MyTextFormField extends StatelessWidget {
   final List<BoxShadow>? boxShadow;
   final bool? readOnly;
   final List<TextInputFormatter>? inputFormatters;
+  final ValueChanged<String>? onFieldSubmitted;
 
   const MyTextFormField({
     super.key,
@@ -41,6 +42,7 @@ class MyTextFormField extends StatelessWidget {
     this.onChanged,
     this.textInputAction,
     this.focusNode,
+    this.onFieldSubmitted,
     this.hintText = "Type",
     this.leading,
     this.trailing,
@@ -103,6 +105,7 @@ class MyTextFormField extends StatelessWidget {
               validator: validator,
               onChanged: onChanged,
               textInputAction: textInputAction,
+              onFieldSubmitted: onFieldSubmitted,
               textAlign: textAlign,
               cursorColor: AppColors.primary,
               autocorrect: true,
