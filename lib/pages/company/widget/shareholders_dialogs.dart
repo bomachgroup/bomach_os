@@ -45,6 +45,7 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
       rows.add(_ShareholderRow(
         id: s.id,
         nameCtrl: TextEditingController(text: s.fullName),
+        emailCtrl: TextEditingController(text: s.email),
         role: s.titleDisplay.isNotEmpty ? s.titleDisplay : 'Investor',
         sharesCtrl: TextEditingController(text: '${s.shareCount}'),
         percentage: s.sharePercentage,
@@ -56,6 +57,7 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
   void dispose() {
     for (final r in rows) {
       r.nameCtrl.dispose();
+      r.emailCtrl.dispose();
       r.sharesCtrl.dispose();
     }
     super.dispose();
@@ -65,7 +67,8 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
     setState(() {
       rows.add(_ShareholderRow(
         nameCtrl: TextEditingController(),
-        role: 'Board Member',
+        emailCtrl: TextEditingController(),
+        role: 'Investor',
         sharesCtrl: TextEditingController(),
         percentage: '0.00',
       ));
@@ -108,13 +111,12 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
       final data = {
         'first_name': firstName,
         'last_name': lastName,
-        'email':
-            '${firstName.toLowerCase()}_${lastName.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}@bomach.com',
+        'email': row.emailCtrl.text.trim(),
         'title':
             row.role.toLowerCase().replaceAll(' ', '_').replaceAll('-', '_'),
         'share_count': int.tryParse(row.sharesCtrl.text) ?? 0,
         'share_percentage': row.percentage,
-        'is_board_member': false,
+        'is_board_member': row.role == 'Board Member',
         'is_active': true,
       };
 
@@ -210,6 +212,10 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
               child: Text("Name",
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
           Expanded(
+              flex: 3,
+              child: Text("Email",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
+          Expanded(
               flex: 2,
               child: Text("Role",
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
@@ -267,12 +273,39 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
             ),
           ),
           Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: TextFormField(
+                controller: row.emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                style: const TextStyle(fontSize: 13),
+                decoration: InputDecoration(
+                  hintText: "Email",
+                  isDense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.borderSubtle),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.borderSubtle),
+                  ),
+                ),
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Required' : null,
+              ),
+            ),
+          ),
+          Expanded(
             flex: 2,
             child: Padding(
               padding: const EdgeInsets.only(right: 8),
               child: DropdownButtonFormField<String>(
                 initialValue:
-                    _roleOptions.contains(row.role) ? row.role : 'Investor',
+                    _roleOptions.contains(row.role) ? row.role : null,
                 isDense: true,
                 decoration: InputDecoration(
                   isDense: true,
@@ -341,6 +374,7 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
 class _ShareholderRow {
   final int? id;
   final TextEditingController nameCtrl;
+  final TextEditingController emailCtrl;
   String role;
   final TextEditingController sharesCtrl;
   String percentage;
@@ -348,6 +382,7 @@ class _ShareholderRow {
   _ShareholderRow({
     this.id,
     required this.nameCtrl,
+    required this.emailCtrl,
     required this.role,
     required this.sharesCtrl,
     required this.percentage,
@@ -383,7 +418,7 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
   late TextEditingController sharesCtrl;
   late TextEditingController notesCtrl;
 
-  String selectedRole = 'Board Member';
+  String selectedRole = 'Investor';
   late bool isBoardMember = widget.defaultIsBoardMember;
   XFile? _pickedAvatar;
 
@@ -413,9 +448,7 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
         TextEditingController(text: s != null ? '${s.shareCount}' : '');
     notesCtrl = TextEditingController(text: s?.notes ?? '');
     if (s != null) {
-      selectedRole = _roleOptions.contains(s.titleDisplay)
-          ? s.titleDisplay
-          : 'Board Member';
+      selectedRole = s.titleDisplay.isNotEmpty ? s.titleDisplay : 'Investor';
       isBoardMember = s.isBoardMember;
     }
   }
@@ -530,7 +563,8 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
                   Expanded(
                     child: MyDropdown(
                       title: 'Role*',
-                      hintText: selectedRole,
+                      hintText: 'Select role',
+                      initialSelection: _roleOptions.contains(selectedRole) ? selectedRole : null,
                       items: _roleOptions,
                       onChanged: (v) {
                         if (v != null) setState(() => selectedRole = v);

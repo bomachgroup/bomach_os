@@ -33,7 +33,11 @@ class EstateController extends GetxController {
     fetchFieldChoices();
   }
 
-  Future<String?> _getToken() => _storage.read(key: 'access_token');
+  Future<String?> _getToken() async {
+    final token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    return token.replaceAll('"', '').trim();
+  }
 
   Future<void> fetchEstates() async {
     try {

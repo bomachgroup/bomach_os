@@ -319,11 +319,14 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
             flex: 2,
             child: Align(
               alignment: Alignment.centerLeft,
-              child: StatusChip(
-                label: roleLabel,
-                tone: StatusTone.primary,
-                dense: true,
-                icon: Iconsax.briefcase,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: StatusChip(
+                  label: roleLabel,
+                  tone: StatusTone.primary,
+                  dense: true,
+                  icon: Iconsax.briefcase,
+                ),
               ),
             ),
           ),
@@ -339,11 +342,14 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
             flex: 2,
             child: Align(
               alignment: Alignment.centerLeft,
-              child: StatusChip(
-                label: member.isActive ? 'Active' : 'Inactive',
-                tone: member.isActive
-                    ? StatusTone.success
-                    : StatusTone.neutral,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: StatusChip(
+                  label: member.isActive ? 'Active' : 'Inactive',
+                  tone: member.isActive
+                      ? StatusTone.success
+                      : StatusTone.neutral,
+                ),
               ),
             ),
           ),

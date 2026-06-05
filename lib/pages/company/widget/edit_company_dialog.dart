@@ -117,6 +117,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               slogan: sloganCtrl.text,
               industryVal: industryCtrl.text,
               rcNumber: rcCtrl.text.trim(),
+              logoFile: _pickedLogo,
             );
           },
           child: Column(

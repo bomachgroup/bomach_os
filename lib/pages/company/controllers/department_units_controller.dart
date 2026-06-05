@@ -245,7 +245,9 @@ class DepartmentsUnitsController extends GetxController {
   }
 
   Future<String?> _getToken() async {
-    return await _storage.read(key: 'access_token');
+    final token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    return token.replaceAll('"', '').trim();
   }
 
   // --- HELPERS ---

@@ -686,57 +686,59 @@ class _ApprovalsTable extends StatelessWidget {
     );
     final formKey = GlobalKey<FormState>();
 
-    final confirmed = await DialogScaffold.show<bool>(
-      context,
-      title: 'Approve workspace?',
-      subtitle: 'Approving "${w.workspaceName}" will let '
-          '${w.employeeName ?? 'this employee'} clock in when inside the '
-          'geofence.',
-      size: DialogSize.sm,
-      body: Form(
-        key: formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Allowed radius (meters)',
-                style: AppTextStyles.label.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            MyTextFormField(
-              controller: radiusCtrl,
-              keyboardType: TextInputType.number,
-              hintText: '100',
-              validator: _radiusValidator,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Employees can only clock in when inside this radius.',
-              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
-            ),
-          ],
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => DialogScaffold(
+        title: 'Approve workspace?',
+        subtitle: 'Approving "${w.workspaceName}" will let '
+            '${w.employeeName ?? 'this employee'} clock in when inside the '
+            'geofence.',
+        size: DialogSize.sm,
+        body: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Allowed radius (meters)',
+                  style: AppTextStyles.label.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              MyTextFormField(
+                controller: radiusCtrl,
+                keyboardType: TextInputType.number,
+                hintText: '100',
+                validator: _radiusValidator,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Employees can only clock in when inside this radius.',
+                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+              ),
+            ],
+          ),
         ),
+        actions: [
+          MyOutlinedButton(
+            child: 'Cancel',
+            height: 44,
+            textColor: AppColors.textSecondary,
+            borderColor: AppColors.borderStrong,
+            onTap: () => Navigator.pop(ctx, false),
+          ),
+          MyElevatedButton(
+            height: 44,
+            bgColor: AppColors.success,
+            child: 'Approve',
+            onTap: () {
+              if (formKey.currentState?.validate() ?? false) {
+                Navigator.pop(ctx, true);
+              }
+            },
+          ),
+        ],
       ),
-      actions: [
-        MyOutlinedButton(
-          child: 'Cancel',
-          height: 44,
-          textColor: AppColors.textSecondary,
-          borderColor: AppColors.borderStrong,
-          onTap: () => Navigator.pop(context, false),
-        ),
-        MyElevatedButton(
-          height: 44,
-          bgColor: AppColors.success,
-          child: 'Approve',
-          onTap: () {
-            if (formKey.currentState?.validate() ?? false) {
-              Navigator.pop(context, true);
-            }
-          },
-        ),
-      ],
     );
 
     if (confirmed != true || !context.mounted) return;
@@ -751,53 +753,55 @@ class _ApprovalsTable extends StatelessWidget {
     final reasonCtrl = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
-    final confirmed = await DialogScaffold.show<bool>(
-      context,
-      title: 'Reject workspace?',
-      subtitle: 'Rejecting "${w.workspaceName}". The employee will see your '
-          'reason and can then delete and resubmit.',
-      size: DialogSize.sm,
-      body: Form(
-        key: formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Reason *',
-                style: AppTextStyles.label.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            MyTextFormField(
-              controller: reasonCtrl,
-              hintText: 'e.g., Location is outside company premises',
-              maxLines: 4,
-              validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'A reason is required'
-                  : null,
-            ),
-          ],
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => DialogScaffold(
+        title: 'Reject workspace?',
+        subtitle: 'Rejecting "${w.workspaceName}". The employee will see your '
+            'reason and can then delete and resubmit.',
+        size: DialogSize.sm,
+        body: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Reason *',
+                  style: AppTextStyles.label.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              MyTextFormField(
+                controller: reasonCtrl,
+                hintText: 'e.g., Location is outside company premises',
+                maxLines: 4,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'A reason is required'
+                    : null,
+              ),
+            ],
+          ),
         ),
+        actions: [
+          MyOutlinedButton(
+            child: 'Cancel',
+            height: 44,
+            textColor: AppColors.textSecondary,
+            borderColor: AppColors.borderStrong,
+            onTap: () => Navigator.pop(ctx, false),
+          ),
+          MyElevatedButton(
+            height: 44,
+            bgColor: AppColors.danger,
+            child: 'Reject',
+            onTap: () {
+              if (formKey.currentState?.validate() ?? false) {
+                Navigator.pop(ctx, true);
+              }
+            },
+          ),
+        ],
       ),
-      actions: [
-        MyOutlinedButton(
-          child: 'Cancel',
-          height: 44,
-          textColor: AppColors.textSecondary,
-          borderColor: AppColors.borderStrong,
-          onTap: () => Navigator.pop(context, false),
-        ),
-        MyElevatedButton(
-          height: 44,
-          bgColor: AppColors.danger,
-          child: 'Reject',
-          onTap: () {
-            if (formKey.currentState?.validate() ?? false) {
-              Navigator.pop(context, true);
-            }
-          },
-        ),
-      ],
     );
 
     if (confirmed != true || !context.mounted) return;
@@ -1000,30 +1004,32 @@ class _ApprovalsTable extends StatelessWidget {
 
   Future<void> _openForceDeleteDialog(
       BuildContext context, WorkspaceConfig w) async {
-    final confirmed = await DialogScaffold.show<bool>(
-      context,
-      title: 'Delete workspace?',
-      subtitle: 'Permanently remove "${w.workspaceName}" owned by '
-          '${w.employeeName ?? 'this employee'}. This cannot be undone. '
-          'The employee will need to submit a new workspace if they want '
-          'to clock in.',
-      size: DialogSize.sm,
-      body: const SizedBox.shrink(),
-      actions: [
-        MyOutlinedButton(
-          child: 'Cancel',
-          height: 44,
-          textColor: AppColors.textSecondary,
-          borderColor: AppColors.borderStrong,
-          onTap: () => Navigator.pop(context, false),
-        ),
-        MyElevatedButton(
-          height: 44,
-          bgColor: AppColors.danger,
-          child: 'Delete',
-          onTap: () => Navigator.pop(context, true),
-        ),
-      ],
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => DialogScaffold(
+        title: 'Delete workspace?',
+        subtitle: 'Permanently remove "${w.workspaceName}" owned by '
+            '${w.employeeName ?? 'this employee'}. This cannot be undone. '
+            'The employee will need to submit a new workspace if they want '
+            'to clock in.',
+        size: DialogSize.sm,
+        body: const SizedBox.shrink(),
+        actions: [
+          MyOutlinedButton(
+            child: 'Cancel',
+            height: 44,
+            textColor: AppColors.textSecondary,
+            borderColor: AppColors.borderStrong,
+            onTap: () => Navigator.pop(ctx, false),
+          ),
+          MyElevatedButton(
+            height: 44,
+            bgColor: AppColors.danger,
+            child: 'Delete',
+            onTap: () => Navigator.pop(ctx, true),
+          ),
+        ],
+      ),
     );
     if (confirmed != true || !context.mounted) return;
     final ok = await ctrl.forceDelete(w.id!);

@@ -1191,8 +1191,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
           ),
           Expanded(
             flex: 2,
-            child: StatusChip.fromStatus(
-              shareholder.isActive ? 'Active' : 'Inactive',
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip.fromStatus(
+                shareholder.isActive ? 'Active' : 'Inactive',
+              ),
             ),
           ),
           SizedBox(

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:bomach_os/src/services/auth_service.dart';
 
 // Assuming these exist based on your imports
 import 'package:bomach_os/src/model/company_model.dart';
@@ -11,6 +13,7 @@ import 'package:bomach_os/src/services/company_service.dart';
 
 class CompanyController extends GetxController {
   final CompanyService _companyService = CompanyService();
+  final AuthService _authService = AuthService();
   final _storage = const FlutterSecureStorage();
 
   var isLoading = true.obs;
@@ -97,7 +100,7 @@ class CompanyController extends GetxController {
       BuildContext context, CompanySettings settings) async {
     try {
       isSaving.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token == null) return;
 
       final result = await _companyService.updateCompanySettings(
@@ -121,7 +124,7 @@ class CompanyController extends GetxController {
   Future<void> fetchComplianceRecords() async {
     try {
       isComplianceLoading.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         final records = await _companyService.getComplianceRecords(token);
         complianceList.assignAll(records);
@@ -149,7 +152,7 @@ class CompanyController extends GetxController {
   Future<void> createCompliance(BuildContext context, Compliance item) async {
     try {
       isSaving.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         await _companyService.createCompliance(token, item);
         await fetchComplianceRecords();
@@ -171,7 +174,7 @@ class CompanyController extends GetxController {
       BuildContext context, String id, Compliance item) async {
     try {
       isSaving.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         await _companyService.updateCompliance(token, id, item);
         await fetchComplianceRecords();
@@ -192,7 +195,7 @@ class CompanyController extends GetxController {
   Future<void> deleteCompliance(BuildContext context, String id) async {
     try {
       isSaving.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         await _companyService.deleteCompliance(token, id);
         complianceList.removeWhere((c) => c.id == id);
@@ -214,7 +217,7 @@ class CompanyController extends GetxController {
     try {
       isAuditLoading.value = true;
       auditPage.value = page;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         final result = await _companyService.getAuditLogs(
           token,
@@ -236,7 +239,7 @@ class CompanyController extends GetxController {
       isLoading.value = true;
       hasError.value = false;
 
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
 
       // For dev purposes, if no token, we might still want to show UI (remove this in prod)
       if (token != null) {
@@ -259,7 +262,7 @@ class CompanyController extends GetxController {
 
   Future<void> fetchCompanyChoices() async {
     try {
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         final choices =
             await _companyService.getCompanyFieldChoices(accessToken: token);
@@ -273,7 +276,7 @@ class CompanyController extends GetxController {
   Future<void> fetchDashboardStats() async {
     try {
       isDashboardLoading.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         final stats =
             await _companyService.getDashboardStats(accessToken: token);
@@ -289,7 +292,7 @@ class CompanyController extends GetxController {
   Future<void> fetchShareholders() async {
     try {
       isShareholdersLoading.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         final list = await _companyService.getShareholders(token);
         shareholders.assignAll(list);
@@ -305,7 +308,7 @@ class CompanyController extends GetxController {
       BuildContext context, Map<String, dynamic> data) async {
     try {
       isSaving.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token == null) return;
 
       await _companyService.createShareholder(token, data);
@@ -329,7 +332,7 @@ class CompanyController extends GetxController {
       BuildContext context, int id, Map<String, dynamic> data) async {
     try {
       isSaving.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token == null) return;
 
       await _companyService.updateShareholder(token, id, data);
@@ -353,7 +356,7 @@ class CompanyController extends GetxController {
   Future<void> deleteShareholder(BuildContext context, int id) async {
     try {
       isSaving.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token == null) return;
 
       await _companyService.deleteShareholder(token, id);
@@ -377,7 +380,7 @@ class CompanyController extends GetxController {
     try {
       isEquityLoading.value = true;
       // Try API first
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         try {
           final info = await _companyService.getEquityInfo(token);
@@ -403,7 +406,7 @@ class CompanyController extends GetxController {
     try {
       isSaving.value = true;
       // Try API first
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token != null) {
         try {
           final result = await _companyService.updateEquityInfo(token, shares);
@@ -446,9 +449,23 @@ class CompanyController extends GetxController {
     required String industryVal, // New
     String? rcNumber,
     String? logoUrl,
+    XFile? logoFile,
   }) async {
     // Update local reactive var immediately for UI responsiveness
     industry.value = industryVal;
+
+    String? finalLogoUrl = logoUrl;
+    if (logoFile != null) {
+      try {
+        final token = await _getToken();
+        if (token != null) {
+          final bytes = await logoFile.readAsBytes();
+          finalLogoUrl = await _authService.uploadFile(token, bytes, logoFile.name);
+        }
+      } catch (e) {
+        log("Logo upload failed: $e");
+      }
+    }
 
     // Call the main update method with the specific fields
     await _performUpdate(
@@ -460,7 +477,7 @@ class CompanyController extends GetxController {
               companyAddresses: address,
               companySlogan: slogan,
               rcNumber: rcNumber ?? current.rcNumber,
-              companyLogo: logoUrl ?? current.companyLogo,
+              companyLogo: finalLogoUrl ?? current.companyLogo,
             ));
   }
 
@@ -493,7 +510,7 @@ class CompanyController extends GetxController {
       CompanySettings Function(CompanySettings) updateFn) async {
     try {
       isSaving.value = true;
-      final token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
 
       if (token == null || companySettings.value == null) return;
 
@@ -557,6 +574,12 @@ class CompanyController extends GetxController {
     } catch (e) {
       return Colors.grey;
     }
+  }
+
+  Future<String?> _getToken() async {
+    final token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    return token.replaceAll('"', '').trim();
   }
 }
 

@@ -411,7 +411,10 @@ class _BranchListPageState extends State<BranchListPage> {
           const SizedBox(width: 16),
           Expanded(
             flex: 12,
-            child: StatusChip.fromStatus(_statusLabel(branch)),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip.fromStatus(_statusLabel(branch)),
+            ),
           ),
           SizedBox(
             width: 40,
