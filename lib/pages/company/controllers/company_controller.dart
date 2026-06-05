@@ -464,6 +464,9 @@ class CompanyController extends GetxController {
         }
       } catch (e) {
         log("Logo upload failed: $e");
+        if (context.mounted) {
+          _showSnackBar(context, "Logo upload failed: $e", isError: true);
+        }
       }
     }
 
