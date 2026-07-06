@@ -254,7 +254,7 @@ class EmployeeController extends GetxController {
     } catch (e) {
       log("Update Employee Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to update employee");
+        _showErrorDialog(context, "Failed to update employee: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;

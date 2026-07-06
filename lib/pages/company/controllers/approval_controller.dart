@@ -116,7 +116,7 @@ class ApprovalController extends GetxController {
     } catch (e) {
       log("Update Flow Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to update workflow");
+        _showErrorDialog(context, "Failed to update workflow: ${e.toString()}");
       }
     } finally {
       isSavingFlow.value = false;
@@ -137,7 +137,7 @@ class ApprovalController extends GetxController {
     } catch (e) {
       log("Delete Flow Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to deactivate workflow");
+        _showErrorDialog(context, "Failed to deactivate workflow: ${e.toString()}");
       }
     }
   }
@@ -186,7 +186,7 @@ class ApprovalController extends GetxController {
     } catch (e) {
       log("Approve Request Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to approve request");
+        _showErrorDialog(context, "Failed to approve request: ${e.toString()}");
       }
     }
   }
@@ -210,7 +210,7 @@ class ApprovalController extends GetxController {
     } catch (e) {
       log("Reject Request Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to reject request");
+        _showErrorDialog(context, "Failed to reject request: ${e.toString()}");
       }
     }
   }
@@ -230,7 +230,7 @@ class ApprovalController extends GetxController {
     } catch (e) {
       log("Cancel Request Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to cancel request");
+        _showErrorDialog(context, "Failed to cancel request: ${e.toString()}");
       }
     }
   }
@@ -240,42 +240,67 @@ class ApprovalController extends GetxController {
   Future<void> loadFlowChoices() async {
     try {
       final token = await _getToken();
-      if (token == null) return;
+      if (token == null) {
+        _setFallbackChoices();
+        return;
+      }
 
-      flowChoices.value =
-          await _approvalService.getFlowChoices(accessToken: token);
+      final serverChoices = await _approvalService.getFlowChoices(accessToken: token);
+
+      final actions = serverChoices.actions.isNotEmpty ? serverChoices.actions : _fallbackActions;
+      final approverTypes = serverChoices.approverTypes.isNotEmpty ? serverChoices.approverTypes : _fallbackApprovers;
+      final statuses = serverChoices.statuses.isNotEmpty ? serverChoices.statuses : _fallbackStatuses;
+      final levels = serverChoices.levels.isNotEmpty ? serverChoices.levels : _fallbackLevels;
+
+      flowChoices.value = ApprovalFlowChoices(
+        actions: actions,
+        approverTypes: approverTypes,
+        statuses: statuses,
+        levels: levels,
+      );
     } catch (e) {
       log("Error loading flow choices: $e");
-      // Fallback defaults based on Figma design
-      flowChoices.value = ApprovalFlowChoices(
-        actions: [
-          BoardFieldOption(value: 'spend_request', label: 'Spend Request'),
-          BoardFieldOption(value: 'contract', label: 'Contract'),
-          BoardFieldOption(value: 'offer', label: 'Offer'),
-          BoardFieldOption(value: 'access_request', label: 'Access Request'),
-          BoardFieldOption(value: 'leave_request', label: 'Leave Request'),
-        ],
-        approverTypes: [
-          BoardFieldOption(value: 'HOD', label: 'Department Head'),
-          BoardFieldOption(value: 'COO', label: 'COO'),
-          BoardFieldOption(value: 'HOB', label: 'Branch Head'),
-          BoardFieldOption(value: 'HOR', label: 'Regional Head'),
-          BoardFieldOption(value: 'HOS', label: 'State Head'),
-        ],
-        statuses: [
-          BoardFieldOption(value: 'active', label: 'Active'),
-          BoardFieldOption(value: 'inactive', label: 'Inactive'),
-        ],
-        levels: [
-          BoardFieldOption(value: '1', label: '1 Level'),
-          BoardFieldOption(value: '2', label: '2 Levels'),
-          BoardFieldOption(value: '3', label: '3 Levels'),
-          BoardFieldOption(value: '4', label: '4 Levels'),
-          BoardFieldOption(value: '5', label: '5 Levels'),
-        ],
-      );
+      _setFallbackChoices();
     }
   }
+
+  void _setFallbackChoices() {
+    flowChoices.value = ApprovalFlowChoices(
+      actions: _fallbackActions,
+      approverTypes: _fallbackApprovers,
+      statuses: _fallbackStatuses,
+      levels: _fallbackLevels,
+    );
+  }
+
+  static final List<BoardFieldOption> _fallbackActions = [
+    BoardFieldOption(value: 'spend_request', label: 'Spend Request'),
+    BoardFieldOption(value: 'contract', label: 'Contract'),
+    BoardFieldOption(value: 'offer', label: 'Offer'),
+    BoardFieldOption(value: 'access_request', label: 'Access Request'),
+    BoardFieldOption(value: 'leave_request', label: 'Leave Request'),
+  ];
+
+  static final List<BoardFieldOption> _fallbackApprovers = [
+    BoardFieldOption(value: 'HOD', label: 'Department Head'),
+    BoardFieldOption(value: 'COO', label: 'COO'),
+    BoardFieldOption(value: 'HOB', label: 'Branch Head'),
+    BoardFieldOption(value: 'HOR', label: 'Regional Head'),
+    BoardFieldOption(value: 'HOS', label: 'State Head'),
+  ];
+
+  static final List<BoardFieldOption> _fallbackStatuses = [
+    BoardFieldOption(value: 'active', label: 'Active'),
+    BoardFieldOption(value: 'inactive', label: 'Inactive'),
+  ];
+
+  static final List<BoardFieldOption> _fallbackLevels = [
+    BoardFieldOption(value: '1', label: '1 Level'),
+    BoardFieldOption(value: '2', label: '2 Levels'),
+    BoardFieldOption(value: '3', label: '3 Levels'),
+    BoardFieldOption(value: '4', label: '4 Levels'),
+    BoardFieldOption(value: '5', label: '5 Levels'),
+  ];
 
   // ─── SEARCH / FILTER ───────────────────────────────────────────────
 

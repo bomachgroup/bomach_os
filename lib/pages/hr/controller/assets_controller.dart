@@ -33,6 +33,14 @@ class AssetController extends GetxController {
   var allEmployees = <Employee>[].obs;
   final branches = ['All', 'Enugu Branch', 'Lagos Branch', 'Abuja Branch'];
   final statuses = ['All', 'active', 'in-use', 'maintenance', 'retired'];
+  var assetTypes = <String>[
+    'Laptop',
+    'Printer',
+    'Vehicle',
+    'Furniture',
+    'Equipment',
+    'IT Equipment',
+  ].obs;
 
   // ─── Filters ──────────────────────────────────────────────────────
   var selectedBranch = 'All'.obs;
@@ -88,6 +96,13 @@ class AssetController extends GetxController {
 
       assetList.assignAll(result.items);
       totalItems.value = result.total;
+
+      // Dynamically load any asset types from fetched assets
+      for (final asset in result.items) {
+        if (asset.assetType.isNotEmpty && !assetTypes.contains(asset.assetType)) {
+          assetTypes.add(asset.assetType);
+        }
+      }
     } catch (e) {
       log("Error fetching assets: $e");
     } finally {
@@ -154,7 +169,7 @@ class AssetController extends GetxController {
     } catch (e) {
       log("Update Asset Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to update asset");
+        _showErrorDialog(context, "Failed to update asset: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;
@@ -209,6 +224,8 @@ class AssetController extends GetxController {
   }
 
   // ─── HELPERS ─────────────────────────────────────────────────────
+
+  Future<String?> getToken() => _getToken();
 
   Future<String?> _getToken() async {
     String? token = await _storage.read(key: 'access_token');

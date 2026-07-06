@@ -114,6 +114,8 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     super.initState();
     if (isEditMode) {
       _populateFields();
+    } else {
+      _workScheduleCtrl.text = '9 AM - 5 PM (Mon - Fri)';
     }
   }
 
@@ -282,15 +284,6 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       return;
     }
 
-    if (_dob == null || _joinDate == null) {
-      _showSnackBar(
-        context,
-        "Please select valid Date of Birth and Join Date",
-        isError: true,
-      );
-      return;
-    }
-
     final String fullAddress =
         "${_streetCtrl.text}, ${_cityCtrl.text}, ${_stateCtrl.text}, ${_countryCtrl.text}";
 
@@ -308,14 +301,14 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     final reportingToId = int.tryParse(_selectedReportingToId ?? '');
 
     final Map<String, dynamic> data = {
-      'email': _workEmailCtrl.text.trim(),
+      if (!isEditMode) 'email': _workEmailCtrl.text.trim(),
       'first_name': _firstNameCtrl.text.trim(),
       'last_name': _lastNameCtrl.text.trim(),
       'middle_name': _middleNameCtrl.text.trim(),
       'gender': _selectedGender,
       'marital_status': _selectedMaritalStatus,
       'nationality': _nationality,
-      'date_of_birth': DateFormat('yyyy-MM-dd').format(_dob!),
+      'date_of_birth': _dob != null ? DateFormat('yyyy-MM-dd').format(_dob!) : null,
       'profile_picture': profilePic,
       'phone_number': _phoneCtrl.text,
       'other_phone': _otherPhoneCtrl.text,
@@ -338,7 +331,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       if (roleId != null) 'role_id': roleId,
       'location': _locationCtrl.text,
       if (reportingToId != null) 'reporting_to_id': reportingToId,
-      'start_date': DateFormat('yyyy-MM-dd').format(_joinDate!),
+      'start_date': _joinDate != null ? DateFormat('yyyy-MM-dd').format(_joinDate!) : null,
       'probation_period': int.tryParse(_probationCtrl.text),
       'work_schedule': _workScheduleCtrl.text,
       'is_active': _selectedStatus == 'active',
@@ -574,7 +567,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
           title: 'Contact information',
           children: [
             _buildRow([
-              _buildField('Work Email', _workEmailCtrl),
+              _buildField('Work Email', _workEmailCtrl, readOnly: isEditMode),
               _buildField('Personal Email', _personalEmailCtrl),
             ]),
             const SizedBox(height: 16),
@@ -761,7 +754,18 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               _buildField('Probation Period (months)', _probationCtrl),
             ]),
             const SizedBox(height: 16),
-            _buildField('Work Schedule', _workScheduleCtrl),
+            _buildDropdown(
+              'Work Schedule',
+              _workScheduleCtrl.text.isEmpty ? '9 AM - 5 PM (Mon - Fri)' : _workScheduleCtrl.text,
+              const [
+                '9 AM - 5 PM (Mon - Fri)',
+                '8 AM - 5 PM (Mon - Fri)',
+                '8 AM - 4 PM (Mon - Fri)',
+                'Flexible Hours',
+                'Shift-Based'
+              ],
+              (v) => setState(() => _workScheduleCtrl.text = v ?? _workScheduleCtrl.text),
+            ),
           ],
         ),
       ],
@@ -1006,11 +1010,12 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     );
   }
 
-  Widget _buildField(String title, TextEditingController ctrl) {
+  Widget _buildField(String title, TextEditingController ctrl, {bool readOnly = false}) {
     return MyTextFormField(
       title: title,
       controller: ctrl,
       hintText: 'Type',
+      readOnly: readOnly,
     );
   }
 

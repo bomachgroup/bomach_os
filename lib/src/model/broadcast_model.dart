@@ -13,6 +13,7 @@ class Announcement {
   final String announcementTypeDisplay;
   final String priority;
   final String priorityDisplay;
+  final String destination; // email, in_app, or both
   final List<int> branchIds;
   final List<int> departmentIds;
   final bool isActive;
@@ -29,6 +30,7 @@ class Announcement {
     required this.announcementTypeDisplay,
     required this.priority,
     required this.priorityDisplay,
+    required this.destination,
     required this.branchIds,
     required this.departmentIds,
     required this.isActive,
@@ -57,6 +59,7 @@ class Announcement {
           json['announcement_type_display'] ?? json['announcement_type'] ?? '',
       priority: json['priority'] ?? '',
       priorityDisplay: json['priority_display'] ?? json['priority'] ?? '',
+      destination: json['destination'] ?? 'both',
       branchIds: parseIntList(json['branch_ids']),
       departmentIds: parseIntList(json['department_ids']),
       isActive: json['is_active'] ?? true,

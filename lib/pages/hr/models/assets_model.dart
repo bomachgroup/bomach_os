@@ -13,8 +13,10 @@ class Asset {
   final String invoiceNumber; // Changed to non-nullable
   final DateTime warrantyExpiryDate; // Changed to non-nullable
   final String serialNumber; // Changed to non-nullable
+  final String imei; // Added dedicated field
   final String manufacturer; // Changed to non-nullable
   final String notes; // Changed to non-nullable
+  final String? documents; // Added field
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -32,8 +34,10 @@ class Asset {
     required this.invoiceNumber,
     required this.warrantyExpiryDate,
     required this.serialNumber,
+    required this.imei,
     required this.manufacturer,
     required this.notes,
+    this.documents,
     this.createdAt,
     this.updatedAt,
   });
@@ -63,8 +67,10 @@ class Asset {
           ? DateTime.tryParse(json['warranty_expiry_date']) ?? DateTime.now()
           : DateTime.now(),
       serialNumber: json['serial_number'] ?? '',
+      imei: json['imei']?.toString() ?? '',
       manufacturer: json['manufacturer'] ?? '',
       notes: json['notes'] ?? '',
+      documents: json['documents'],
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
           : null,
@@ -89,8 +95,10 @@ class Asset {
       'warranty_expiry_date':
           warrantyExpiryDate.toIso8601String().split('T').first,
       'serial_number': serialNumber,
+      'imei': imei,
       'manufacturer': manufacturer,
       'notes': notes,
+      if (documents != null) 'documents': documents,
     };
   }
 }

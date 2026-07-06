@@ -1,16 +1,20 @@
+import 'dart:convert';
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
+import '../../../src/services/auth_service.dart';
 import '../controller/assets_controller.dart';
 import '../models/assets_model.dart';
 
@@ -31,6 +35,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
 
   late final TextEditingController _nameCtrl;
   late final TextEditingController _serialCtrl;
+  late final TextEditingController _imeiCtrl;
   late final TextEditingController _manufacturerCtrl;
   String? _selectedAssignedTo;
   late final TextEditingController _purchaseDateCtrl;
@@ -45,16 +50,17 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
   String? _selectedDepartmentId;
   String? _selectedStatus;
 
+  // Custom asset type state
+  bool _isCustomAssetType = false;
+  late final TextEditingController _customAssetTypeCtrl;
+
+  // File upload state
+  List<Map<String, String>> _uploadedFiles = [];
+  String _selectedUploadType = 'Image'; // Dropdown: Image, Document
+  bool _isUploadingFile = false;
+
   bool get isEdit => widget.asset != null;
 
-  final List<String> _assetTypes = [
-    'Laptop',
-    'Printer',
-    'Vehicle',
-    'Furniture',
-    'Equipment',
-    'IT Equipment',
-  ];
   final List<String> _statuses = [
     'available',
     'in-use',
@@ -67,7 +73,10 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     super.initState();
     final a = widget.asset;
     _nameCtrl = TextEditingController(text: a?.name ?? '');
+
     _serialCtrl = TextEditingController(text: a?.serialNumber ?? '');
+    _imeiCtrl = TextEditingController(text: a?.imei ?? '');
+
     _manufacturerCtrl = TextEditingController(text: a?.manufacturer ?? '');
     if (a != null && a.assignedToId.isNotEmpty) {
       _selectedAssignedTo = a.assignedToId;
@@ -85,24 +94,54 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     _notesCtrl = TextEditingController(text: a?.notes ?? '');
 
     _selectedAssetType = a?.assetType.isNotEmpty == true ? a!.assetType : null;
+    _customAssetTypeCtrl = TextEditingController();
+    if (_selectedAssetType != null && !controller.assetTypes.contains(_selectedAssetType)) {
+      _isCustomAssetType = true;
+      _customAssetTypeCtrl.text = _selectedAssetType!;
+      _selectedAssetType = 'Other';
+    }
+
     _selectedBranch = a?.branch.isNotEmpty == true ? a!.branch : null;
     _selectedDepartmentId =
         a?.departmentId.isNotEmpty == true ? a!.departmentId : null;
     _selectedStatus = a?.status.isNotEmpty == true ? a!.status : 'available';
+
+    // Load existing uploaded files
+    if (a != null && a.documents != null && a.documents!.isNotEmpty) {
+      try {
+        final List<dynamic> decoded = jsonDecode(a.documents!);
+        _uploadedFiles = decoded.map((item) => Map<String, String>.from(item)).toList();
+      } catch (_) {
+        if (a.documents!.startsWith('http')) {
+          _uploadedFiles = [
+            {
+              'name': 'Document',
+              'url': a.documents!,
+              'type': a.documents!.toLowerCase().endsWith('.jpg') ||
+                      a.documents!.toLowerCase().endsWith('.png') ||
+                      a.documents!.toLowerCase().endsWith('.jpeg')
+                  ? 'Image'
+                  : 'Document'
+            }
+          ];
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _serialCtrl.dispose();
+    _imeiCtrl.dispose();
     _manufacturerCtrl.dispose();
-    // _selectedAssignedTo is not a controller, no dispose needed
     _purchaseDateCtrl.dispose();
     _valueCtrl.dispose();
     _vendorCtrl.dispose();
     _invoiceCtrl.dispose();
     _warrantyDateCtrl.dispose();
     _notesCtrl.dispose();
+    _customAssetTypeCtrl.dispose();
     super.dispose();
   }
 
@@ -118,24 +157,74 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     }
   }
 
+  Future<void> _pickAndUploadFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: _selectedUploadType == 'Image' ? FileType.image : FileType.any,
+      );
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      final bytes = file.bytes;
+      if (bytes == null) return;
+
+      setState(() => _isUploadingFile = true);
+
+      final token = await controller.getToken();
+      if (token == null) {
+        setState(() => _isUploadingFile = false);
+        return;
+      }
+
+      final url = await AuthService().uploadFile(token, bytes, file.name);
+
+      setState(() {
+        _uploadedFiles.add({
+          'name': file.name,
+          'url': url,
+          'type': _selectedUploadType,
+        });
+        _isUploadingFile = false;
+      });
+      if (mounted) {
+        AppToast.success(context, 'File uploaded successfully');
+      }
+    } catch (e) {
+      setState(() => _isUploadingFile = false);
+      if (mounted) {
+        AppToast.error(context, 'Failed to upload file: $e');
+      }
+    }
+  }
+
   void _onSave() {
     if (_nameCtrl.text.trim().isEmpty) return;
 
+    final finalAssetType = _selectedAssetType == 'Other'
+        ? _customAssetTypeCtrl.text.trim()
+        : (_selectedAssetType ?? '');
+
     final data = <String, dynamic>{
       'name': _nameCtrl.text.trim(),
-      'asset_type': _selectedAssetType ?? '',
+      'asset_type': finalAssetType,
       'serial_number': _serialCtrl.text.trim(),
+      'imei': _imeiCtrl.text.trim().isNotEmpty ? _imeiCtrl.text.trim() : null,
       'manufacturer': _manufacturerCtrl.text.trim(),
       'branch': _selectedBranch ?? '',
-      if (_selectedAssignedTo != null) 'assigned_to_id': _selectedAssignedTo,
-      'department_id': _selectedDepartmentId ?? '',
-      'purchase_date': _purchaseDateCtrl.text.trim(),
+      'assigned_to_id': (_selectedAssignedTo != null && _selectedAssignedTo!.isNotEmpty)
+          ? int.tryParse(_selectedAssignedTo!)
+          : null,
+      'department_id': (_selectedDepartmentId != null && _selectedDepartmentId!.isNotEmpty)
+          ? int.tryParse(_selectedDepartmentId!)
+          : null,
+      'purchase_date': _purchaseDateCtrl.text.trim().isNotEmpty ? _purchaseDateCtrl.text.trim() : null,
       'value': double.tryParse(_valueCtrl.text.trim()) ?? 0.0,
-      'vendor': _vendorCtrl.text.trim(),
-      'invoice_number': _invoiceCtrl.text.trim(),
-      'warranty_expiry_date': _warrantyDateCtrl.text.trim(),
+      'vendor': _vendorCtrl.text.trim().isNotEmpty ? _vendorCtrl.text.trim() : null,
+      'invoice_number': _invoiceCtrl.text.trim().isNotEmpty ? _invoiceCtrl.text.trim() : null,
+      'warranty_expiry_date': _warrantyDateCtrl.text.trim().isNotEmpty ? _warrantyDateCtrl.text.trim() : null,
       'status': _selectedStatus ?? 'available',
-      'notes': _notesCtrl.text.trim(),
+      'notes': _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
+      'documents': _uploadedFiles.isEmpty ? null : jsonEncode(_uploadedFiles),
     };
 
     if (isEdit) {
@@ -166,14 +255,31 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                 controller: _nameCtrl,
               ),
               const SizedBox(height: 16),
-              MyDropdown(
-                title: 'Asset Type',
-                hintText: _selectedAssetType ?? 'Select type',
-                initialSelection: _selectedAssetType,
-                spaceBetweenText: 8,
-                items: _assetTypes,
-                onChanged: (val) => setState(() => _selectedAssetType = val),
-              ),
+              Obx(() {
+                final typeItems = [...controller.assetTypes, 'Other'];
+                return MyDropdown(
+                  title: 'Asset Type',
+                  hintText: _selectedAssetType ?? 'Select type',
+                  initialSelection: _selectedAssetType,
+                  spaceBetweenText: 8,
+                  items: typeItems,
+                  onChanged: (val) {
+                    setState(() {
+                      _selectedAssetType = val;
+                      _isCustomAssetType = val == 'Other';
+                    });
+                  },
+                );
+              }),
+              if (_isCustomAssetType) ...[
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Custom Asset Type',
+                  hintText: 'Enter asset type',
+                  spaceBetweenText: 8,
+                  controller: _customAssetTypeCtrl,
+                ),
+              ],
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -188,13 +294,20 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: MyTextFormField(
-                      title: 'Manufacturer',
-                      hintText: 'e.g. Apple',
+                      title: 'IMEI',
+                      hintText: 'Enter IMEI',
                       spaceBetweenText: 8,
-                      controller: _manufacturerCtrl,
+                      controller: _imeiCtrl,
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 16),
+              MyTextFormField(
+                title: 'Manufacturer',
+                hintText: 'e.g. Apple',
+                spaceBetweenText: 8,
+                controller: _manufacturerCtrl,
               ),
             ],
           ),
@@ -365,6 +478,94 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                 controller: _notesCtrl,
                 maxLines: 3,
               ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Documents & Images',
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: MyDropdown(
+                      title: 'Upload Type',
+                      hintText: _selectedUploadType,
+                      initialSelection: _selectedUploadType,
+                      spaceBetweenText: 8,
+                      items: const ['Image', 'Document'],
+                      onChanged: (val) =>
+                          setState(() => _selectedUploadType = val ?? 'Image'),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 3,
+                    child: _isUploadingFile
+                        ? const Center(child: CircularProgressIndicator())
+                        : MyElevatedButton(
+                            height: 48,
+                            icon: const Icon(Iconsax.document_upload,
+                                size: 18, color: AppColors.textOnPrimary),
+                            child: 'Upload $_selectedUploadType',
+                            onTap: _pickAndUploadFile,
+                          ),
+                  ),
+                ],
+              ),
+              if (_uploadedFiles.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Divider(color: AppColors.borderSubtle),
+                const SizedBox(height: 8),
+                ..._uploadedFiles.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final file = entry.value;
+                  final isImg = file['type'] == 'Image';
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: AppRadii.brMd,
+                      border: Border.all(color: AppColors.borderSubtle),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isImg ? Iconsax.image : Iconsax.document,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            file['name'] ?? 'File',
+                            style: AppTextStyles.bodyMd.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textPrimary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Iconsax.trash,
+                              color: AppColors.danger, size: 18),
+                          onPressed: () {
+                            setState(() {
+                              _uploadedFiles.removeAt(index);
+                            });
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          splashRadius: 18,
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
             ],
           ),
         ],

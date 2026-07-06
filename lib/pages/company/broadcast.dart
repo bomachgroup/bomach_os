@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import 'controllers/broadcast_controller.dart';
 import 'widget/broadcast_announcement_dialogs.dart';
@@ -539,9 +540,34 @@ class _AnnouncementsTab extends StatelessWidget {
 //  EVENTS TAB
 // ═══════════════════════════════════════════════════════════════════
 
-class _EventsTab extends StatelessWidget {
+class _EventsTab extends StatefulWidget {
   final BroadcastController controller;
   const _EventsTab({required this.controller});
+
+  @override
+  State<_EventsTab> createState() => _EventsTabState();
+}
+
+class _EventsTabState extends State<_EventsTab> {
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = DateTime.now();
+  }
+
+  List<BroadcastEvent> _getEventsForDay(DateTime day) {
+    return widget.controller.eventList.where((event) {
+      try {
+        final date = DateTime.parse(event.eventTimeFrom);
+        return isSameDay(date, day);
+      } catch (_) {
+        return false;
+      }
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -550,158 +576,258 @@ class _EventsTab extends StatelessWidget {
       children: [
         _buildToolbar(
           searchHint: 'Search events by title or audience',
-          onSearchChanged: controller.onEventSearchChanged,
+          onSearchChanged: widget.controller.onEventSearchChanged,
         ),
         const SizedBox(height: 16),
         Obx(() {
-          final loading = controller.isLoadingEvents.value &&
-              controller.eventList.isEmpty;
-          final isEmpty = !controller.isLoadingEvents.value &&
-              controller.eventList.isEmpty;
+          final loading = widget.controller.isLoadingEvents.value &&
+              widget.controller.eventList.isEmpty;
 
-          return _buildTableCard(
-            title: 'Events register',
-            subtitle: loading
-                ? 'Loading events...'
-                : '${controller.eventTotalItems.value} events scheduled',
-            headerTrailing: const StatusChip(
-              label: 'Company events',
-              tone: StatusTone.primary,
-              icon: Iconsax.calendar_1,
-            ),
-            body: loading
-                ? Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: LoadingSkeleton.listRows(count: 5),
-                  )
-                : isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: EmptyState(
-                          icon: Iconsax.calendar_1,
-                          title: 'No events yet',
-                          subtitle: 'Create a new event to get started.',
-                          action: MyOutlinedButton(
-                            child: 'New Event',
-                            icon: const Icon(Iconsax.add_circle,
-                                size: 18, color: AppColors.primary),
-                            onTap: () => showDialog(
-                              context: context,
-                              builder: (_) => const CreateEditEventDialog(),
-                            ),
+          if (loading) {
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            );
+          }
+
+          final dayEvents = _getEventsForDay(_selectedDay ?? DateTime.now());
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Calendar Card
+              Expanded(
+                flex: 4,
+                child: AppCard(
+                  padding: const EdgeInsets.all(16),
+                  elevation: AppCardElevation.sm,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Event Calendar',
+                        style: AppTextStyles.h3,
+                      ),
+                      const SizedBox(height: 12),
+                      TableCalendar(
+                        firstDay: DateTime.utc(2020, 1, 1),
+                        lastDay: DateTime.utc(2030, 12, 31),
+                        focusedDay: _focusedDay,
+                        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                        onDaySelected: (selectedDay, focusedDay) {
+                          setState(() {
+                            _selectedDay = selectedDay;
+                            _focusedDay = focusedDay;
+                          });
+                        },
+                        eventLoader: _getEventsForDay,
+                        calendarStyle: CalendarStyle(
+                          todayDecoration: const BoxDecoration(
+                            color: AppColors.primarySubtle,
+                            shape: BoxShape.circle,
+                          ),
+                          todayTextStyle: AppTextStyles.bodyMd.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          selectedDecoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          selectedTextStyle: AppTextStyles.bodyMd.copyWith(
+                            color: AppColors.textOnPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          markerDecoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          markersMaxCount: 3,
+                        ),
+                        headerStyle: HeaderStyle(
+                          formatButtonVisible: false,
+                          titleCentered: true,
+                          titleTextStyle: AppTextStyles.bodyLg.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                          leftChevronIcon: const Icon(
+                            Iconsax.arrow_left_2,
+                            color: AppColors.textSecondary,
+                            size: 18,
+                          ),
+                          rightChevronIcon: const Icon(
+                            Iconsax.arrow_right_3,
+                            color: AppColors.textSecondary,
+                            size: 18,
                           ),
                         ),
-                      )
-                    : _buildEventTable(context),
-            footer: _tablePaginator(
-              Obx(() => PaginatorFooter(
-                    totalItems: controller.eventTotalItems.value,
-                    limit: controller.eventLimit.value,
-                    currentPage: controller.eventCurrentPage.value,
-                    onPageChanged: controller.eventGoToPage,
-                    onLimitChanged: controller.eventSetLimit,
-                  )),
-            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Events List Card
+              Expanded(
+                flex: 5,
+                child: AppCard(
+                  padding: EdgeInsets.zero,
+                  elevation: AppCardElevation.sm,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _selectedDay == null
+                                        ? 'Select a date'
+                                        : DateFormat('MMMM d, yyyy')
+                                            .format(_selectedDay!),
+                                    style: AppTextStyles.h3,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${dayEvents.length} event(s) scheduled',
+                                    style: AppTextStyles.bodySm.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            MyElevatedButton(
+                              height: 38,
+                              child: 'New Event',
+                              icon: const Icon(Iconsax.add_circle,
+                                  size: 16, color: AppColors.textOnPrimary),
+                              onTap: () => showDialog(
+                                context: context,
+                                builder: (_) => const CreateEditEventDialog(),
+                              ).then((_) => widget.controller.fetchEvents(refresh: true)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(height: 1, color: AppColors.borderSubtle),
+                      if (dayEvents.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.all(32),
+                          child: EmptyState(
+                            icon: Iconsax.calendar_1,
+                            title: 'No events on this day',
+                            subtitle:
+                                'Select another day or create a new event.',
+                          ),
+                        )
+                      else
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: dayEvents.length,
+                          separatorBuilder: (context, index) =>
+                              const Divider(height: 1, color: AppColors.borderSubtle),
+                          itemBuilder: (context, index) {
+                            final event = dayEvents[index];
+                            return _buildEventItem(context, event);
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         }),
       ],
     );
   }
 
-  Widget _buildEventTable(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1160,
-        child: Column(
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Title', flex: 3),
-                  _buildHeaderCell('Date & Time', flex: 2),
-                  _buildHeaderCell('Audience', flex: 3),
-                  _buildHeaderCell('Type', flex: 2),
-                  _buildHeaderCell('Actions', width: 240),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...controller.eventList.map((e) => _buildEventRow(context, e)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEventRow(BuildContext context, BroadcastEvent event) {
-    String displayDate = '';
+  Widget _buildEventItem(BuildContext context, BroadcastEvent event) {
     String displayTime = '';
     try {
-      final parsed = DateTime.parse(event.eventTimeFrom);
-      displayDate = DateFormat('MMM d, yyyy').format(parsed);
-      displayTime = DateFormat('h:mm a').format(parsed);
+      final from = DateTime.parse(event.eventTimeFrom);
+      final to = DateTime.parse(event.eventTimeTo);
+      displayTime = '${DateFormat('h:mm a').format(from)} - ${DateFormat('h:mm a').format(to)}';
     } catch (_) {
-      displayDate = event.eventTimeFrom;
+      displayTime = event.eventTimeFrom;
     }
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => showDialog(
-          context: context,
-          builder: (_) => ViewEventDialog(event: event),
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
-          ),
-          child: Row(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                flex: 3,
-                child: Text(
-                  event.title,
-                  style: AppTextStyles.bodyMd.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Expanded(
-                flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      displayDate,
-                      style:
-                          AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+                      event.title,
+                      style: AppTextStyles.bodyLg.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
-                    if (displayTime.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        displayTime,
-                        style: AppTextStyles.bodySm
-                            .copyWith(color: AppColors.textSecondary),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Iconsax.clock, size: 14, color: AppColors.textSecondary),
+                        const SizedBox(width: 6),
+                        Text(
+                          displayTime,
+                          style: AppTextStyles.bodySm.copyWith(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (event.meetingLocation.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Iconsax.location, size: 14, color: AppColors.textSecondary),
+                          const SizedBox(width: 6),
+                          Text(
+                            event.meetingLocation,
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ],
                 ),
               ),
+              const SizedBox(width: 12),
+              StatusChip(
+                label: event.eventTypeDisplay.isNotEmpty
+                    ? event.eventTypeDisplay
+                    : event.eventType,
+                tone: StatusTone.primary,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Target Audience Labels
               Expanded(
-                flex: 3,
                 child: event.targetAudienceLabels.isEmpty
-                    ? Text(
-                        '-',
-                        style: AppTextStyles.bodyMd
-                            .copyWith(color: AppColors.textSecondary),
-                      )
+                    ? const SizedBox.shrink()
                     : Wrap(
                         spacing: 6,
                         runSpacing: 6,
@@ -716,31 +842,45 @@ class _EventsTab extends StatelessWidget {
                             .toList(),
                       ),
               ),
-              Expanded(
-                flex: 2,
-                child: Text(
-                  event.eventTypeDisplay,
-                  style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(
-                width: 240,
-                child: _buildRowActions(
-                  onView: () => showDialog(
-                    context: context,
-                    builder: (_) => ViewEventDialog(event: event),
+              // Actions
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  MyOutlinedButton(
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => ViewEventDialog(event: event),
+                    ),
+                    height: 32,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    textColor: AppColors.textSecondary,
+                    borderColor: AppColors.borderStrong,
+                    child: 'View',
                   ),
-                  onEdit: () => showDialog(
-                    context: context,
-                    builder: (_) => CreateEditEventDialog(event: event),
+                  const SizedBox(width: 8),
+                  MyElevatedButton(
+                    height: 32,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: 'Edit',
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => CreateEditEventDialog(event: event),
+                    ).then((_) => widget.controller.fetchEvents(refresh: true)),
                   ),
-                  onDelete: () => _confirmDeleteEvent(context, event),
-                ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    onPressed: () => _confirmDeleteEvent(context, event),
+                    icon: const Icon(Iconsax.trash, size: 16, color: AppColors.danger),
+                    tooltip: 'Delete',
+                    splashRadius: 18,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -774,7 +914,7 @@ class _EventsTab extends StatelessWidget {
       ],
     );
     if (confirmed == true && context.mounted) {
-      controller.deleteEvent(context, event.id);
+      widget.controller.deleteEvent(context, event.id);
     }
   }
 }

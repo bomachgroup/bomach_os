@@ -1,12 +1,15 @@
+import 'dart:convert';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:web/web.dart' as web;
 
 import '../models/assets_model.dart';
 
@@ -34,6 +37,28 @@ class ViewAssetDialog extends StatelessWidget {
       warrantyDate = '–';
     }
 
+    List<Map<String, String>> uploadedFiles = [];
+    if (asset.documents != null && asset.documents!.isNotEmpty) {
+      try {
+        final List<dynamic> decoded = jsonDecode(asset.documents!);
+        uploadedFiles = decoded.map((item) => Map<String, String>.from(item)).toList();
+      } catch (_) {
+        if (asset.documents!.startsWith('http')) {
+          uploadedFiles = [
+            {
+              'name': 'Document',
+              'url': asset.documents!,
+              'type': asset.documents!.toLowerCase().endsWith('.jpg') ||
+                      asset.documents!.toLowerCase().endsWith('.png') ||
+                      asset.documents!.toLowerCase().endsWith('.jpeg')
+                  ? 'Image'
+                  : 'Document'
+            }
+          ];
+        }
+      }
+    }
+
     return DialogScaffold(
       title: asset.name,
       subtitle: asset.assetType.isEmpty ? 'Asset details' : asset.assetType,
@@ -54,9 +79,9 @@ class ViewAssetDialog extends StatelessWidget {
                       ? asset.serialNumber
                       : '—'),
               _detailRow(
-                  'Manufacturer',
-                  asset.manufacturer.isNotEmpty
-                      ? asset.manufacturer
+                  'IMEI',
+                  asset.imei.isNotEmpty
+                      ? asset.imei
                       : '—'),
             ],
           ),
@@ -93,6 +118,70 @@ class ViewAssetDialog extends StatelessWidget {
               _detailRow('Warranty Expiry', warrantyDate),
             ],
           ),
+          if (uploadedFiles.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Documents & Images',
+              children: [
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: uploadedFiles.map((file) {
+                    final isImg = file['type'] == 'Image';
+                    return Container(
+                      width: 260,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: AppRadii.brMd,
+                        border: Border.all(color: AppColors.borderSubtle),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isImg ? Iconsax.image : Iconsax.document,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Tooltip(
+                              message: file['name'] ?? 'File',
+                              child: Text(
+                                file['name'] ?? 'File',
+                                style: AppTextStyles.bodyMd.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Iconsax.eye,
+                                color: AppColors.primary, size: 18),
+                            onPressed: () {
+                              if (file['url'] != null) {
+                                if (kIsWeb) {
+                                  web.window.open(file['url']!, '_blank');
+                                } else {
+                                  debugPrint('Opening URL: ${file['url']}');
+                                }
+                              }
+                            },
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            splashRadius: 18,
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ],
           if (asset.notes.isNotEmpty) ...[
             const SizedBox(height: 16),
             _buildSection(

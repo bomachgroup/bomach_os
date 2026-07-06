@@ -503,6 +503,11 @@ class DepartmentsUnitsPage extends StatelessWidget {
 
   Widget _buildUnitRow(BuildContext context, DepartmentUnit unit) {
     final status = unit.status ?? 'Active';
+    final controller = Get.find<DepartmentsUnitsController>();
+    final deptName = controller.departmentsList
+            .firstWhereOrNull((d) => d.id == unit.departmentId)
+            ?.name ??
+        (unit.departmentName?.isNotEmpty == true ? unit.departmentName! : '-');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -521,7 +526,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Text(
-              unit.departmentName ?? '-',
+              deptName,
               style:
                   AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
@@ -556,40 +561,50 @@ class DepartmentsUnitsPage extends StatelessWidget {
   }
 
   Widget _buildUnitCards(BuildContext context, List<DepartmentUnit> data) {
+    final controller = Get.find<DepartmentsUnitsController>();
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: data
             .map(
-              (unit) => Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: AppRadii.brMd,
-                  border: Border.all(color: AppColors.borderSubtle),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildUnitIdentity(unit),
-                    const SizedBox(height: 14),
-                    Wrap(
-                      spacing: 14,
-                      runSpacing: 10,
-                      children: [
-                        _buildInfoLine(
-                            'Department', unit.departmentName ?? '-'),
-                        _buildInfoLine(
-                            'Head of Unit', unit.hod ?? 'Not Assigned'),
-                        StatusChip.fromStatus(unit.status ?? 'Active'),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    _buildUnitActions(context, unit),
-                  ],
-                ),
-              ),
+              (unit) {
+                final deptName = controller.departmentsList
+                        .firstWhereOrNull((d) => d.id == unit.departmentId)
+                        ?.name ??
+                    (unit.departmentName?.isNotEmpty == true
+                        ? unit.departmentName!
+                        : '-');
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brMd,
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildUnitIdentity(unit),
+                      const SizedBox(height: 14),
+                      Wrap(
+                        spacing: 14,
+                        runSpacing: 10,
+                        children: [
+                          _buildInfoLine(
+                              'Department', deptName),
+                          _buildInfoLine(
+                              'Head of Unit', unit.hod ?? 'Not Assigned'),
+                          StatusChip.fromStatus(unit.status ?? 'Active'),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      _buildUnitActions(context, unit),
+                    ],
+                  ),
+                );
+              },
             )
             .toList(),
       ),

@@ -718,8 +718,13 @@ class _RequestsTab extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       OutlinedButton.icon(
-                        onPressed: () =>
-                            controller.rejectRequest(context, req.id),
+                        onPressed: () async {
+                          final reason = await _showRejectReasonDialog(context);
+                          if (reason != null && context.mounted) {
+                            controller.rejectRequest(context, req.id,
+                                reason: reason);
+                          }
+                        },
                         icon: const Icon(Iconsax.close_circle,
                             size: 16, color: AppColors.danger),
                         label: const Text('Reject'),
@@ -742,6 +747,40 @@ class _RequestsTab extends StatelessWidget {
                           .copyWith(color: AppColors.textMuted),
                     ),
                   ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<String?> _showRejectReasonDialog(BuildContext context) async {
+    final TextEditingController reasonCtrl = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (context) => DialogScaffold(
+        title: 'Reject Request',
+        subtitle: 'Please provide a reason for rejecting this request.',
+        size: DialogSize.sm,
+        body: MyTextFormField(
+          controller: reasonCtrl,
+          title: 'Reason',
+          hintText: 'e.g. Insufficient budget or incorrect details',
+          maxLines: 3,
+        ),
+        actions: [
+          MyOutlinedButton(
+            child: 'Cancel',
+            height: 44,
+            onTap: () => Navigator.pop(context),
+            textColor: AppColors.textSecondary,
+            borderColor: AppColors.borderStrong,
+          ),
+          MyElevatedButton(
+            width: 120,
+            height: 44,
+            child: 'Reject',
+            bgColor: AppColors.danger,
+            onTap: () => Navigator.pop(context, reasonCtrl.text.trim()),
           ),
         ],
       ),

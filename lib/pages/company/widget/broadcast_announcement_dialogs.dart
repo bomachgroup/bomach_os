@@ -9,6 +9,8 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/broadcast_model.dart';
+import 'package:bomach_os/src/services/auth_service.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -39,6 +41,7 @@ class _CreateEditAnnouncementDialogState
 
   String? selectedAnnouncementTypeValue;
   String? selectedPriorityValue;
+  String selectedDestinationValue = 'both';
   bool isActive = true;
 
   Set<int> selectedBranchIds = {};
@@ -62,6 +65,7 @@ class _CreateEditAnnouncementDialogState
       selectedAnnouncementTypeValue =
           a.announcementType.isNotEmpty ? a.announcementType : null;
       selectedPriorityValue = a.priority.isNotEmpty ? a.priority : null;
+      selectedDestinationValue = a.destination.isNotEmpty ? a.destination : 'both';
       isActive = a.isActive;
       selectedBranchIds = a.branchIds.toSet();
       selectedDepartmentIds =
@@ -69,6 +73,7 @@ class _CreateEditAnnouncementDialogState
     } else {
       selectedAnnouncementTypeValue = 'general';
       selectedPriorityValue = 'normal';
+      selectedDestinationValue = 'both';
       isActive = true;
     }
   }
@@ -151,9 +156,23 @@ class _CreateEditAnnouncementDialogState
                             : null,
                       ),
                       const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Content',
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          _buildMarkdownToolbar(),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       MyTextFormField(
                         controller: contentCtrl,
-                        title: 'Content',
+                        title: '',
                         hintText: 'Type the full message here',
                         maxLines: 4,
                         validator: (val) => (val == null || val.isEmpty)
@@ -167,7 +186,7 @@ class _CreateEditAnnouncementDialogState
                 _buildSection(
                   title: 'Classification',
                   subtitle:
-                      'Pick the announcement type and priority for routing.',
+                      'Pick the announcement type, priority, and destination routing.',
                   child: Column(
                     children: [
                       Row(
@@ -180,6 +199,17 @@ class _CreateEditAnnouncementDialogState
                           Expanded(
                             child: _buildPriorityDropdown(),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _buildDestinationDropdown(),
+                          ),
+                          const SizedBox(width: 16),
+                          const Expanded(child: SizedBox.shrink()),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -238,8 +268,8 @@ class _CreateEditAnnouncementDialogState
                       _buildAudienceLabel('Target Branches (optional)'),
                       const SizedBox(height: 8),
                       Obx(() {
-                        final branches = controller.branches;
-                        if (branches.isEmpty) {
+                        final branchesList = controller.branches;
+                        if (branchesList.isEmpty) {
                           return Text(
                             'No branches available.',
                             style: AppTextStyles.bodySm
@@ -249,30 +279,56 @@ class _CreateEditAnnouncementDialogState
                         return Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: branches.map((branch) {
-                            final selected =
+                          children: branchesList.map((branch) {
+                            final isSelected =
                                 selectedBranchIds.contains(branch.id);
-                            return FilterChip(
-                              label: Text(branch.branchName,
-                                  style: AppTextStyles.bodySm),
-                              selected: selected,
-                              onSelected: (val) => setState(() {
-                                if (val) {
-                                  selectedBranchIds.add(branch.id);
-                                } else {
-                                  selectedBranchIds.remove(branch.id);
-                                }
-                              }),
-                              backgroundColor: AppColors.surface,
-                              selectedColor: AppColors.primarySubtle,
-                              checkmarkColor: AppColors.primary,
-                              side: BorderSide(
-                                color: selected
-                                    ? AppColors.primary
-                                    : AppColors.borderSubtle,
-                              ),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: AppRadii.brPill,
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    selectedBranchIds.remove(branch.id);
+                                  } else {
+                                    selectedBranchIds.add(branch.id);
+                                  }
+                                });
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primarySubtle
+                                      : AppColors.surface,
+                                  borderRadius: AppRadii.brPill,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : AppColors.borderSubtle,
+                                    width: 1.2,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isSelected) ...[
+                                      const Icon(Icons.check,
+                                          size: 14, color: AppColors.primary),
+                                      const SizedBox(width: 4),
+                                    ],
+                                    Text(
+                                      branch.branchName,
+                                      style: AppTextStyles.bodySm.copyWith(
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : AppColors.textPrimary,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           }).toList(),
@@ -282,8 +338,8 @@ class _CreateEditAnnouncementDialogState
                       _buildAudienceLabel('Target Departments (optional)'),
                       const SizedBox(height: 8),
                       Obx(() {
-                        final depts = controller.departments;
-                        if (depts.isEmpty) {
+                        final deptsList = controller.departments;
+                        if (deptsList.isEmpty) {
                           return Text(
                             'No departments available.',
                             style: AppTextStyles.bodySm
@@ -293,30 +349,56 @@ class _CreateEditAnnouncementDialogState
                         return Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: depts.map((dept) {
-                            final selected =
-                                selectedDepartmentIds.contains(dept.id);
-                            return FilterChip(
-                              label:
-                                  Text(dept.name, style: AppTextStyles.bodySm),
-                              selected: selected,
-                              onSelected: (val) => setState(() {
-                                if (val) {
-                                  selectedDepartmentIds.add(dept.id);
-                                } else {
-                                  selectedDepartmentIds.remove(dept.id);
-                                }
-                              }),
-                              backgroundColor: AppColors.surface,
-                              selectedColor: AppColors.primarySubtle,
-                              checkmarkColor: AppColors.primary,
-                              side: BorderSide(
-                                color: selected
-                                    ? AppColors.primary
-                                    : AppColors.borderSubtle,
-                              ),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: AppRadii.brPill,
+                          children: deptsList.map((dept) {
+                            final isSelected =
+                                selectedDepartmentIds.contains(dept.id.toString());
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    selectedDepartmentIds.remove(dept.id.toString());
+                                  } else {
+                                    selectedDepartmentIds.add(dept.id.toString());
+                                  }
+                                });
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primarySubtle
+                                      : AppColors.surface,
+                                  borderRadius: AppRadii.brPill,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : AppColors.borderSubtle,
+                                    width: 1.2,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isSelected) ...[
+                                      const Icon(Icons.check,
+                                          size: 14, color: AppColors.primary),
+                                      const SizedBox(width: 4),
+                                    ],
+                                    Text(
+                                      dept.name,
+                                      style: AppTextStyles.bodySm.copyWith(
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : AppColors.textPrimary,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           }).toList(),
@@ -502,6 +584,7 @@ class _CreateEditAnnouncementDialogState
       'content': contentCtrl.text.trim(),
       'announcement_type': selectedAnnouncementTypeValue ?? 'general',
       'priority': selectedPriorityValue ?? 'normal',
+      'destination': selectedDestinationValue,
       'branch_ids': selectedBranchIds.toList(),
       'department_ids': selectedDepartmentIds
           .map((id) => int.tryParse(id) ?? 0)
@@ -516,6 +599,188 @@ class _CreateEditAnnouncementDialogState
       controller.updateAnnouncement(context, widget.announcement!.id, data);
     } else {
       controller.createAnnouncement(context, data);
+    }
+  }
+
+  Widget _buildDestinationDropdown() {
+    return MyDropdown(
+      title: 'Destination',
+      hintText: 'Select destination',
+      items: const ['In-App Only', 'Email Only', 'Both In-App & Email'],
+      initialSelection: selectedDestinationValue == 'in_app'
+          ? 'In-App Only'
+          : selectedDestinationValue == 'email'
+              ? 'Email Only'
+              : 'Both In-App & Email',
+      onChanged: (val) {
+        setState(() {
+          if (val == 'In-App Only') {
+            selectedDestinationValue = 'in_app';
+          } else if (val == 'Email Only') {
+            selectedDestinationValue = 'email';
+          } else {
+            selectedDestinationValue = 'both';
+          }
+        });
+      },
+    );
+  }
+
+  Widget _buildMarkdownToolbar() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: 'Bold',
+          icon: const Icon(Icons.format_bold, size: 20),
+          onPressed: () => _insertFormatting('**', '**'),
+          splashRadius: 18,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          tooltip: 'Italic',
+          icon: const Icon(Icons.format_italic, size: 20),
+          onPressed: () => _insertFormatting('*', '*'),
+          splashRadius: 18,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          tooltip: 'Link',
+          icon: const Icon(Icons.link, size: 20),
+          onPressed: _showLinkInputDialog,
+          splashRadius: 18,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          tooltip: 'Insert Image',
+          icon: const Icon(Icons.image, size: 20, color: AppColors.primary),
+          onPressed: _insertImage,
+          splashRadius: 18,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
+      ],
+    );
+  }
+
+  void _insertFormatting(String prefix, String suffix) {
+    final text = contentCtrl.text;
+    final selection = contentCtrl.selection;
+    if (selection.start >= 0) {
+      final selectedText = text.substring(selection.start, selection.end);
+      final newText = text.replaceRange(
+        selection.start,
+        selection.end,
+        '$prefix$selectedText$suffix',
+      );
+      contentCtrl.text = newText;
+      contentCtrl.selection = TextSelection(
+        baseOffset: selection.start + prefix.length,
+        extentOffset: selection.start + prefix.length + selectedText.length,
+      );
+    } else {
+      final newText = '$text$prefix$suffix';
+      contentCtrl.text = newText;
+      contentCtrl.selection = TextSelection.collapsed(offset: newText.length - suffix.length);
+    }
+  }
+
+  void _showLinkInputDialog() {
+    final linkTextCtrl = TextEditingController();
+    final urlCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => DialogScaffold(
+        title: 'Insert Link',
+        size: DialogSize.sm,
+        body: Column(
+          children: [
+            MyTextFormField(
+              controller: linkTextCtrl,
+              title: 'Link Text',
+              hintText: 'e.g. Click here',
+            ),
+            const SizedBox(height: 12),
+            MyTextFormField(
+              controller: urlCtrl,
+              title: 'URL',
+              hintText: 'https://example.com',
+            ),
+          ],
+        ),
+        actions: [
+          MyOutlinedButton(
+            child: 'Cancel',
+            height: 44,
+            onTap: () => Navigator.pop(ctx),
+            textColor: AppColors.textSecondary,
+            borderColor: AppColors.borderStrong,
+          ),
+          MyElevatedButton(
+            width: 120,
+            height: 44,
+            child: 'Insert',
+            onTap: () {
+              Navigator.pop(ctx);
+              final linkText = linkTextCtrl.text.isEmpty ? 'link' : linkTextCtrl.text;
+              final url = urlCtrl.text.isEmpty ? 'https://' : urlCtrl.text;
+              final formattedLink = '[$linkText]($url)';
+              final selection = contentCtrl.selection;
+              final text = contentCtrl.text;
+              if (selection.start >= 0) {
+                final newText = text.replaceRange(selection.start, selection.end, formattedLink);
+                contentCtrl.text = newText;
+                contentCtrl.selection = TextSelection.collapsed(offset: selection.start + formattedLink.length);
+              } else {
+                contentCtrl.text = text + formattedLink;
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _insertImage() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        withData: true,
+      );
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      if (file.bytes == null) return;
+
+      AppToast.info(context, 'Uploading image...');
+      final token = await controller.getToken();
+      if (token == null) {
+        AppToast.error(context, 'Authentication required');
+        return;
+      }
+
+      final authService = AuthService();
+      final url = await authService.uploadFile(token, file.bytes!, file.name);
+
+      final imgMarkdown = '\n![${file.name}]($url)\n';
+      final selection = contentCtrl.selection;
+      final text = contentCtrl.text;
+      if (selection.start >= 0) {
+        final newText = text.replaceRange(selection.start, selection.end, imgMarkdown);
+        contentCtrl.text = newText;
+        contentCtrl.selection = TextSelection.collapsed(offset: selection.start + imgMarkdown.length);
+      } else {
+        contentCtrl.text = text + imgMarkdown;
+      }
+      AppToast.success(context, 'Image uploaded and inserted successfully');
+    } catch (e) {
+      AppToast.error(context, 'Upload failed: $e');
     }
   }
 }
@@ -558,6 +823,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
               _detailRow('Title', announcement.title),
               _detailRow('Type', announcement.announcementTypeDisplay),
               _detailRow('Priority', announcement.priorityDisplay),
+              _detailRow('Destination', announcement.destination.toUpperCase()),
               _detailRow('Publish At', displayPublishAt),
               _detailRow('Expires At', displayExpiresAt),
             ],

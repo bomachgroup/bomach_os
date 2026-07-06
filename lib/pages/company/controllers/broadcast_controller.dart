@@ -158,7 +158,7 @@ class BroadcastController extends GetxController {
     } catch (e) {
       log("Update Announcement Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to update announcement");
+        _showErrorDialog(context, "Failed to update announcement: ${e.toString()}");
       }
     } finally {
       isSavingAnnouncement.value = false;
@@ -179,7 +179,7 @@ class BroadcastController extends GetxController {
     } catch (e) {
       log("Delete Announcement Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to delete announcement");
+        _showErrorDialog(context, "Failed to delete announcement: ${e.toString()}");
       }
     }
   }
@@ -430,6 +430,10 @@ class BroadcastController extends GetxController {
   }
 
   // ─── HELPERS ──────────────────────────────────────────────────
+
+  Future<String?> getToken() async {
+    return await _getToken();
+  }
 
   Future<String?> _getToken() async {
     String? token = await _storage.read(key: 'access_token');
