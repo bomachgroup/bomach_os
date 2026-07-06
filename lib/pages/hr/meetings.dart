@@ -10,6 +10,7 @@ import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/hr/controller/meeting_controller.dart';
 import 'package:bomach_os/pages/hr/models/meeting_model.dart';
 import 'package:bomach_os/pages/hr/widget/add_meeting_dialog.dart';
+import 'package:bomach_os/pages/hr/widget/view_meeting_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
@@ -316,7 +317,12 @@ class _MeetingsState extends State<Meetings> {
                 icon: const Icon(Iconsax.more,
                     size: 18, color: AppColors.textSecondary),
                 onSelected: (value) {
-                  if (value == 'edit') {
+                  if (value == 'view') {
+                    showDialog(
+                      context: context,
+                      builder: (_) => ViewMeetingDialog(meeting: m),
+                    );
+                  } else if (value == 'edit') {
                     showDialog(
                       context: context,
                       builder: (_) => AddMeetingDialog(meeting: m),
@@ -326,6 +332,17 @@ class _MeetingsState extends State<Meetings> {
                   }
                 },
                 itemBuilder: (ctx) => [
+                  const PopupMenuItem(
+                    value: 'view',
+                    child: Row(
+                      children: [
+                        Icon(Iconsax.eye,
+                            size: 16, color: AppColors.primary),
+                        SizedBox(width: 8),
+                        Text('View'),
+                      ],
+                    ),
+                  ),
                   const PopupMenuItem(
                     value: 'edit',
                     child: Row(
