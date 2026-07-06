@@ -7,6 +7,7 @@ import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/finance/controllers/payment_controller.dart';
 import 'package:bomach_os/pages/finance/widget/add_payment_dialog.dart';
+import 'package:bomach_os/pages/finance/widget/view_payment_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
@@ -110,11 +111,19 @@ class PaymentsPage extends StatelessWidget {
                 PopupMenuButton<String>(
                   icon: const Icon(Iconsax.more),
                   onSelected: (value) {
-                    if (value == 'delete') {
+                    if (value == 'view') {
+                      showDialog(
+                        context: context,
+                        builder: (context) =>
+                            ViewPaymentDialog(payment: payment),
+                      );
+                    } else if (value == 'delete') {
                       controller.deletePayment(context, payment.id);
                     }
                   },
                   itemBuilder: (context) => [
+                    const PopupMenuItem(
+                        value: 'view', child: Text('View')),
                     const PopupMenuItem(
                         value: 'delete',
                         child: Text('Delete',

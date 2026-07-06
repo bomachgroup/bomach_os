@@ -1,12 +1,13 @@
-import 'package:bomach_os/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/components/button/my_outlined_button.dart';
+import 'package:bomach_os/pages/finance/models/budget_model.dart';
 import 'package:bomach_os/src/constants/colors.dart';
-import 'package:bomach_os/src/constants/spaces.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ViewBudgetDialog extends StatefulWidget {
-  const ViewBudgetDialog({super.key});
+  final Budget budget;
+  const ViewBudgetDialog({super.key, required this.budget});
 
   @override
   State<ViewBudgetDialog> createState() => _ViewBudgetDialogState();
@@ -21,259 +22,41 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
     super.dispose();
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 200,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildItemsTable() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Categories',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // Table Header
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          child: Row(
-            children: [
-              const SizedBox(
-                width: 40,
-                child: Text(
-                  'S/N',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-              const Expanded(
-                flex: 3,
-                child: Text(
-                  'Category Name',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.only(left: 6),
-                width: 200,
-                child: const Text(
-                  'Allocation(₦)',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        // Table Rows
-        _buildItemRow('1', 'Instagram Ads', '8000'),
-        _buildItemRow('2', 'Instagram Ads', '8000'),
-        _buildItemRow('3', 'Instagram Ads', '8000'),
-
-        const SizedBox(height: 12),
-
-        // Sub Total
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              'Sub Total',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(width: 20),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[200]!),
-              ),
-              child: const Text(
-                '123456',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildItemRow(String sn, String name, String allocation) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-          margin: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          width: 40,
-          child: Text(
-            sn,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-            margin: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: Text(
-              name,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-          margin: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          width: 200,
-          child: Text(
-            allocation,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final b = widget.budget;
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-
-        // width: MediaQuery.of(context).size.width * 0.9,
-        // height: MediaQuery.of(context).size.height * 0.85,
+        constraints: const BoxConstraints(maxWidth: 600),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            Container(
+            Padding(
               padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Budget Details',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
+                  const Text('Budget Details',
+                      style: AppTextStyles.displayMd),
                   GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () => Navigator.pop(context),
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Iconsax.close_circle,
-                        size: 24,
-                        color: Colors.grey[600],
-                      ),
+                      child: Icon(Iconsax.close_circle,
+                          size: 24, color: Colors.grey[600]),
                     ),
                   ),
                 ],
               ),
             ),
-
             const Divider(height: 1, color: AppColors.neutral200),
-
-            Expanded(
+            Flexible(
               child: Scrollbar(
                 controller: _scrollController,
                 thumbVisibility: true,
@@ -283,108 +66,60 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDetailRow('Name', 'Q3 2025 Marketing Budget'),
-                      _buildDetailRow('Budget Period', '6 Months'),
-                      _buildDetailRow('Start Date', '22th July 2025'),
-                      _buildDetailRow('End Date', '22th December 2025'),
-                      _buildDetailRow('Total Allocation', '6,000,000'),
-                      _buildDetailRow('Department ID', 'Operations'),
-                      _buildDetailRow('Project ID', 'Advertisment'),
-
-                      const SizedBox(height: 24),
-
-                      // Items Table
-                      _buildItemsTable(),
-                      const SizedBox(height: 40),
-
-                      const Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyText(
-                                  "Total Expenses",
-                                  style: TextStyle(
-                                    color: AppColors.neutral400,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                kSizedBox,
-                                MyText(
-                                  "Balance Remaining",
-                                  style: TextStyle(
-                                    color: AppColors.neutral400,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyText(
-                                  "500,000",
-                                  style: TextStyle(
-                                    color: AppColors.danger,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                kSizedBox,
-                                MyText(
-                                  "5,500,000",
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      )
+                      _row('Branch', b.branchName),
+                      _row('Department', b.departmentName),
+                      _row('Fiscal Period', b.fiscalPeriod),
+                      const Divider(height: 24),
+                      _row('Amount', '₦${b.amount}', isBold: true),
+                      _row('Current Spend', '₦${b.currentSpend}'),
+                      _row('Remaining Budget', '₦${b.remainingBudget}'),
                     ],
                   ),
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: Wrap(
-                      spacing: 15,
-                      runSpacing: 15,
-                      alignment: WrapAlignment.end,
-                      children: [
-                        MyElevatedButton(
-                          bgColor: AppColors.danger,
-                          child: 'Delete',
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        MyElevatedButton(
-                          child: 'Edit',
-                          onTap: () {},
-                        ),
-                      ],
-                    ),
+                  MyOutlinedButton(
+                    child: 'Close',
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    onTap: () => Navigator.pop(context),
+                    textColor: AppColors.textSecondary,
+                    borderColor: AppColors.borderStrong,
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _row(String label, String value, {bool isBold = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(label,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+          ),
+          Expanded(
+            child: Text(value,
+                style: AppTextStyles.bodyMd.copyWith(
+                  fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
+                  color: isBold ? AppColors.primary : AppColors.textPrimary,
+                )),
+          ),
+        ],
       ),
     );
   }

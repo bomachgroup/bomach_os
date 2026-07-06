@@ -1,386 +1,184 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/components/button/my_outlined_button.dart';
+import 'package:bomach_os/components/chip/status_chip.dart';
+import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/pages/finance/controllers/expense_controller.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+
+import '../models/expense_model.dart';
 
 class ViewExpenseDialog extends StatefulWidget {
-  const ViewExpenseDialog({super.key});
+  final Expense expense;
+  const ViewExpenseDialog({super.key, required this.expense});
 
   @override
   State<ViewExpenseDialog> createState() => _ViewExpenseDialogState();
 }
 
 class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
+  final ExpenseController _ctrl = Get.find<ExpenseController>();
+  final TextEditingController _rejectionReasonCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _rejectionReasonCtrl.dispose();
+    super.dispose();
+  }
+
+  void _confirmReject() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reject Expense'),
+        content: MyTextFormField(
+          controller: _rejectionReasonCtrl,
+          title: 'Reason for rejection (optional)',
+          hintText: 'Add notes',
+          maxLines: 3,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _ctrl.rejectExpense(context, widget.expense.id);
+            },
+            child: const Text('Reject', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final e = widget.expense;
+    final isPending = e.status.toLowerCase() == 'pending';
+
     return Dialog(
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
+        constraints: const BoxConstraints(maxWidth: 600),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Expanded(
-                    child: MyText(
-                      'Expense Details',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  const Text('Expense Details',
+                      style: AppTextStyles.displayMd),
                   IconButton(
                     icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
             ),
-
-            // Form fields
-            Expanded(
+            const Divider(),
+            Flexible(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
-                      child: Column(
-                        children: [
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Amount",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "120000",
-                                  weight: 400,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Category",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "Travel",
-                                  weight: 400,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Description",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "Purchase of flight tickets",
-                                  weight: 400,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Date",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "22th July 2025",
-                                  weight: 400,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Branch",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "Independence Layout",
-                                  weight: 400,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Department",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "Operations",
-                                  weight: 400,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Operational Status",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "Inverter Installation",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Receipt ID",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "393JSK93J3",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          Row(
-                            children: [
-                              const Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Paid By",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                      ),
-                                      width: 36,
-                                      height: 36,
-                                      child: Image.asset(
-                                          'assets/icons/profile-icon.png'),
-                                    ),
-                                    kSizedBoxWidth,
-                                    const Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyText(
-                                          "Nicholas Chidera Ani",
-                                          weight: 400,
-                                          size: 16,
-                                        ),
-                                        MyText(
-                                          "MTN Nigeria",
-                                          weight: 400,
-                                          size: 16,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Payment Method",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "Transfer",
-                                  weight: 400,
-                                  size: 16,
-                                  maxLines: 3,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Status",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "Pending",
-                                  weight: 400,
-                                  size: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                          const Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: MyText(
-                                  "Notes",
-                                  weight: 300,
-                                  size: 16,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: MyText(
-                                  "This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. ",
-                                  weight: 400,
-                                  size: 16,
-                                  maxLines: 5,
-                                ),
-                              ),
-                            ],
-                          ),
-                          kSizedBox,
-                        ],
-                      ),
+                    _row('Amount', '₦${e.amount}', isBold: true),
+                    _row('Category', e.category),
+                    _row('Description', e.description),
+                    _row('Date', e.date),
+                    _row('Department', e.department.name),
+                    _row('Status', e.status),
+                    kSizedBoxSM,
+                    Row(
+                      children: [
+                        StatusChip.fromStatus(e.status),
+                      ],
                     ),
+                    if (e.attachment != null && e.attachment!.isNotEmpty) ...[
+                      kSizedBoxSM,
+                      _row('Attachment', e.attachment!),
+                    ],
                   ],
                 ),
               ),
             ),
-
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: Wrap(
-                      spacing: 15,
-                      runSpacing: 15,
-                      alignment: WrapAlignment.end,
-                      children: [
-                        MyElevatedButton(
-                          bgColor: AppColors.danger,
-                          child: 'Delete',
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        MyElevatedButton(
-                          child: 'Edit',
-                          onTap: () {},
-                        ),
-                      ],
-                    ),
+                  MyOutlinedButton(
+                    child: 'Close',
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    onTap: () => Navigator.pop(context),
+                    textColor: AppColors.textSecondary,
+                    borderColor: AppColors.borderStrong,
                   ),
+                  if (isPending) ...[
+                    kSizedBoxWidth,
+                    Obx(() => MyOutlinedButton(
+                          child: 'Reject',
+                          height: 40,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          icon: const Icon(Iconsax.close_circle, size: 16, color: AppColors.danger),
+                          onTap: _ctrl.isSaving.value ? () {} : _confirmReject,
+                          textColor: AppColors.danger,
+                          borderColor: AppColors.danger,
+                        )),
+                    kSizedBoxWidth,
+                    Obx(() => MyElevatedButton(
+                          height: 40,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          bgColor: AppColors.success,
+                          isLoading: _ctrl.isSaving.value,
+                          icon: const Icon(Iconsax.tick_circle, size: 16, color: AppColors.textOnPrimary),
+                          child: 'Approve',
+                          onTap: _ctrl.isSaving.value
+                              ? () {}
+                              : () => _ctrl.approveExpense(context, e.id),
+                        )),
+                  ],
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _row(String label, String value, {bool isBold = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(label,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+          ),
+          Expanded(
+            child: Text(value,
+                style: AppTextStyles.bodyMd.copyWith(
+                  fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
+                  color: AppColors.textPrimary,
+                )),
+          ),
+        ],
       ),
     );
   }

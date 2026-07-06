@@ -4,6 +4,7 @@ import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/finance/controllers/budget_controller.dart';
 import 'package:bomach_os/pages/finance/widget/add_budget_dialog.dart';
+import 'package:bomach_os/pages/finance/widget/view_budget_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
@@ -140,21 +141,29 @@ class BudgetPage extends StatelessWidget {
                             DataCell(MyText(budget.currentSpend)),
                             DataCell(MyText(budget.remainingBudget)),
                             DataCell(
-                              PopupMenuButton<String>(
-                                icon: const Icon(Iconsax.more),
-                                onSelected: (value) {
-                                  if (value == 'delete') {
-                                    controller.deleteBudget(context, budget.id);
-                                  }
-                                },
-                                itemBuilder: (context) => [
-                                  const PopupMenuItem(
-                                      value: 'edit', child: Text('Edit')),
-                                  const PopupMenuItem(
-                                      value: 'delete',
-                                      child: Text('Delete',
-                                          style: TextStyle(color: Colors.red))),
-                                ],
+                                PopupMenuButton<String>(
+                                  icon: const Icon(Iconsax.more),
+                                  onSelected: (value) {
+                                    if (value == 'view') {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            ViewBudgetDialog(budget: budget),
+                                      );
+                                    } else if (value == 'delete') {
+                                      controller.deleteBudget(context, budget.id);
+                                    }
+                                  },
+                                  itemBuilder: (context) => [
+                                    const PopupMenuItem(
+                                        value: 'view', child: Text('View')),
+                                    const PopupMenuItem(
+                                        value: 'edit', child: Text('Edit')),
+                                    const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete',
+                                            style: TextStyle(color: Colors.red))),
+                                  ],
                               ),
                             ),
                           ]);

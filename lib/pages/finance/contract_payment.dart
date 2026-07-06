@@ -175,32 +175,45 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
   }
 
   List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
+    final vendors = [
+      ('MTN Group', '121500', '24-05-2025', 'Pending'),
+      ('Glo Nigeria', '85000', '30-05-2025', 'Approved'),
+      ('Airtel Nigeria', '200000', '15-06-2025', 'Pending'),
+      ('9mobile', '45000', '10-06-2025', 'Rejected'),
+      ('MainOne Cable', '350000', '20-06-2025', 'Pending'),
+    ];
+    return List.generate(vendors.length, (index) {
+      final vendor = vendors[index];
       return DataRow(cells: <DataCell>[
         DataCell(
           onTap: () {
             showDialog(
               context: context,
               builder: (context) {
-                return const ViewContractPaymentDialog();
+                return ViewContractPaymentDialog(
+                  vendorName: vendor.$1,
+                  amountDue: vendor.$2,
+                  dueDate: vendor.$3,
+                  status: vendor.$4,
+                );
               },
             );
           },
-          const MyText(
-            "MTN Group",
+          MyText(
+            vendor.$1,
             size: 16,
             weight: 400,
             isSelectable: false,
           ),
         ),
-        const DataCell(
-          MyText("121500"),
+        DataCell(
+          MyText(vendor.$2),
         ),
-        const DataCell(
-          MyText("24-05-2025"),
+        DataCell(
+          MyText(vendor.$3),
         ),
-        const DataCell(
-          StatusChip(label: 'Pending', tone: StatusTone.warning),
+        DataCell(
+          StatusChip(label: vendor.$4, tone: StatusTone.warning),
         ),
         const DataCell(
           ThreeDotPop(),

@@ -8,6 +8,7 @@ import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/finance/controllers/expense_controller.dart';
 import 'package:bomach_os/pages/finance/widget/add_expense_dialog.dart';
+import 'package:bomach_os/pages/finance/widget/view_expense_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
@@ -113,7 +114,12 @@ class ExpensesPage extends StatelessWidget {
                 PopupMenuButton<String>(
                   icon: const Icon(Iconsax.more),
                   onSelected: (value) {
-                    if (value == 'delete') {
+                    if (value == 'view') {
+                      showDialog(
+                        context: context,
+                        builder: (context) => ViewExpenseDialog(expense: expense),
+                      );
+                    } else if (value == 'delete') {
                       controller.deleteExpense(context, expense.id);
                     } else if (value == 'approve') {
                       controller.approveExpense(context, expense.id);
@@ -122,6 +128,7 @@ class ExpensesPage extends StatelessWidget {
                     }
                   },
                   itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'view', child: Text('View')),
                     const PopupMenuItem(value: 'edit', child: Text('Edit')),
                     const PopupMenuItem(
                         value: 'approve', child: Text('Approve')),
@@ -164,17 +171,36 @@ class ExpensesPage extends StatelessWidget {
                         children: [
                           IconButton(
                             onPressed: () {
-                              controller.approveExpense(context, expense.id);
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    ViewExpenseDialog(expense: expense),
+                              );
                             },
-                            icon: const Icon(Iconsax.tick_circle,
-                                size: 18, color: AppColors.success),
+                            icon: const Icon(Iconsax.eye,
+                                size: 18, color: AppColors.primary),
                             style: IconButton.styleFrom(
                               backgroundColor:
-                                  AppColors.success.withValues(alpha: 0.1),
+                                  AppColors.primary.withValues(alpha: 0.1),
                               padding: const EdgeInsets.all(8),
                             ),
                           ),
                           const SizedBox(width: 8),
+                          if (expense.status.toLowerCase() == 'pending') ...[
+                            IconButton(
+                              onPressed: () {
+                                controller.approveExpense(context, expense.id);
+                              },
+                              icon: const Icon(Iconsax.tick_circle,
+                                  size: 18, color: AppColors.success),
+                              style: IconButton.styleFrom(
+                                backgroundColor:
+                                    AppColors.success.withValues(alpha: 0.1),
+                                padding: const EdgeInsets.all(8),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
                           IconButton(
                             onPressed: () {
                               controller.deleteExpense(context, expense.id);
