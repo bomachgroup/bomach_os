@@ -85,6 +85,33 @@ class PaymentController extends GetxController {
     }
   }
 
+  // ─── UPDATE ───────────────────────────────────────────────────────
+
+  Future<void> updatePayment(
+      BuildContext context, int id, Map<String, dynamic> data) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      log("Update Payment payload: $data");
+      await _service.updatePayment(token, id, data);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchPayments(refresh: true);
+        _showSnackBar(context, "Payment updated successfully");
+      }
+    } catch (e) {
+      log("Update Payment Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to update payment");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
   // ─── DELETE ───────────────────────────────────────────────────────
 
   Future<void> deletePayment(BuildContext context, int id) async {

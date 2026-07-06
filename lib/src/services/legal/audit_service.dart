@@ -177,6 +177,60 @@ class AuditService {
     }
   }
 
+  /// GET /api/v1/audits/auditors/ — List Auditors
+  Future<List<Map<String, dynamic>>> getAuditors(String token) async {
+    try {
+      final response = await _dio.get(
+        '/audits/auditors/',
+        options: _authOptions(token),
+      );
+      final data = response.data;
+      if (data is List) {
+        return data.map((j) => j as Map<String, dynamic>).toList();
+      }
+      return [];
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// GET /api/v1/audits/failing-audits/ — List failing audits
+  Future<List<Audit>> getFailingAudits(String token,
+      {int limit = 100, int offset = 0}) async {
+    try {
+      final response = await _dio.get(
+        '/audits/failing-audits/',
+        queryParameters: {'limit': limit, 'offset': offset},
+        options: _authOptions(token),
+      );
+      final data = response.data;
+      if (data is List) {
+        return data.map((json) => Audit.fromJson(json)).toList();
+      }
+      return [];
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// GET /api/v1/audits/statistics/performance-trends/ — Performance trends
+  Future<List<Map<String, dynamic>>> getPerformanceTrends(
+      String token) async {
+    try {
+      final response = await _dio.get(
+        '/audits/statistics/performance-trends/',
+        options: _authOptions(token),
+      );
+      final data = response.data;
+      if (data is List) {
+        return data.map((j) => j as Map<String, dynamic>).toList();
+      }
+      return [];
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// PATCH /api/v1/audits/{id}/score/ — Update Audit Score
   Future<Audit> updateAuditScore(String token, int auditId, int score) async {
     try {

@@ -100,6 +100,22 @@ class PaymentService {
     }
   }
 
+  /// PUT /api/v1/payments/{id} — Update Payment
+  Future<Payment> updatePayment(
+      String token, int paymentId, Map<String, dynamic> data) async {
+    try {
+      log("PaymentService: Updating payment $paymentId...");
+      final response = await _dio.put(
+        '/payments/$paymentId',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Payment.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// DELETE /api/v1/payments/{id} — Delete Payment
   Future<void> deletePayment(String token, int paymentId) async {
     try {
