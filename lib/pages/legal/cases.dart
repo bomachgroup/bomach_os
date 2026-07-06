@@ -188,9 +188,12 @@ class CasesTable extends StatelessWidget {
                 icon: Iconsax.edit,
                 label: 'Edit',
                 color: AppColors.textPrimary,
-                onPressed: () {
-                  CreateNewLegalCaseDialog.show(context);
-                },
+                  onPressed: () {
+                    CreateNewLegalCaseDialog.show(
+                      context,
+                      caseToEdit: data,
+                    );
+                  },
               ),
               const SizedBox(width: 4),
               _buildActionButton(
@@ -361,7 +364,10 @@ class CasesTable extends StatelessWidget {
                     const SizedBox(width: 8),
                     IconButton(
                       onPressed: () {
-                        CreateNewLegalCaseDialog.show(context);
+                        CreateNewLegalCaseDialog.show(
+                          context,
+                          caseToEdit: data,
+                        );
                       },
                       icon: const Icon(Iconsax.edit, size: 20),
                       style: IconButton.styleFrom(

@@ -1,184 +1,231 @@
+import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/button/my_outlined_button.dart';
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/input/my_dropdown.dart';
+import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class CreateNewLegalCaseDialog extends StatelessWidget {
-  const CreateNewLegalCaseDialog({super.key});
+import '../controllers/legal_case_controller.dart';
+import '../models/legal_case_model.dart';
 
-// Found new way of calling the dialogs
-  static void show(BuildContext context) {
+class CreateNewLegalCaseDialog extends StatefulWidget {
+  final LegalCase? caseToEdit;
+
+  const CreateNewLegalCaseDialog({super.key, this.caseToEdit});
+
+  static void show(BuildContext context, {LegalCase? caseToEdit}) {
     showDialog(
       context: context,
-      builder: (context) => const CreateNewLegalCaseDialog(),
+      builder: (context) => CreateNewLegalCaseDialog(caseToEdit: caseToEdit),
     );
   }
 
   @override
+  State<CreateNewLegalCaseDialog> createState() =>
+      _CreateNewLegalCaseDialogState();
+}
+
+class _CreateNewLegalCaseDialogState
+    extends State<CreateNewLegalCaseDialog> {
+  final controller = Get.find<LegalCaseController>();
+
+  late TextEditingController nameCtrl;
+  late TextEditingController exposureCtrl;
+  late TextEditingController hearingCtrl;
+  late TextEditingController numberCtrl;
+  late TextEditingController descriptionCtrl;
+  late TextEditingController dateFiledCtrl;
+  late TextEditingController dateClosedCtrl;
+
+  String selectedCaseType = 'Legal';
+  String selectedStatus = 'Open';
+  bool _isSaving = false;
+
+  bool get isEdit => widget.caseToEdit != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final c = widget.caseToEdit;
+    nameCtrl = TextEditingController(text: c?.caseName ?? '');
+    exposureCtrl = TextEditingController(text: c?.exposure ?? '');
+    hearingCtrl = TextEditingController(text: c?.nextHearing ?? '');
+    numberCtrl = TextEditingController(text: c?.caseNumber ?? '');
+    descriptionCtrl = TextEditingController(text: c?.description ?? '');
+    dateFiledCtrl = TextEditingController(text: c?.dateFiled ?? '');
+    dateClosedCtrl = TextEditingController(text: c?.dateClosed ?? '');
+    if (c != null) {
+      if (c.caseType.isNotEmpty) selectedCaseType = c.caseType;
+      if (c.status.isNotEmpty) selectedStatus = c.status;
+    }
+  }
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    exposureCtrl.dispose();
+    hearingCtrl.dispose();
+    numberCtrl.dispose();
+    descriptionCtrl.dispose();
+    dateFiledCtrl.dispose();
+    dateClosedCtrl.dispose();
+    super.dispose();
+  }
+
+  Map<String, dynamic> _buildPayload() {
+    return {
+      'case_name': nameCtrl.text.trim(),
+      'case_type': selectedCaseType,
+      'status': selectedStatus,
+      if (exposureCtrl.text.trim().isNotEmpty)
+        'exposure': exposureCtrl.text.trim(),
+      if (hearingCtrl.text.trim().isNotEmpty)
+        'next_hearing': hearingCtrl.text.trim(),
+      if (numberCtrl.text.trim().isNotEmpty)
+        'case_number': numberCtrl.text.trim(),
+      if (descriptionCtrl.text.trim().isNotEmpty)
+        'description': descriptionCtrl.text.trim(),
+      if (dateFiledCtrl.text.trim().isNotEmpty)
+        'date_filed': dateFiledCtrl.text.trim(),
+      if (dateClosedCtrl.text.trim().isNotEmpty)
+        'date_closed': dateClosedCtrl.text.trim(),
+    };
+  }
+
+  Future<void> _save() async {
+    if (nameCtrl.text.trim().isEmpty) return;
+
+    setState(() => _isSaving = true);
+
+    try {
+      if (isEdit) {
+        await controller.updateCase(
+          context,
+          widget.caseToEdit!.id,
+          _buildPayload(),
+        );
+      } else {
+        await controller.createCase(context, _buildPayload());
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 600;
-    final double dialogWidth = isMobile ? screenWidth * 0.9 : 450;
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      title: const Text(
-        'Create New Legal Case',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      ),
-      titlePadding: const EdgeInsets.fromLTRB(24.0, 24.0, 16.0, 16.0),
-      actionsPadding: const EdgeInsets.all(16.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      contentPadding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 0.0),
-      content: SingleChildScrollView(
-        child: SizedBox(
-          width: dialogWidth,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _buildFormLabel('Case Title'),
-              _buildTextInput(hint: 'e.g Land Surveying'),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Case Type'),
-                        MyDropdown(
-                          hintText: 'Legal',
-                          items: const [
-                            'Legal',
-                            'Civil',
-                            'Criminal',
-                            'Regulatory'
-                          ],
-                          onChanged: (String? newValue) {},
-                        ),
-                      ],
-                    ),
+    return DialogScaffold(
+      title: isEdit ? 'Edit Legal Case' : 'Create New Legal Case',
+      subtitle:
+          isEdit ? 'Update case details' : 'Add a new legal case to the register',
+      size: DialogSize.md,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MyTextFormField(
+              controller: nameCtrl,
+              title: 'Case Name',
+              hintText: 'e.g Land Survey Dispute',
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: MyDropdown(
+                    title: 'Case Type',
+                    hintText: selectedCaseType,
+                    items: const ['Legal', 'Civil', 'Criminal', 'Regulatory'],
+                    initialSelection: selectedCaseType,
+                    onChanged: (v) =>
+                        setState(() => selectedCaseType = v ?? 'Legal'),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Priority'),
-                        MyDropdown(
-                          hintText: 'Medium',
-                          items: const ['Critical', 'High', 'Medium', 'Low'],
-                          onChanged: (String? newValue) {},
-                        ),
-                      ],
-                    ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyDropdown(
+                    title: 'Status',
+                    hintText: selectedStatus,
+                    items: const ['Open', 'Pending', 'Closed', 'Archived'],
+                    initialSelection: selectedStatus,
+                    onChanged: (v) =>
+                        setState(() => selectedStatus = v ?? 'Open'),
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Court Name'),
-                        _buildTextInput(hint: ''),
-                      ],
-                    ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: numberCtrl,
+                    title: 'Case Number',
+                    hintText: 'e.g CASE-2024-001',
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Jurisdiction'),
-                        _buildTextInput(hint: ''),
-                      ],
-                    ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: exposureCtrl,
+                    title: 'Exposure',
+                    hintText: 'e.g ₦5,000,000',
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildFormLabel('Status'),
-              MyDropdown(
-                hintText: 'Open',
-                items: const ['Open', 'Pending', 'Closed', 'Archived'],
-                onChanged: (String? newValue) {},
-              ),
-              const SizedBox(height: 16),
-              _buildFormLabel('Case Description'),
-              _buildMultiLineTextInput(hint: ''),
-              const SizedBox(height: 16),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: dateFiledCtrl,
+                    title: 'Date Filed',
+                    hintText: 'YYYY-MM-DD',
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: dateClosedCtrl,
+                    title: 'Date Closed',
+                    hintText: 'YYYY-MM-DD',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: hearingCtrl,
+              title: 'Next Hearing',
+              hintText: 'e.g 2024-12-15',
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: descriptionCtrl,
+              title: 'Case Description',
+              hintText: 'Enter case details',
+              maxLines: 4,
+            ),
+          ],
         ),
       ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
-        ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0)),
-          ),
-          child:
-              const Text('Create Case', style: TextStyle(color: Colors.white)),
+        MyElevatedButton(
+          child: _isSaving
+              ? 'Saving...'
+              : (isEdit ? 'Update Case' : 'Create Case'),
+          onTap: _isSaving ? null : _save,
         ),
       ],
-    );
-  }
-
-  Widget _buildFormLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(label,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-    );
-  }
-
-  Widget _buildTextInput({String? hint, String? initialValue}) {
-    return TextFormField(
-      initialValue: initialValue,
-      decoration: InputDecoration(
-        hintText: hint,
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    );
-  }
-
-  Widget _buildMultiLineTextInput({String? hint}) {
-    return TextFormField(
-      maxLines: 4,
-      minLines: 3,
-      decoration: InputDecoration(
-        hintText: hint,
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
     );
   }
 }
