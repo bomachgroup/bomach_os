@@ -3,13 +3,18 @@ import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
+import 'package:bomach_os/pages/operations/controllers/tasks_controler.dart';
 import 'package:bomach_os/pages/operations/models/models.dart';
+import 'package:bomach_os/pages/operations/models/task_adapter.dart';
+import 'package:bomach_os/pages/operations/models/task_approval_models.dart' as approval;
+import 'package:bomach_os/pages/operations/widget/task_approval_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 class TaskDetail extends StatefulWidget {
@@ -40,17 +45,18 @@ class _TaskDetailState extends State<TaskDetail> {
     final isWideScreen = screenWidth > 900;
 
     return PageScaffold(
-      header: PageHeader(
-        title: task.name,
-        subtitle: 'Comprehensive task overview and analytics',
-        trailing: MyElevatedButton(
-          height: 48,
-          icon: const Icon(Iconsax.add_circle,
-              size: 18, color: AppColors.textOnPrimary),
-          child: 'Add Action',
-          onTap: () {},
+        header: PageHeader(
+          title: task.name,
+          subtitle: 'Comprehensive task overview and analytics',
+          trailing: MyElevatedButton(
+            height: 48,
+            bgColor: AppColors.success,
+            icon: const Icon(Iconsax.tick_circle,
+                size: 18, color: AppColors.textOnPrimary),
+            child: 'Approve',
+            onTap: () => _showApprovalDialog(context, task),
+          ),
         ),
-      ),
       children: [
         _TaskSummaryCard(task: task),
         if (isWideScreen)
@@ -77,6 +83,42 @@ class _TaskDetailState extends State<TaskDetail> {
             ],
           ),
       ],
+    );
+  }
+
+  void _showApprovalDialog(BuildContext context, Task task) {
+    final TaskController controller = Get.isRegistered<TaskController>()
+        ? Get.find<TaskController>()
+        : Get.put(TaskController());
+
+    showDialog<TaskApprovalResult>(
+      context: context,
+      builder: (_) => TaskApprovalDialog(
+        task: task.toApprovalTask(),
+        reviewerName: 'Manager',
+        onApprovalComplete: (approvalTask) {
+          final newStatus = approvalTask.status == approval.TaskStatus.completed
+              ? 'completed'
+              : approvalTask.status == approval.TaskStatus.rejected
+                  ? 'rejected'
+                  : 'on_hold';
+          final updatedTask = Task(
+            id: task.id,
+            projectId: task.projectId,
+            milestoneId: task.milestoneId,
+            name: task.name,
+            description: task.description,
+            status: newStatus,
+            priority: task.priority,
+            assignedTo: task.assignedTo,
+            dueDate: task.dueDate,
+            estimatedHours: task.estimatedHours,
+            createdAt: task.createdAt,
+            updatedAt: task.updatedAt,
+          );
+          controller.updateTask(context, task.id, updatedTask);
+        },
+      ),
     );
   }
 }
