@@ -7,9 +7,11 @@ import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
-// Per-card accent palette — keeps the stat tiles visually differentiated.
+import 'controllers/finance_dashboard_controller.dart';
+
 const Color _accentBlue = AppColors.primary;
 const Color _accentRed = AppColors.danger;
 const Color _accentAmber = AppColors.warning;
@@ -23,6 +25,15 @@ class FinancePage extends StatefulWidget {
 }
 
 class _FinancePageState extends State<FinancePage> {
+  late final FinanceDashboardController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(FinanceDashboardController());
+    controller.fetchStats();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -50,30 +61,30 @@ class _FinancePageState extends State<FinancePage> {
       columnGap: kDefaultSpaceBG,
       rowGap: kDefaultSpaceBG,
       children: [
-        _buildSummaryCard(
-          value: '452',
-          label: 'Total Employees',
-          icon: Iconsax.people,
-          accent: _accentBlue,
-        ),
-        _buildSummaryCard(
-          value: '\$45,200',
+        Obx(() => _buildSummaryCard(
+          value: controller.isLoading.value ? '-' : controller.totalExpenses.value,
           label: 'Total Expenses',
           icon: Iconsax.money_remove,
           accent: _accentRed,
-        ),
-        _buildSummaryCard(
-          value: '20',
+        )),
+        Obx(() => _buildSummaryCard(
+          value: controller.isLoading.value ? '-' : controller.totalExpensesAmount.value,
+          label: 'Total Amount',
+          icon: Iconsax.money_send,
+          accent: _accentBlue,
+        )),
+        Obx(() => _buildSummaryCard(
+          value: controller.isLoading.value ? '-' : controller.outstandingInvoices.value,
           label: 'Outstanding Invoices',
           icon: Iconsax.receipt_2_1,
           accent: _accentAmber,
-        ),
-        _buildSummaryCard(
-          value: '\$20,000,000',
+        )),
+        Obx(() => _buildSummaryCard(
+          value: controller.isLoading.value ? '-' : controller.totalBudgetAmount.value,
           label: 'Total Budget',
           icon: Iconsax.wallet_3,
           accent: _accentGreen,
-        ),
+        )),
       ],
     );
   }
