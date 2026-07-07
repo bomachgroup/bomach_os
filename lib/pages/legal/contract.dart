@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../components/button/my_elevated_button.dart';
@@ -6,6 +7,8 @@ import '../../components/input/my_textformfield.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
 import '../../src/constants/spaces.dart';
+import '../operations/models/models.dart';
+import 'controllers/legal_contract_controller.dart';
 import 'detailed_view.dart';
 import 'widgets/status_tag.dart';
 
@@ -14,6 +17,7 @@ class ContractsPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(LegalContractController());
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 600;
@@ -29,14 +33,15 @@ class ContractsPageView extends StatelessWidget {
                       const SizedBox(height: 2),
                       const Text(
                           "Manage contracts, agreements, and legal documents",
-                          style:
-                              TextStyle(fontSize: 13, color: Colors.black54)),
+                          style: TextStyle(
+                              fontSize: 13, color: Colors.black54)),
                       const SizedBox(height: 12),
                       Row(
                         children: [
                           Expanded(
                             child: MyTextFormField(
                               hintText: 'Search for contracts...',
+                              onChanged: controller.onSearchChanged,
                               leading: Icon(
                                 Iconsax.search_normal,
                                 color: AppColors.neutral500.withValues(alpha: 0.5),
@@ -79,6 +84,7 @@ class ContractsPageView extends StatelessWidget {
                               width: 250,
                               child: MyTextFormField(
                                 hintText: 'Search for contracts...',
+                                onChanged: controller.onSearchChanged,
                                 leading: Icon(
                                   Iconsax.search_normal,
                                   color: AppColors.neutral500.withValues(alpha: 0.5),
@@ -97,13 +103,26 @@ class ContractsPageView extends StatelessWidget {
                   ),
             kSizedBoxBG,
             Expanded(
-              child: ListView.builder(
-                itemCount: 2,
-                padding: EdgeInsets.zero,
-                itemBuilder: (context, index) {
-                  return ContractsCard(isMobile: isMobile);
-                },
-              ),
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (controller.contractList.isEmpty) {
+                  return const Center(child: Text("No contracts found"));
+                }
+                return ListView.builder(
+                  itemCount: controller.contractList.length,
+                  padding: EdgeInsets.zero,
+                  itemBuilder: (context, index) {
+                    final item = controller.contractList[index];
+                    final contract = item.contract as Contract;
+                    return ContractsCard(
+                      contract: contract,
+                      isMobile: isMobile,
+                    );
+                  },
+                );
+              }),
             ),
           ],
         );
@@ -113,11 +132,13 @@ class ContractsPageView extends StatelessWidget {
 }
 
 class ContractsCard extends StatelessWidget {
+  final Contract contract;
   final bool isMobile;
-  const ContractsCard({super.key, this.isMobile = false});
+  const ContractsCard({super.key, required this.contract, this.isMobile = false});
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = _statusColor(contract.status);
     return Card(
       color: Colors.white,
       margin: const EdgeInsets.only(bottom: 16),
@@ -125,22 +146,21 @@ class ContractsCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          const Map<String, String> contractData = {
-            'Contract Number': 'CTR-2024-001',
-            'Contract Name':
-                'Land Survey Services Agreement - Lagos State Government',
-            'Contract Type': 'Service Agreement',
-            'Status': 'Active',
-            'Priority': 'High',
-            'Assigned Lawyer': 'Senior Legal Counsel',
-            'Description': 'Not provided',
+          final contractData = <String, String>{
+            'Contract Number': contract.contractNumber,
+            'Contract Name': contract.name,
+            'Contract Type': contract.contractType,
+            'Status': contract.status,
+            'Value': '₦${_formatValue(contract.value)}',
+            'Effective Date': contract.startDate,
+            'Expiry Date': contract.endDate,
+            'Created': contract.createdAt,
           };
 
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const DetailsViewPage(
-                  title:
-                      'Land Survey Services Agreement - Lagos State Government',
+              builder: (context) => DetailsViewPage(
+                  title: contract.name,
                   details: contractData),
             ),
           );
@@ -151,41 +171,56 @@ class ContractsCard extends StatelessWidget {
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const MyText(
-                      "Land Survey Services Agreement - ABC Construction",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    MyText(
+                      contract.name,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8),
-                    const Row(
+                    Row(
                       children: [
-                        StatusTag(text: "Active", color: Colors.black),
-                        SizedBox(width: 8),
+                        StatusTag(text: contract.status, color: statusColor),
+                        const SizedBox(width: 8),
                         StatusTag(
-                            text: "Service Agreement", color: Colors.grey),
-                        SizedBox(width: 8),
-                        StatusTag(text: "High", color: Colors.red),
+                            text: contract.contractType, color: Colors.grey),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    const Text("Contract No: CTR-2024-001"),
-                    const Text("Value: ₦2,500,000.00"),
-                    const Text("Parties: 1"),
+                    Text("Contract No: ${contract.contractNumber}"),
+                    Text("Value: ₦${_formatValue(contract.value)}"),
                     const SizedBox(height: 8),
-                    const Text(
-                      "Created: 17 Aug 2025  •  Lawyer: Legal Manager  •  Deliverables: 3",
-                      style: TextStyle(color: Colors.black54, fontSize: 12),
+                    Text(
+                      "Created: ${_formatDate(contract.createdAt)}",
+                      style: const TextStyle(color: Colors.black54, fontSize: 12),
                     ),
                     const SizedBox(height: 8),
-                    const Text("Effective: 1 Jan 2024"),
-                    const Text("Expires: 31 Dec 2024"),
-                    const Text("Payment Terms: Net 30 days"),
+                    Text("Effective: ${_formatDate(contract.startDate)}"),
+                    Text("Expires: ${_formatDate(contract.endDate)}"),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         OutlinedButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            final contractData = <String, String>{
+                              'Contract Number': contract.contractNumber,
+                              'Contract Name': contract.name,
+                              'Contract Type': contract.contractType,
+                              'Status': contract.status,
+                              'Value': '₦${_formatValue(contract.value)}',
+                              'Effective Date': contract.startDate,
+                              'Expiry Date': contract.endDate,
+                              'Created': contract.createdAt,
+                            };
+
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => DetailsViewPage(
+                                    title: contract.name,
+                                    details: contractData),
+                              ),
+                            );
+                          },
                           icon: const Icon(Iconsax.eye,
                               color: Colors.black),
                           label: const Text("View",
@@ -217,48 +252,43 @@ class ContractsCard extends StatelessWidget {
                 )
               : Column(
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        MyText(
-                            "Land Survey Services Agreement - ABC Construction",
-                            style: TextStyle(
+                        MyText(contract.name,
+                            style: const TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600)),
-                        SizedBox(width: 8),
-                        StatusTag(text: "Active", color: Colors.black),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
+                        StatusTag(text: contract.status, color: statusColor),
+                        const SizedBox(width: 8),
                         StatusTag(
-                            text: "Service Agreement", color: Colors.grey),
-                        SizedBox(width: 8),
-                        StatusTag(text: "High", color: Colors.red),
+                            text: contract.contractType, color: Colors.grey),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Contract No: CTR-2024-001"),
-                              Text("Value: ₦2,500,000.00"),
-                              Text("Parties: 1"),
-                              SizedBox(height: 8),
+                              Text("Contract No: ${contract.contractNumber}"),
+                              Text("Value: ₦${_formatValue(contract.value)}"),
+                              const SizedBox(height: 8),
                               Text(
-                                  "Created: 17 Aug 2025  •  Lawyer: Legal Manager  •  Deliverables: 3",
-                                  style: TextStyle(
-                                      color: Colors.black54, fontSize: 12)),
+                                "Created: ${_formatDate(contract.createdAt)}",
+                                style: const TextStyle(
+                                    color: Colors.black54, fontSize: 12),
+                              ),
                             ],
                           ),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text("Effective: 1 Jan 2024"),
-                              Text("Expires: 31 Dec 2024"),
-                              Text("Payment Terms: Net 30 days"),
-                              SizedBox(height: 12),
+                              Text("Effective: ${_formatDate(contract.startDate)}"),
+                              Text("Expires: ${_formatDate(contract.endDate)}"),
                             ],
                           ),
                         ),
@@ -267,7 +297,26 @@ class ContractsCard extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               OutlinedButton.icon(
-                                onPressed: () {},
+                                onPressed: () {
+                                  final contractData = <String, String>{
+                                    'Contract Number': contract.contractNumber,
+                                    'Contract Name': contract.name,
+                                    'Contract Type': contract.contractType,
+                                    'Status': contract.status,
+                                    'Value': '₦${_formatValue(contract.value)}',
+                                    'Effective Date': contract.startDate,
+                                    'Expiry Date': contract.endDate,
+                                    'Created': contract.createdAt,
+                                  };
+
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailsViewPage(
+                                          title: contract.name,
+                                          details: contractData),
+                                    ),
+                                  );
+                                },
                                 icon: const Icon(Iconsax.eye,
                                     color: Colors.black),
                                 label: const Text("View",
@@ -303,5 +352,43 @@ class ContractsCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return Colors.green;
+      case 'draft':
+        return Colors.orange;
+      case 'completed':
+        return Colors.blue;
+      case 'terminated':
+        return Colors.red;
+      default:
+        return Colors.black;
+    }
+  }
+
+  String _formatValue(double value) {
+    return value.toStringAsFixed(2).replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (match) => '${match.group(1)},',
+    );
+  }
+
+  String _formatDate(String date) {
+    if (date.isEmpty) return '—';
+    if (date.length >= 10) {
+      final parts = date.substring(0, 10).split('-');
+      if (parts.length == 3) {
+        final months = [
+          '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        final month = int.tryParse(parts[1]) ?? 0;
+        return '${int.tryParse(parts[2]) ?? 0} ${months[month]} ${parts[0]}';
+      }
+    }
+    return date;
   }
 }
