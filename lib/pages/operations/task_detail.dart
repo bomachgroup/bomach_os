@@ -399,30 +399,33 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
   }
 
   Widget _buildStatCard({required int index}) {
+    final task = widget.task;
     final cardData = [
       {
-        'title': 'Task Completed',
-        'value': '08',
-        'trend': '10+ more',
-        'trendPeriod': 'from last week',
-        'icon': Iconsax.tick_circle,
-        'tone': StatusTone.success,
-      },
-      {
-        'title': 'New Task',
-        'value': '10',
-        'trend': '10+ more',
-        'trendPeriod': 'from last week',
-        'icon': Iconsax.task_square,
+        'title': 'Estimated Hours',
+        'value': task.estimatedHours > 0
+            ? '${task.estimatedHours.toStringAsFixed(0)}h'
+            : '—',
+        'trend': task.estimatedHours > 0 ? 'Actual hours TBD' : '',
+        'trendPeriod': '',
+        'icon': Iconsax.timer_1,
         'tone': StatusTone.primary,
       },
       {
-        'title': 'Project Done',
-        'value': '10',
-        'trend': '08+ more',
-        'trendPeriod': 'from last week',
-        'icon': Iconsax.chart_square,
-        'tone': StatusTone.danger,
+        'title': 'Days Remaining',
+        'value': _daysRemaining(task.dueDate),
+        'trend': _daysRemaining(task.dueDate) == '—' ? '' : 'from today',
+        'trendPeriod': '',
+        'icon': Iconsax.calendar,
+        'tone': StatusTone.success,
+      },
+      {
+        'title': 'Status',
+        'value': task.status.isEmpty ? '—' : task.status.replaceAll('_', ' '),
+        'trend': 'Priority: ${task.priority.isEmpty ? "—" : task.priority}',
+        'trendPeriod': '',
+        'icon': Iconsax.status,
+        'tone': _cardTone(task.status),
       },
     ];
 
@@ -437,6 +440,36 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
       icon: data['icon'] as IconData,
       tone: tone,
     );
+  }
+
+  String _daysRemaining(String dueDate) {
+    if (dueDate.isEmpty) return '—';
+    try {
+      final date = DateTime.parse(dueDate.substring(0, 10));
+      final days = date.difference(DateTime.now()).inDays;
+      if (days < 0) return '${days.abs()} overdue';
+      if (days == 0) return 'Today';
+      return '$days days';
+    } catch (_) {
+      return '—';
+    }
+  }
+
+  StatusTone _cardTone(String status) {
+    switch (status.toLowerCase().trim()) {
+      case 'completed':
+        return StatusTone.success;
+      case 'in_progress':
+      case 'in progress':
+        return StatusTone.primary;
+      case 'pending':
+        return StatusTone.warning;
+      case 'blocked':
+      case 'cancelled':
+        return StatusTone.danger;
+      default:
+        return StatusTone.neutral;
+    }
   }
 
   // ────────────────────────────────────────────────────────────
