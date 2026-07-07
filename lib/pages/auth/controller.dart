@@ -22,6 +22,7 @@ class AuthController extends GetxController {
   var isLoading = false.obs;
   var obscurePassword = true.obs;
   Rx<User?> currentUser = Rx<User?>(null);
+  var isAuthInitializing = true.obs;
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -434,6 +435,9 @@ class AuthController extends GetxController {
     } catch (e) {
       log("Auth check error: $e");
       await logout();
+    } finally {
+      isAuthInitializing.value = false;
+      currentUser.refresh();
     }
   }
 

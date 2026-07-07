@@ -5,6 +5,7 @@ import 'package:bomach_os/pages/analytics/overview.dart';
 // Page imports
 import 'package:bomach_os/pages/auth/biometric.dart';
 import 'package:bomach_os/pages/auth/login.dart';
+import 'package:bomach_os/pages/auth/splash_screen.dart';
 import 'package:bomach_os/pages/branch/branch.dart';
 import 'package:bomach_os/pages/clients_portal/portal.dart';
 import 'package:bomach_os/pages/company/audit_log.dart';
@@ -278,10 +279,15 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
 /// Main router configuration
 final AuthController authController = Get.find<AuthController>();
 final goRouter = GoRouter(
-  initialLocation: RouteConstants.login,
+  initialLocation: RouteConstants.splash,
   debugLogDiagnostics: true,
   refreshListenable: GoRouterRefreshStream(authController.currentUser.stream),
   redirect: (BuildContext context, GoRouterState state) {
+    // 0. Still checking auth state → splash screen
+    if (authController.isAuthInitializing.value) {
+      return RouteConstants.splash;
+    }
+
     final bool isLoggedIn = authController.currentUser.value != null;
     final String location = state.matchedLocation;
 
@@ -323,6 +329,12 @@ final goRouter = GoRouter(
     return null;
   },
   routes: [
+    // Splash route (outside the dashboard shell)
+    GoRoute(
+      path: RouteConstants.splash,
+      builder: (context, state) => const SplashScreen(),
+    ),
+
     // Login route (outside the dashboard shell)
     GoRoute(
       path: RouteConstants.login,

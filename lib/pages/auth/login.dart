@@ -19,22 +19,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final AuthController authController = Get.put(AuthController());
-
-  bool _isCheckingAuth = true;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await authController.checkAuthStatus();
-      if (mounted) {
-        setState(() {
-          _isCheckingAuth = false;
-        });
-      }
-    });
-  }
+  final AuthController authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Obx(
         () {
           final bool showLoader =
-              _isCheckingAuth || authController.isLoading.value;
+              authController.isAuthInitializing.value || authController.isLoading.value;
 
           return Stack(
             children: [
