@@ -27,8 +27,8 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppColors.background,
       body: Obx(
         () {
-          final bool showLoader =
-              authController.isAuthInitializing.value || authController.isLoading.value;
+          final bool showLoader = authController.isAuthInitializing.value ||
+              authController.isLoading.value;
 
           return Stack(
             children: [
@@ -45,8 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 32),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 440),
                     child: Container(
@@ -140,8 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 4, vertical: 4),
                                 minimumSize: const Size(0, 32),
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                               child: Text(
                                 'Forgot password?',
@@ -191,8 +190,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
                                 child: Text(
                                   'or',
                                   style: AppTextStyles.caption.copyWith(

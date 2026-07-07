@@ -281,7 +281,7 @@ final AuthController authController = Get.find<AuthController>();
 final goRouter = GoRouter(
   initialLocation: RouteConstants.splash,
   debugLogDiagnostics: true,
-  refreshListenable: GoRouterRefreshStream(authController.currentUser.stream),
+  refreshListenable: GoRouterRefreshStream(authController.refreshStream),
   redirect: (BuildContext context, GoRouterState state) {
     // 0. Still checking auth state → splash screen
     if (authController.isAuthInitializing.value) {

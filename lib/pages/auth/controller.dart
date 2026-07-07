@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/src/constants/api_constants.dart';
-
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -23,6 +23,10 @@ class AuthController extends GetxController {
   var obscurePassword = true.obs;
   Rx<User?> currentUser = Rx<User?>(null);
   var isAuthInitializing = true.obs;
+
+  // Combined stream for GoRouter to watch both auth state and initialization
+  final _refreshController = StreamController<void>.broadcast();
+  Stream<void> get refreshStream => _refreshController.stream;
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -46,7 +50,12 @@ class AuthController extends GetxController {
     resetCodeController.dispose();
     newPasswordController.dispose();
     twoFactorCodeController.dispose();
+    _refreshController.close();
     super.onClose();
+  }
+
+  void _notifyRefresh() {
+    _refreshController.add(null);
   }
 
   void togglePasswordVisibility() {
@@ -101,7 +110,6 @@ class AuthController extends GetxController {
         password: passwordController.text.trim(),
       );
 
-
       if (response.requires2Fa) {
         // Pending 2FA
         isPending2Fa.value = true;
@@ -130,6 +138,7 @@ class AuthController extends GetxController {
 
         // Fetch profile
         await _fetchUserProfile(response.accessToken, response.userId);
+        _notifyRefresh();
 
         if (context.mounted) {
           _showSnackBar(context, 'Login Successful');
@@ -174,8 +183,7 @@ class AuthController extends GetxController {
                   labelText: 'Password',
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    icon: Icon(
-                        isObscure ? Iconsax.eye_slash : Iconsax.eye),
+                    icon: Icon(isObscure ? Iconsax.eye_slash : Iconsax.eye),
                     onPressed: () => setState(() => isObscure = !isObscure),
                   ),
                 ),
@@ -290,16 +298,13 @@ class AuthController extends GetxController {
   /// Fire-and-forget check that our declared `Perms.*` constants still
   /// match what the backend exposes. Logs warnings in debug mode only.
   void _validatePermissionDrift(String token) {
-    _authService
-        .getPermissionsMap(accessToken: token)
-        .then((map) {
-          if (map.isNotEmpty) {
-            _permissionService.validateAgainstBackendMap(map);
-          }
-        })
-        .catchError((e) {
-          log("Drift check skipped: $e");
-        });
+    _authService.getPermissionsMap(accessToken: token).then((map) {
+      if (map.isNotEmpty) {
+        _permissionService.validateAgainstBackendMap(map);
+      }
+    }).catchError((e) {
+      log("Drift check skipped: $e");
+    });
   }
 
   Future<void> logout() async {
@@ -314,6 +319,7 @@ class AuthController extends GetxController {
       await _storage.deleteAll();
       _permissionService.clearPermissions();
       currentUser.value = null;
+      _notifyRefresh();
       emailController.clear();
       passwordController.clear();
     }
@@ -386,6 +392,7 @@ class AuthController extends GetxController {
       await _fetchUserPermissions(response.accessToken, response.userId);
 
       await _fetchUserProfile(response.accessToken, response.userId);
+      _notifyRefresh();
 
       currentSessionToken = null;
       twoFactorCodeController.clear();
@@ -437,7 +444,7 @@ class AuthController extends GetxController {
       await logout();
     } finally {
       isAuthInitializing.value = false;
-      currentUser.refresh();
+      _notifyRefresh();
     }
   }
 
