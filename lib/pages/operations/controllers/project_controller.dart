@@ -134,6 +134,25 @@ class ProjectController extends GetxController {
     }
   }
 
+  Future<void> updateProjectStatus(
+      BuildContext context, int id, String status) async {
+    try {
+      isActionLoading.value = true;
+      final token = await _getToken(context);
+      if (token == null) throw Exception("Authentication token not found");
+
+      await _service.updateProjectStatus(
+          accessToken: token, projectId: id, status: status);
+
+      _showSuccess(context, "Project status updated to $status");
+      fetchProjects(context);
+    } catch (e) {
+      _showError(context, "Failed to update project status: ${e.toString()}");
+    } finally {
+      isActionLoading.value = false;
+    }
+  }
+
   Future<void> fetchProjectEmployees(
       BuildContext context, int projectId) async {
     try {

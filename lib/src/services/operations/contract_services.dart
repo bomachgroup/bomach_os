@@ -124,6 +124,23 @@ class ContractService {
     }
   }
 
+  Future<Contract> updateContractStatus({
+    required String accessToken,
+    required int contractId,
+    required String status,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        '/api/v1/contracts/$contractId/status',
+        data: {'status': status},
+        options: _authOptions(accessToken),
+      );
+      return Contract.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<void> deleteContract({
     required String accessToken,
     required int contractId,

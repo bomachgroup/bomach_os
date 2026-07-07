@@ -110,6 +110,25 @@ class ContractController extends GetxController {
     }
   }
 
+  Future<void> updateContractStatus(
+      BuildContext context, int id, String status) async {
+    try {
+      isActionLoading.value = true;
+      final token = await _getToken(context);
+      if (token == null) throw Exception("Authentication token not found");
+
+      await _service.updateContractStatus(
+          accessToken: token, contractId: id, status: status);
+
+      _showSuccess(context, "Contract status updated to $status");
+      fetchContracts(context);
+    } catch (e) {
+      _showError(context, "Failed to update contract status: ${e.toString()}");
+    } finally {
+      isActionLoading.value = false;
+    }
+  }
+
   Future<void> deleteContract(
       BuildContext context, int id, int? projectId) async {
     try {

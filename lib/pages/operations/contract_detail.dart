@@ -48,6 +48,12 @@ class ContractDetailPage extends StatelessWidget {
           spacing: 12,
           runSpacing: 12,
           children: [
+            _buildStatusAction(context, controller, contract,
+                'Sign', Iconsax.tick_circle, AppColors.success, 'signed'),
+            _buildStatusAction(context, controller, contract,
+                'Renew', Iconsax.refresh, AppColors.primary, 'renewed'),
+            _buildStatusAction(context, controller, contract,
+                'Terminate', Iconsax.close_circle, AppColors.danger, 'terminated'),
             MyOutlinedButton(
               height: 48,
               icon: const Icon(Iconsax.edit, size: 18, color: AppColors.primary),
@@ -276,6 +282,69 @@ class ContractDetailPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildStatusAction(
+    BuildContext context,
+    ContractController controller,
+    Contract contract,
+    String label,
+    IconData icon,
+    Color color,
+    String newStatus,
+  ) {
+    final isActive = contract.status.toLowerCase() == newStatus;
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: MyOutlinedButton(
+        height: 48,
+        icon: Icon(icon, size: 18,
+            color: isActive ? AppColors.textMuted : color),
+        child: label,
+        textColor: isActive ? AppColors.textMuted : color,
+        borderColor: isActive ? AppColors.borderSubtle : color,
+        onTap: isActive
+            ? null
+            : () => _confirmStatusAction(
+                context, controller, contract, label, newStatus),
+      ),
+    );
+  }
+
+  Future<void> _confirmStatusAction(
+    BuildContext context,
+    ContractController controller,
+    Contract contract,
+    String label,
+    String newStatus,
+  ) async {
+    final confirmed = await DialogScaffold.show<bool>(
+      context,
+      title: '$label Contract',
+      size: DialogSize.sm,
+      body: Text(
+        'Are you sure you want to $label "${contract.name}"?',
+        style: AppTextStyles.bodyMd,
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context, false),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyElevatedButton(
+          width: 120,
+          height: 44,
+          child: label,
+          onTap: () => Navigator.pop(context, true),
+        ),
+      ],
+    );
+    if (confirmed == true && context.mounted) {
+      controller.updateContractStatus(context, contract.id, newStatus);
+    }
   }
 
   Future<void> _confirmDelete(

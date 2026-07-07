@@ -153,6 +153,23 @@ class DashboardService {
     }
   }
 
+  Future<Project> updateProjectStatus({
+    required String accessToken,
+    required int projectId,
+    required String status,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        '/api/v1/projects/$projectId/status',
+        data: {'status': status},
+        options: _authOptions(accessToken),
+      );
+      return Project.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<dynamic> getProjectStats({
     required String accessToken,
   }) async {
