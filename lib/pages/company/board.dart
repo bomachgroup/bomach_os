@@ -739,66 +739,7 @@ class _ResolutionsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildResolutionRow(BuildContext context, BoardResolution resolution) {
-    String displayDate = resolution.resolutionDate;
-    try {
-      final parsed = DateTime.parse(resolution.resolutionDate);
-      displayDate = DateFormat('MMM d, yyyy').format(parsed);
-    } catch (_) {}
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.borderSubtle),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              resolution.title,
-              style: AppTextStyles.bodyMd.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              resolution.resolutionTypeDisplay,
-              style:
-                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              displayDate,
-              style:
-                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: StatusChip(
-                label: resolution.statusDisplay.isEmpty
-                    ? 'Unknown'
-                    : resolution.statusDisplay,
-                tone: _resolutionStatusTone(resolution.statusDisplay),
-              ),
-            ),
-          ),
-          SizedBox(width: 48, child: _buildActionMenu(context, resolution)),
-        ],
-      ),
-    );
-  }
 
   StatusTone _resolutionStatusTone(String status) {
     switch (status.toLowerCase()) {
