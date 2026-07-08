@@ -515,7 +515,11 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
       'target_investors': targetInvestors,
       'target_partners': targetPartners,
       'reminder_offset': reminderOffset,
-      'recurrence': selectedRecurrence ?? 'DOES_NOT_REPEAT',
+      'recurrence': (selectedRecurrence == 'DOES_NOT_REPEAT' ||
+              selectedRecurrence == 'No Recurrence' ||
+              selectedRecurrence == null)
+          ? null
+          : selectedRecurrence,
     };
 
     if (isEdit) {
