@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 
 import '../../../src/services/auth_service.dart';
 import '../controller/assets_controller.dart';
@@ -281,24 +282,19 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                 ),
               ],
               const SizedBox(height: 16),
-              Row(
+              ResponsiveRow(
                 children: [
-                  Expanded(
-                    child: MyTextFormField(
-                      title: 'Serial Number',
-                      hintText: 'Enter serial number',
-                      spaceBetweenText: 8,
-                      controller: _serialCtrl,
-                    ),
+                  MyTextFormField(
+                    title: 'Serial Number',
+                    hintText: 'Enter serial number',
+                    spaceBetweenText: 8,
+                    controller: _serialCtrl,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: MyTextFormField(
-                      title: 'IMEI',
-                      hintText: 'Enter IMEI',
-                      spaceBetweenText: 8,
-                      controller: _imeiCtrl,
-                    ),
+                  MyTextFormField(
+                    title: 'IMEI',
+                    hintText: 'Enter IMEI',
+                    spaceBetweenText: 8,
+                    controller: _imeiCtrl,
                   ),
                 ],
               ),
@@ -388,51 +384,41 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
           _buildSection(
             title: 'Financial information',
             children: [
-              Row(
+              ResponsiveRow(
                 children: [
-                  Expanded(
-                    child: MyTextFormField(
-                      title: 'Purchase Date',
-                      hintText: 'YYYY-MM-DD',
-                      spaceBetweenText: 8,
-                      controller: _purchaseDateCtrl,
-                      readOnly: true,
-                      trailing: const Icon(Iconsax.calendar_1,
-                          size: 18, color: AppColors.textMuted),
-                      onTap: () => _selectDate(_purchaseDateCtrl),
-                    ),
+                  MyTextFormField(
+                    title: 'Purchase Date',
+                    hintText: 'YYYY-MM-DD',
+                    spaceBetweenText: 8,
+                    controller: _purchaseDateCtrl,
+                    readOnly: true,
+                    trailing: const Icon(Iconsax.calendar_1,
+                        size: 18, color: AppColors.textMuted),
+                    onTap: () => _selectDate(_purchaseDateCtrl),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: MyTextFormField(
-                      title: 'Asset Value',
-                      hintText: '0.00',
-                      spaceBetweenText: 8,
-                      controller: _valueCtrl,
-                      keyboardType: TextInputType.number,
-                    ),
+                  MyTextFormField(
+                    title: 'Asset Value',
+                    hintText: '0.00',
+                    spaceBetweenText: 8,
+                    controller: _valueCtrl,
+                    keyboardType: TextInputType.number,
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              Row(
+              ResponsiveRow(
                 children: [
-                  Expanded(
-                    child: MyTextFormField(
-                      title: 'Vendor',
-                      hintText: 'e.g. Bestbuy',
-                      spaceBetweenText: 8,
-                      controller: _vendorCtrl,
-                    ),
+                  MyTextFormField(
+                    title: 'Vendor',
+                    hintText: 'e.g. Bestbuy',
+                    spaceBetweenText: 8,
+                    controller: _vendorCtrl,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: MyTextFormField(
-                      title: 'Invoice Number',
-                      hintText: 'INV-XXXXX',
-                      spaceBetweenText: 8,
-                      controller: _invoiceCtrl,
-                    ),
+                  MyTextFormField(
+                    title: 'Invoice Number',
+                    hintText: 'INV-XXXXX',
+                    spaceBetweenText: 8,
+                    controller: _invoiceCtrl,
                   ),
                 ],
               ),
@@ -442,31 +428,26 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
           _buildSection(
             title: 'Status & warranty',
             children: [
-              Row(
+              ResponsiveRow(
                 children: [
-                  Expanded(
-                    child: MyDropdown(
-                      title: 'Status',
-                      hintText: _selectedStatus ?? 'Select status',
-                      initialSelection: _selectedStatus,
-                      spaceBetweenText: 8,
-                      items: _statuses,
-                      onChanged: (val) =>
-                          setState(() => _selectedStatus = val),
-                    ),
+                  MyDropdown(
+                    title: 'Status',
+                    hintText: _selectedStatus ?? 'Select status',
+                    initialSelection: _selectedStatus,
+                    spaceBetweenText: 8,
+                    items: _statuses,
+                    onChanged: (val) =>
+                        setState(() => _selectedStatus = val),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: MyTextFormField(
-                      title: 'Warranty Expiry Date',
-                      hintText: 'YYYY-MM-DD',
-                      spaceBetweenText: 8,
-                      controller: _warrantyDateCtrl,
-                      readOnly: true,
-                      trailing: const Icon(Iconsax.calendar_1,
-                          size: 18, color: AppColors.textMuted),
-                      onTap: () => _selectDate(_warrantyDateCtrl),
-                    ),
+                  MyTextFormField(
+                    title: 'Warranty Expiry Date',
+                    hintText: 'YYYY-MM-DD',
+                    spaceBetweenText: 8,
+                    controller: _warrantyDateCtrl,
+                    readOnly: true,
+                    trailing: const Icon(Iconsax.calendar_1,
+                        size: 18, color: AppColors.textMuted),
+                    onTap: () => _selectDate(_warrantyDateCtrl),
                   ),
                 ],
               ),

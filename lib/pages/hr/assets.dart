@@ -9,6 +9,7 @@ import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
@@ -85,11 +86,221 @@ class _AssetsTableCard extends StatelessWidget {
   final AssetController controller;
   const _AssetsTableCard({required this.controller});
 
+  Widget _buildMobileCards(BuildContext context) {
+    return Column(
+      children: controller.assetList.map((asset) {
+        String displayDate = '';
+        try {
+          displayDate = DateFormat('MMM d, yyyy').format(asset.purchaseDate);
+        } catch (_) {
+          displayDate = '—';
+        }
+
+        final statusTone = asset.status == 'available'
+            ? StatusTone.success
+            : asset.status == 'in-use'
+                ? StatusTone.primary
+                : asset.status == 'maintenance'
+                    ? StatusTone.warning
+                    : StatusTone.danger;
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: AppColors.borderSubtle, width: 0.6),
+          ),
+          color: AppColors.surface,
+          child: InkWell(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => ViewAssetDialog(asset: asset),
+              );
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          asset.name,
+                          style: AppTextStyles.bodyMd.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      StatusChip(
+                        label: asset.status,
+                        tone: statusTone,
+                        dense: true,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Type',
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          StatusChip(
+                            label: asset.assetType.isEmpty ? '—' : asset.assetType,
+                            tone: StatusTone.info,
+                            dense: true,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Value',
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '₦${NumberFormat('#,##0.00').format(asset.value)}',
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 24, color: AppColors.borderSubtle),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Iconsax.location,
+                              size: 14, color: AppColors.textSecondary),
+                          const SizedBox(width: 4),
+                          Text(
+                            asset.branch.isEmpty ? '—' : asset.branch,
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Icon(Iconsax.calendar,
+                              size: 14, color: AppColors.textSecondary),
+                          const SizedBox(width: 4),
+                          Text(
+                            displayDate,
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton.icon(
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (_) => AddAssetDialog(asset: asset),
+                        ),
+                        icon: const Icon(Iconsax.edit, size: 16),
+                        label: const Text('Edit'),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(60, 30),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton.icon(
+                        onPressed: () async {
+                          final confirmed = await DialogScaffold.show<bool>(
+                            context,
+                            title: 'Delete asset',
+                            size: DialogSize.sm,
+                            body: Text(
+                                'Are you sure you want to delete "${asset.name}"?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancel'),
+                              ),
+                              FilledButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          );
+                          if (confirmed == true) {
+                            controller.deleteAsset(context, asset.id);
+                          }
+                        },
+                        icon: const Icon(Iconsax.trash, size: 16),
+                        label: const Text('Delete'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.danger,
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(60, 30),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final loading = controller.isLoading.value && controller.assetList.isEmpty;
       final isEmpty = !controller.isLoading.value && controller.assetList.isEmpty;
+      final showMobile = context.isMobile;
+
+      if (showMobile && !loading && !isEmpty) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildMobileCards(context),
+            const SizedBox(height: 16),
+            Obx(() => PaginatorFooter(
+                  totalItems: controller.totalItems.value,
+                  limit: controller.limit.value,
+                  currentPage: controller.currentPage.value,
+                  onPageChanged: controller.goToPage,
+                  onLimitChanged: controller.setLimit,
+                )),
+          ],
+        );
+      }
 
       return AppCard(
         padding: EdgeInsets.zero,

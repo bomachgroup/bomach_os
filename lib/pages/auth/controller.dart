@@ -55,6 +55,7 @@ class AuthController extends GetxController {
   }
 
   void _notifyRefresh() {
+    log("DEBUG AUTH: _notifyRefresh called");
     _refreshController.add(null);
   }
 

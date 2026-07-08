@@ -48,4 +48,42 @@ extension BreakpointContext on BuildContext {
   bool get isMobile => breakpoint.isMobile;
   bool get isTablet => breakpoint.isTablet;
   bool get isDesktop => breakpoint.isDesktop;
+
+  double get responsivePadding => isMobile ? 16.0 : 32.0;
+}
+
+class ResponsiveRow extends StatelessWidget {
+  final List<Widget> children;
+  final double spacing;
+  final CrossAxisAlignment crossAxisAlignment;
+
+  const ResponsiveRow({
+    super.key,
+    required this.children,
+    this.spacing = 16.0,
+    this.crossAxisAlignment = CrossAxisAlignment.start,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (context.isMobile) {
+      final List<Widget> spacedChildren = [];
+      for (int i = 0; i < children.length; i++) {
+        spacedChildren.add(children[i]);
+        if (i < children.length - 1) {
+          spacedChildren.add(SizedBox(height: spacing));
+        }
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: spacedChildren,
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: crossAxisAlignment,
+      children: children.map((c) => Expanded(child: c)).toList(),
+    );
+  }
 }

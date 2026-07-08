@@ -1,4 +1,6 @@
 // Component imports
+import 'dart:developer';
+
 import 'package:bomach_os/components/section/responsive_widget.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/analytics/overview.dart';
@@ -283,13 +285,23 @@ final goRouter = GoRouter(
   debugLogDiagnostics: true,
   refreshListenable: GoRouterRefreshStream(authController.refreshStream),
   redirect: (BuildContext context, GoRouterState state) {
+    final bool isLoggedIn = authController.currentUser.value != null;
+    final String location = state.matchedLocation;
+    log("DEBUG ROUTER: redirect check - location: $location, isLoggedIn: $isLoggedIn, isAuthInitializing: ${authController.isAuthInitializing.value}");
+
     // 0. Still checking auth state → splash screen
     if (authController.isAuthInitializing.value) {
       return RouteConstants.splash;
     }
 
-    final bool isLoggedIn = authController.currentUser.value != null;
-    final String location = state.matchedLocation;
+    if (location == RouteConstants.splash) {
+      if (isLoggedIn) {
+        final permissionService = Get.find<PermissionService>();
+        return permissionService.getFirstPermittedRoute();
+      } else {
+        return RouteConstants.login;
+      }
+    }
 
     // 1. Define all routes that should be accessible WITHOUT logging in
     final bool isPublicRoute = location == RouteConstants.login ||

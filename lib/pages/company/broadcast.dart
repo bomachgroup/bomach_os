@@ -474,11 +474,16 @@ class _AnnouncementsTab extends StatelessWidget {
               ),
               Expanded(
                 flex: 2,
-                child: StatusChip(
-                  label: announcement.isActive ? 'Active' : 'Inactive',
-                  tone: announcement.isActive
-                      ? StatusTone.success
-                      : StatusTone.neutral,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    StatusChip(
+                      label: announcement.isActive ? 'Active' : 'Inactive',
+                      tone: announcement.isActive
+                          ? StatusTone.success
+                          : StatusTone.neutral,
+                    ),
+                  ],
                 ),
               ),
               SizedBox(
