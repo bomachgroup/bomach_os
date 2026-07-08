@@ -504,69 +504,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
     );
   }
 
-  List<DataRow> _buildRows(List<Task> tasks) {
-    return tasks.map((task) {
-      return DataRow(
-        cells: [
-          DataCell(
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: _getPriorityColor(task.priority)
-                        .withValues(alpha: 0.1),
-                    borderRadius: AppRadii.brSm,
-                  ),
-                  child: Center(
-                    child: Icon(Iconsax.task_square,
-                        size: 18, color: _getPriorityColor(task.priority)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 180,
-                      child: MyText(
-                        task.name,
-                        style: AppTextStyles.bodyMd.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                        maxLines: 1,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    MyText(
-                      '#${task.id}',
-                      style: AppTextStyles.caption.copyWith(
-                        fontSize: 11,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          DataCell(_buildPriorityChip(task.priority)),
-          DataCell(MyText(
-              task.dueDate.isNotEmpty ? task.dueDate : '\u2014',
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary))),
-          DataCell(MyText(
-              task.estimatedHours > 0 ? '${task.estimatedHours}h' : '\u2014',
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary))),
-          DataCell(StatusChip.fromStatus(task.status)),
-          DataCell(_buildActionMenu(task)),
-        ],
-      );
-    }).toList();
-  }
+
 
   Widget _buildPriorityChip(String priority) {
     StatusTone tone;
