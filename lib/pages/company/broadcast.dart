@@ -461,6 +461,7 @@ class _AnnouncementsTab extends StatelessWidget {
                 ),
               ),
               // ── Status ──
+              const SizedBox(width: 16),
               StatusChip(
                 label: announcement.isActive ? 'Active' : 'Inactive',
                 tone: announcement.isActive
@@ -468,6 +469,7 @@ class _AnnouncementsTab extends StatelessWidget {
                     : StatusTone.neutral,
                 dense: true,
               ),
+              const SizedBox(width: 8),
               // ── Actions ──
               _buildRowActions(
                 onView: () => showDialog(
