@@ -204,29 +204,7 @@ Widget _tablePaginator(Widget child) {
   );
 }
 
-PopupMenuItem<String> _menuItem({
-  required String value,
-  required IconData icon,
-  required String label,
-  bool destructive = false,
-}) {
-  final color = destructive ? AppColors.danger : AppColors.textSecondary;
-  return PopupMenuItem<String>(
-    value: value,
-    child: Row(
-      children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: AppTextStyles.bodyMd.copyWith(
-            color: destructive ? AppColors.danger : AppColors.textPrimary,
-          ),
-        ),
-      ],
-    ),
-  );
-}
+
 
 StatusTone _flowStatusTone(String status) {
   switch (status.toLowerCase()) {
