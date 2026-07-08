@@ -461,53 +461,7 @@ class _WorkflowsTab extends StatelessWidget {
 
 
 
-  Widget _buildActionMenu(BuildContext context, ApprovalFlow flow) {
-    return PopupMenuButton<String>(
-      icon: const Icon(Iconsax.more,
-          size: 18, color: AppColors.textSecondary),
-      shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
-      onSelected: (value) async {
-        switch (value) {
-          case 'delete':
-            final confirmed = await DialogScaffold.show<bool>(
-              context,
-              title: 'Deactivate Workflow',
-              size: DialogSize.sm,
-              body: Text(
-                'Are you sure you want to deactivate "${flow.name}"?',
-                style: AppTextStyles.bodyMd,
-              ),
-              actions: [
-                MyOutlinedButton(
-                  child: 'Cancel',
-                  height: 44,
-                  onTap: () => Navigator.pop(context, false),
-                  textColor: AppColors.textSecondary,
-                  borderColor: AppColors.borderStrong,
-                ),
-                MyElevatedButton(
-                  width: 140,
-                  height: 44,
-                  child: 'Deactivate',
-                  onTap: () => Navigator.pop(context, true),
-                ),
-              ],
-            );
-            if (confirmed == true && context.mounted) {
-              controller.deleteFlow(context, flow.id);
-            }
-            break;
-        }
-      },
-      itemBuilder: (_) => [
-        _menuItem(
-            value: 'delete',
-            icon: Iconsax.trash,
-            label: 'Deactivate',
-            destructive: true),
-      ],
-    );
-  }
+
 }
 
 // ═══════════════════════════════════════════════════════════════════
