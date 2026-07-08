@@ -52,7 +52,7 @@ class Event {
               .toList() ??
           [],
       status: json['status'] as String,
-      reminderOffset: json['reminder_offset'] as int?,
+      reminderOffset: _parseReminderOffset(json['reminder_offset']),
       isRecurring: json['is_recurring'] as bool? ?? false,
       recurrence: json['recurrence'] as String?,
       organizerName: json['organizer_name'] as String?,
@@ -60,6 +60,33 @@ class Event {
       updatedAt: json['updated_at'] as String,
     );
   }
+}
+
+int? _parseReminderOffset(dynamic val) {
+  if (val == null) return null;
+  if (val is num) return val.toInt();
+  if (val is String) {
+    final clean = val.trim().toLowerCase();
+    if (clean.contains('no reminder') || clean == 'none') {
+      return 0;
+    }
+    final parsed = int.tryParse(clean);
+    if (parsed != null) return parsed;
+
+    if (clean.contains('hour')) {
+      final hours = int.tryParse(clean.split(' ').first);
+      if (hours != null) return hours * 60;
+    }
+    if (clean.contains('day')) {
+      final days = int.tryParse(clean.split(' ').first);
+      if (days != null) return days * 1440;
+    }
+    if (clean.contains('minute')) {
+      final minutes = int.tryParse(clean.split(' ').first);
+      if (minutes != null) return minutes;
+    }
+  }
+  return 0;
 }
 
 class EventService {

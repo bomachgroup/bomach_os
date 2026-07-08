@@ -140,12 +140,39 @@ class BroadcastEvent {
       targetAssociates: json['target_associates'] ?? false,
       targetInvestors: json['target_investors'] ?? false,
       targetPartners: json['target_partners'] ?? false,
-      reminderOffset: json['reminder_offset'] ?? 0,
+      reminderOffset: _parseReminderOffset(json['reminder_offset']) ?? 0,
       recurrence: json['recurrence'] ?? '',
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
     );
   }
+}
+
+int? _parseReminderOffset(dynamic val) {
+  if (val == null) return null;
+  if (val is num) return val.toInt();
+  if (val is String) {
+    final clean = val.trim().toLowerCase();
+    if (clean.contains('no reminder') || clean == 'none') {
+      return 0;
+    }
+    final parsed = int.tryParse(clean);
+    if (parsed != null) return parsed;
+
+    if (clean.contains('hour')) {
+      final hours = int.tryParse(clean.split(' ').first);
+      if (hours != null) return hours * 60;
+    }
+    if (clean.contains('day')) {
+      final days = int.tryParse(clean.split(' ').first);
+      if (days != null) return days * 1440;
+    }
+    if (clean.contains('minute')) {
+      final minutes = int.tryParse(clean.split(' ').first);
+      if (minutes != null) return minutes;
+    }
+  }
+  return 0;
 }
 
 // ─── NOTIFICATION ITEM (UI-only) ────────────────────────────────
