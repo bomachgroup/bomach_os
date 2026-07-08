@@ -123,7 +123,14 @@ class WorkReportService {
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ?? error.message;
+      String? errorMessage;
+      final data = error.response?.data;
+      if (data is Map) {
+        errorMessage = data['message'] ?? data['detail']?.toString();
+      } else if (data is String && data.isNotEmpty) {
+        errorMessage = data;
+      }
+      errorMessage ??= error.message;
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }
