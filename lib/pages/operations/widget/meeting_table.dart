@@ -6,6 +6,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -88,6 +89,12 @@ class _MeetingTableState extends State<MeetingTable> {
   }
 
   Widget _buildTable() {
+    if (context.isMobile) {
+      return Column(
+        children: List.generate(_totalMeetings, (index) => _buildMobileCard(index)),
+      );
+    }
+
     return Scrollbar(
       controller: _scrollController,
       thumbVisibility: true,
@@ -118,6 +125,127 @@ class _MeetingTableState extends State<MeetingTable> {
               const Divider(height: 1, color: AppColors.borderSubtle),
               ...List.generate(_totalMeetings, (index) => _buildRow(index)),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileCard(int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: AppRadii.brLg,
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const MeetingViewDialog(),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '#${(index + 1).toString().padLeft(3, '0')}',
+                      style: AppTextStyles.bodySm.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    StatusChip(
+                      label: index.isEven ? 'Completed' : 'Scheduled',
+                      tone: index.isEven ? StatusTone.success : StatusTone.primary,
+                      dense: true,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'O2 Arena Estate Dev',
+                  style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('02/02/2025', style: AppTextStyles.bodySm),
+                    Text('Offline', style: AppTextStyles.bodySm),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Iconsax.people, size: 14, color: AppColors.textMuted),
+                        const SizedBox(width: 6),
+                        Text('23 Attendees', style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Iconsax.document, size: 14, color: AppColors.textMuted),
+                        const SizedBox(width: 6),
+                        Text('2 Files', style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(height: 1, color: AppColors.borderSubtle),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: AppRadii.brSm,
+                        onTapDown: (details) async {
+                          await showMenu<String>(
+                            context: context,
+                            position: RelativeRect.fromLTRB(
+                              details.globalPosition.dx,
+                              details.globalPosition.dy,
+                              details.globalPosition.dx,
+                              details.globalPosition.dy,
+                            ),
+                            items: const [
+                              PopupMenuItem(value: 'edit', child: Text('Edit')),
+                              PopupMenuItem(value: 'cancel', child: Text('Cancel')),
+                            ],
+                          );
+                          // Handle menu selection here
+                        },
+                        onTap: () {},
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            borderRadius: AppRadii.brSm,
+                            border: Border.all(color: AppColors.borderSubtle),
+                          ),
+                          child: const Icon(Iconsax.more,
+                              size: 16, color: AppColors.textSecondary),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

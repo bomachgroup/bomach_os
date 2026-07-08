@@ -7,6 +7,7 @@ import 'package:bomach_os/pages/operations/models/models.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -117,6 +118,12 @@ class _ProjectMembersState extends State<ProjectMembers> {
   }
 
   Widget _buildTable(List<ProjectEmployee> members) {
+    if (context.isMobile) {
+      return Column(
+        children: members.asMap().entries.map((e) => _buildMobileCard(e.value, e.key)).toList(),
+      );
+    }
+
     return Scrollbar(
       controller: _scrollController,
       thumbVisibility: true,
@@ -149,6 +156,116 @@ class _ProjectMembersState extends State<ProjectMembers> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileCard(ProjectEmployee emp, int index) {
+    final color = _avatarColor(index);
+    final initials = emp.fullName.isNotEmpty
+        ? emp.fullName.trim().substring(0, 1).toUpperCase()
+        : '?';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                emp.employeeId.isEmpty ? '—' : emp.employeeId,
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.textSecondary,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              StatusChip(
+                label: emp.employmentType.isEmpty ? '—' : emp.employmentType,
+                tone: _roleTone(emp.position),
+                dense: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: color.withValues(alpha: 0.15),
+                child: Text(
+                  initials,
+                  style: AppTextStyles.label.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      emp.fullName.isEmpty ? '—' : emp.fullName,
+                      style: AppTextStyles.bodyMd.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (emp.email.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        emp.email,
+                        style: AppTextStyles.bodySm,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Department',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  ),
+                  Text(
+                    emp.departmentName.isEmpty ? '—' : emp.departmentName,
+                    style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Designation',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  ),
+                  Text(
+                    emp.position.isEmpty ? '—' : emp.position,
+                    style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -15,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controller/awards_controller.dart';
 import 'models/awards_model.dart';
 import 'widget/add_award_widget.dart';
@@ -337,6 +338,12 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
   }
 
   Widget _buildAwardsTable(List<Award> awards) {
+    if (context.isMobile) {
+      return Column(
+        children: awards.map((award) => _buildAwardMobileCard(award)).toList(),
+      );
+    }
+
     return Column(
       children: [
         Container(
@@ -354,6 +361,77 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
         const Divider(height: 1, color: AppColors.borderSubtle),
         ...awards.map((award) => _buildTableRow(award)),
       ],
+    );
+  }
+
+  Widget _buildAwardMobileCard(Award award) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
+            final token = await _getToken(context);
+            if (token != null && context.mounted) {
+              showDialog(
+                context: context,
+                builder: (c) => ViewAwardDialog(award: award, token: token),
+              );
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        award.title,
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    StatusChip(
+                      label: award.category.isEmpty ? '—' : award.category,
+                      tone: _awardTone(award.category),
+                      dense: true,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      award.dateAwarded != null
+                          ? DateFormat('MMM dd, yyyy').format(award.dateAwarded!)
+                          : '—',
+                      style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                    ),
+                    Text(
+                      'Rank: ${award.rankLevel.isEmpty ? '—' : award.rankLevel}',
+                      style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

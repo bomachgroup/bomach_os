@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controller/performance_review_controller.dart';
 import 'models/performance_review.dart';
 
@@ -99,6 +100,12 @@ class PerformanceReviewPage extends StatelessWidget {
                   );
                 }
 
+                if (context.isMobile) {
+                  return Column(
+                    children: controller.performanceReviews.map((review) => _buildMobileCard(context, review)).toList(),
+                  );
+                }
+
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
@@ -126,6 +133,95 @@ class PerformanceReviewPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildMobileCard(BuildContext context, PerformanceReview review) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                review.employeeId,
+                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const Star5(),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'ID: ${review.employeeId}',
+            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Review Period',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    review.reviewPeriod,
+                    style: AppTextStyles.bodySm,
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Review Date',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    review.reviewDate?.toIso8601String().split('T').first ?? '',
+                    style: AppTextStyles.bodySm,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Iconsax.eye, size: 18, color: AppColors.primary),
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => ViewPerformanceReviewDialog(review: review),
+                ),
+              ),
+              const ThreeDotPop(),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

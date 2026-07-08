@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controllers/board_controller.dart';
 import 'controllers/company_controller.dart';
 import 'widget/add_partner_dialog.dart';
@@ -407,6 +408,12 @@ class _MeetingsTab extends StatelessWidget {
   }
 
   Widget _buildMeetingTable(BuildContext context) {
+    if (context.isMobile) {
+      return Column(
+        children: controller.meetingList.map((m) => _buildMeetingMobileCard(context, m)).toList(),
+      );
+    }
+
     return Column(
       children: [
         Container(
@@ -425,6 +432,99 @@ class _MeetingsTab extends StatelessWidget {
         const Divider(height: 1, color: AppColors.borderSubtle),
         ...controller.meetingList.map((m) => _buildMeetingRow(context, m)),
       ],
+    );
+  }
+
+  Widget _buildMeetingMobileCard(BuildContext context, BoardMeeting meeting) {
+    String displayDate = meeting.meetingDate;
+    try {
+      final parsed = DateTime.parse(meeting.meetingDate);
+      displayDate = DateFormat('MMM d, yyyy').format(parsed);
+    } catch (_) {}
+
+    String displayTime = meeting.meetingTime;
+    try {
+      final parts = meeting.meetingTime.split(':');
+      int h = int.parse(parts[0]);
+      int min = int.parse(parts[1]);
+      final period = h >= 12 ? 'PM' : 'AM';
+      if (h > 12) h -= 12;
+      if (h == 0) h = 12;
+      displayTime = '$h:${min.toString().padLeft(2, '0')} $period';
+    } catch (_) {}
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  meeting.title,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              StatusChip(
+                label: meeting.statusDisplay.isEmpty
+                    ? 'Unknown'
+                    : meeting.statusDisplay,
+                tone: _meetingStatusTone(meeting.statusDisplay),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Iconsax.calendar_1, size: 14, color: AppColors.textMuted),
+              const SizedBox(width: 6),
+              Text(
+                displayDate,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
+              ),
+              if (meeting.meetingTime.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Text(
+                  '•  $displayTime',
+                  style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ],
+          ),
+          if (meeting.agenda.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              meeting.agenda,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _buildActionMenu(context, meeting),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -668,6 +768,12 @@ class _ResolutionsTab extends StatelessWidget {
   }
 
   Widget _buildResolutionTable(BuildContext context) {
+    if (context.isMobile) {
+      return Column(
+        children: controller.resolutionList.map((r) => _buildResolutionMobileCard(context, r)).toList(),
+      );
+    }
+
     return Column(
       children: [
         Container(
@@ -687,6 +793,75 @@ class _ResolutionsTab extends StatelessWidget {
         ...controller.resolutionList
             .map((r) => _buildResolutionRow(context, r)),
       ],
+    );
+  }
+
+  Widget _buildResolutionMobileCard(BuildContext context, BoardResolution resolution) {
+    String displayDate = resolution.resolutionDate;
+    try {
+      final parsed = DateTime.parse(resolution.resolutionDate);
+      displayDate = DateFormat('MMM d, yyyy').format(parsed);
+    } catch (_) {}
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  resolution.title,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              StatusChip(
+                label: resolution.statusDisplay.isEmpty
+                    ? 'Unknown'
+                    : resolution.statusDisplay,
+                tone: _resolutionStatusTone(resolution.statusDisplay),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Type: ${resolution.resolutionTypeDisplay}',
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+              Text(
+                displayDate,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _buildActionMenu(context, resolution),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -899,6 +1074,12 @@ class _InvestorsTab extends StatelessWidget {
 
   Widget _buildShareholderTable(
       BuildContext context, CompanyController companyCtrl) {
+    if (context.isMobile) {
+      return Column(
+        children: companyCtrl.shareholders.map((s) => _buildShareholderMobileCard(context, s, companyCtrl)).toList(),
+      );
+    }
+
     return Column(
       children: [
         Container(
@@ -919,6 +1100,159 @@ class _InvestorsTab extends StatelessWidget {
         ...companyCtrl.shareholders
             .map((s) => _buildShareholderRow(context, s, companyCtrl)),
       ],
+    );
+  }
+
+  Widget _buildShareholderMobileCard(
+      BuildContext context, Shareholder s, CompanyController companyCtrl) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: AppColors.primarySubtle,
+                child: Text(
+                  s.firstName.isNotEmpty ? s.firstName[0].toUpperCase() : '?',
+                  style: AppTextStyles.label.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      s.fullName,
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      s.email,
+                      style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Title: ${s.titleDisplay}',
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
+              ),
+              Row(
+                children: [
+                  Text(
+                    'Share: ',
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                  ),
+                  Text(
+                    '${s.sharePercentage}%',
+                    style: AppTextStyles.bodySm.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                'Board Member: ',
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+              Icon(
+                s.isBoardMember ? Iconsax.tick_circle : Iconsax.close_circle,
+                size: 16,
+                color: s.isBoardMember ? AppColors.success : AppColors.textMuted,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              PopupMenuButton<String>(
+                icon: const Icon(Iconsax.more,
+                    size: 18, color: AppColors.textSecondary),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+                onSelected: (value) async {
+                  switch (value) {
+                    case 'edit':
+                      showDialog(
+                        context: context,
+                        builder: (_) => AddShareholderDialog(shareholder: s),
+                      );
+                      break;
+                    case 'delete':
+                      final confirmed = await DialogScaffold.show<bool>(
+                        context,
+                        title: 'Delete Shareholder',
+                        size: DialogSize.sm,
+                        body: Text(
+                          'Are you sure you want to delete ${s.fullName}?',
+                          style: AppTextStyles.bodyMd,
+                        ),
+                        actions: [
+                          MyOutlinedButton(
+                            child: 'Cancel',
+                            height: 44,
+                            onTap: () => Navigator.pop(context, false),
+                            textColor: AppColors.textSecondary,
+                            borderColor: AppColors.borderStrong,
+                          ),
+                          MyElevatedButton(
+                            width: 120,
+                            height: 44,
+                            child: 'Delete',
+                            onTap: () => Navigator.pop(context, true),
+                            bgColor: AppColors.danger,
+                          ),
+                        ],
+                      );
+                      if (confirmed == true && context.mounted) {
+                        companyCtrl.deleteShareholder(context, s.id);
+                      }
+                      break;
+                  }
+                },
+                itemBuilder: (_) => [
+                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                  const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Delete', style: TextStyle(color: Colors.red))),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -1161,6 +1495,12 @@ class _PartnersTab extends StatelessWidget {
   }
 
   Widget _buildPartnerTable(BuildContext context) {
+    if (context.isMobile) {
+      return Column(
+        children: controller.partnerList.map((p) => _buildPartnerMobileCard(context, p)).toList(),
+      );
+    }
+
     return Column(
       children: [
         Container(
@@ -1180,6 +1520,149 @@ class _PartnersTab extends StatelessWidget {
         const Divider(height: 1, color: AppColors.borderSubtle),
         ...controller.partnerList.map((p) => _buildPartnerRow(context, p)),
       ],
+    );
+  }
+
+  Widget _buildPartnerMobileCard(BuildContext context, Partner p) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: AppColors.primarySubtle,
+                child: Text(
+                  p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
+                  style: AppTextStyles.label.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      p.name,
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      p.email,
+                      style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Category: ${p.categoryDisplay}',
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
+              ),
+              StatusChip(
+                label: p.statusDisplay.isEmpty ? 'Unknown' : p.statusDisplay,
+                tone: _partnerStatusTone(p.status),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                'Agreements: ',
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+              Text(
+                '${p.agreementCount}',
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              PopupMenuButton<String>(
+                icon: const Icon(Iconsax.more,
+                    size: 18, color: AppColors.textSecondary),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+                onSelected: (value) async {
+                  switch (value) {
+                    case 'edit':
+                      showDialog(
+                        context: context,
+                        builder: (_) => AddPartnerDialog(partner: p),
+                      );
+                      break;
+                    case 'delete':
+                      final confirmed = await DialogScaffold.show<bool>(
+                        context,
+                        title: 'Delete Partner',
+                        size: DialogSize.sm,
+                        body: Text(
+                          'Are you sure you want to delete "${p.name}"? This will also delete all associated agreements.',
+                          style: AppTextStyles.bodyMd,
+                        ),
+                        actions: [
+                          MyOutlinedButton(
+                            child: 'Cancel',
+                            height: 44,
+                            onTap: () => Navigator.pop(context, false),
+                            textColor: AppColors.textSecondary,
+                            borderColor: AppColors.borderStrong,
+                          ),
+                          MyElevatedButton(
+                            width: 120,
+                            height: 44,
+                            child: 'Delete',
+                            onTap: () => Navigator.pop(context, true),
+                            bgColor: AppColors.danger,
+                          ),
+                        ],
+                      );
+                      if (confirmed == true && context.mounted) {
+                        controller.deletePartner(context, p.id);
+                      }
+                      break;
+                  }
+                },
+                itemBuilder: (_) => [
+                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                  const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Delete', style: TextStyle(color: Colors.red))),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

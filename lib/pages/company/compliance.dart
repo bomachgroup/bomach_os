@@ -12,12 +12,14 @@ import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:bomach_os/src/model/company_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controllers/company_controller.dart';
 import 'widget/add_compliance_dialog.dart';
 
@@ -152,6 +154,12 @@ class _CompliancePageState extends State<CompliancePage> {
     final endIndex = (startIndex + _pageSize).clamp(0, items.length);
     final pageItems = items.sublist(startIndex, endIndex);
 
+    if (context.isMobile) {
+      return Column(
+        children: pageItems.map((item) => _buildMobileCard(item)).toList(),
+      );
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
@@ -180,6 +188,120 @@ class _CompliancePageState extends State<CompliancePage> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileCard(Compliance item) {
+    final typeLabel =
+        item.complianceType.isNotEmpty ? item.complianceType : 'Untitled';
+    final abbreviation = _typeAbbreviation(item.complianceType);
+    final status = _complianceStatus(item);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppColors.primarySubtle.withValues(alpha: 0.5),
+                  borderRadius: AppRadii.brMd,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  abbreviation,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              StatusChip(
+                label: status.label,
+                tone: status.tone,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            typeLabel,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (item.fullName.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              item.fullName,
+              style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Ref: ${item.referenceNumber.isNotEmpty ? item.referenceNumber : '—'}',
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+              Text(
+                'Expires: ${_formatDate(item.expiryDate)}',
+                style: AppTextStyles.bodySm.copyWith(
+                  color: _isExpired(item.expiryDate)
+                      ? AppColors.danger
+                      : AppColors.textPrimary,
+                  fontWeight: _isExpired(item.expiryDate)
+                      ? FontWeight.w600
+                      : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+          if (item.issuingAuthority.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Authority: ${item.issuingAuthority}',
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+            ),
+          ],
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (c) => AddComplianceDialog(compliance: item),
+                ),
+                icon: const Icon(Iconsax.edit,
+                    size: 20, color: AppColors.textSecondary),
+                tooltip: 'Edit record',
+              ),
+              IconButton(
+                onPressed: () => _confirmDelete(item),
+                icon: const Icon(Iconsax.trash,
+                    size: 20, color: AppColors.danger),
+                tooltip: 'Delete record',
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

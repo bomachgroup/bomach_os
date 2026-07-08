@@ -12,6 +12,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -110,6 +111,12 @@ class _SiteEquipmentTableState extends State<SiteEquipmentTable> {
   }
 
   Widget _buildTable(List<SiteEquipment> items) {
+    if (context.isMobile) {
+      return Column(
+        children: List.generate(items.length, (index) => _buildMobileCard(items[index], index)),
+      );
+    }
+
     return Scrollbar(
       controller: _scrollController,
       thumbVisibility: true,
@@ -139,6 +146,83 @@ class _SiteEquipmentTableState extends State<SiteEquipmentTable> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileCard(SiteEquipment eq, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'S/N: ${index + 1}',
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Iconsax.trash, size: 18, color: AppColors.danger),
+                onPressed: () => controller.deleteEquipment(
+                    context, eq.id, widget.worksiteId),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySubtle,
+                  borderRadius: AppRadii.brSm,
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Iconsax.box,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  eq.name.isEmpty ? '—' : eq.name,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Unit Value',
+                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+              ),
+              Text(
+                eq.unitValue.isEmpty ? '—' : eq.unitValue,
+                style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

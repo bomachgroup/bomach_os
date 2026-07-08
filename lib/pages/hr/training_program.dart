@@ -11,6 +11,7 @@ import 'package:bomach_os/pages/hr/widget/view_program_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controller/training_program_controller.dart';
 
 class TrainingProgramPage extends StatefulWidget {
@@ -166,6 +168,12 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                   return const SizedBox(
                       height: 200,
                       child: Center(child: Text("No records found.", style: AppTextStyles.bodyMd)));
+                }
+
+                if (context.isMobile) {
+                  return _ctrl.activeTab.value == 'Training Programs'
+                      ? _buildProgramsMobileCards()
+                      : _buildAssessmentsMobileCards();
                 }
 
                 return SingleChildScrollView(
@@ -366,6 +374,213 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
           DataCell(StatusChip.fromStatus(item.status)),
           const DataCell(ThreeDotPop()),
         ]);
+      }).toList(),
+    );
+  }
+
+  Widget _buildProgramsMobileCards() {
+    return Column(
+      children: _ctrl.programList.map((program) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: AppRadii.brLg,
+            border: Border.all(color: AppColors.borderSubtle),
+            boxShadow: AppShadows.sm,
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StatusChip.fromStatus(program.status),
+                  _buildModeBadge("Online"),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                program.programName,
+                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                "3 Weeks  •  Management",
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Start Date',
+                        style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                      ),
+                      Text(
+                        program.startDate != null
+                            ? DateFormat('dd MMM yyyy').format(program.startDate!)
+                            : '-',
+                        style: AppTextStyles.bodySm,
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'End Date',
+                        style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                      ),
+                      Text(
+                        program.endDate != null
+                            ? DateFormat('dd MMM yyyy').format(program.endDate!)
+                            : '-',
+                        style: AppTextStyles.bodySm,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Applicants: 5',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                  ),
+                  ThreeDotPop(
+                    onTapView: () async {
+                      final token = await _storage.read(key: 'access_token');
+                      if (token != null && context.mounted) {
+                        String cleanToken = token
+                            .replaceAll('"', '')
+                            .replaceAll('Bearer ', '')
+                            .trim();
+                        showDialog(
+                          context: context,
+                          builder: (context) => ViewProgramDialog(
+                            program: program,
+                            token: cleanToken,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildAssessmentsMobileCards() {
+    return Column(
+      children: _ctrl.assessmentList.map((item) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: AppRadii.brLg,
+            border: Border.all(color: AppColors.borderSubtle),
+            boxShadow: AppShadows.sm,
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildPriorityBadge(item.priority),
+                  StatusChip.fromStatus(item.status),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Identified Gap: ${item.gap}',
+                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: AppColors.infoSubtle,
+                    child: Text(
+                      item.employeeName.isNotEmpty ? item.employeeName[0] : 'U',
+                      style: AppTextStyles.caption.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Employee: ${item.employeeName}',
+                          style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                        Text(
+                          item.employeeRole,
+                          style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: AppColors.infoSubtle,
+                    child: Text(
+                      item.requestedByName.isNotEmpty ? item.requestedByName[0] : 'U',
+                      style: AppTextStyles.caption.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Requested By: ${item.requestedByName}',
+                          style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1, color: AppColors.borderSubtle),
+              const SizedBox(height: 8),
+              const Align(
+                alignment: Alignment.centerRight,
+                child: ThreeDotPop(),
+              ),
+            ],
+          ),
+        );
       }).toList(),
     );
   }

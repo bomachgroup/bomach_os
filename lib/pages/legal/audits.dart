@@ -180,6 +180,169 @@ class AuditsTable extends StatelessWidget {
     required this.controller,
   });
 
+  Widget _buildMobileCard(Audit data, BuildContext context) {
+    Color statusColor;
+    switch (data.statusDisplay.toLowerCase()) {
+      case 'completed':
+        statusColor = Colors.green;
+        break;
+      case 'in progress':
+        statusColor = Colors.orange;
+        break;
+      case 'scheduled':
+        statusColor = Colors.blue;
+        break;
+      default:
+        statusColor = Colors.grey;
+    }
+
+    Color scoreColor = Colors.green;
+    if (data.score != null) {
+      if (data.score! < 80) scoreColor = Colors.orange;
+      if (data.score! < 60) scoreColor = Colors.red;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                data.auditTypeDisplay,
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.5)),
+                ),
+                child: Text(
+                  data.statusDisplay,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            data.auditName,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Auditor: ${data.auditorName}',
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              if (data.score != null)
+                Text(
+                  'Score: ${data.scorePercentage}',
+                  style: TextStyle(
+                    color: scoreColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Date: ${data.auditDate}',
+            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Iconsax.eye, size: 18, color: Colors.black),
+                onPressed: () {
+                  final Map<String, String> auditDetails = {
+                    'Audit Name': data.auditName,
+                    'Audit Type': data.auditTypeDisplay,
+                    'Audit Number': data.auditNumber ?? 'N/A',
+                    'Status': data.statusDisplay,
+                    'Score': data.score != null
+                        ? '${data.scorePercentage} (${data.scoreCategory})'
+                        : 'N/A',
+                    'Auditor': data.auditorName,
+                    'Auditor Title': data.auditorTitle,
+                    'Organization': data.auditorOrganization,
+                    'Department': data.department,
+                    'Description': data.description,
+                    'Findings': data.findings,
+                    'Recommendations': data.recommendations,
+                    'Audit Date': data.auditDate,
+                    'Start Date': data.startDate ?? 'N/A',
+                    'End Date': data.endDate ?? 'N/A',
+                  };
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => DetailsViewPage(
+                          title: data.auditName, details: auditDetails),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Iconsax.edit, size: 18, color: Colors.black),
+                onPressed: () {
+                  CreateNewAuditDialog.show(context);
+                },
+              ),
+              IconButton(
+                icon: const Icon(Iconsax.trash, size: 18, color: Colors.red),
+                onPressed: () {
+                  DialogScaffold.show(
+                    context,
+                    title: "Delete Audit",
+                    size: DialogSize.sm,
+                    body: Text(
+                        "Are you sure you want to delete '${data.auditName}'?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          controller.deleteAudit(context, data.id);
+                        },
+                        child: const Text("Delete",
+                            style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   DataRow _buildDataRow(Audit data, BuildContext context) {
     Color statusColor;
     switch (data.statusDisplay.toLowerCase()) {
@@ -413,37 +576,42 @@ class AuditsTable extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Scrollbar(
-            controller: scrollController,
-            thumbVisibility: true,
-            child: SingleChildScrollView(
+          if (isMobile)
+            Column(
+              children: audits.map((e) => _buildMobileCard(e, context)).toList(),
+            )
+          else
+            Scrollbar(
               controller: scrollController,
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: isMobile ? 600 : 900,
-                  maxWidth: isMobile ? 700 : double.infinity,
-                ),
-                child: DataTable(
-                  columnSpacing: isMobile ? 12 : 24,
-                  headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                  columns: const [
-                    DataColumn(label: Text('Audit')),
-                    DataColumn(label: Text('Type')),
-                    DataColumn(label: Text('Auditor')),
-                    DataColumn(label: Text('Status')),
-                    DataColumn(label: Text('Score')),
-                    DataColumn(label: Text('Date')),
-                    DataColumn(label: Text('Actions')),
-                  ],
-                  rows: audits.map((e) => _buildDataRow(e, context)).toList(),
-                  dataRowMinHeight: isMobile ? 36 : 48,
-                  dataRowMaxHeight: isMobile ? 56 : 72,
-                  headingRowHeight: isMobile ? 32 : 40,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: scrollController,
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: isMobile ? 600 : 900,
+                    maxWidth: isMobile ? 700 : double.infinity,
+                  ),
+                  child: DataTable(
+                    columnSpacing: isMobile ? 12 : 24,
+                    headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
+                    columns: const [
+                      DataColumn(label: Text('Audit')),
+                      DataColumn(label: Text('Type')),
+                      DataColumn(label: Text('Auditor')),
+                      DataColumn(label: Text('Status')),
+                      DataColumn(label: Text('Score')),
+                      DataColumn(label: Text('Date')),
+                      DataColumn(label: Text('Actions')),
+                    ],
+                    rows: audits.map((e) => _buildDataRow(e, context)).toList(),
+                    dataRowMinHeight: isMobile ? 36 : 48,
+                    dataRowMaxHeight: isMobile ? 56 : 72,
+                    headingRowHeight: isMobile ? 32 : 40,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

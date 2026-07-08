@@ -8,6 +8,7 @@ import 'package:bomach_os/pages/hr/widget/work_report_review_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -390,6 +391,15 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
           );
         }
 
+        if (context.isMobile) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: reports.map((r) => _buildMobileCard(r)).toList(),
+            ),
+          );
+        }
+
         return ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Scrollbar(
@@ -430,6 +440,92 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildMobileCard(WorkReport report) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.neutral200),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Iconsax.calendar_1, size: 16, color: AppColors.info),
+                  const SizedBox(width: 6),
+                  MyText(
+                    report.day != null
+                        ? DateFormat('dd MMM yyyy').format(report.day!)
+                        : '-',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.neutral800,
+                    ),
+                  ),
+                ],
+              ),
+              _buildStatusBadge(report.status),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: MyText(
+                  '${report.hoursWorked.toStringAsFixed(1)} hrs',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF6366F1)),
+                ),
+              ),
+              _buildRating(report.rating ?? 0),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Base: ${report.operationalBase ?? '-'}',
+            style: const TextStyle(fontSize: 13, color: AppColors.neutral600),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Activities: ${report.workActivities ?? '-'}',
+            style: const TextStyle(fontSize: 13, color: AppColors.neutral600),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Task details: ${report.taskDetails ?? '-'}',
+            style: const TextStyle(fontSize: 13, color: AppColors.neutral600),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.neutral200),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: _buildActionMenu(report),
+          ),
+        ],
+      ),
     );
   }
 

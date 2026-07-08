@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controllers/approval_controller.dart';
 import 'widget/approval_workflow_dialogs.dart';
 
@@ -344,6 +345,12 @@ class _WorkflowsTab extends StatelessWidget {
   }
 
   Widget _buildFlowTable(BuildContext context) {
+    if (context.isMobile) {
+      return Column(
+        children: controller.flowList.map((flow) => _buildFlowMobileCard(context, flow)).toList(),
+      );
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
@@ -369,6 +376,123 @@ class _WorkflowsTab extends StatelessWidget {
             ...controller.flowList.map((flow) => _buildFlowRow(context, flow)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFlowMobileCard(BuildContext context, ApprovalFlow flow) {
+    final approvers = flow.approverDisplays.isNotEmpty
+        ? flow.approverDisplays
+        : flow.approvers;
+    final statusLabel =
+        flow.statusDisplay.isNotEmpty ? flow.statusDisplay : flow.status;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  flow.name,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              StatusChip(
+                label: statusLabel.isEmpty ? 'Unknown' : statusLabel,
+                tone: _flowStatusTone(statusLabel),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  'Action: ${flow.actionDisplay.isNotEmpty ? flow.actionDisplay : flow.action}',
+                  style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                '${flow.levels} Level${flow.levels != 1 ? 's' : ''}',
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Approvers',
+            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: approvers
+                .map((a) => StatusChip(
+                      label: a,
+                      tone: StatusTone.primary,
+                      dense: true,
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (_) => ViewWorkflowDialog(flow: flow),
+                ),
+                icon: const Icon(Iconsax.eye, size: 16),
+                label: const Text('View'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.textPrimary,
+                  side: const BorderSide(color: AppColors.borderStrong),
+                  minimumSize: const Size(0, 42),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadii.brMd),
+                ),
+              ),
+              const SizedBox(width: 8),
+              MyElevatedButton(
+                height: 42,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                icon: const Icon(Iconsax.edit,
+                    size: 16, color: AppColors.textOnPrimary),
+                child: 'Edit',
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (_) => CreateEditWorkflowDialog(flow: flow),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -597,6 +721,12 @@ class _RequestsTab extends StatelessWidget {
   }
 
   Widget _buildRequestTable(BuildContext context) {
+    if (context.isMobile) {
+      return Column(
+        children: controller.requestList.map((req) => _buildRequestMobileCard(context, req)).toList(),
+      );
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
@@ -623,6 +753,125 @@ class _RequestsTab extends StatelessWidget {
                 .map((req) => _buildRequestRow(context, req)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildRequestMobileCard(BuildContext context, ApprovalRequest req) {
+    String displayDate = req.createdAt;
+    try {
+      final parsed = DateTime.parse(req.createdAt);
+      displayDate = DateFormat('MMM d, yyyy').format(parsed);
+    } catch (_) {}
+
+    final isPending = req.status.toLowerCase() == 'pending';
+    final statusLabel =
+        req.statusDisplay.isNotEmpty ? req.statusDisplay : req.status;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  req.flowName.isNotEmpty ? req.flowName : 'Flow #${req.flowId}',
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              StatusChip(
+                label: statusLabel.isEmpty ? 'Unknown' : statusLabel,
+                tone: _requestStatusTone(statusLabel),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Type: ${req.requestTypeDisplay.isNotEmpty ? req.requestTypeDisplay : req.requestType}',
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  'By: ${req.requestedByName.isNotEmpty ? req.requestedByName : req.requestedBy}',
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                displayDate,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+          if (isPending) ...[
+            const SizedBox(height: 16),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () =>
+                      controller.approveRequest(context, req.id),
+                  icon: const Icon(Iconsax.tick_circle,
+                      size: 16, color: AppColors.success),
+                  label: const Text('Approve'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.success,
+                    side: const BorderSide(color: AppColors.success),
+                    minimumSize: const Size(0, 42),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadii.brMd),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final reason = await _showRejectReasonDialog(context);
+                    if (reason != null && context.mounted) {
+                      controller.rejectRequest(context, req.id,
+                          reason: reason);
+                    }
+                  },
+                  icon: const Icon(Iconsax.close_circle,
+                      size: 16, color: AppColors.danger),
+                  label: const Text('Reject'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.danger,
+                    side: const BorderSide(color: AppColors.danger),
+                    minimumSize: const Size(0, 42),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadii.brMd),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

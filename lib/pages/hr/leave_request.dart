@@ -10,6 +10,7 @@ import 'package:bomach_os/pages/hr/widget/add_leave_request_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -17,6 +18,7 @@ import 'package:intl/intl.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controller/leave_request_controller.dart';
 import 'models/leave_request_model.dart';
 import 'widget/view_leave_request_dialog.dart';
@@ -216,6 +218,12 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                   );
                 }
 
+                if (context.isMobile) {
+                  return Column(
+                    children: _ctrl.leaveList.map((r) => _buildMobileCard(context, r)).toList(),
+                  );
+                }
+
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Theme(
@@ -293,6 +301,129 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
             fontWeight: FontWeight.w600,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileCard(BuildContext context, LeaveRequest r) {
+    final duration = r.durationDays ??
+        (r.endDate != null && r.startDate != null
+            ? r.endDate!.difference(r.startDate!).inDays + 1
+            : 0);
+    final status = r.status?.toLowerCase() ?? 'pending';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                toBeginningOfSentenceCase(r.leaveType.replaceAll('_', ' ')) ??
+                    r.leaveType,
+                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+              ),
+              StatusChip.fromStatus(status),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const CircleAvatar(
+                backgroundColor: AppColors.surfaceMuted,
+                radius: 16,
+                child: Icon(Iconsax.profile_circle,
+                    color: AppColors.textMuted, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      r.employeeId,
+                      style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      "Software Engineer",
+                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Duration',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  ),
+                  Text(
+                    '$duration Day${duration != 1 ? 's' : ''}',
+                    style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Dates',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  ),
+                  Text(
+                    '${r.startDate != null ? DateFormat('dd MMM yyyy').format(r.startDate!) : ''} - ${r.endDate != null ? DateFormat('dd MMM yyyy').format(r.endDate!) : ''}',
+                    style: AppTextStyles.bodySm,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          if (r.reason != null && r.reason!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Reason: ${r.reason!}',
+              style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ThreeDotPop(
+              onTapView: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => ViewLeaveRequestDialog(request: r),
+                );
+              },
+              onTapEdit: () {
+                _ctrl.populateForm(r);
+                showDialog(
+                    context: context,
+                    builder: (_) => AddLeaveRequestDialog(request: r));
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

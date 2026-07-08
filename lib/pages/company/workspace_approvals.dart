@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controllers/workspace_approvals_controller.dart';
 
 /// Admin workspace approvals page.
@@ -372,6 +373,12 @@ class _ApprovalsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (context.isMobile) {
+      return Column(
+        children: rows.map((w) => _buildMobileCard(context, w)).toList(),
+      );
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
@@ -399,6 +406,112 @@ class _ApprovalsTable extends StatelessWidget {
             ...rows.map((w) => _buildRow(context, w)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileCard(BuildContext context, WorkspaceConfig w) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              StatusChip(
+                label: w.status.label,
+                tone: _statusTone(w.status),
+                icon: _statusIcon(w.status),
+                dense: true,
+              ),
+              Text(
+                _formatDate(w.createdAt),
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            w.employeeName ?? 'Employee #${w.employeeId ?? '—'}',
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (w.branchName != null && w.branchName!.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              w.branchName!,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Iconsax.building, size: 14, color: AppColors.textMuted),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  w.workspaceName,
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (w.notes.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(
+                w.notes,
+                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Iconsax.gps, size: 14, color: AppColors.textMuted),
+                  const SizedBox(width: 6),
+                  Text(
+                    _prettyType(w.locationType),
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '•  ${w.radiusMeters}m',
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+              Text(
+                '${w.latitude.toStringAsFixed(4)}, ${w.longitude.toStringAsFixed(4)}',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textMuted,
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 12),
+          _buildActions(context, w),
+        ],
       ),
     );
   }

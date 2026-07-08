@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
 
@@ -285,6 +286,12 @@ class _LeadDataTableLive extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (context.isMobile) {
+      return Column(
+        children: leads.map((lead) => _buildMobileCard(context, lead)).toList(),
+      );
+    }
+
     return Scrollbar(
       controller: scrollController,
       child: SingleChildScrollView(
@@ -363,6 +370,101 @@ class _LeadDataTableLive extends StatelessWidget {
             ]);
           }).toList(),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileCard(BuildContext context, CrmLead lead) {
+    final statusColors = _getStatusColors(lead.status);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.neutral200),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  lead.fullName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildTag(
+                lead.status.toUpperCase(),
+                backgroundColor: statusColors['bg']!,
+                textColor: statusColors['text']!,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            lead.interestedServices,
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+          const SizedBox(height: 12),
+          if (lead.companyName != null && lead.companyName!.isNotEmpty) ...[
+            Text(
+              'Company: ${lead.companyName}',
+              style: const TextStyle(fontSize: 13, color: Colors.black87),
+            ),
+            const SizedBox(height: 6),
+          ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                lead.email,
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+              Text(
+                lead.phoneNumber ?? '—',
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildTag(
+                lead.source,
+                backgroundColor: AppColors.neutral100,
+                textColor: Colors.black87,
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Iconsax.arrow_swap_horizontal, size: 18),
+                    onPressed: () => controller.convertLeadToClient(context, lead.id),
+                    tooltip: 'Convert to Client',
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(8),
+                  ),
+                  IconButton(
+                    icon: const Icon(Iconsax.trash, size: 18, color: Colors.red),
+                    onPressed: () => controller.deleteLead(context, lead.id),
+                    tooltip: 'Delete',
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(8),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

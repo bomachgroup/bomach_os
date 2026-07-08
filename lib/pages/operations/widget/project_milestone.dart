@@ -14,6 +14,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -111,6 +112,12 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
   }
 
   Widget _buildTable(List<Milestone> milestones) {
+    if (context.isMobile) {
+      return Column(
+        children: List.generate(milestones.length, (index) => _buildMobileCard(milestones[index], index)),
+      );
+    }
+
     return Scrollbar(
       controller: _scrollController,
       thumbVisibility: true,
@@ -144,6 +151,116 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileCard(Milestone m, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'S/N: ${index + 1}',
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              StatusChip(
+                label: _statusLabel(m.status),
+                tone: _statusTone(m.status),
+                dense: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            m.name,
+            style: AppTextStyles.bodyMd.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                m.budget.isEmpty ? 'Budget: —' : 'Budget: ${m.budget}',
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+              StatusChip(
+                label: m.priority.isEmpty ? '—' : m.priority,
+                tone: _priorityTone(m.priority),
+                dense: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: AppRadii.brSm,
+                  onTapDown: (details) async {
+                    final selected = await showMenu<String>(
+                      context: context,
+                      position: RelativeRect.fromLTRB(
+                        details.globalPosition.dx,
+                        details.globalPosition.dy,
+                        details.globalPosition.dx,
+                        details.globalPosition.dy,
+                      ),
+                      items: const [
+                        PopupMenuItem(value: 'edit', child: Text('Edit')),
+                        PopupMenuItem(value: 'delete', child: Text('Delete')),
+                      ],
+                    );
+                    if (!mounted) return;
+                    if (selected == 'edit') {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AddMileStoneDialog(
+                          projectId: widget.projectId,
+                          milestone: m,
+                        ),
+                      );
+                    } else if (selected == 'delete') {
+                      controller.deleteMilestone(
+                          context, m.id, widget.projectId);
+                    }
+                  },
+                  onTap: () {},
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadii.brSm,
+                      border: Border.all(color: AppColors.borderSubtle),
+                    ),
+                    child: const Icon(Iconsax.more,
+                        size: 16, color: AppColors.textSecondary),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

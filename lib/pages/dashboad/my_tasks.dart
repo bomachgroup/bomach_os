@@ -13,6 +13,7 @@ import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -385,6 +386,15 @@ class _MyTasksPageState extends State<MyTasksPage> {
           );
         }
 
+        if (context.isMobile) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: controller.tasks.map((t) => _buildTaskMobileCard(t)).toList(),
+            ),
+          );
+        }
+
         return Scrollbar(
           controller: _scrollController,
           thumbVisibility: true,
@@ -419,6 +429,116 @@ class _MyTasksPageState extends State<MyTasksPage> {
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildTaskMobileCard(Task task) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.neutral200),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '#${task.id}',
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 11,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              StatusChip.fromStatus(task.status),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _getPriorityColor(task.priority).withValues(alpha: 0.1),
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: Center(
+                  child: Icon(Iconsax.task_square,
+                      size: 18, color: _getPriorityColor(task.priority)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: MyText(
+                  task.name,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Due Date',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  ),
+                  const SizedBox(height: 2),
+                  MyText(
+                    task.dueDate.isNotEmpty ? task.dueDate : '\u2014',
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Est. Hours',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  ),
+                  const SizedBox(height: 2),
+                  MyText(
+                    task.estimatedHours > 0 ? '${task.estimatedHours}h' : '\u2014',
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Priority',
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  ),
+                  const SizedBox(height: 2),
+                  _buildPriorityChip(task.priority),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.neutral200),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: _buildActionMenu(task),
+          ),
+        ],
+      ),
     );
   }
 

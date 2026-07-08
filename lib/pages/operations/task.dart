@@ -17,6 +17,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import '../../src/app_routes/app_route_constants.dart';
 import 'controllers/tasks_controler.dart';
 import 'widget/add_task_dialog.dart';
@@ -174,6 +175,12 @@ class TaskPageState extends State<TaskPage> {
   }
 
   Widget _buildTaskTable(BuildContext context) {
+    if (context.isMobile) {
+      return Column(
+        children: controller.tasks.map((t) => _buildTaskMobileCard(context, t)).toList(),
+      );
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: ConstrainedBox(
@@ -198,6 +205,95 @@ class TaskPageState extends State<TaskPage> {
             const Divider(height: 1, color: AppColors.borderSubtle),
             ...controller.tasks.map((t) => _buildTaskRow(context, t)),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTaskMobileCard(BuildContext context, Task task) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => context.push(RouteConstants.taskDetail, extra: task),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '#${task.id}',
+                      style: AppTextStyles.label.copyWith(color: AppColors.textMuted),
+                    ),
+                    StatusChip(
+                      label: task.status.isEmpty ? '—' : task.status,
+                      tone: _getStatusTone(task.status),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  task.name,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Iconsax.calendar, size: 14, color: AppColors.textMuted),
+                        const SizedBox(width: 6),
+                        Text(
+                          task.dueDate.isEmpty ? '—' : task.dueDate,
+                          style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      task.estimatedHours > 0 ? '${task.estimatedHours}h' : '—',
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Priority: ',
+                          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                        ),
+                        StatusChip(
+                          label: task.priority.isEmpty ? '—' : task.priority,
+                          tone: _getPriorityTone(task.priority),
+                        ),
+                      ],
+                    ),
+                    _buildActionMenu(context, task),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

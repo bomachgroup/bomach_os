@@ -9,6 +9,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:get/get.dart';
 
 class BudgetPage extends StatelessWidget {
@@ -107,6 +108,12 @@ class BudgetPage extends StatelessWidget {
                       padding: EdgeInsets.all(20),
                       child: Text("No budgets found.")));
             }
+            if (context.isMobile) {
+              return Column(
+                children: controller.budgetList.map((budget) => _buildMobileCard(context, budget, controller)).toList(),
+              );
+            }
+
             return Column(
               children: [
                 Scrollbar(
@@ -178,6 +185,133 @@ class BudgetPage extends StatelessWidget {
           }),
         ),
       ],
+    );
+  }
+
+  Widget _buildMobileCard(BuildContext context, budget, BudgetController controller) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  budget.branchName,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              MyText(
+                budget.fiscalPeriod,
+                size: 13,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          MyText(
+            budget.departmentName,
+            size: 13,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const MyText(
+                    'Budget Limit',
+                    size: 11,
+                    color: AppColors.textMuted,
+                  ),
+                  const SizedBox(height: 2),
+                  MyText(
+                    budget.amount,
+                    size: 14,
+                    weight: 600,
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const MyText(
+                    'Spent',
+                    size: 11,
+                    color: AppColors.textMuted,
+                  ),
+                  const SizedBox(height: 2),
+                  MyText(
+                    budget.currentSpend,
+                    size: 14,
+                    weight: 600,
+                    color: AppColors.textPrimary,
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const MyText(
+                    'Remaining',
+                    size: 11,
+                    color: AppColors.textMuted,
+                  ),
+                  const SizedBox(height: 2),
+                  MyText(
+                    budget.remainingBudget,
+                    size: 14,
+                    weight: 600,
+                    color: AppColors.success,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              PopupMenuButton<String>(
+                icon: const Icon(Iconsax.more),
+                onSelected: (value) {
+                  if (value == 'view') {
+                    showDialog(
+                      context: context,
+                      builder: (context) => ViewBudgetDialog(budget: budget),
+                    );
+                  } else if (value == 'delete') {
+                    controller.deleteBudget(context, budget.id);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                  const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Delete', style: TextStyle(color: Colors.red))),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
