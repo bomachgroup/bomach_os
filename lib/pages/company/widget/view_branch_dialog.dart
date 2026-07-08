@@ -120,8 +120,11 @@ class _BranchDetailPageState extends State<BranchDetailPage>
                       borderRadius: AppRadii.brMd,
                       boxShadow: AppShadows.sm,
                     ),
-                    indicatorPadding: const EdgeInsets.symmetric(horizontal: -12, vertical: -2),
+                    indicatorPadding: const EdgeInsets.symmetric(
+                        horizontal: -12, vertical: -2),
                     dividerColor: Colors.transparent,
+                    overlayColor:
+                        WidgetStateProperty.all(AppColors.surfaceMuted),
                     labelStyle: AppTextStyles.bodyMd
                         .copyWith(fontWeight: FontWeight.w600),
                     unselectedLabelStyle: AppTextStyles.bodyMd

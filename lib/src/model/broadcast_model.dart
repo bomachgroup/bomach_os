@@ -128,13 +128,30 @@ class BroadcastEvent {
   }
 
   factory BroadcastEvent.fromJson(Map<String, dynamic> json) {
+    final rawId = json['id'];
+    int parsedId = 0;
+    if (rawId is int) {
+      parsedId = rawId;
+    } else if (rawId is String) {
+      parsedId = int.tryParse(rawId) ?? 0;
+    }
+    if (parsedId == 0) {
+      // Generate a consistent unique integer hash to prevent GlobalKey collisions in lists
+      final uniqueStr = "${json['title']}_${json['created_at']}_${json['date_sent']}";
+      parsedId = uniqueStr.hashCode;
+    }
+
+    // Resilient fallback when event_time_from/to are missing from the GET list serializer
+    final timeFrom = json['event_time_from'] ?? json['date_sent'] ?? json['created_at'] ?? '';
+    final timeTo = json['event_time_to'] ?? timeFrom;
+
     return BroadcastEvent(
-      id: json['id'] ?? 0,
+      id: parsedId,
       title: json['title'] ?? '',
       eventType: json['event_type'] ?? '',
       eventTypeDisplay: json['event_type_display'] ?? json['event_type'] ?? '',
-      eventTimeFrom: json['event_time_from'] ?? '',
-      eventTimeTo: json['event_time_to'] ?? '',
+      eventTimeFrom: timeFrom,
+      eventTimeTo: timeTo,
       meetingLocation: json['meeting_location'] ?? '',
       targetAllBranches: json['target_all_branches'] ?? false,
       targetAllDepartments: json['target_all_departments'] ?? false,
