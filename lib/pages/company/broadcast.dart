@@ -461,15 +461,12 @@ class _AnnouncementsTab extends StatelessWidget {
                 ),
               ),
               // ── Status ──
-              SizedBox(
-                width: 90,
-                child: StatusChip(
-                  label: announcement.isActive ? 'Active' : 'Inactive',
-                  tone: announcement.isActive
-                      ? StatusTone.success
-                      : StatusTone.neutral,
-                  dense: true,
-                ),
+              StatusChip(
+                label: announcement.isActive ? 'Active' : 'Inactive',
+                tone: announcement.isActive
+                    ? StatusTone.success
+                    : StatusTone.neutral,
+                dense: true,
               ),
               // ── Actions ──
               _buildRowActions(
