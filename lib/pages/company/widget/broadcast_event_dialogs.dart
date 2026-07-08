@@ -33,6 +33,9 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
   late final TextEditingController dateToCtrl;
   late final TextEditingController locationCtrl;
 
+  DateTime? selectedFrom;
+  DateTime? selectedTo;
+
   String? selectedEventType;
   String? selectedRecurrence;
   int reminderOffset = 0;
@@ -81,6 +84,11 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
     final e = widget.event;
     titleCtrl = TextEditingController(text: e?.title ?? '');
     locationCtrl = TextEditingController(text: e?.meetingLocation ?? '');
+
+    if (e != null) {
+      selectedFrom = e.eventTimeFrom.isNotEmpty ? DateTime.tryParse(e.eventTimeFrom) : null;
+      selectedTo = e.eventTimeTo.isNotEmpty ? DateTime.tryParse(e.eventTimeTo) : null;
+    }
 
     // Format datetimes for display
     dateFromCtrl = TextEditingController(
@@ -452,6 +460,11 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
     final combined =
         DateTime(date.year, date.month, date.day, time.hour, time.minute);
     setState(() {
+      if (ctrl == dateFromCtrl) {
+        selectedFrom = combined;
+      } else {
+        selectedTo = combined;
+      }
       ctrl.text = DateFormat('MM-dd-yyyy, hh:mma').format(combined);
     });
   }
@@ -466,20 +479,28 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
 
     String apiFromDt = '';
     String apiToDt = '';
-    try {
-      final parsedFrom =
-          DateFormat('MM-dd-yyyy, hh:mma').parse(dateFromCtrl.text);
-      apiFromDt =
-          DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(parsedFrom.toUtc());
-    } catch (_) {
-      apiFromDt = dateFromCtrl.text;
+
+    if (selectedFrom != null) {
+      apiFromDt = selectedFrom!.toUtc().toIso8601String();
+    } else {
+      try {
+        final parsedFrom =
+            DateFormat('MM-dd-yyyy, hh:mma').parse(dateFromCtrl.text);
+        apiFromDt = parsedFrom.toUtc().toIso8601String();
+      } catch (_) {
+        apiFromDt = dateFromCtrl.text;
+      }
     }
-    try {
-      final parsedTo = DateFormat('MM-dd-yyyy, hh:mma').parse(dateToCtrl.text);
-      apiToDt =
-          DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(parsedTo.toUtc());
-    } catch (_) {
-      apiToDt = dateToCtrl.text;
+
+    if (selectedTo != null) {
+      apiToDt = selectedTo!.toUtc().toIso8601String();
+    } else {
+      try {
+        final parsedTo = DateFormat('MM-dd-yyyy, hh:mma').parse(dateToCtrl.text);
+        apiToDt = parsedTo.toUtc().toIso8601String();
+      } catch (_) {
+        apiToDt = dateToCtrl.text;
+      }
     }
 
     final data = <String, dynamic>{

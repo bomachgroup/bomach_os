@@ -114,9 +114,14 @@ class MonthlyScorecardService {
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ??
-          error.response?.data?['detail'] ??
-          error.message;
+      String? errorMessage;
+      final data = error.response?.data;
+      if (data is Map) {
+        errorMessage = data['message']?.toString() ?? data['detail']?.toString();
+      } else {
+        errorMessage = data?.toString();
+      }
+      errorMessage ??= error.message;
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }

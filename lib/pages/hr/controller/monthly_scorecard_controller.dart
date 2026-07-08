@@ -62,8 +62,14 @@ class MonthlyScorecardController extends GetxController {
       );
       scorecard.value = result;
     } catch (e) {
-      errorMessage('Failed to load scorecard: $e');
-      debugPrint('MonthlyScorecardController error: $e');
+      final errStr = e.toString();
+      if (errStr.contains('404')) {
+        scorecard.value = null;
+        errorMessage('');
+      } else {
+        errorMessage('Failed to load scorecard: $e');
+        debugPrint('MonthlyScorecardController error: $e');
+      }
     } finally {
       isLoading(false);
     }

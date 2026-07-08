@@ -72,8 +72,14 @@ class EmployeeEvaluationController extends GetxController {
       );
       scorecard.value = result;
     } catch (e) {
-      errorMessage('Failed to load scorecard data: $e');
-      debugPrint('EmployeeEvaluationController error: $e');
+      final errStr = e.toString();
+      if (errStr.contains('404')) {
+        scorecard.value = null;
+        errorMessage('');
+      } else {
+        errorMessage('Failed to load scorecard data: $e');
+        debugPrint('EmployeeEvaluationController error: $e');
+      }
     } finally {
       isLoading(false);
     }

@@ -39,6 +39,9 @@ class _CreateEditAnnouncementDialogState
   late final TextEditingController publishAtCtrl;
   late final TextEditingController expiresAtCtrl;
 
+  DateTime? selectedPublishAt;
+  DateTime? selectedExpiresAt;
+
   String? selectedAnnouncementTypeValue;
   String? selectedPriorityValue;
   String selectedDestinationValue = 'both';
@@ -55,6 +58,11 @@ class _CreateEditAnnouncementDialogState
     final a = widget.announcement;
     titleCtrl = TextEditingController(text: a?.title ?? '');
     contentCtrl = TextEditingController(text: a?.content ?? '');
+
+    if (a != null) {
+      selectedPublishAt = a.publishAt.isNotEmpty ? DateTime.tryParse(a.publishAt) : null;
+      selectedExpiresAt = a.expiresAt.isNotEmpty ? DateTime.tryParse(a.expiresAt) : null;
+    }
 
     publishAtCtrl =
         TextEditingController(text: _formatDateForDisplay(a?.publishAt ?? ''));
@@ -550,6 +558,11 @@ class _CreateEditAnnouncementDialogState
     );
     if (picked != null) {
       setState(() {
+        if (ctrl == publishAtCtrl) {
+          selectedPublishAt = picked;
+        } else {
+          selectedExpiresAt = picked;
+        }
         ctrl.text = DateFormat('MMM d, yyyy').format(picked);
       });
     }
@@ -566,17 +579,27 @@ class _CreateEditAnnouncementDialogState
     // Convert dates to ISO 8601 format for the API
     String apiPublishAt = '';
     String apiExpiresAt = '';
-    try {
-      final parsedFrom = DateFormat('MMM d, yyyy').parse(publishAtCtrl.text);
-      apiPublishAt = parsedFrom.toUtc().toIso8601String();
-    } catch (_) {
-      apiPublishAt = publishAtCtrl.text;
+
+    if (selectedPublishAt != null) {
+      apiPublishAt = selectedPublishAt!.toUtc().toIso8601String();
+    } else {
+      try {
+        final parsedFrom = DateFormat('MMM d, yyyy').parse(publishAtCtrl.text);
+        apiPublishAt = parsedFrom.toUtc().toIso8601String();
+      } catch (_) {
+        apiPublishAt = publishAtCtrl.text;
+      }
     }
-    try {
-      final parsedTo = DateFormat('MMM d, yyyy').parse(expiresAtCtrl.text);
-      apiExpiresAt = parsedTo.toUtc().toIso8601String();
-    } catch (_) {
-      apiExpiresAt = expiresAtCtrl.text;
+
+    if (selectedExpiresAt != null) {
+      apiExpiresAt = selectedExpiresAt!.toUtc().toIso8601String();
+    } else {
+      try {
+        final parsedTo = DateFormat('MMM d, yyyy').parse(expiresAtCtrl.text);
+        apiExpiresAt = parsedTo.toUtc().toIso8601String();
+      } catch (_) {
+        apiExpiresAt = expiresAtCtrl.text;
+      }
     }
 
     final data = <String, dynamic>{
