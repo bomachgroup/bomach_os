@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
-import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controller/training_program_controller.dart';
 
 class TrainingProgramPage extends StatefulWidget {

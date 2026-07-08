@@ -9,7 +9,6 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:get/get.dart';
 
 class BudgetPage extends StatelessWidget {
@@ -18,7 +17,6 @@ class BudgetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final BudgetController controller = Get.put(BudgetController());
-    final ScrollController scrollController = ScrollController();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

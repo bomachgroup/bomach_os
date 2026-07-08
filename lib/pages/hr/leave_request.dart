@@ -18,7 +18,6 @@ import 'package:intl/intl.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 
-import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controller/leave_request_controller.dart';
 import 'models/leave_request_model.dart';
 import 'widget/view_leave_request_dialog.dart';
@@ -401,111 +400,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
     );
   }
 
-  // --- Table Configuration ---
 
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(label: Text("Employee")),
-      const DataColumn(label: Text("Leave Type")),
-      const DataColumn(label: Text("Dates")),
-      const DataColumn(label: Text("Days")),
-      const DataColumn(label: Text("Reason")),
-      const DataColumn(label: Text("Status")),
-      const DataColumn(label: Text("Action")),
-    ];
-  }
-
-  List<DataRow> _createRows(BuildContext context, List<LeaveRequest> items) {
-    return items.map((r) {
-      final duration = r.durationDays ??
-          (r.endDate != null && r.startDate != null
-              ? r.endDate!.difference(r.startDate!).inDays + 1
-              : 0);
-
-      final status = r.status?.toLowerCase() ?? 'pending';
-
-      return DataRow(
-        cells: <DataCell>[
-          DataCell(
-            Row(
-              children: [
-                const CircleAvatar(
-                  backgroundColor: AppColors.surfaceMuted,
-                  radius: 18,
-                  child: Icon(Iconsax.profile_circle,
-                      color: AppColors.textMuted, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      r.employeeId,
-                      style: AppTextStyles.bodyMd.copyWith(
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      "Software Engineer",
-                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          DataCell(Text(
-            toBeginningOfSentenceCase(r.leaveType.replaceAll('_', ' ')) ??
-                r.leaveType,
-            style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
-          )),
-          DataCell(Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                r.startDate != null
-                    ? DateFormat('dd MMM yyyy').format(r.startDate!)
-                    : '',
-                style: AppTextStyles.bodySm,
-              ),
-              Text(
-                "to ${r.endDate != null ? DateFormat('dd MMM yyyy').format(r.endDate!) : ''}",
-                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-              ),
-            ],
-          )),
-          DataCell(Text(duration.toString(), style: AppTextStyles.bodyMd)),
-          DataCell(SizedBox(
-            width: 150,
-            child: Text(
-              r.reason ?? "No reason",
-              style: AppTextStyles.bodySm,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          )),
-          DataCell(StatusChip.fromStatus(status)),
-          DataCell(
-            ThreeDotPop(
-              onTapView: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => ViewLeaveRequestDialog(request: r),
-                );
-              },
-              onTapEdit: () {
-                _ctrl.populateForm(r);
-                showDialog(
-                    context: context,
-                    builder: (_) => AddLeaveRequestDialog(request: r));
-              },
-            ),
-          ),
-        ],
-      );
-    }).toList();
-  }
 }
 
 class _StatCard extends StatelessWidget {

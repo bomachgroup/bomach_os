@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
-import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'controllers/board_controller.dart';
 import 'controllers/company_controller.dart';
 import 'widget/add_partner_dialog.dart';

@@ -558,8 +558,6 @@ class AuditsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ScrollController scrollController = ScrollController();
-
     return Container(
       padding: EdgeInsets.all(isMobile ? 8 : 16),
       decoration: BoxDecoration(
