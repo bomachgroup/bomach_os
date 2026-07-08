@@ -386,46 +386,10 @@ class _MyTasksPageState extends State<MyTasksPage> {
           );
         }
 
-        if (context.isMobile) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: controller.tasks.map((t) => _buildTaskMobileCard(t)).toList(),
-            ),
-          );
-        }
-
-        return Scrollbar(
-          controller: _scrollController,
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: bodySpace(context)),
-              child: DataTable(
-                headingRowColor:
-                    WidgetStateProperty.all(AppColors.surfaceMuted),
-                headingTextStyle: AppTextStyles.label.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
-                dataRowMinHeight: 72,
-                dataRowMaxHeight: 72,
-                columnSpacing: 28,
-                horizontalMargin: 20,
-                dividerThickness: 0.5,
-                columns: const [
-                  DataColumn(label: Text("Task")),
-                  DataColumn(label: Text("Priority")),
-                  DataColumn(label: Text("Due Date")),
-                  DataColumn(label: Text("Est. Hours")),
-                  DataColumn(label: Text("Status")),
-                  DataColumn(label: Text("Action")),
-                ],
-                rows: _buildRows(controller.tasks),
-              ),
-            ),
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: controller.tasks.map((t) => _buildTaskMobileCard(t)).toList(),
           ),
         );
       }),

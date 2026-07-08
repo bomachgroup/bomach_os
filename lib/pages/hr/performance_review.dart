@@ -100,32 +100,10 @@ class PerformanceReviewPage extends StatelessWidget {
                   );
                 }
 
-                if (context.isMobile) {
-                  return Column(
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
                     children: controller.performanceReviews.map((review) => _buildMobileCard(context, review)).toList(),
-                  );
-                }
-
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: MediaQuery.of(context).size.width * 0.8,
-                    ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 24,
-                      headingRowColor:
-                          WidgetStateProperty.all(AppColors.surfaceMuted),
-                      headingTextStyle: AppTextStyles.bodySm.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                      ),
-                      columns: _createColumns(),
-                      rows: _createRows(context, controller.performanceReviews),
-                    ),
                   ),
                 );
               }),

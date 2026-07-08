@@ -154,40 +154,10 @@ class _CompliancePageState extends State<CompliancePage> {
     final endIndex = (startIndex + _pageSize).clamp(0, items.length);
     final pageItems = items.sublist(startIndex, endIndex);
 
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: pageItems.map((item) => _buildMobileCard(item)).toList(),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1080,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _headerCell('Document Type', flex: 3),
-                  _headerCell('Reference', flex: 2),
-                  _headerCell('Issuing Authority', flex: 3),
-                  _headerCell('Expiry Date', flex: 2),
-                  _headerCell('Status', flex: 2),
-                  const SizedBox(width: 180),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            for (int i = 0; i < pageItems.length; i++) ...[
-              _buildRow(pageItems[i]),
-              if (i != pageItems.length - 1)
-                const Divider(height: 1, color: AppColors.borderSubtle),
-            ],
-          ],
-        ),
       ),
     );
   }

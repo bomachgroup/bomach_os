@@ -576,42 +576,12 @@ class AuditsTable extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isMobile)
-            Column(
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: audits.map((e) => _buildMobileCard(e, context)).toList(),
-            )
-          else
-            Scrollbar(
-              controller: scrollController,
-              thumbVisibility: true,
-              child: SingleChildScrollView(
-                controller: scrollController,
-                scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: isMobile ? 600 : 900,
-                    maxWidth: isMobile ? 700 : double.infinity,
-                  ),
-                  child: DataTable(
-                    columnSpacing: isMobile ? 12 : 24,
-                    headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
-                    columns: const [
-                      DataColumn(label: Text('Audit')),
-                      DataColumn(label: Text('Type')),
-                      DataColumn(label: Text('Auditor')),
-                      DataColumn(label: Text('Status')),
-                      DataColumn(label: Text('Score')),
-                      DataColumn(label: Text('Date')),
-                      DataColumn(label: Text('Actions')),
-                    ],
-                    rows: audits.map((e) => _buildDataRow(e, context)).toList(),
-                    dataRowMinHeight: isMobile ? 36 : 48,
-                    dataRowMaxHeight: isMobile ? 56 : 72,
-                    headingRowHeight: isMobile ? 32 : 40,
-                  ),
-                ),
-              ),
             ),
+          ),
         ],
       ),
     );

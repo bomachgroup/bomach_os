@@ -391,52 +391,10 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
           );
         }
 
-        if (context.isMobile) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: reports.map((r) => _buildMobileCard(r)).toList(),
-            ),
-          );
-        }
-
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Scrollbar(
-            controller: _scrollController,
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: bodySpace(context)),
-                child: DataTable(
-                  headingRowColor:
-                      WidgetStateProperty.all(AppColors.neutral50),
-                  headingTextStyle: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.neutral600,
-                  ),
-                  dataRowMinHeight: 72,
-                  dataRowMaxHeight: 72,
-                  columnSpacing: 28,
-                  horizontalMargin: 20,
-                  dividerThickness: 0.5,
-                  columns: const [
-                    DataColumn(label: Text("Date")),
-                    DataColumn(label: Text("Hours")),
-                    DataColumn(label: Text("Operational Base")),
-                    DataColumn(label: Text("Work Activities")),
-                    DataColumn(label: Text("Task Details")),
-                    DataColumn(label: Text("Status")),
-                    DataColumn(label: Text("Rating")),
-                    DataColumn(label: Text("Action")),
-                  ],
-                  rows: _buildRows(reports),
-                ),
-              ),
-            ),
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: reports.map((r) => _buildMobileCard(r)).toList(),
           ),
         );
       }),

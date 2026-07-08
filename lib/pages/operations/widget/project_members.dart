@@ -118,44 +118,10 @@ class _ProjectMembersState extends State<ProjectMembers> {
   }
 
   Widget _buildTable(List<ProjectEmployee> members) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: members.asMap().entries.map((e) => _buildMobileCard(e.value, e.key)).toList(),
-      );
-    }
-
-    return Scrollbar(
-      controller: _scrollController,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 900),
-          child: Column(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                color: AppColors.surfaceMuted,
-                child: Row(
-                  children: [
-                    _headerCell('Employee ID', width: 140),
-                    _headerCell('Employee Name', flex: 3),
-                    _headerCell('Department', flex: 2),
-                    _headerCell('Designation', flex: 2),
-                    _headerCell('Type', width: 140),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, color: AppColors.borderSubtle),
-              ...members
-                  .asMap()
-                  .entries
-                  .map((e) => _buildMemberRow(e.value, e.key)),
-            ],
-          ),
-        ),
       ),
     );
   }

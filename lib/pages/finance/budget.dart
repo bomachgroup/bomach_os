@@ -108,79 +108,11 @@ class BudgetPage extends StatelessWidget {
                       padding: EdgeInsets.all(20),
                       child: Text("No budgets found.")));
             }
-            if (context.isMobile) {
-              return Column(
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
                 children: controller.budgetList.map((budget) => _buildMobileCard(context, budget, controller)).toList(),
-              );
-            }
-
-            return Column(
-              children: [
-                Scrollbar(
-                  controller: scrollController,
-                  thumbVisibility: true,
-                  trackVisibility: true,
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: bodySpace(context)),
-                      child: DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
-                        columnSpacing: 24,
-                        horizontalMargin: 12,
-                        columns: const [
-                          DataColumn(label: MyText("Branch")),
-                          DataColumn(label: MyText("Department")),
-                          DataColumn(label: MyText("Fiscal Period")),
-                          DataColumn(label: MyText("Amount")),
-                          DataColumn(label: MyText("Spent")),
-                          DataColumn(label: MyText("Remaining")),
-                          DataColumn(label: MyText("Action")),
-                        ],
-                        rows: controller.budgetList.map((budget) {
-                          return DataRow(cells: [
-                            DataCell(MyText(budget.branchName)),
-                            DataCell(MyText(budget.departmentName)),
-                            DataCell(MyText(budget.fiscalPeriod)),
-                            DataCell(MyText(budget.amount)),
-                            DataCell(MyText(budget.currentSpend)),
-                            DataCell(MyText(budget.remainingBudget)),
-                            DataCell(
-                                PopupMenuButton<String>(
-                                  icon: const Icon(Iconsax.more),
-                                  onSelected: (value) {
-                                    if (value == 'view') {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            ViewBudgetDialog(budget: budget),
-                                      );
-                                    } else if (value == 'delete') {
-                                      controller.deleteBudget(context, budget.id);
-                                    }
-                                  },
-                                  itemBuilder: (context) => [
-                                    const PopupMenuItem(
-                                        value: 'view', child: Text('View')),
-                                    const PopupMenuItem(
-                                        value: 'edit', child: Text('Edit')),
-                                    const PopupMenuItem(
-                                        value: 'delete',
-                                        child: Text('Delete',
-                                            style: TextStyle(color: Colors.red))),
-                                  ],
-                              ),
-                            ),
-                          ]);
-                        }).toList(),
-                        showBottomBorder: true,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             );
           }),
         ),

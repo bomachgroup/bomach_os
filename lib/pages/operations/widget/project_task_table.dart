@@ -108,42 +108,10 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
   }
 
   Widget _buildTable(List<Task> tasks) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: tasks.map((t) => _buildMobileCard(t)).toList(),
-      );
-    }
-
-    return Scrollbar(
-      controller: _scrollController,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 960),
-          child: Column(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                color: AppColors.surfaceMuted,
-                child: Row(
-                  children: [
-                    _headerCell('Task ID', width: 100),
-                    _headerCell('Task Name', flex: 4),
-                    _headerCell('Due Date', width: 140),
-                    _headerCell('Priority', width: 120),
-                    _headerCell('Status', width: 140),
-                    _headerCell('', width: 64),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, color: AppColors.borderSubtle),
-              ...tasks.map((t) => _buildTaskRow(t)),
-            ],
-          ),
-        ),
       ),
     );
   }

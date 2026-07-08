@@ -286,90 +286,10 @@ class _LeadDataTableLive extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: leads.map((lead) => _buildMobileCard(context, lead)).toList(),
-      );
-    }
-
-    return Scrollbar(
-      controller: scrollController,
-      child: SingleChildScrollView(
-        controller: scrollController,
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingRowColor:
-              WidgetStateProperty.resolveWith((states) => Colors.transparent),
-          columnSpacing: 35,
-          dataRowMinHeight: 60,
-          dataRowMaxHeight: 80,
-          dividerThickness: 1.0,
-          columns: const [
-            DataColumn(
-                label: Text('Lead',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Email',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Phone',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Company',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Source',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Status',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Actions',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-          ],
-          rows: leads.map((lead) {
-            final statusColors = _getStatusColors(lead.status);
-            return DataRow(cells: [
-              DataCell(Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(lead.fullName,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
-                  Text(lead.interestedServices,
-                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                ],
-              )),
-              DataCell(Text(lead.email, style: const TextStyle(fontSize: 12))),
-              DataCell(Text(lead.phoneNumber ?? '—',
-                  style: const TextStyle(fontSize: 12))),
-              DataCell(Text(lead.companyName ?? '—')),
-              DataCell(_buildTag(lead.source,
-                  backgroundColor: AppColors.neutral100,
-                  textColor: Colors.black87)),
-              DataCell(_buildTag(lead.status.toUpperCase(),
-                  backgroundColor: statusColors['bg']!,
-                  textColor: statusColors['text']!)),
-              DataCell(Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Iconsax.arrow_swap_horizontal, size: 18),
-                    tooltip: 'Convert to Client',
-                    onPressed: () =>
-                        controller.convertLeadToClient(context, lead.id),
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.trash,
-                        size: 18, color: Colors.red),
-                    tooltip: 'Delete',
-                    onPressed: () => controller.deleteLead(context, lead.id),
-                  ),
-                ],
-              )),
-            ]);
-          }).toList(),
-        ),
       ),
     );
   }

@@ -170,26 +170,11 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                       child: Center(child: Text("No records found.", style: AppTextStyles.bodyMd)));
                 }
 
-                if (context.isMobile) {
-                  return _ctrl.activeTab.value == 'Training Programs'
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _ctrl.activeTab.value == 'Training Programs'
                       ? _buildProgramsMobileCards()
-                      : _buildAssessmentsMobileCards();
-                }
-
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: MediaQuery.of(context).size.width * 0.8,
-                      ),
-                      child: _ctrl.activeTab.value == 'Training Programs'
-                          ? _buildProgramsTable()
-                          : _buildAssessmentsTable(),
-                    ),
-                  ),
+                      : _buildAssessmentsMobileCards(),
                 );
               }),
 

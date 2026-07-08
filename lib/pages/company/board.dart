@@ -408,30 +408,11 @@ class _MeetingsTab extends StatelessWidget {
   }
 
   Widget _buildMeetingTable(BuildContext context) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: controller.meetingList.map((m) => _buildMeetingMobileCard(context, m)).toList(),
-      );
-    }
-
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          color: AppColors.surfaceMuted,
-          child: Row(
-            children: [
-              _buildHeaderCell('Title', flex: 3),
-              _buildHeaderCell('Date & Time', flex: 2),
-              _buildHeaderCell('Agenda', flex: 3),
-              _buildHeaderCell('Status', flex: 2),
-              _buildHeaderCell('', width: 48),
-            ],
-          ),
-        ),
-        const Divider(height: 1, color: AppColors.borderSubtle),
-        ...controller.meetingList.map((m) => _buildMeetingRow(context, m)),
-      ],
+      ),
     );
   }
 
@@ -768,31 +749,11 @@ class _ResolutionsTab extends StatelessWidget {
   }
 
   Widget _buildResolutionTable(BuildContext context) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: controller.resolutionList.map((r) => _buildResolutionMobileCard(context, r)).toList(),
-      );
-    }
-
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          color: AppColors.surfaceMuted,
-          child: Row(
-            children: [
-              _buildHeaderCell('Title', flex: 3),
-              _buildHeaderCell('Type', flex: 2),
-              _buildHeaderCell('Date', flex: 2),
-              _buildHeaderCell('Status', flex: 2),
-              _buildHeaderCell('', width: 48),
-            ],
-          ),
-        ),
-        const Divider(height: 1, color: AppColors.borderSubtle),
-        ...controller.resolutionList
-            .map((r) => _buildResolutionRow(context, r)),
-      ],
+      ),
     );
   }
 
@@ -1074,32 +1035,11 @@ class _InvestorsTab extends StatelessWidget {
 
   Widget _buildShareholderTable(
       BuildContext context, CompanyController companyCtrl) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: companyCtrl.shareholders.map((s) => _buildShareholderMobileCard(context, s, companyCtrl)).toList(),
-      );
-    }
-
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          color: AppColors.surfaceMuted,
-          child: Row(
-            children: [
-              _buildHeaderCell('Name', flex: 3),
-              _buildHeaderCell('Email', flex: 3),
-              _buildHeaderCell('Title', flex: 2),
-              _buildHeaderCell('Share %', flex: 1),
-              _buildHeaderCell('Board', flex: 1),
-              _buildHeaderCell('', width: 48),
-            ],
-          ),
-        ),
-        const Divider(height: 1, color: AppColors.borderSubtle),
-        ...companyCtrl.shareholders
-            .map((s) => _buildShareholderRow(context, s, companyCtrl)),
-      ],
+      ),
     );
   }
 
@@ -1495,31 +1435,11 @@ class _PartnersTab extends StatelessWidget {
   }
 
   Widget _buildPartnerTable(BuildContext context) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: controller.partnerList.map((p) => _buildPartnerMobileCard(context, p)).toList(),
-      );
-    }
-
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          color: AppColors.surfaceMuted,
-          child: Row(
-            children: [
-              _buildHeaderCell('Name', flex: 3),
-              _buildHeaderCell('Email', flex: 3),
-              _buildHeaderCell('Category', flex: 2),
-              _buildHeaderCell('Status', flex: 2),
-              _buildHeaderCell('Agreements', flex: 1),
-              _buildHeaderCell('', width: 48),
-            ],
-          ),
-        ),
-        const Divider(height: 1, color: AppColors.borderSubtle),
-        ...controller.partnerList.map((p) => _buildPartnerRow(context, p)),
-      ],
+      ),
     );
   }
 

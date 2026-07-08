@@ -89,44 +89,10 @@ class _MeetingTableState extends State<MeetingTable> {
   }
 
   Widget _buildTable() {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: List.generate(_totalMeetings, (index) => _buildMobileCard(index)),
-      );
-    }
-
-    return Scrollbar(
-      controller: _scrollController,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 1040),
-          child: Column(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                color: AppColors.surfaceMuted,
-                child: Row(
-                  children: [
-                    _headerCell('S/N', width: 60),
-                    _headerCell('Subject', flex: 4),
-                    _headerCell('Date', width: 140),
-                    _headerCell('Location', width: 120),
-                    _headerCell('Attendees', width: 110),
-                    _headerCell('Files', width: 90),
-                    _headerCell('Status', width: 130),
-                    _headerCell('', width: 64),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, color: AppColors.borderSubtle),
-              ...List.generate(_totalMeetings, (index) => _buildRow(index)),
-            ],
-          ),
-        ),
       ),
     );
   }

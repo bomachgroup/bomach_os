@@ -373,39 +373,10 @@ class _ApprovalsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: rows.map((w) => _buildMobileCard(context, w)).toList(),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1180,
-        child: Column(
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('Employee', flex: 3),
-                  _buildHeaderCell('Workspace', flex: 3),
-                  _buildHeaderCell('Type', flex: 2),
-                  _buildHeaderCell('Radius', flex: 1),
-                  _buildHeaderCell('Coordinates', flex: 2),
-                  _buildHeaderCell('Submitted', flex: 2),
-                  _buildHeaderCell('', width: 240),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...rows.map((w) => _buildRow(context, w)),
-          ],
-        ),
       ),
     );
   }

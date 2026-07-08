@@ -111,41 +111,10 @@ class _SiteEquipmentTableState extends State<SiteEquipmentTable> {
   }
 
   Widget _buildTable(List<SiteEquipment> items) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: List.generate(items.length, (index) => _buildMobileCard(items[index], index)),
-      );
-    }
-
-    return Scrollbar(
-      controller: _scrollController,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 720),
-          child: Column(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                color: AppColors.surfaceMuted,
-                child: Row(
-                  children: [
-                    _headerCell('S/N', width: 60),
-                    _headerCell('Equipment Name', flex: 4),
-                    _headerCell('Unit Value', width: 160),
-                    _headerCell('', width: 64),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, color: AppColors.borderSubtle),
-              ...List.generate(items.length,
-                  (index) => _buildEquipmentRow(items[index], index)),
-            ],
-          ),
-        ),
       ),
     );
   }

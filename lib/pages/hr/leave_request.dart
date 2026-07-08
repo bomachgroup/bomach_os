@@ -218,37 +218,10 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                   );
                 }
 
-                if (context.isMobile) {
-                  return Column(
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
                     children: _ctrl.leaveList.map((r) => _buildMobileCard(context, r)).toList(),
-                  );
-                }
-
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Theme(
-                    data: Theme.of(context).copyWith(
-                      dividerColor: Colors.transparent,
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: MediaQuery.of(context).size.width * 0.8,
-                      ),
-                      child: DataTable(
-                        headingRowColor:
-                            WidgetStateProperty.all(Colors.transparent),
-                        dataRowColor:
-                            WidgetStateProperty.all(Colors.transparent),
-                        columnSpacing: 24,
-                        horizontalMargin: 20,
-                        headingTextStyle: AppTextStyles.label.copyWith(
-                            color: AppColors.textSecondary,
-                            fontSize: 13),
-                        dataRowMaxHeight: 72,
-                        columns: _createColumns(),
-                        rows: _createRows(context, _ctrl.leaveList),
-                      ),
-                    ),
                   ),
                 );
               }),

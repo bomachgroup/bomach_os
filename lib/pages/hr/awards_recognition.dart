@@ -338,29 +338,11 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
   }
 
   Widget _buildAwardsTable(List<Award> awards) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: awards.map((award) => _buildAwardMobileCard(award)).toList(),
-      );
-    }
-
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          color: AppColors.surfaceMuted,
-          child: Row(
-            children: [
-              _buildHeaderCell('Award Title', flex: 3),
-              _buildHeaderCell('Category', flex: 2),
-              _buildHeaderCell('Date', flex: 2),
-              _buildHeaderCell('Rank', flex: 2),
-            ],
-          ),
-        ),
-        const Divider(height: 1, color: AppColors.borderSubtle),
-        ...awards.map((award) => _buildTableRow(award)),
-      ],
+      ),
     );
   }
 

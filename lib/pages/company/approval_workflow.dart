@@ -345,37 +345,10 @@ class _WorkflowsTab extends StatelessWidget {
   }
 
   Widget _buildFlowTable(BuildContext context) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: controller.flowList.map((flow) => _buildFlowMobileCard(context, flow)).toList(),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1120,
-        child: Column(
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Workflow', flex: 3),
-                  _buildHeaderCell('Action', flex: 2),
-                  _buildHeaderCell('Levels', flex: 1),
-                  _buildHeaderCell('Approvers', flex: 3),
-                  _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('', width: 210),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...controller.flowList.map((flow) => _buildFlowRow(context, flow)),
-          ],
-        ),
       ),
     );
   }
@@ -721,38 +694,10 @@ class _RequestsTab extends StatelessWidget {
   }
 
   Widget _buildRequestTable(BuildContext context) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: controller.requestList.map((req) => _buildRequestMobileCard(context, req)).toList(),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1120,
-        child: Column(
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Workflow', flex: 3),
-                  _buildHeaderCell('Request Type', flex: 2),
-                  _buildHeaderCell('Requested By', flex: 2),
-                  _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('Date', flex: 2),
-                  _buildHeaderCell('', width: 210),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...controller.requestList
-                .map((req) => _buildRequestRow(context, req)),
-          ],
-        ),
       ),
     );
   }

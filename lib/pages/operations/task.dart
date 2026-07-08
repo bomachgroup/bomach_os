@@ -175,37 +175,10 @@ class TaskPageState extends State<TaskPage> {
   }
 
   Widget _buildTaskTable(BuildContext context) {
-    if (context.isMobile) {
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: controller.tasks.map((t) => _buildTaskMobileCard(context, t)).toList(),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 900),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('ID', width: 80),
-                  _buildHeaderCell('Task Name', flex: 4),
-                  _buildHeaderCell('Priority', flex: 2),
-                  _buildHeaderCell('Due Date', flex: 2),
-                  _buildHeaderCell('Hours', flex: 1),
-                  _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('', width: 48),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...controller.tasks.map((t) => _buildTaskRow(context, t)),
-          ],
-        ),
       ),
     );
   }
