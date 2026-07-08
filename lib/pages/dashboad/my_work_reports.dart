@@ -485,78 +485,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
     );
   }
 
-  List<DataRow> _buildRows(List<WorkReport> reports) {
-    return reports.map((report) {
-      return DataRow(
-        cells: [
-          DataCell(
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.info.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Icon(Iconsax.calendar_1,
-                        size: 16, color: AppColors.info),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                MyText(
-                  report.day != null
-                      ? DateFormat('dd MMM yyyy').format(report.day!)
-                      : '-',
-                  style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.neutral800),
-                ),
-              ],
-            ),
-          ),
-          DataCell(
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: MyText(
-                '${report.hoursWorked.toStringAsFixed(1)} hrs',
-                style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF6366F1)),
-              ),
-            ),
-          ),
-          DataCell(
-            MyText(report.operationalBase ?? '-',
-                style: const TextStyle(fontSize: 13, color: AppColors.neutral600)),
-          ),
-          DataCell(SizedBox(
-            width: 150,
-            child: MyText(report.workActivities ?? '-',
-                style: const TextStyle(fontSize: 13, color: AppColors.neutral600),
-                maxLines: 1),
-          )),
-          DataCell(SizedBox(
-            width: 150,
-            child: MyText(report.taskDetails ?? '-',
-                style: const TextStyle(fontSize: 13, color: AppColors.neutral600),
-                maxLines: 1),
-          )),
-          DataCell(_buildStatusBadge(report.status)),
-          DataCell(_buildRating(report.rating ?? 0)),
-          DataCell(_buildActionMenu(report)),
-        ],
-      );
-    }).toList();
-  }
+
 
   Widget _buildStatusBadge(String status) {
     final color = _getStatusColor(status);
