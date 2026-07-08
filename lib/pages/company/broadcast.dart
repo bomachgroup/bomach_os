@@ -214,17 +214,7 @@ Widget _buildTableCard({
   );
 }
 
-Widget _buildHeaderCell(String label, {double? width, int? flex}) {
-  final content = Text(
-    label,
-    style: AppTextStyles.bodySm.copyWith(
-      color: AppColors.textSecondary,
-      fontWeight: FontWeight.w600,
-    ),
-  );
-  if (width != null) return SizedBox(width: width, child: content);
-  return Expanded(flex: flex ?? 1, child: content);
-}
+
 
 Widget _tablePaginator(Widget child) {
   return Container(
@@ -362,9 +352,7 @@ class _AnnouncementsTab extends StatelessWidget {
                           ),
                         ),
                       )
-                    : context.isMobile
-                        ? _buildMobileAnnouncements(context)
-                        : _buildAnnouncementTable(context),
+                    : _buildAnnouncementTable(context),
             footer: _tablePaginator(
               Obx(() => PaginatorFooter(
                     totalItems: controller.announcementTotalItems.value,
@@ -380,196 +368,21 @@ class _AnnouncementsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileAnnouncements(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Column(
-        children: controller.announcementList.map((announcement) {
-          String displayDate = '';
-          String displayTime = '';
-          try {
-            final parsed = DateTime.parse(announcement.publishAt);
-            displayDate = DateFormat('MMM d, yyyy').format(parsed);
-            displayTime = DateFormat('h:mm a').format(parsed);
-          } catch (_) {
-            displayDate = announcement.publishAt;
-          }
-
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.borderSubtle),
-              borderRadius: BorderRadius.circular(12),
-              color: AppColors.background,
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        announcement.title,
-                        style: AppTextStyles.bodyMd.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    StatusChip(
-                      label: announcement.isActive ? 'Active' : 'Inactive',
-                      tone: announcement.isActive
-                          ? StatusTone.success
-                          : StatusTone.neutral,
-                      dense: true,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Type',
-                          style: AppTextStyles.bodySm.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          announcement.announcementTypeDisplay,
-                          style: AppTextStyles.bodyMd.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Publish Date',
-                          style: AppTextStyles.bodySm.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          displayDate,
-                          style: AppTextStyles.bodyMd.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        if (displayTime.isNotEmpty)
-                          Text(
-                            displayTime,
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Divider(height: 24, color: AppColors.borderSubtle),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () => showDialog(
-                        context: context,
-                        builder: (_) => ViewAnnouncementDialog(announcement: announcement),
-                      ),
-                      icon: const Icon(Iconsax.eye, size: 16),
-                      label: const Text('View'),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(60, 30),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    TextButton.icon(
-                      onPressed: () => showDialog(
-                        context: context,
-                        builder: (_) => CreateEditAnnouncementDialog(announcement: announcement),
-                      ),
-                      icon: const Icon(Iconsax.edit, size: 16),
-                      label: const Text('Edit'),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(60, 30),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    TextButton.icon(
-                      onPressed: () => _confirmDeleteAnnouncement(context, announcement),
-                      icon: const Icon(Iconsax.trash, size: 16),
-                      label: const Text('Delete'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.danger,
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(60, 30),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
 
   Widget _buildAnnouncementTable(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1120,
-        child: Column(
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Title', flex: 3),
-                  _buildHeaderCell('Publish Date', flex: 2),
-                  _buildHeaderCell('Type', flex: 2),
-                  _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('Actions', width: 240),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...controller.announcementList
-                .map((a) => _buildAnnouncementRow(context, a)),
-          ],
-        ),
-      ),
+    return Column(
+      children: controller.announcementList
+          .map((a) => _buildAnnouncementTile(context, a))
+          .toList(),
     );
   }
 
-  Widget _buildAnnouncementRow(
+  Widget _buildAnnouncementTile(
       BuildContext context, Announcement announcement) {
     String displayDate = '';
-    String displayTime = '';
     try {
       final parsed = DateTime.parse(announcement.publishAt);
       displayDate = DateFormat('MMM d, yyyy').format(parsed);
-      displayTime = DateFormat('h:mm a').format(parsed);
     } catch (_) {
       displayDate = announcement.publishAt;
     }
@@ -582,78 +395,96 @@ class _AnnouncementsTab extends StatelessWidget {
           builder: (_) => ViewAnnouncementDialog(announcement: announcement),
         ),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: const BoxDecoration(
             border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
           ),
           child: Row(
             children: [
-              Expanded(
-                flex: 3,
-                child: Text(
-                  announcement.title,
-                  style: AppTextStyles.bodyMd.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              // ── Icon avatar ──
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySubtle,
+                  borderRadius: AppRadii.brSm,
                 ),
+                alignment: Alignment.center,
+                child: const Icon(Iconsax.notification_bing,
+                    size: 16, color: AppColors.primary),
               ),
+              const SizedBox(width: 14),
+              // ── Title + type ──
               Expanded(
-                flex: 2,
+                flex: 4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      displayDate,
-                      style:
-                          AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
-                    ),
-                    if (displayTime.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        displayTime,
-                        style: AppTextStyles.caption
-                            .copyWith(color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text(
-                  announcement.announcementTypeDisplay,
-                  style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    StatusChip(
-                      label: announcement.isActive ? 'Active' : 'Inactive',
-                      tone: announcement.isActive
-                          ? StatusTone.success
-                          : StatusTone.neutral,
+                    Text(
+                      announcement.title,
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      announcement.announcementTypeDisplay.isNotEmpty
+                          ? announcement.announcementTypeDisplay
+                          : '—',
+                      style: AppTextStyles.bodySm
+                          .copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
               ),
+              // ── Date ──
               SizedBox(
-                width: 240,
-                child: _buildRowActions(
-                  onView: () => showDialog(
-                    context: context,
-                    builder: (_) => ViewAnnouncementDialog(announcement: announcement),
-                  ),
-                  onEdit: () => showDialog(
-                    context: context,
-                    builder: (_) => CreateEditAnnouncementDialog(announcement: announcement),
-                  ),
-                  onDelete: () => _confirmDeleteAnnouncement(context, announcement),
+                width: 130,
+                child: Row(
+                  children: [
+                    const Icon(Iconsax.calendar_1,
+                        size: 13, color: AppColors.textMuted),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        displayDate.isNotEmpty ? displayDate : '—',
+                        style: AppTextStyles.bodySm
+                            .copyWith(color: AppColors.textSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              // ── Status ──
+              SizedBox(
+                width: 90,
+                child: StatusChip(
+                  label: announcement.isActive ? 'Active' : 'Inactive',
+                  tone: announcement.isActive
+                      ? StatusTone.success
+                      : StatusTone.neutral,
+                  dense: true,
+                ),
+              ),
+              // ── Actions ──
+              _buildRowActions(
+                onView: () => showDialog(
+                  context: context,
+                  builder: (_) =>
+                      ViewAnnouncementDialog(announcement: announcement),
+                ),
+                onEdit: () => showDialog(
+                  context: context,
+                  builder: (_) => CreateEditAnnouncementDialog(
+                      announcement: announcement),
+                ),
+                onDelete: () =>
+                    _confirmDeleteAnnouncement(context, announcement),
               ),
             ],
           ),
@@ -661,6 +492,7 @@ class _AnnouncementsTab extends StatelessWidget {
       ),
     );
   }
+
 
   Future<void> _confirmDeleteAnnouncement(
       BuildContext context, Announcement announcement) async {
