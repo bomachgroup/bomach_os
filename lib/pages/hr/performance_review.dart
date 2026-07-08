@@ -202,61 +202,6 @@ class PerformanceReviewPage extends StatelessWidget {
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(label: Text("Employee")),
-      const DataColumn(label: Text("Review Period")),
-      const DataColumn(label: Text("Date")),
-      const DataColumn(label: Text("Overall Rating")),
-      const DataColumn(label: Text("Action")),
-    ];
-  }
 
-  List<DataRow> _createRows(
-      BuildContext context, List<PerformanceReview> reviews) {
-    return reviews.map((review) {
-      return DataRow(cells: <DataCell>[
-        DataCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                review.employeeId,
-                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
-              ),
-              Text(
-                'ID: ${review.employeeId}',
-                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-              ),
-            ],
-          ),
-        ),
-        DataCell(Text(review.reviewPeriod, style: AppTextStyles.bodyMd)),
-        DataCell(Text(
-          review.reviewDate?.toIso8601String().split('T').first ?? '',
-          style: AppTextStyles.bodyMd,
-        )),
-        const DataCell(Star5()),
-        DataCell(
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon:
-                    const Icon(Iconsax.eye, size: 18, color: AppColors.primary),
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) =>
-                      ViewPerformanceReviewDialog(review: review),
-                ),
-              ),
-              const ThreeDotPop(),
-            ],
-          ),
-        ),
-      ]);
-    }).toList();
-  }
 }
 
