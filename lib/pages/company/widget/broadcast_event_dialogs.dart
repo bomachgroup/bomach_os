@@ -86,8 +86,8 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
     locationCtrl = TextEditingController(text: e?.meetingLocation ?? '');
 
     if (e != null) {
-      selectedFrom = e.eventTimeFrom.isNotEmpty ? DateTime.tryParse(e.eventTimeFrom) : null;
-      selectedTo = e.eventTimeTo.isNotEmpty ? DateTime.tryParse(e.eventTimeTo) : null;
+      selectedFrom = e.eventTimeFrom.isNotEmpty ? parseApiDateTime(e.eventTimeFrom) : null;
+      selectedTo = e.eventTimeTo.isNotEmpty ? parseApiDateTime(e.eventTimeTo) : null;
     }
 
     // Format datetimes for display
@@ -113,12 +113,11 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
 
   String _formatDateTimeForDisplay(String dateStr) {
     if (dateStr.isEmpty) return '';
-    try {
-      final parsed = DateTime.parse(dateStr);
+    final parsed = parseApiDateTime(dateStr);
+    if (parsed != null) {
       return DateFormat('MM-dd-yyyy, hh:mma').format(parsed);
-    } catch (_) {
-      return dateStr;
     }
+    return dateStr;
   }
 
   @override
@@ -636,12 +635,11 @@ class ViewEventDialog extends StatelessWidget {
 
   String _formatDateTime(String dateStr) {
     if (dateStr.isEmpty) return '–';
-    try {
-      final parsed = DateTime.parse(dateStr);
+    final parsed = parseApiDateTime(dateStr);
+    if (parsed != null) {
       return DateFormat('MMMM d, yyyy – h:mm a').format(parsed);
-    } catch (_) {
-      return dateStr;
     }
+    return dateStr;
   }
 
   String _recurrenceLabel(String value) {

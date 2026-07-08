@@ -1,4 +1,5 @@
 import 'package:bomach_os/src/model/board_model.dart';
+import 'package:intl/intl.dart';
 
 // ─── ANNOUNCEMENT MODEL ─────────────────────────────────────────
 
@@ -232,4 +233,27 @@ class AnnouncementFieldChoices {
       priorities: parseOptions(json['priorities'] ?? json['priority']),
     );
   }
+}
+
+DateTime? parseApiDateTime(String dateStr) {
+  if (dateStr.isEmpty) return null;
+
+  // Try standard ISO 8601 first (handles 2026-07-09T11:00:00.000Z etc.)
+  final isoParsed = DateTime.tryParse(dateStr);
+  if (isoParsed != null) return isoParsed;
+
+  // Try parsing the backend custom display formats
+  try {
+    // Format: dd-MM-yyyy, hh:mm a (e.g. 09-07-2026, 11:00 AM)
+    final normalized = dateStr.trim().replaceAll(RegExp(r'\s+'), ' ').toUpperCase();
+    return DateFormat('dd-MM-yyyy, hh:mm a').parse(normalized);
+  } catch (_) {}
+
+  try {
+    // Format: dd-MM-yyyy, HH:mm
+    final normalized = dateStr.trim().replaceAll(RegExp(r'\s+'), ' ');
+    return DateFormat('dd-MM-yyyy, HH:mm').parse(normalized);
+  } catch (_) {}
+
+  return null;
 }

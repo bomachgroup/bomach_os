@@ -720,12 +720,9 @@ class _EventsTabState extends State<_EventsTab> {
 
   List<BroadcastEvent> _getEventsForDay(DateTime day) {
     return widget.controller.eventList.where((event) {
-      try {
-        final date = DateTime.parse(event.eventTimeFrom);
-        return isSameDay(date, day);
-      } catch (_) {
-        return false;
-      }
+      final date = parseApiDateTime(event.eventTimeFrom);
+      if (date == null) return false;
+      return isSameDay(date, day);
     }).toList();
   }
 
@@ -925,11 +922,11 @@ class _EventsTabState extends State<_EventsTab> {
 
   Widget _buildEventItem(BuildContext context, BroadcastEvent event) {
     String displayTime = '';
-    try {
-      final from = DateTime.parse(event.eventTimeFrom);
-      final to = DateTime.parse(event.eventTimeTo);
+    final from = parseApiDateTime(event.eventTimeFrom);
+    final to = parseApiDateTime(event.eventTimeTo);
+    if (from != null && to != null) {
       displayTime = '${DateFormat('h:mm a').format(from)} - ${DateFormat('h:mm a').format(to)}';
-    } catch (_) {
+    } else {
       displayTime = event.eventTimeFrom;
     }
 
