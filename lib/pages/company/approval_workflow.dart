@@ -195,17 +195,7 @@ Widget _buildTableCard({
   );
 }
 
-Widget _buildHeaderCell(String label, {double? width, int? flex}) {
-  final content = Text(
-    label,
-    style: AppTextStyles.bodySm.copyWith(
-      color: AppColors.textSecondary,
-      fontWeight: FontWeight.w600,
-    ),
-  );
-  if (width != null) return SizedBox(width: width, child: content);
-  return Expanded(flex: flex ?? 1, child: content);
-}
+
 
 Widget _tablePaginator(Widget child) {
   return Container(
