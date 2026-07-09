@@ -15,7 +15,20 @@ class WorkReportController extends GetxController {
   int limit = 100;
   int offset = 0;
 
+  Future<WorkReport?> fetchReportDetails(String token, String id) async {
+    try {
+      isLoading(true);
+      return await _service.getWorkReportById(token, id);
+    } catch (e) {
+      debugPrint("Fetch details error: $e");
+      return null;
+    } finally {
+      isLoading(false);
+    }
+  }
+
   Future<void> fetchReports(String token) async {
+
     try {
       isLoading(true);
       errorMessage('');
