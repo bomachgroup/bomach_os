@@ -206,7 +206,7 @@ class _JobOpeningTable extends StatelessWidget {
                 crossAxisCount: crossAxisCount,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 1.45,
+                childAspectRatio: 1.15,
               ),
               itemCount: controller.jobList.length,
               itemBuilder: (context, index) {
@@ -532,7 +532,7 @@ class OnboardingTab extends StatelessWidget {
               crossAxisCount: crossAxisCount,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 1.45,
+              childAspectRatio: 1.15,
             ),
             itemCount: employees.length,
             itemBuilder: (context, index) {
@@ -704,7 +704,7 @@ class OffboardingTab extends StatelessWidget {
               crossAxisCount: crossAxisCount,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 1.45,
+              childAspectRatio: 1.15,
             ),
             itemCount: employees.length,
             itemBuilder: (context, index) {
