@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:async';
@@ -278,8 +279,8 @@ class LoanController extends GetxController {
   }
 
   Future<void> pickRepaymentDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showDatePopover(
+      context,
       initialDate:
           selectedRepaymentDate ?? DateTime.now().add(const Duration(days: 30)),
       firstDate: DateTime.now(),

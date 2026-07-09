@@ -10,6 +10,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -913,8 +914,8 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
   }
 
   Future<void> _pickDate() async {
-    final date = await showDatePicker(
-      context: context,
+    final date = await showDatePopover(
+      context,
       initialDate: DateTime.now().add(const Duration(days: 1)),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
@@ -923,8 +924,8 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
   }
 
   Future<void> _pickTime() async {
-    final time = await showTimePicker(
-      context: context,
+    final time = await showTimePopover(
+      context,
       initialTime: const TimeOfDay(hour: 10, minute: 0),
     );
     if (time != null) setState(() => _scheduledTime = time);
@@ -1133,8 +1134,8 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
   }
 
   Future<void> _pickStartDate() async {
-    final date = await showDatePicker(
-      context: context,
+    final date = await showDatePopover(
+      context,
       initialDate: DateTime.now().add(const Duration(days: 14)),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),

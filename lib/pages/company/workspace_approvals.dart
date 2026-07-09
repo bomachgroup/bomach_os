@@ -17,6 +17,7 @@ import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -778,8 +779,8 @@ class _ApprovalsTable extends StatelessWidget {
         Future<void> pickExpiry() async {
           final initial = _tryParseDate(expiryCtrl.text) ??
               DateTime.now().add(const Duration(days: 30));
-          final picked = await showDatePicker(
-            context: ctx,
+          final picked = await showDatePopover(
+            context,
             initialDate: initial,
             firstDate: DateTime.now().subtract(const Duration(days: 1)),
             lastDate: DateTime.now().add(const Duration(days: 365 * 5)),

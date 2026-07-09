@@ -10,6 +10,7 @@ import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -159,8 +160,8 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
   }
 
   Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showDatePopover(
+      context,
       initialDate: _validUntil ?? DateTime.now().add(const Duration(days: 30)),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365 * 5)),

@@ -8,6 +8,7 @@ import 'package:bomach_os/pages/services/models/estate_models.dart';
 import 'package:bomach_os/pages/services/models/performance_invoice_model.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -129,8 +130,8 @@ class _AddPerformanceInvoiceDialogState
   }
 
   Future<void> _selectDate() async {
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showDatePopover(
+      context,
       initialDate: _transactionDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),

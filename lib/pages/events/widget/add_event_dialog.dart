@@ -7,6 +7,7 @@ import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/events/controller/event_controller.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -58,8 +59,8 @@ class _AddEventDialogState extends State<AddEventDialog> {
   }
 
   Future<void> _pickDate(bool isFrom) async {
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showDatePopover(
+      context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
@@ -76,8 +77,8 @@ class _AddEventDialogState extends State<AddEventDialog> {
   }
 
   Future<void> _pickTime(bool isFrom) async {
-    final picked = await showTimePicker(
-      context: context,
+    final picked = await showTimePopover(
+      context,
       initialTime: TimeOfDay.now(),
     );
     if (picked != null) {

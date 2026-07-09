@@ -2,6 +2,7 @@ import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 
 class CreateNewContractDialog extends StatelessWidget {
   const CreateNewContractDialog({super.key});
@@ -169,8 +170,8 @@ class CreateNewContractDialog extends StatelessWidget {
         suffixIcon: IconButton(
           icon: const Icon(Iconsax.calendar_1, size: 20),
           onPressed: () async {
-            await showDatePicker(
-              context: context,
+            await showDatePopover(
+              context,
               initialDate: DateTime.now(),
               firstDate: DateTime(2000),
               lastDate: DateTime(2030),

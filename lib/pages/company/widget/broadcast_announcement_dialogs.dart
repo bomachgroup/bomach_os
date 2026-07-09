@@ -12,6 +12,7 @@ import 'package:bomach_os/src/model/broadcast_model.dart';
 import 'package:bomach_os/src/services/auth_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -550,8 +551,8 @@ class _CreateEditAnnouncementDialogState
   }
 
   Future<void> _pickDate(TextEditingController ctrl) async {
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showDatePopover(
+      context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),

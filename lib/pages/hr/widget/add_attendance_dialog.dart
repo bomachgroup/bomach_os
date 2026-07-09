@@ -8,6 +8,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -128,8 +129,8 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
                           color: AppColors.textMuted,
                         ),
                         onTap: () async {
-                          final d = await showDatePicker(
-                            context: context,
+                          final d = await showDatePopover(
+                            context,
                             initialDate: _selectedDate,
                             firstDate: DateTime(2020),
                             lastDate: DateTime.now(),
@@ -154,8 +155,8 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
                           color: AppColors.textMuted,
                         ),
                         onTap: () async {
-                          final t = await showTimePicker(
-                            context: context,
+                          final t = await showTimePopover(
+                            context,
                             initialTime: _selectedTime,
                           );
                           if (t != null) setState(() => _selectedTime = t);

@@ -5,6 +5,7 @@ import 'package:bomach_os/pages/legal/controllers/compliance_controller.dart';
 import 'package:bomach_os/pages/legal/models/compliance_record_model.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 
 class AddComplianceItemDialog extends StatefulWidget {
@@ -75,8 +76,8 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
   }
 
   Future<void> _pickDate(bool isIssueDate) async {
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showDatePopover(
+      context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2035),

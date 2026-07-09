@@ -8,6 +8,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -441,8 +442,8 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
-            final picked = await showDatePicker(
-              context: context,
+            final picked = await showDatePopover(
+              context,
               initialDate: date,
               firstDate: DateTime(2020),
               lastDate: DateTime(2030),

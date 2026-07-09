@@ -5,6 +5,7 @@ import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -385,8 +386,8 @@ class _AddComplianceDialogState extends State<AddComplianceDialog> {
             } catch (_) {}
           }
         }
-        DateTime? picked = await showDatePicker(
-          context: context,
+        DateTime? picked = await showDatePopover(
+          context,
           initialDate: initial,
           firstDate: DateTime(2000),
           lastDate: DateTime(2100),

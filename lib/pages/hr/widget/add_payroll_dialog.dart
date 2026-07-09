@@ -7,6 +7,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -103,8 +104,8 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
   }
 
   Future<void> _selectDate() async {
-    DateTime? picked = await showDatePicker(
-      context: context,
+    DateTime? picked = await showDatePopover(
+      context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),

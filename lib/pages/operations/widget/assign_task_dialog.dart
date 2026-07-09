@@ -8,6 +8,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
@@ -82,8 +83,8 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
   }
 
   Future<void> _selectDueDate(BuildContext context) async {
-    final pickedDate = await showDatePicker(
-      context: context,
+    final pickedDate = await showDatePopover(
+      context,
       initialDate: _dueDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),

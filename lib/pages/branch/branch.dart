@@ -12,6 +12,7 @@ import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/helper/screen_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -739,8 +740,8 @@ class _BranchPageState extends State<BranchPage> {
                           hintText: "---",
                           title: 'Start date (optional)*',
                           onTap: () async {
-                            DateTime? picked = await showDatePicker(
-                              context: context,
+                            DateTime? picked = await showDatePopover(
+                              context,
                               initialDate: DateTime.now(),
                               firstDate: DateTime(2020),
                               lastDate: DateTime(2100),
@@ -759,8 +760,8 @@ class _BranchPageState extends State<BranchPage> {
                           hintText: "---",
                           title: 'Start date (optional)*',
                           onTap: () async {
-                            DateTime? picked = await showDatePicker(
-                              context: context,
+                            DateTime? picked = await showDatePopover(
+                              context,
                               initialDate: DateTime.now(),
                               firstDate: DateTime(2020),
                               lastDate: DateTime(2100),

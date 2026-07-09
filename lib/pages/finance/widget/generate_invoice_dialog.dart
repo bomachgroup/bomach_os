@@ -7,6 +7,7 @@ import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/models/invoice_model.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:flutter_svg/svg.dart';
 
 class GenerateInvoiceDialog extends StatefulWidget {
@@ -119,8 +120,8 @@ All prices are in Nigerian Naira (₦).''';
   }
 
   Future<void> _selectDate(bool isIssueDate) async {
-    final picked = await showDatePicker(
-      context: context,
+    final picked = await showDatePopover(
+      context,
       initialDate: isIssueDate ? _issueDate : _dueDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
