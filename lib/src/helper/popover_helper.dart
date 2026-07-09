@@ -5,12 +5,9 @@ import 'package:flutter/services.dart';
 
 /// A self-contained anchored popover built around a [LayerLink].
 ///
-/// Wrap the trigger in [anchor]. Call [show] (passing the trigger's
-/// [BuildContext]) to display the popover directly below the trigger,
-/// offset by [verticalOffset]. Adds outside-tap and Escape dismissal.
-///
-/// The same instance must be used for both [anchor] and [show] so the
-/// follower can locate the target via the shared [LayerLink].
+/// Used by widgets that own their widget tree (e.g. [MyDateField],
+/// [MyTimeField]). Wrap the trigger in [anchor] so the popover can
+/// align itself below the field.
 class AnchoredPopover {
   AnchoredPopover() : _link = LayerLink();
 
@@ -36,7 +33,6 @@ class AnchoredPopover {
     _entry = OverlayEntry(
       builder: (context) => Stack(
         children: [
-          // Transparent barrier that closes the popover on outside tap.
           Positioned.fill(
             child: GestureDetector(
               onTap: dismiss,
@@ -49,28 +45,7 @@ class AnchoredPopover {
               link: _link,
               showWhenUnlinked: false,
               offset: Offset(0, size.height + verticalOffset),
-              child: KeyboardListener(
-                focusNode: FocusNode()..requestFocus(),
-                onKeyEvent: (event) {
-                  if (event is KeyDownEvent &&
-                      event.logicalKey == LogicalKeyboardKey.escape) {
-                    dismiss();
-                  }
-                },
-                child: Material(
-                  elevation: 6,
-                  shadowColor: Colors.black.withValues(alpha: 0.08),
-                  borderRadius: AppRadii.brMd,
-                  color: AppColors.surface,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.borderSubtle),
-                      borderRadius: AppRadii.brMd,
-                    ),
-                    child: Builder(builder: builder),
-                  ),
-                ),
-              ),
+              child: _popoverShell(builder),
             ),
           ),
         ],
@@ -87,4 +62,81 @@ class AnchoredPopover {
   }
 
   bool get isOpen => _entry != null;
+}
+
+/// Show a popover anchored below the widget identified by [anchor].
+///
+/// Uses **global coordinates** ([RenderBox.localToGlobal]) — no
+/// [CompositedTransformTarget] is needed. Returns an [OverlayEntry]
+/// that the caller must dismiss.
+OverlayEntry showGlobalPopover({
+  required BuildContext anchor,
+  required WidgetBuilder builder,
+  double? width,
+  double verticalOffset = 6,
+  VoidCallback? onDismiss,
+}) {
+  final renderBox = anchor.findRenderObject() as RenderBox;
+  final globalPos = renderBox.localToGlobal(Offset.zero);
+  final size = renderBox.size;
+
+  // Declared before the entry so the builder closure can capture it
+  // and resolve the real reference at runtime (after insertion).
+  OverlayEntry? entryRef;
+
+  final entry = OverlayEntry(
+    builder: (ctx) {
+      void dismiss() {
+        entryRef?.remove();
+        onDismiss?.call();
+      }
+
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: dismiss,
+              behavior: HitTestBehavior.translucent,
+            ),
+          ),
+          Positioned(
+            left: globalPos.dx,
+            top: globalPos.dy + size.height + verticalOffset,
+            width: width ?? size.width,
+            child: KeyboardListener(
+              focusNode: FocusNode()..requestFocus(),
+              onKeyEvent: (event) {
+                if (event is KeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.escape) {
+                  dismiss();
+                }
+              },
+              child: _popoverShell(builder),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  entryRef = entry;
+  Overlay.of(anchor).insert(entry);
+  return entry;
+}
+
+/// Material shell shared by both popover variants.
+Widget _popoverShell(WidgetBuilder builder) {
+  return Material(
+    elevation: 6,
+    shadowColor: Colors.black.withValues(alpha: 0.08),
+    borderRadius: AppRadii.brMd,
+    color: AppColors.surface,
+    child: Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.borderSubtle),
+        borderRadius: AppRadii.brMd,
+      ),
+      child: Builder(builder: builder),
+    ),
+  );
 }

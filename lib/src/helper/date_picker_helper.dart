@@ -15,10 +15,8 @@ Future<DateTime?> showDatePopover(
   DateTime? initialDate,
   DateTime? firstDate,
   DateTime? lastDate,
-  String format = 'yyyy-MM-dd',
 }) async {
   final completer = Completer<DateTime?>();
-  final popover = AnchoredPopover();
 
   DateTime focused = initialDate ?? DateTime.now();
   DateTime? selected = initialDate;
@@ -27,8 +25,9 @@ Future<DateTime?> showDatePopover(
     if (!completer.isCompleted) completer.complete(value);
   }
 
-  popover.show(
-    target: context,
+  OverlayEntry? entry;
+  entry = showGlobalPopover(
+    anchor: context,
     width: 320,
     onDismiss: () => finish(null),
     builder: (ctx) {
@@ -76,7 +75,7 @@ Future<DateTime?> showDatePopover(
                     focused = newFocused;
                   });
                   finish(picked);
-                  popover.dismiss();
+                  entry?.remove();
                 },
               ),
               const Divider(height: 1, color: AppColors.borderSubtle),
@@ -89,7 +88,7 @@ Future<DateTime?> showDatePopover(
                     TextButton(
                       onPressed: () {
                         finish(null);
-                        popover.dismiss();
+                        entry?.remove();
                       },
                       child: const Text('Cancel'),
                     ),
@@ -112,10 +111,8 @@ Future<DateTime?> showDatePopover(
 Future<TimeOfDay?> showTimePopover(
   BuildContext context, {
   TimeOfDay? initialTime,
-  String format = 'HH:mm',
 }) async {
   final completer = Completer<TimeOfDay?>();
-  final popover = AnchoredPopover();
 
   int hour = initialTime?.hour ?? TimeOfDay.now().hour;
   int minute = initialTime?.minute ?? TimeOfDay.now().minute;
@@ -125,8 +122,9 @@ Future<TimeOfDay?> showTimePopover(
     if (!completer.isCompleted) completer.complete(value);
   }
 
-  popover.show(
-    target: context,
+  OverlayEntry? entry;
+  entry = showGlobalPopover(
+    anchor: context,
     width: 240,
     onDismiss: () => finish(null),
     builder: (ctx) {
@@ -175,7 +173,7 @@ Future<TimeOfDay?> showTimePopover(
                     TextButton(
                       onPressed: () {
                         finish(TimeOfDay(hour: hour, minute: minute));
-                        popover.dismiss();
+                        entry?.remove();
                       },
                       child: const Text('Done'),
                     ),
@@ -209,41 +207,41 @@ Widget _buildScrollColumn({
       Text(label,
           style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
       const SizedBox(height: 6),
-        SizedBox(
-          height: 160,
-          child: ListView.builder(
-            itemExtent: 36,
-            itemCount: items.length,
-            controller: ScrollController(
-              initialScrollOffset:
-                  (items.indexOf(value) * 36).toDouble().clamp(0, double.infinity),
-            ),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              final isSelected = item == value;
-              return InkWell(
-                onTap: () => onChanged(item),
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: isSelected
-                      ? const BoxDecoration(
-                          color: AppColors.primarySubtle,
-                          borderRadius: AppRadii.brSm,
-                        )
-                      : null,
-                  child: Text(
-                    item.toString().padLeft(2, '0'),
-                    style: AppTextStyles.bodyLg.copyWith(
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w400,
-                      color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                    ),
+      SizedBox(
+        height: 160,
+        child: ListView.builder(
+          itemExtent: 36,
+          itemCount: items.length,
+          controller: ScrollController(
+            initialScrollOffset:
+                (items.indexOf(value) * 36).toDouble().clamp(0, double.infinity),
+          ),
+          itemBuilder: (context, index) {
+            final item = items[index];
+            final isSelected = item == value;
+            return InkWell(
+              onTap: () => onChanged(item),
+              child: Container(
+                alignment: Alignment.center,
+                decoration: isSelected
+                    ? const BoxDecoration(
+                        color: AppColors.primarySubtle,
+                        borderRadius: AppRadii.brSm,
+                      )
+                    : null,
+                child: Text(
+                  item.toString().padLeft(2, '0'),
+                  style: AppTextStyles.bodyLg.copyWith(
+                    fontWeight:
+                        isSelected ? FontWeight.w700 : FontWeight.w400,
+                    color: isSelected ? AppColors.primary : AppColors.textPrimary,
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
+      ),
     ],
   );
 }
