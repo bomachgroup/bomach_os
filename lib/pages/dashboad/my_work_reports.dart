@@ -71,7 +71,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         const SizedBox(height: 20),
         _buildFilterBar(),
         const SizedBox(height: 16),
-        _buildReportsTable(),
+        Expanded(child: _buildReportsTable()),
       ],
     );
   }
