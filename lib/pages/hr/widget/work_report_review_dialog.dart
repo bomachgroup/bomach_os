@@ -4,6 +4,7 @@ import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/pages/auth/controller.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
@@ -31,15 +32,21 @@ class WorkReportReviewDialog extends StatefulWidget {
 
 class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
   final WorkReportController controller = Get.find();
+  final AuthController authController = Get.find<AuthController>();
 
   late TextEditingController _feedbackController;
   int _rating = 0;
+  late bool _isSubmitter;
 
   @override
   void initState() {
     super.initState();
-    _feedbackController =
-        TextEditingController(text: widget.report.feedback ?? '');
+    final currentUser = authController.currentUser.value;
+    final currentEmployeeId = currentUser?.id ?? 0;
+    _isSubmitter = widget.report.employeeId == currentEmployeeId;
+
+    // Initialize with existing values if already reviewed
+    _feedbackController = TextEditingController(text: widget.report.feedback ?? '');
     _rating = widget.report.rating ?? 0;
   }
 
@@ -76,10 +83,13 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isReviewed = widget.report.status == 'approved' || widget.report.status == 'rejected';
+    
     return DialogScaffold(
-      title: 'Review Work Report',
-      subtitle:
-          'Review the employee\'s daily report and provide a rating and feedback.',
+      title: _isSubmitter ? 'My Work Report' : 'Review Work Report',
+      subtitle: _isSubmitter
+          ? 'View your submitted daily report and manager feedback.'
+          : 'Review the employee\'s daily report and provide a rating and feedback.',
       size: DialogSize.lg,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -89,8 +99,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
           _buildSection(
             title: 'Report Details',
             children: [
-              _buildDetail(
-                  'Operational Base', widget.report.operationalBase),
+              _buildDetail('Operational Base', widget.report.operationalBase),
               _buildDetail('Work Activities', widget.report.workActivities),
               _buildDetail('Task Details', widget.report.taskDetails),
               _buildDetail('Plan for Next Day', widget.report.planNextDay),
@@ -98,7 +107,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
           ),
           const SizedBox(height: 20),
           _buildSection(
-            title: 'Manager Review',
+            title: _isSubmitter ? 'Manager Feedback' : 'Manager Review',
             children: [
               Text(
                 'Rating',
@@ -116,7 +125,9 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                         index < _rating ? Iconsax.star1 : Iconsax.star,
                         color: AppColors.warning,
                         size: 28),
-                    onPressed: () => setState(() => _rating = index + 1),
+                    onPressed: _isSubmitter || isReviewed
+                        ? null
+                        : () => setState(() => _rating = index + 1),
                   );
                 }),
               ),
@@ -126,29 +137,40 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                 controller: _feedbackController,
                 maxLines: 3,
                 hintText: 'Share your feedback on the report',
+                readOnly: _isSubmitter,
               ),
             ],
           ),
         ],
       ),
-      actions: [
-        MyOutlinedButton(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-          textColor: AppColors.danger,
-          borderColor: AppColors.danger,
-          child: 'Reject',
-          onTap: () => _handleReview('rejected'),
-        ),
-        Obx(() => MyElevatedButton(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              isLoading: controller.isSaving.value,
-              child: 'Approve',
-              onTap: controller.isSaving.value
-                  ? () {}
-                  : () => _handleReview('approved'),
-            )),
-      ],
+      actions: _isSubmitter
+          ? [
+              MyOutlinedButton(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                textColor: AppColors.textSecondary,
+                borderColor: AppColors.borderStrong,
+                child: 'Close',
+                onTap: () => Navigator.of(context).pop(),
+              ),
+            ]
+          : [
+              MyOutlinedButton(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                textColor: AppColors.danger,
+                borderColor: AppColors.danger,
+                child: 'Reject',
+                onTap: () => _handleReview('rejected'),
+              ),
+              Obx(() => MyElevatedButton(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                    isLoading: controller.isSaving.value,
+                    child: 'Approve',
+                    onTap: controller.isSaving.value
+                        ? () {}
+                        : () => _handleReview('approved'),
+                  )),
+            ],
     );
   }
 

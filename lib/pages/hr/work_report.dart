@@ -3,7 +3,6 @@ import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
-import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
@@ -245,8 +244,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
               _buildHeaderCell('Employee ID', flex: 2),
               _buildHeaderCell('Date', flex: 2),
               _buildHeaderCell('Hours', flex: 1),
-              _buildHeaderCell('Operational Base', flex: 2),
-              _buildHeaderCell('Work Activities', flex: 3),
+              _buildHeaderCell('Submitted', flex: 2),
+              _buildHeaderCell('Updated', flex: 2),
               _buildHeaderCell('Status', flex: 2),
               _buildHeaderCell('', width: 48),
             ],
@@ -311,18 +310,21 @@ class _WorkReportPageState extends State<WorkReportPage> {
           Expanded(
             flex: 2,
             child: Text(
-              report.operationalBase ?? '—',
+              report.createdAt != null
+                  ? DateFormat('dd MMM yyyy HH:mm').format(report.createdAt!)
+                  : '—',
               style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
-            flex: 3,
+            flex: 2,
             child: Text(
-              report.workActivities ?? '—',
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              report.updatedAt != null
+                  ? DateFormat('dd MMM yyyy HH:mm').format(report.updatedAt!)
+                  : '—',
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
-              maxLines: 1,
             ),
           ),
           Expanded(
@@ -357,37 +359,28 @@ class _WorkReportPageState extends State<WorkReportPage> {
         final token = await _getToken(context);
         if (token == null || !context.mounted) return;
 
-        if (result == 'view' || result == 'edit') {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (c) => const Center(
-              child: Card(
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-            ),
-          );
-          final fullReport =
-              await controller.fetchReportDetails(token, report.id);
-          if (context.mounted) {
-            Navigator.pop(context); // close loader
-            if (fullReport != null) {
+        if (result == 'view') {
+          try {
+            final fullReport =
+                await controller.getReportById(token, report.id);
+            if (mounted) {
               showDialog(
                 context: context,
-                builder: (context) => result == 'view'
-                    ? WorkReportReviewDialog(report: fullReport, token: token)
-                    : DailyWorkReportDialog(
-                        existingReport: fullReport,
-                        token: token,
-                      ),
+                builder: (context) =>
+                    WorkReportReviewDialog(report: fullReport, token: token),
               );
-            } else {
-              AppToast.error(context, "Failed to load report details");
             }
+          } catch (e) {
+            debugPrint("View Error: $e");
           }
+        } else if (result == 'edit') {
+          showDialog(
+            context: context,
+            builder: (context) => DailyWorkReportDialog(
+              existingReport: report,
+              token: token,
+            ),
+          );
         } else if (result == 'delete') {
           await controller.deleteReport(token, report.id);
         }
