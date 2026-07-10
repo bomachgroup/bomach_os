@@ -396,16 +396,18 @@ class _WorkReportPageState extends State<WorkReportPage> {
             ],
           ),
         ),
-        const PopupMenuItem<String>(
-          value: 'edit',
-          child: Row(
-            children: [
-              Icon(Iconsax.edit, size: 18),
-              SizedBox(width: 8),
-              Text('Edit Report'),
-            ],
+        if (report.status.toLowerCase() == 'draft' ||
+            report.status.toLowerCase() == 'rejected')
+          const PopupMenuItem<String>(
+            value: 'edit',
+            child: Row(
+              children: [
+                Icon(Iconsax.edit, size: 18),
+                SizedBox(width: 8),
+                Text('Edit Report'),
+              ],
+            ),
           ),
-        ),
         const PopupMenuItem<String>(
           value: 'delete',
           child: Row(
