@@ -57,6 +57,9 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
   }
 
   void _handleReview(String newStatus) async {
+    // Backend only accepts 'draft' or 'submitted' status on PUT endpoint
+    // Use feedback to indicate approval/rejection while keeping status as 'submitted'
+    final isApproving = newStatus == 'approved';
     final updatedReport = WorkReport(
       id: widget.report.id,
       employeeId: widget.report.employeeId,
@@ -66,9 +69,15 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
       workActivities: widget.report.workActivities,
       taskDetails: widget.report.taskDetails,
       planNextDay: widget.report.planNextDay,
-      status: newStatus,
-      rating: _rating,
-      feedback: _feedbackController.text,
+      status: 'submitted', // Backend only accepts 'draft' or 'submitted' on update
+      rating: isApproving ? (_rating > 0 ? _rating : 5) : (_rating > 0 ? _rating : 0),
+      feedback: isApproving
+          ? (_feedbackController.text.isNotEmpty
+              ? _feedbackController.text
+              : 'Approved')
+          : (_feedbackController.text.isNotEmpty
+              ? _feedbackController.text
+              : 'Rejected'),
       attachments: widget.report.attachments,
     );
 
@@ -77,9 +86,9 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
 
     if (success && mounted) {
       Navigator.of(context).pop();
-      AppToast.success(context, "Report $newStatus");
+      AppToast.success(context, "Report ${isApproving ? 'approved' : 'rejected'}");
     } else if (mounted) {
-      AppToast.error(context, 'Failed to $newStatus report. Please try again.');
+      AppToast.error(context, "Failed to $newStatus report");
     }
   }
 
