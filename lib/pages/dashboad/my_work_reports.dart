@@ -391,8 +391,11 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
 
         return Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            children: reports.map((r) => _buildMobileCard(r)).toList(),
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              children: reports.map((r) => _buildMobileCard(r)).toList(),
+            ),
           ),
         );
       }),
