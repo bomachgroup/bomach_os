@@ -38,6 +38,18 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
   int _rating = 0;
   late bool _isSubmitter;
 
+  // Report is "reviewed" if it has both feedback and a rating (set by manager during review)
+  // Status is always 'submitted' due to backend constraints
+  bool get isReviewed =>
+      (widget.report.feedback?.isNotEmpty ?? false) &&
+      (widget.report.rating ?? 0) > 0;
+
+  // Reviewer can review if: not submitter AND not yet reviewed
+  bool get canReview => !_isSubmitter && !isReviewed;
+
+  // Submitter can edit if not yet reviewed
+  bool get canEdit => _isSubmitter && !isReviewed;
+
   @override
   void initState() {
     super.initState();
@@ -94,8 +106,6 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final isReviewed = widget.report.status == 'approved' || widget.report.status == 'rejected';
-    
     return DialogScaffold(
       title: _isSubmitter ? 'My Work Report' : 'Review Work Report',
       subtitle: _isSubmitter
@@ -136,9 +146,9 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                         index < _rating ? Iconsax.star1 : Iconsax.star,
                         color: AppColors.warning,
                         size: 28),
-                    onPressed: _isSubmitter || isReviewed
-                        ? null
-                        : () => setState(() => _rating = index + 1),
+                    onPressed: canReview
+                        ? () => setState(() => _rating = index + 1)
+                        : null,
                   );
                 }),
               ),
@@ -148,7 +158,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                 controller: _feedbackController,
                 maxLines: 3,
                 hintText: 'Share your feedback on the report',
-                readOnly: _isSubmitter,
+                readOnly: !canReview,
               ),
             ],
           ),
@@ -164,24 +174,34 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                 onTap: () => Navigator.of(context).pop(),
               ),
             ]
-          : [
-              MyOutlinedButton(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                textColor: AppColors.danger,
-                borderColor: AppColors.danger,
-                child: 'Reject',
-                onTap: () => _handleReview('rejected'),
-              ),
-              Obx(() => MyElevatedButton(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                    isLoading: controller.isSaving.value,
-                    child: 'Approve',
-                    onTap: controller.isSaving.value
-                        ? () {}
-                        : () => _handleReview('approved'),
-                  )),
-            ],
+          : canReview
+              ? [
+                  MyOutlinedButton(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                    textColor: AppColors.danger,
+                    borderColor: AppColors.danger,
+                    child: 'Reject',
+                    onTap: () => _handleReview('rejected'),
+                  ),
+                  Obx(() => MyElevatedButton(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                        isLoading: controller.isSaving.value,
+                        child: 'Approve',
+                        onTap: controller.isSaving.value
+                            ? () {}
+                            : () => _handleReview('approved'),
+                      )),
+                ]
+              : [
+                  MyOutlinedButton(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                    textColor: AppColors.textSecondary,
+                    borderColor: AppColors.borderStrong,
+                    child: 'Close',
+                    onTap: () => Navigator.of(context).pop(),
+                  ),
+                ],
     );
   }
 
