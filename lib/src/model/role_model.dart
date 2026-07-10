@@ -1,6 +1,7 @@
 class Role {
   final int id;
   final String name;
+  final String? mission;
   final List<RoleBranch> branches;
   final Map<String, List<String>> permissions;
   final DateTime createdAt;
@@ -17,6 +18,7 @@ class Role {
   Role({
     required this.id,
     required this.name,
+    this.mission,
     this.branches = const [],
     required this.permissions,
     required this.createdAt,
@@ -50,6 +52,7 @@ class Role {
     return Role(
       id: json['id'],
       name: json['name'] ?? '',
+      mission: json['mission'] ?? '',
       branches: branches,
       permissions: mappedPermissions,
       createdAt: DateTime.parse(json['created_at']),
@@ -68,6 +71,7 @@ class Role {
     return {
       'id': id,
       'name': name,
+      'mission': mission,
       'branch_ids': branches.map((b) => b.id).toList(),
       'permissions': permissions,
     };

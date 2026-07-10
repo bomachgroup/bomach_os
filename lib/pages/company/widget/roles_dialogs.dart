@@ -25,6 +25,7 @@ class CreateEditRoleDialog extends StatefulWidget {
 
 class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
   late final TextEditingController _nameCtrl;
+  late final TextEditingController _missionCtrl;
   final TextEditingController _permSearchCtrl = TextEditingController();
 
   late Set<int> _selectedBranchIds;
@@ -41,6 +42,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
     super.initState();
     final role = widget.role;
     _nameCtrl = TextEditingController(text: role?.name ?? '');
+    _missionCtrl = TextEditingController(text: role?.mission ?? '');
 
     _selectedBranchIds = {};
     if (role != null) {
@@ -83,6 +85,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
   void dispose() {
     _defaultsWorker?.dispose();
     _nameCtrl.dispose();
+    _missionCtrl.dispose();
     _permSearchCtrl.dispose();
     super.dispose();
   }
@@ -123,6 +126,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         context,
         roleId: widget.role!.id,
         name: _nameCtrl.text.trim(),
+        mission: _missionCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
@@ -130,6 +134,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
       success = await widget.ctrl.createRole(
         context,
         name: _nameCtrl.text.trim(),
+        mission: _missionCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
@@ -176,6 +181,15 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                     controller: _nameCtrl,
                     hintText: 'e.g. Branch Manager',
                     height: 48,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Mission / Purpose', style: AppTextStyles.label),
+                  const SizedBox(height: 8),
+                  MyTextFormField(
+                    controller: _missionCtrl,
+                    hintText: 'e.g. Lead branch operations and drive revenue growth',
+                    height: 72,
+                    maxLines: 3,
                   ),
                   const SizedBox(height: 20),
                   const Text('Branches', style: AppTextStyles.label),

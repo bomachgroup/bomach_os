@@ -93,6 +93,7 @@ class RolesController extends GetxController {
   Future<bool> createRole(
     BuildContext context, {
     required String name,
+    String mission = '',
     required List<int> branchIds,
     required Map<String, List<String>> permissions,
   }) async {
@@ -103,6 +104,7 @@ class RolesController extends GetxController {
 
       await _roleService.createRole(token, {
         'name': name,
+        'mission': mission,
         'branch_ids': branchIds,
         'permissions': permissions,
       });
@@ -135,6 +137,7 @@ class RolesController extends GetxController {
     BuildContext context, {
     required int roleId,
     String? name,
+    String? mission,
     List<int>? branchIds,
     Map<String, List<String>>? permissions,
   }) async {
@@ -145,6 +148,7 @@ class RolesController extends GetxController {
 
       await _roleService.updateRole(token, roleId, {
         if (name != null) 'name': name,
+        if (mission != null) 'mission': mission,
         if (branchIds != null) 'branch_ids': branchIds,
         if (permissions != null) 'permissions': permissions,
       });
