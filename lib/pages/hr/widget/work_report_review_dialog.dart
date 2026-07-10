@@ -78,6 +78,8 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
     if (success && mounted) {
       Navigator.of(context).pop();
       AppToast.success(context, "Report $newStatus");
+    } else if (mounted) {
+      AppToast.error(context, 'Failed to $newStatus report. Please try again.');
     }
   }
 
