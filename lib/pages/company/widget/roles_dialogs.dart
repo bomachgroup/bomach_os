@@ -26,6 +26,7 @@ class CreateEditRoleDialog extends StatefulWidget {
 class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _missionCtrl;
+  late final TextEditingController _jobDescriptionCtrl;
   final TextEditingController _permSearchCtrl = TextEditingController();
 
   late Set<int> _selectedBranchIds;
@@ -43,6 +44,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
     final role = widget.role;
     _nameCtrl = TextEditingController(text: role?.name ?? '');
     _missionCtrl = TextEditingController(text: role?.mission ?? '');
+    _jobDescriptionCtrl = TextEditingController(text: role?.jobDescription ?? '');
 
     _selectedBranchIds = {};
     if (role != null) {
@@ -127,6 +129,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         roleId: widget.role!.id,
         name: _nameCtrl.text.trim(),
         mission: _missionCtrl.text.trim(),
+        jobDescription: _jobDescriptionCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
@@ -135,6 +138,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         context,
         name: _nameCtrl.text.trim(),
         mission: _missionCtrl.text.trim(),
+        jobDescription: _jobDescriptionCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
@@ -188,6 +192,15 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                   MyTextFormField(
                     controller: _missionCtrl,
                     hintText: 'e.g. Lead branch operations and drive revenue growth',
+                    height: 72,
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Job Description', style: AppTextStyles.label),
+                  const SizedBox(height: 8),
+                  MyTextFormField(
+                    controller: _jobDescriptionCtrl,
+                    hintText: 'e.g. Daily operations management, team leadership, client relations...',
                     height: 72,
                     maxLines: 3,
                   ),

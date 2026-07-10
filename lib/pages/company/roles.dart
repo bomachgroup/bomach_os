@@ -101,6 +101,7 @@ class RolesPage extends StatelessWidget {
                   const SizedBox(width: 40),
                   _buildHeaderCell('Role Name', flex: 2),
                   _buildHeaderCell('Mission', flex: 2),
+                  _buildHeaderCell('Job Description', flex: 2),
                   _buildHeaderCell('Scope', flex: 2),
                   _buildHeaderCell('Permissions', flex: 2),
                   _buildHeaderCell('Status', flex: 1),
@@ -183,6 +184,24 @@ class RolesPage extends StatelessWidget {
                     ? AppColors.textPrimary
                     : AppColors.textMuted,
                 fontStyle: role.mission?.isNotEmpty == true
+                    ? FontStyle.normal
+                    : FontStyle.italic,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+
+          // Job Description
+          Expanded(
+            flex: 2,
+            child: Text(
+              role.jobDescription?.isNotEmpty == true ? role.jobDescription! : '—',
+              style: AppTextStyles.bodySm.copyWith(
+                color: role.jobDescription?.isNotEmpty == true
+                    ? AppColors.textPrimary
+                    : AppColors.textMuted,
+                fontStyle: role.jobDescription?.isNotEmpty == true
                     ? FontStyle.normal
                     : FontStyle.italic,
               ),
