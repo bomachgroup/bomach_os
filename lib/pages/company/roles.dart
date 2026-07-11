@@ -102,6 +102,7 @@ class RolesPage extends StatelessWidget {
                   _buildHeaderCell('Role Name', flex: 2),
                   _buildHeaderCell('Mission', flex: 2),
                   _buildHeaderCell('Job Description', flex: 2),
+                  _buildHeaderCell('Responsibilities', flex: 2),
                   _buildHeaderCell('Scope', flex: 2),
                   _buildHeaderCell('Permissions', flex: 2),
                   _buildHeaderCell('Status', flex: 1),
@@ -202,6 +203,26 @@ class RolesPage extends StatelessWidget {
                     ? AppColors.textPrimary
                     : AppColors.textMuted,
                 fontStyle: role.jobDescription?.isNotEmpty == true
+                    ? FontStyle.normal
+                    : FontStyle.italic,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+
+          // Responsibilities
+          Expanded(
+            flex: 2,
+            child: Text(
+              (role.responsibilities?.isNotEmpty == true)
+                  ? role.responsibilities!.join('; ')
+                  : '—',
+              style: AppTextStyles.bodySm.copyWith(
+                color: role.responsibilities?.isNotEmpty == true
+                    ? AppColors.textPrimary
+                    : AppColors.textMuted,
+                fontStyle: role.responsibilities?.isNotEmpty == true
                     ? FontStyle.normal
                     : FontStyle.italic,
               ),

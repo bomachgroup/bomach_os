@@ -27,6 +27,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _missionCtrl;
   late final TextEditingController _jobDescriptionCtrl;
+  late final TextEditingController _responsibilitiesCtrl;
   final TextEditingController _permSearchCtrl = TextEditingController();
 
   late Set<int> _selectedBranchIds;
@@ -45,6 +46,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
     _nameCtrl = TextEditingController(text: role?.name ?? '');
     _missionCtrl = TextEditingController(text: role?.mission ?? '');
     _jobDescriptionCtrl = TextEditingController(text: role?.jobDescription ?? '');
+    _responsibilitiesCtrl = TextEditingController(text: role?.responsibilities?.join('\n') ?? '');
 
     _selectedBranchIds = {};
     if (role != null) {
@@ -83,11 +85,13 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
     });
   }
 
-  @override
+@override
   void dispose() {
     _defaultsWorker?.dispose();
     _nameCtrl.dispose();
     _missionCtrl.dispose();
+    _jobDescriptionCtrl.dispose();
+    _responsibilitiesCtrl.dispose();
     _permSearchCtrl.dispose();
     super.dispose();
   }
@@ -130,6 +134,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         name: _nameCtrl.text.trim(),
         mission: _missionCtrl.text.trim(),
         jobDescription: _jobDescriptionCtrl.text.trim(),
+        responsibilities: _responsibilitiesCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
@@ -139,6 +144,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         name: _nameCtrl.text.trim(),
         mission: _missionCtrl.text.trim(),
         jobDescription: _jobDescriptionCtrl.text.trim(),
+        responsibilities: _responsibilitiesCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
@@ -203,6 +209,15 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                     hintText: 'e.g. Daily operations management, team leadership, client relations...',
                     height: 72,
                     maxLines: 3,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Responsibilities', style: AppTextStyles.label),
+                  const SizedBox(height: 8),
+                  MyTextFormField(
+                    controller: _responsibilitiesCtrl,
+                    hintText: 'e.g. Manage daily operations\nLead team of 10\nPrepare monthly reports\nClient relationship management',
+                    height: 100,
+                    maxLines: 5,
                   ),
                   const SizedBox(height: 20),
                   const Text('Branches', style: AppTextStyles.label),

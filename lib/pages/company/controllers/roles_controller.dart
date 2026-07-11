@@ -95,6 +95,7 @@ class RolesController extends GetxController {
     required String name,
     String mission = '',
     String jobDescription = '',
+    String responsibilities = '',
     required List<int> branchIds,
     required Map<String, List<String>> permissions,
   }) async {
@@ -107,6 +108,7 @@ class RolesController extends GetxController {
         'name': name,
         'mission': mission,
         'job_description': jobDescription,
+        'responsibilities': responsibilities,
         'branch_ids': branchIds,
         'permissions': permissions,
       });
@@ -141,6 +143,7 @@ class RolesController extends GetxController {
     String? name,
     String? mission,
     String? jobDescription,
+    String? responsibilities,
     List<int>? branchIds,
     Map<String, List<String>>? permissions,
   }) async {
@@ -153,6 +156,7 @@ class RolesController extends GetxController {
         if (name != null) 'name': name,
         if (mission != null) 'mission': mission,
         if (jobDescription != null) 'job_description': jobDescription,
+        if (responsibilities != null) 'responsibilities': responsibilities,
         if (branchIds != null) 'branch_ids': branchIds,
         if (permissions != null) 'permissions': permissions,
       });
