@@ -98,6 +98,7 @@ class RolesController extends GetxController {
     String responsibilities = '',
     required List<int> branchIds,
     required Map<String, List<String>> permissions,
+    int? reportsToRoleId,
   }) async {
     try {
       isSaving.value = true;
@@ -111,6 +112,7 @@ class RolesController extends GetxController {
         'responsibilities': responsibilities,
         'branch_ids': branchIds,
         'permissions': permissions,
+        if (reportsToRoleId != null) 'reports_to_role_id': reportsToRoleId,
       });
 
       await fetchRoles();
@@ -146,6 +148,7 @@ class RolesController extends GetxController {
     String? responsibilities,
     List<int>? branchIds,
     Map<String, List<String>>? permissions,
+    int? reportsToRoleId,
   }) async {
     try {
       isSaving.value = true;
@@ -159,6 +162,7 @@ class RolesController extends GetxController {
         if (responsibilities != null) 'responsibilities': responsibilities,
         if (branchIds != null) 'branch_ids': branchIds,
         if (permissions != null) 'permissions': permissions,
+        if (reportsToRoleId != null) 'reports_to_role_id': reportsToRoleId,
       });
 
       await fetchRoles();

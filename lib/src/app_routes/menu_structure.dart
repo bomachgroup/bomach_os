@@ -38,6 +38,7 @@ enum SubMenuItem {
   board,
   broadcast,
   roles,
+  orgChart,
   approvalWorkflow,
   workspaceApprovals,
   auditLog,
@@ -264,6 +265,13 @@ const List<SidebarSection> sidebarStructure = [
             icon: Iconsax.shield_tick,
             label: 'Roles & Permissions',
             route: RouteConstants.roles,
+            resources: [PermissionConstants.resRoles],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.orgChart,
+            icon: Iconsax.hierarchy,
+            label: 'Org Chart',
+            route: RouteConstants.orgChart,
             resources: [PermissionConstants.resRoles],
           ),
           SubMenuItemData(

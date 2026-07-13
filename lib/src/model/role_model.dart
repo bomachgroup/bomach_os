@@ -17,6 +17,11 @@ class Role {
   final int? unitId;
   final String? unitName;
 
+  // C5: Reporting Structure
+  final int? reportsToRoleId;
+  final String? reportsToRoleName;
+  final List<int> directReportRoleIds;
+
   Role({
     required this.id,
     required this.name,
@@ -33,6 +38,9 @@ class Role {
     this.departmentName,
     this.unitId,
     this.unitName,
+    this.reportsToRoleId,
+    this.reportsToRoleName,
+    this.directReportRoleIds = const [],
   });
 
   factory Role.fromJson(Map<String, dynamic> json) {
@@ -51,6 +59,14 @@ class Role {
       branches = (json['branches'] as List)
           .map((b) => RoleBranch.fromJson(b as Map<String, dynamic>))
           .toList();
+    }
+
+    // Parse direct reports list safely
+    List<int> directReports = [];
+    if (json['direct_report_role_ids'] is List) {
+      directReports = List<int>.from(json['direct_report_role_ids']);
+    } else if (json['direct_reports'] is List) {
+      directReports = List<int>.from(json['direct_reports']);
     }
 
     return Role(
@@ -72,6 +88,10 @@ class Role {
       departmentName: json['department_name'],
       unitId: json['unit_id'],
       unitName: json['unit_name'],
+      // C5: Reporting Structure
+      reportsToRoleId: json['reports_to_role_id'] ?? json['reports_to_id'],
+      reportsToRoleName: json['reports_to_role_name'] ?? json['reports_to_name'],
+      directReportRoleIds: directReports,
     );
   }
 
@@ -84,6 +104,8 @@ class Role {
       'responsibilities': responsibilities,
       'branch_ids': branches.map((b) => b.id).toList(),
       'permissions': permissions,
+      'reports_to_role_id': reportsToRoleId,
+      'direct_report_role_ids': directReportRoleIds,
     };
   }
 

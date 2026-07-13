@@ -10,12 +10,14 @@ import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
+import 'package:bomach_os/src/app_routes/app_route_constants.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/role_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
 import 'controllers/roles_controller.dart';
@@ -37,18 +39,30 @@ class RolesPage extends StatelessWidget {
       header: PageHeader(
         title: 'Roles & Permissions',
         subtitle: 'Manage organizational roles and access control',
-        trailing: PermissionGate(
-          require: Perms.rolesCreate,
-          child: MyElevatedButton(
-            height: 48,
-            icon: const Icon(Iconsax.add,
-                color: AppColors.textOnPrimary, size: 18),
-            child: 'Create Role',
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => CreateEditRoleDialog(ctrl: ctrl),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MyOutlinedButton(
+              height: 48,
+              icon: const Icon(Iconsax.hierarchy, color: AppColors.textPrimary, size: 18),
+              child: 'View Org Chart',
+              onTap: () => GoRouter.of(context).go(RouteConstants.orgChart),
             ),
-          ),
+            const SizedBox(width: 12),
+            PermissionGate(
+              require: Perms.rolesCreate,
+              child: MyElevatedButton(
+                height: 48,
+                icon: const Icon(Iconsax.add,
+                    color: AppColors.textOnPrimary, size: 18),
+                child: 'Create Role',
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (_) => CreateEditRoleDialog(ctrl: ctrl),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       children: [

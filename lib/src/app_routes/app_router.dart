@@ -14,6 +14,7 @@ import 'package:bomach_os/pages/company/audit_log.dart';
 import 'package:bomach_os/pages/company/board.dart';
 import 'package:bomach_os/pages/company/broadcast.dart';
 import 'package:bomach_os/pages/company/roles.dart';
+import 'package:bomach_os/pages/company/org_chart.dart';
 import 'package:bomach_os/pages/company/approval_workflow.dart';
 import 'package:bomach_os/pages/company/workspace_approvals.dart';
 import 'package:bomach_os/pages/company/branch.dart';
@@ -159,6 +160,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.board: const BoardPage(),
   RouteConstants.broadcast: const BroadcastPage(),
   RouteConstants.roles: const RolesPage(),
+  RouteConstants.orgChart: const OrgChartPage(),
   RouteConstants.approvalWorkflow: const ApprovalWorkflowPage(),
   RouteConstants.workspaceApprovals: const WorkspaceApprovalsPage(),
   // RouteConstants.compliance: const CompliancePage(),

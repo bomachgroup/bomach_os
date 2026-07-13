@@ -40,6 +40,8 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
 
   Worker? _defaultsWorker;
 
+  int? _reportsToRoleId;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +50,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
     _missionCtrl = TextEditingController(text: role?.mission ?? '');
     _jobDescriptionCtrl = TextEditingController(text: role?.jobDescription ?? '');
     _responsibilitiesCtrl = TextEditingController(text: role?.responsibilities?.join('\n') ?? '');
+    _reportsToRoleId = role?.reportsToRoleId;
 
     _selectedBranchIds = {};
     if (role != null) {
@@ -86,7 +89,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
     });
   }
 
-@override
+  @override
   void dispose() {
     _defaultsWorker?.dispose();
     _nameCtrl.dispose();
@@ -138,6 +141,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         responsibilities: _responsibilitiesCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
+        reportsToRoleId: _reportsToRoleId,
       );
     } else {
       success = await widget.ctrl.createRole(
@@ -148,6 +152,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         responsibilities: _responsibilitiesCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
+        reportsToRoleId: _reportsToRoleId,
       );
     }
 
@@ -192,6 +197,29 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                     controller: _nameCtrl,
                     hintText: 'e.g. Branch Manager',
                     height: 48,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Reports To', style: AppTextStyles.label),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<int>(
+                    decoration: const InputDecoration(
+                      hintText: 'Select superior role template',
+                      border: OutlineInputBorder(borderRadius: AppRadii.brMd),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                    initialValue: _reportsToRoleId,
+                    items: widget.ctrl.roles
+                        .where((r) => widget.role == null || r.id != widget.role!.id)
+                        .map((r) => DropdownMenuItem<int>(
+                              value: r.id,
+                              child: Text(r.name),
+                            ))
+                        .toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        _reportsToRoleId = val;
+                      });
+                    },
                   ),
                   const SizedBox(height: 20),
                   const Text('Mission / Purpose', style: AppTextStyles.label),

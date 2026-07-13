@@ -14,6 +14,7 @@ class RouteConstants {
   static const String board = '/company/board';
   static const String broadcast = '/company/broadcast';
   static const String roles = '/company/roles';
+  static const String orgChart = '/company/org-chart';
   static const String approvalWorkflow = '/company/approval-workflow';
   static const String workspaceApprovals = '/company/workspace-approvals';
   // static const String compliance = '/company/compliance';
