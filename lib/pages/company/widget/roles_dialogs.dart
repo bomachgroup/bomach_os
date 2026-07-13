@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../controllers/roles_controller.dart';
+import '../controllers/authority_limit_controller.dart';
 
 class CreateEditRoleDialog extends StatefulWidget {
   final RolesController ctrl;
@@ -230,6 +231,54 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                 ],
               ),
             ),
+            if (isEdit) ...[
+              const SizedBox(height: 24),
+              _buildSection(
+                title: 'Authority Limits',
+                child: GetBuilder<AuthorityLimitController>(
+                  init: Get.put(AuthorityLimitController()),
+                  builder: (limitCtrl) {
+                    final roleLimits = limitCtrl.authorityLimits.where((l) => l.roleId == widget.role!.id.toString()).toList();
+                    if (roleLimits.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text('No authority limits defined for this role.', style: TextStyle(fontStyle: FontStyle.italic)),
+                      );
+                    }
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: roleLimits.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final limit = roleLimits[index];
+                        final amountText = limit.maxAmount != null ? '${limit.currency ?? 'NGN'} ${limit.maxAmount}' : 'No Limit';
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${limit.resource.toUpperCase()} : ${limit.action.toUpperCase()}',
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  if (limit.approvalLevel != null)
+                                    Text('Level: ${limit.approvalLevel}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                ],
+                              ),
+                              Text(amountText, style: const TextStyle(fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
             _buildSection(
               title: 'Permissions',
