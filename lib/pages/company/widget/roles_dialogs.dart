@@ -13,6 +13,10 @@ import 'package:iconsax/iconsax.dart';
 
 import '../controllers/roles_controller.dart';
 import '../controllers/authority_limit_controller.dart';
+import '../controllers/role_kpi_controller.dart';
+import '../controllers/role_okr_controller.dart';
+import 'kpi_dialogs.dart';
+import 'okr_dialogs.dart';
 
 class CreateEditRoleDialog extends StatefulWidget {
   final RolesController ctrl;
@@ -260,6 +264,185 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
               ),
             ),
             if (isEdit) ...[
+              const SizedBox(height: 24),
+              _buildSection(
+                title: 'KPIs',
+                child: GetBuilder<RoleKpiController>(
+                  tag: 'role_${widget.role!.id}',
+                  init: RoleKpiController()
+                    ..scopedRoleId = widget.role!.id
+                    ..fetchKpis(roleId: widget.role!.id),
+                  builder: (kpiCtrl) {
+                    final roleKpis = kpiCtrl.kpis
+                        .where((k) => k.roleId == widget.role!.id)
+                        .toList();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (roleKpis.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              'No KPIs defined for this role.',
+                              style: TextStyle(fontStyle: FontStyle.italic),
+                            ),
+                          )
+                        else
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: roleKpis.length,
+                            separatorBuilder: (_, __) =>
+                                const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final k = roleKpis[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          k.metricName,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          '${k.frequency[0].toUpperCase()}${k.frequency.substring(1)}',
+                                          style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppColors.textSecondary),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      'Target: ${k.target.toStringAsFixed(k.target % 1 == 0 ? 0 : 1)} ${k.unit}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        const SizedBox(height: 8),
+                        TextButton.icon(
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (_) => CreateEditKpiDialog(
+                              ctrl: kpiCtrl,
+                              presetRoleId: widget.role!.id,
+                            ),
+                          ),
+                          icon: const Icon(Icons.add, size: 16),
+                          label: const Text('Add KPI'),
+                          style: TextButton.styleFrom(
+                              foregroundColor: AppColors.primary),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildSection(
+                title: 'OKRs',
+                child: GetBuilder<RoleOkrController>(
+                  tag: 'role_okr_${widget.role!.id}',
+                  init: RoleOkrController()
+                    ..scopedRoleId = widget.role!.id
+                    ..fetchOkrs(roleId: widget.role!.id),
+                  builder: (okrCtrl) {
+                    final roleOkrs = okrCtrl.okrs
+                        .where((o) => o.roleId == widget.role!.id)
+                        .toList();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (roleOkrs.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              'No OKRs defined for this role.',
+                              style: TextStyle(fontStyle: FontStyle.italic),
+                            ),
+                          )
+                        else
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: roleOkrs.length,
+                            separatorBuilder: (_, __) =>
+                                const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final o = roleOkrs[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            o.objective,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            'Q${o.quarter} ${o.year} · ${o.keyResults.length} KRs',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: AppColors.textSecondary),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '${o.overallProgress.toStringAsFixed(0)}%',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: o.overallProgress >= 80
+                                            ? Colors.green.shade600
+                                            : o.overallProgress >= 50
+                                                ? Colors.amber.shade700
+                                                : AppColors.danger,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        const SizedBox(height: 8),
+                        TextButton.icon(
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (_) => CreateEditOkrDialog(
+                              ctrl: okrCtrl,
+                              presetRoleId: widget.role!.id,
+                            ),
+                          ),
+                          icon: const Icon(Icons.add, size: 16),
+                          label: const Text('Add OKR'),
+                          style: TextButton.styleFrom(
+                              foregroundColor: AppColors.primary),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
               const SizedBox(height: 24),
               _buildSection(
                 title: 'Authority Limits',
