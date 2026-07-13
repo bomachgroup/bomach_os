@@ -14,10 +14,12 @@ import 'controllers/roles_controller.dart';
 import 'widget/roles_dialogs.dart';
 import 'widget/role_detail_tabs/authority_limits_tab.dart';
 import 'widget/role_detail_tabs/career_path_tab.dart';
+import 'widget/role_detail_tabs/decision_matrix_tab.dart';
 import 'widget/role_detail_tabs/kpi_tab.dart';
 import 'widget/role_detail_tabs/okr_tab.dart';
 import 'widget/role_detail_tabs/org_chart_tab.dart';
 import 'widget/role_detail_tabs/overview_tab.dart';
+import 'widget/role_detail_tabs/risk_profile_tab.dart';
 
 class RoleDetailPage extends StatelessWidget {
   final int roleId;
@@ -65,6 +67,8 @@ class RoleDetailPage extends StatelessWidget {
       'KPIs',
       'OKRs',
       'Career Path',
+      'Risk Profile',
+      'Decision Matrix',
     ];
 
     return PageScaffold(
@@ -139,6 +143,8 @@ class _RoleBody extends StatelessWidget {
                 KpiTab(roleId: roleId),
                 OkrTab(roleId: roleId),
                 CareerPathTab(role: role),
+                RiskProfileTab(roleId: roleId),
+                DecisionMatrixTab(roleId: roleId),
               ],
             ),
           ),

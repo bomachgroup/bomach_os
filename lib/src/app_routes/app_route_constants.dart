@@ -18,6 +18,7 @@ class RouteConstants {
   static const String kpiManagement = '/company/kpi-management';
   static const String okrBoard = '/company/okr-board';
   static const String roleDetail = '/company/roles/detail';
+  static const String complianceDashboard = '/company/compliance';
   static const String approvalWorkflow = '/company/approval-workflow';
   static const String workspaceApprovals = '/company/workspace-approvals';
   // static const String compliance = '/company/compliance';
