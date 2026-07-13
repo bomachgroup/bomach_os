@@ -236,7 +236,7 @@ class _OkrCard extends StatelessWidget {
                           ),
                           child: Text(
                             'Q${okr.quarter} ${okr.year}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: AppColors.primary,
@@ -309,7 +309,7 @@ class _OkrCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Progress', style: AppTextStyles.caption),
+              const Text('Progress', style: AppTextStyles.caption),
               Text(
                 '${progress.toStringAsFixed(0)}%',
                 style: TextStyle(

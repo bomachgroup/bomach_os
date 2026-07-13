@@ -178,7 +178,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                         contentPadding: EdgeInsets.symmetric(
                             horizontal: 14, vertical: 12),
                       ),
-                      value: _selectedUnit,
+                      initialValue: _selectedUnit,
                       items: RoleKpi.unitOptions
                           .map((u) => DropdownMenuItem(
                               value: u, child: Text(u)))
@@ -202,7 +202,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
               contentPadding:
                   EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
-            value: _selectedFrequency,
+            initialValue: _selectedFrequency,
             items: RoleKpi.frequencyOptions
                 .map((f) => DropdownMenuItem(
                       value: f,
@@ -230,7 +230,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
               Switch(
                 value: _isActive,
                 onChanged: (v) => setState(() => _isActive = v),
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
               ),
               const SizedBox(width: 8),
               const Text('Active', style: AppTextStyles.bodyMd),

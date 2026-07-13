@@ -177,7 +177,7 @@ class _CreateEditOkrDialogState extends State<CreateEditOkrDialog> {
                         contentPadding: EdgeInsets.symmetric(
                             horizontal: 14, vertical: 12),
                       ),
-                      value: _quarter,
+                      initialValue: _quarter,
                       items: const [
                         DropdownMenuItem(value: 1, child: Text('Q1 (Jan–Mar)')),
                         DropdownMenuItem(value: 2, child: Text('Q2 (Apr–Jun)')),
@@ -203,7 +203,7 @@ class _CreateEditOkrDialogState extends State<CreateEditOkrDialog> {
                         contentPadding: EdgeInsets.symmetric(
                             horizontal: 14, vertical: 12),
                       ),
-                      value: _year,
+                      initialValue: _year,
                       items: List.generate(5, (i) => DateTime.now().year - 1 + i)
                           .map((y) => DropdownMenuItem(
                               value: y, child: Text('$y')))
@@ -226,7 +226,7 @@ class _CreateEditOkrDialogState extends State<CreateEditOkrDialog> {
               contentPadding:
                   EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
-            value: _status,
+            initialValue: _status,
             items: RoleOkr.statusOptions
                 .map((s) => DropdownMenuItem(
                       value: s,

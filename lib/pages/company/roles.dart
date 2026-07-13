@@ -307,6 +307,15 @@ class RolesPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         IconButton(
+          onPressed: () => GoRouter.of(context).go(
+            RouteConstants.roleDetail,
+            extra: role.id,
+          ),
+          icon: const Icon(Iconsax.eye, size: 18, color: AppColors.textPrimary),
+          tooltip: 'View Details',
+          splashRadius: 20,
+        ),
+        IconButton(
           onPressed: () => showDialog(
             context: context,
             builder: (_) => CreateEditRoleDialog(ctrl: ctrl, role: role),

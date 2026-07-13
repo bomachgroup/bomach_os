@@ -1,5 +1,6 @@
 /// OKR models for C18 — Objectives and Key Results.
 /// OKRs are defined at the role template level, with optional quarterly scoping.
+library;
 
 class RoleOkr {
   final int? id;

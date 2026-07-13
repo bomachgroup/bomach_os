@@ -14,6 +14,7 @@ import 'package:bomach_os/pages/company/audit_log.dart';
 import 'package:bomach_os/pages/company/board.dart';
 import 'package:bomach_os/pages/company/broadcast.dart';
 import 'package:bomach_os/pages/company/roles.dart';
+import 'package:bomach_os/pages/company/role_detail.dart';
 import 'package:bomach_os/pages/company/org_chart.dart';
 import 'package:bomach_os/pages/company/kpi_management.dart';
 import 'package:bomach_os/pages/company/okr_board.dart';
@@ -162,6 +163,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.board: const BoardPage(),
   RouteConstants.broadcast: const BroadcastPage(),
   RouteConstants.roles: const RolesPage(),
+  RouteConstants.roleDetail: Container(), // Handled via state.extra
   RouteConstants.orgChart: const OrgChartPage(),
   RouteConstants.kpiManagement: const KpiManagementPage(),
   RouteConstants.okrBoard: const OkrBoardPage(),
@@ -272,6 +274,9 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
           // Handle estate detail route with extra parameter
           if (path == RouteConstants.estateDetail && state.extra != null) {
             return EstateDetailPage(estate: state.extra as Estate);
+          }
+          if (path == RouteConstants.roleDetail && state.extra != null) {
+            return RoleDetailPage(roleId: state.extra as int);
           }
           // Handle estate performance route with extra parameter
           if (path == RouteConstants.estatePerformance && state.extra != null) {
