@@ -43,6 +43,7 @@ enum SubMenuItem {
   okrBoard,
   approvalWorkflow,
   complianceDashboard,
+  knowledgeBase,
   workspaceApprovals,
   auditLog,
   compliance,
@@ -296,6 +297,13 @@ const List<SidebarSection> sidebarStructure = [
             icon: Iconsax.shield_tick,
             label: 'Compliance Dashboard',
             route: RouteConstants.complianceDashboard,
+            resources: [PermissionConstants.resRoles],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.knowledgeBase,
+            icon: Iconsax.document,
+            label: 'Knowledge Base',
+            route: RouteConstants.knowledgeBase,
             resources: [PermissionConstants.resRoles],
           ),
           SubMenuItemData(

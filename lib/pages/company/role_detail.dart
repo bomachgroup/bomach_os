@@ -15,6 +15,9 @@ import 'widget/roles_dialogs.dart';
 import 'widget/role_detail_tabs/authority_limits_tab.dart';
 import 'widget/role_detail_tabs/career_path_tab.dart';
 import 'widget/role_detail_tabs/decision_matrix_tab.dart';
+import 'widget/role_detail_tabs/knowledge_base_tab.dart';
+import 'widget/role_detail_tabs/stakeholder_tab.dart';
+import 'widget/role_detail_tabs/succession_plan_tab.dart';
 import 'widget/role_detail_tabs/kpi_tab.dart';
 import 'widget/role_detail_tabs/okr_tab.dart';
 import 'widget/role_detail_tabs/org_chart_tab.dart';
@@ -69,6 +72,9 @@ class RoleDetailPage extends StatelessWidget {
       'Career Path',
       'Risk Profile',
       'Decision Matrix',
+      'Succession Plan',
+      'Stakeholders',
+      'Knowledge Base',
     ];
 
     return PageScaffold(
@@ -145,6 +151,9 @@ class _RoleBody extends StatelessWidget {
                 CareerPathTab(role: role),
                 RiskProfileTab(roleId: roleId),
                 DecisionMatrixTab(roleId: roleId),
+                SuccessionPlanTab(roleId: roleId),
+                StakeholderTab(roleId: roleId),
+                KnowledgeBaseTab(roleId: roleId),
               ],
             ),
           ),
