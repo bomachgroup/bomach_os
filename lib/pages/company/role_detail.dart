@@ -19,6 +19,7 @@ import 'widget/role_detail_tabs/decision_matrix_tab.dart';
 import 'widget/role_detail_tabs/knowledge_base_tab.dart';
 import 'widget/role_detail_tabs/performance_analytics_tab.dart';
 import 'widget/role_detail_tabs/reports_tab.dart';
+import 'widget/role_detail_tabs/resources_tab.dart';
 import 'widget/role_detail_tabs/stakeholder_tab.dart';
 import 'widget/role_detail_tabs/succession_plan_tab.dart';
 import 'widget/role_detail_tabs/targets_tab.dart';
@@ -80,6 +81,7 @@ class RoleDetailPage extends StatelessWidget {
       'Training',
       'Task Templates',
       'Reports',
+      'Resources',
       'Risk Profile',
       'Decision Matrix',
       'Succession Plan',
@@ -165,6 +167,7 @@ class _RoleBody extends StatelessWidget {
                 TrainingTab(roleId: roleId),
                 TaskTemplateTab(roleId: roleId),
                 ReportsTab(roleId: roleId),
+                ResourcesTab(roleId: roleId),
                 RiskProfileTab(roleId: roleId),
                 DecisionMatrixTab(roleId: roleId),
                 SuccessionPlanTab(roleId: roleId),
