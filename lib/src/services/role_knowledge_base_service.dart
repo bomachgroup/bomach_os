@@ -50,7 +50,7 @@ class RoleKnowledgeBaseService {
 
   Exception _handleError(dynamic e) {
     if (e is DioException) {
-      final msg = e.response?.data?['message'] ?? e.response?.data?['detail'] ?? e.message;
+      final msg = (e.response?.data is Map) ? (e.response?.data?['message'] ?? e.response?.data?['detail'] ?? e.message) : e.message;
       return Exception('API Error: ${e.response?.statusCode} - $msg');
     }
     return Exception('Unexpected error: $e');

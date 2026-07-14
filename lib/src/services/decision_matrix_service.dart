@@ -80,9 +80,8 @@ class DecisionMatrixService {
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final msg = error.response?.data?['message'] ??
-          error.response?.data?['detail'] ??
-          error.message;
+      final body = error.response?.data;
+      final msg = (body is Map) ? (body['message'] ?? body['detail'] ?? error.message) : error.message;
       return Exception('API Error: ${error.response?.statusCode} - $msg');
     }
     return Exception('Unexpected error: $error');

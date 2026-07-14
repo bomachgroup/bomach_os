@@ -31,7 +31,7 @@ class RoleSopService {
 
   Future<({List<RoleSop> list, int count})> listSops(
     String token, {
-    int? roleId,
+    required int roleId,
     String? category,
     int limit = 100,
     int offset = 0,
@@ -41,11 +41,10 @@ class RoleSopService {
         'limit': limit,
         'offset': offset,
       };
-      if (roleId != null) queryParams['role_id'] = roleId;
       if (category != null) queryParams['category'] = category;
 
       final response = await _dio.get(
-        '/api/v1/role-sops/',
+        '/api/v1/roles/$roleId/sops',
         queryParameters: queryParams,
         options: _authOptions(token),
       );
@@ -68,11 +67,12 @@ class RoleSopService {
 
   Future<RoleSop> createSop(
     String token,
+    int roleId,
     Map<String, dynamic> payload,
   ) async {
     try {
       final response = await _dio.post(
-        '/api/v1/role-sops/',
+        '/api/v1/roles/$roleId/sops',
         data: payload,
         options: _authOptions(token),
       );
@@ -84,12 +84,13 @@ class RoleSopService {
 
   Future<RoleSop> updateSop(
     String token,
-    int id,
+    int roleId,
+    int sopId,
     Map<String, dynamic> payload,
   ) async {
     try {
       final response = await _dio.put(
-        '/api/v1/role-sops/$id',
+        '/api/v1/roles/$roleId/sops/$sopId',
         data: payload,
         options: _authOptions(token),
       );
@@ -99,10 +100,10 @@ class RoleSopService {
     }
   }
 
-  Future<void> deleteSop(String token, int id) async {
+  Future<void> deleteSop(String token, int roleId, int sopId) async {
     try {
       await _dio.delete(
-        '/api/v1/role-sops/$id',
+        '/api/v1/roles/$roleId/sops/$sopId',
         options: _authOptions(token),
       );
     } catch (e) {
@@ -112,9 +113,8 @@ class RoleSopService {
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ??
-          error.response?.data?['detail'] ??
-          error.message;
+      final body = error.response?.data;
+      final errorMessage = (body is Map) ? (body['message'] ?? body['detail'] ?? error.message) : error.message;
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }

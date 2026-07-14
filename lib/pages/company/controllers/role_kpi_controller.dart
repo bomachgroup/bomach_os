@@ -43,10 +43,12 @@ class RoleKpiController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return;
+      final rId = roleId ?? scopedRoleId;
+      if (rId == null) return;
 
       final result = await _service.listRoleKpis(
         token,
-        roleId: roleId ?? scopedRoleId,
+        roleId: rId,
         limit: limit,
         offset: offset,
       );
@@ -93,7 +95,7 @@ class RoleKpiController extends GetxController {
         'is_active': isActive,
       };
 
-      await _service.createRoleKpi(token, payload);
+      await _service.createRoleKpi(token, roleId, payload);
       await fetchKpis(refresh: true, roleId: scopedRoleId);
 
       if (context.mounted) {
@@ -142,7 +144,9 @@ class RoleKpiController extends GetxController {
       if (category != null) payload['category'] = category;
       if (isActive != null) payload['is_active'] = isActive;
 
-      await _service.updateRoleKpi(token, id, payload);
+      final rId = scopedRoleId;
+      if (rId == null) return false;
+      await _service.updateRoleKpi(token, rId, id, payload);
       await fetchKpis(refresh: true, roleId: scopedRoleId);
 
       if (context.mounted) {
@@ -170,8 +174,10 @@ class RoleKpiController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return false;
+      final rId = scopedRoleId;
+      if (rId == null) return false;
 
-      await _service.deleteRoleKpi(token, id);
+      await _service.deleteRoleKpi(token, rId, id);
       await fetchKpis(refresh: true, roleId: scopedRoleId);
 
       if (context.mounted) {

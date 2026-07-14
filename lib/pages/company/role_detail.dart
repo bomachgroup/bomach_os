@@ -1,4 +1,5 @@
 import 'package:bomach_os/components/button/my_outlined_button.dart';
+import 'package:bomach_os/components/coming_soon.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/src/app_routes/app_route_constants.dart';
@@ -9,29 +10,20 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
-import 'controllers/authority_limit_controller.dart';
 import 'controllers/roles_controller.dart';
 import 'widget/roles_dialogs.dart';
-import 'widget/role_detail_tabs/authority_limits_tab.dart';
 import 'widget/role_detail_tabs/career_path_tab.dart';
 import 'widget/role_detail_tabs/daily_routine_tab.dart';
-import 'widget/role_detail_tabs/decision_matrix_tab.dart';
-import 'widget/role_detail_tabs/knowledge_base_tab.dart';
 import 'widget/role_detail_tabs/performance_analytics_tab.dart';
-import 'widget/role_detail_tabs/reports_tab.dart';
 import 'widget/role_detail_tabs/resources_tab.dart';
-import 'widget/role_detail_tabs/stakeholder_tab.dart';
-import 'widget/role_detail_tabs/succession_plan_tab.dart';
 import 'widget/role_detail_tabs/targets_tab.dart';
 import 'widget/role_detail_tabs/task_template_tab.dart';
 import 'widget/role_detail_tabs/sop_tab.dart';
 import 'widget/role_detail_tabs/success_playbook_tab.dart';
 import 'widget/role_detail_tabs/training_tab.dart';
 import 'widget/role_detail_tabs/kpi_tab.dart';
-import 'widget/role_detail_tabs/okr_tab.dart';
 import 'widget/role_detail_tabs/org_chart_tab.dart';
 import 'widget/role_detail_tabs/overview_tab.dart';
-import 'widget/role_detail_tabs/risk_profile_tab.dart';
 
 class RoleDetailPage extends StatelessWidget {
   final int roleId;
@@ -162,23 +154,23 @@ class _RoleBody extends StatelessWidget {
             child: TabBarView(
               children: [
                 OverviewTab(role: role),
-                _AuthorityLimitsWrapper(roleId: roleId),
+                const ComingSoonTab(featureName: 'Authority Limits'),
                 _OrgChartWrapper(role: role),
                 KpiTab(roleId: roleId),
-                OkrTab(roleId: roleId),
+                const ComingSoonTab(featureName: 'OKRs'),
                 TargetsTab(roleId: roleId),
                 CareerPathTab(role: role),
                 SuccessPlaybookTab(roleId: roleId),
                 TrainingTab(roleId: roleId),
                 TaskTemplateTab(roleId: roleId),
-                ReportsTab(roleId: roleId),
+                const ComingSoonTab(featureName: 'Reports'),
                 ResourcesTab(roleId: roleId),
-                RiskProfileTab(roleId: roleId),
-                DecisionMatrixTab(roleId: roleId),
-                SuccessionPlanTab(roleId: roleId),
-                StakeholderTab(roleId: roleId),
+                const ComingSoonTab(featureName: 'Risk Profile'),
+                const ComingSoonTab(featureName: 'Decision Matrix'),
+                const ComingSoonTab(featureName: 'Succession Plan'),
+                const ComingSoonTab(featureName: 'Stakeholders'),
                 SopTab(roleId: roleId),
-                KnowledgeBaseTab(roleId: roleId),
+                const ComingSoonTab(featureName: 'Knowledge Base'),
                 DailyRoutineTab(roleId: roleId),
                 PerformanceAnalyticsTab(roleId: roleId),
               ],
@@ -186,27 +178,6 @@ class _RoleBody extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _AuthorityLimitsWrapper extends StatelessWidget {
-  final int roleId;
-
-  const _AuthorityLimitsWrapper({required this.roleId});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetBuilder<AuthorityLimitController>(
-      init: Get.put(AuthorityLimitController()),
-      builder: (limitCtrl) {
-        return AuthorityLimitsTab(
-          roleId: roleId,
-          limits: limitCtrl.authorityLimits
-              .where((l) => l.roleId == roleId.toString())
-              .toList(),
-        );
-      },
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:bomach_os/src/model/role_resource_models.dart';
 class RoleResourceService {
   final Dio _dio;
 
-  static final String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  static final String _baseUrl = ApiConstants.baseUrl;
 
   RoleResourceService({Dio? dioOverride})
       : _dio = dioOverride ??
@@ -29,201 +29,254 @@ class RoleResourceService {
   Options _authOptions(String token) =>
       Options(headers: {'Authorization': 'Bearer $token'});
 
+  static const _kindMap = {
+    ResourceType.physicalResource: 'physical',
+    ResourceType.softwareTool: 'software',
+    ResourceType.referenceDocument: 'document',
+    ResourceType.technicalSkill: 'skill',
+    ResourceType.softSkill: 'soft_skill',
+    ResourceType.experienceRequirement: 'experience',
+    ResourceType.certification: 'certification',
+  };
+
+  // ─── GENERIC RESOURCE CRUD ───────────────────────────────────────────
+
+  Future<({List<Map<String, dynamic>> list, int count})> _listResources(
+    String token, {
+    required int roleId,
+    required ResourceType type,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final kind = _kindMap[type]!;
+      final response = await _dio.get(
+        '/api/v1/roles/$roleId/resources',
+        queryParameters: {
+          'kind': kind,
+          'limit': limit,
+          'offset': offset,
+        },
+        options: _authOptions(token),
+      );
+      final data = response.data as Map? ?? {};
+      final items = (data['items'] as List?) ?? [];
+      return (
+        list: items.cast<Map<String, dynamic>>(),
+        count: (data['count'] as int?) ?? items.length,
+      );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> _createResource(
+    String token,
+    int roleId,
+    ResourceType type,
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      payload['kind'] = _kindMap[type]!;
+      final res = await _dio.post(
+        '/api/v1/roles/$roleId/resources',
+        data: payload,
+        options: _authOptions(token),
+      );
+      return res.data as Map<String, dynamic>;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> _updateResource(
+    String token,
+    int roleId,
+    int resourceId,
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final res = await _dio.put(
+        '/api/v1/roles/$roleId/resources/$resourceId',
+        data: payload,
+        options: _authOptions(token),
+      );
+      return res.data as Map<String, dynamic>;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> _deleteResource(
+    String token, int roleId, int resourceId) async {
+    try {
+      await _dio.delete(
+        '/api/v1/roles/$roleId/resources/$resourceId',
+        options: _authOptions(token),
+      );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─── PHYSICAL RESOURCES ───────────────────────────────────────────────
 
   Future<({List<PhysicalResource> list, int count})> listPhysicalResources(
-    String token, {int? roleId, int limit = 100, int offset = 0}) async {
-    try {
-      final response = await _dio.get('/role-physical-resources/',
-          queryParameters: _queryParams(roleId: roleId, limit: limit, offset: offset),
-          options: _authOptions(token));
-      final data = response.data as Map? ?? {};
-      final items = (data['items'] as List?) ?? [];
-      return (list: items.map((j) => PhysicalResource.fromJson(j as Map<String, dynamic>)).toList(), count: (data['count'] as int?) ?? items.length);
-    } catch (e) { throw _handleError(e); }
+    String token, {required int roleId, int limit = 100, int offset = 0}) async {
+    final r = await _listResources(token, roleId: roleId, type: ResourceType.physicalResource, limit: limit, offset: offset);
+    return (list: r.list.map((j) => PhysicalResource.fromJson(j)).toList(), count: r.count);
   }
 
-  Future<PhysicalResource> createPhysicalResource(String token, Map<String, dynamic> payload) async {
-    final res = await _dio.post('/role-physical-resources/', data: payload, options: _authOptions(token));
-    return PhysicalResource.fromJson(res.data);
+  Future<PhysicalResource> createPhysicalResource(String token, int roleId, Map<String, dynamic> payload) async {
+    final r = await _createResource(token, roleId, ResourceType.physicalResource, payload);
+    return PhysicalResource.fromJson(r);
   }
 
-  Future<PhysicalResource> updatePhysicalResource(String token, int id, Map<String, dynamic> payload) async {
-    final res = await _dio.put('/role-physical-resources/$id', data: payload, options: _authOptions(token));
-    return PhysicalResource.fromJson(res.data);
+  Future<PhysicalResource> updatePhysicalResource(String token, int roleId, int id, Map<String, dynamic> payload) async {
+    final r = await _updateResource(token, roleId, id, payload);
+    return PhysicalResource.fromJson(r);
   }
 
-  Future<void> deletePhysicalResource(String token, int id) async {
-    await _dio.delete('/role-physical-resources/$id', options: _authOptions(token));
+  Future<void> deletePhysicalResource(String token, int roleId, int id) async {
+    await _deleteResource(token, roleId, id);
   }
 
   // ─── SOFTWARE TOOLS ───────────────────────────────────────────────────
 
   Future<({List<SoftwareTool> list, int count})> listSoftwareTools(
-    String token, {int? roleId, int limit = 100, int offset = 0}) async {
-    final res = await _dio.get('/role-software-tools/',
-        queryParameters: _queryParams(roleId: roleId, limit: limit, offset: offset),
-        options: _authOptions(token));
-    final data = res.data as Map? ?? {};
-    final items = (data['items'] as List?) ?? [];
-    return (list: items.map((j) => SoftwareTool.fromJson(j as Map<String, dynamic>)).toList(), count: (data['count'] as int?) ?? items.length);
+    String token, {required int roleId, int limit = 100, int offset = 0}) async {
+    final r = await _listResources(token, roleId: roleId, type: ResourceType.softwareTool, limit: limit, offset: offset);
+    return (list: r.list.map((j) => SoftwareTool.fromJson(j)).toList(), count: r.count);
   }
 
-  Future<SoftwareTool> createSoftwareTool(String token, Map<String, dynamic> payload) async {
-    final res = await _dio.post('/role-software-tools/', data: payload, options: _authOptions(token));
-    return SoftwareTool.fromJson(res.data);
+  Future<SoftwareTool> createSoftwareTool(String token, int roleId, Map<String, dynamic> payload) async {
+    final r = await _createResource(token, roleId, ResourceType.softwareTool, payload);
+    return SoftwareTool.fromJson(r);
   }
 
-  Future<SoftwareTool> updateSoftwareTool(String token, int id, Map<String, dynamic> payload) async {
-    final res = await _dio.put('/role-software-tools/$id', data: payload, options: _authOptions(token));
-    return SoftwareTool.fromJson(res.data);
+  Future<SoftwareTool> updateSoftwareTool(String token, int roleId, int id, Map<String, dynamic> payload) async {
+    final r = await _updateResource(token, roleId, id, payload);
+    return SoftwareTool.fromJson(r);
   }
 
-  Future<void> deleteSoftwareTool(String token, int id) async {
-    await _dio.delete('/role-software-tools/$id', options: _authOptions(token));
+  Future<void> deleteSoftwareTool(String token, int roleId, int id) async {
+    await _deleteResource(token, roleId, id);
   }
 
   // ─── REFERENCE DOCUMENTS ──────────────────────────────────────────────
 
   Future<({List<ReferenceDocument> list, int count})> listReferenceDocuments(
-    String token, {int? roleId, int limit = 100, int offset = 0}) async {
-    final res = await _dio.get('/role-reference-documents/',
-        queryParameters: _queryParams(roleId: roleId, limit: limit, offset: offset),
-        options: _authOptions(token));
-      final data = res.data as Map? ?? {};
-    final items = (data['items'] as List?) ?? [];
-    return (list: items.map((j) => ReferenceDocument.fromJson(j as Map<String, dynamic>)).toList(), count: (data['count'] as int?) ?? items.length);
+    String token, {required int roleId, int limit = 100, int offset = 0}) async {
+    final r = await _listResources(token, roleId: roleId, type: ResourceType.referenceDocument, limit: limit, offset: offset);
+    return (list: r.list.map((j) => ReferenceDocument.fromJson(j)).toList(), count: r.count);
   }
 
-  Future<ReferenceDocument> createReferenceDocument(String token, Map<String, dynamic> payload) async {
-    final res = await _dio.post('/role-reference-documents/', data: payload, options: _authOptions(token));
-    return ReferenceDocument.fromJson(res.data);
+  Future<ReferenceDocument> createReferenceDocument(String token, int roleId, Map<String, dynamic> payload) async {
+    final r = await _createResource(token, roleId, ResourceType.referenceDocument, payload);
+    return ReferenceDocument.fromJson(r);
   }
 
-  Future<ReferenceDocument> updateReferenceDocument(String token, int id, Map<String, dynamic> payload) async {
-    final res = await _dio.put('/role-reference-documents/$id', data: payload, options: _authOptions(token));
-    return ReferenceDocument.fromJson(res.data);
+  Future<ReferenceDocument> updateReferenceDocument(String token, int roleId, int id, Map<String, dynamic> payload) async {
+    final r = await _updateResource(token, roleId, id, payload);
+    return ReferenceDocument.fromJson(r);
   }
 
-  Future<void> deleteReferenceDocument(String token, int id) async {
-    await _dio.delete('/role-reference-documents/$id', options: _authOptions(token));
+  Future<void> deleteReferenceDocument(String token, int roleId, int id) async {
+    await _deleteResource(token, roleId, id);
   }
 
   // ─── TECHNICAL SKILLS ─────────────────────────────────────────────────
 
   Future<({List<TechnicalSkill> list, int count})> listTechnicalSkills(
-    String token, {int? roleId, int limit = 100, int offset = 0}) async {
-    final res = await _dio.get('/role-technical-skills/',
-        queryParameters: _queryParams(roleId: roleId, limit: limit, offset: offset),
-        options: _authOptions(token));
-      final data = res.data as Map? ?? {};
-    final items = (data['items'] as List?) ?? [];
-    return (list: items.map((j) => TechnicalSkill.fromJson(j as Map<String, dynamic>)).toList(), count: (data['count'] as int?) ?? items.length);
+    String token, {required int roleId, int limit = 100, int offset = 0}) async {
+    final r = await _listResources(token, roleId: roleId, type: ResourceType.technicalSkill, limit: limit, offset: offset);
+    return (list: r.list.map((j) => TechnicalSkill.fromJson(j)).toList(), count: r.count);
   }
 
-  Future<TechnicalSkill> createTechnicalSkill(String token, Map<String, dynamic> payload) async {
-    final res = await _dio.post('/role-technical-skills/', data: payload, options: _authOptions(token));
-    return TechnicalSkill.fromJson(res.data);
+  Future<TechnicalSkill> createTechnicalSkill(String token, int roleId, Map<String, dynamic> payload) async {
+    final r = await _createResource(token, roleId, ResourceType.technicalSkill, payload);
+    return TechnicalSkill.fromJson(r);
   }
 
-  Future<TechnicalSkill> updateTechnicalSkill(String token, int id, Map<String, dynamic> payload) async {
-    final res = await _dio.put('/role-technical-skills/$id', data: payload, options: _authOptions(token));
-    return TechnicalSkill.fromJson(res.data);
+  Future<TechnicalSkill> updateTechnicalSkill(String token, int roleId, int id, Map<String, dynamic> payload) async {
+    final r = await _updateResource(token, roleId, id, payload);
+    return TechnicalSkill.fromJson(r);
   }
 
-  Future<void> deleteTechnicalSkill(String token, int id) async {
-    await _dio.delete('/role-technical-skills/$id', options: _authOptions(token));
+  Future<void> deleteTechnicalSkill(String token, int roleId, int id) async {
+    await _deleteResource(token, roleId, id);
   }
 
   // ─── SOFT SKILLS ──────────────────────────────────────────────────────
 
   Future<({List<SoftSkill> list, int count})> listSoftSkills(
-    String token, {int? roleId, int limit = 100, int offset = 0}) async {
-    final res = await _dio.get('/role-soft-skills/',
-        queryParameters: _queryParams(roleId: roleId, limit: limit, offset: offset),
-        options: _authOptions(token));
-      final data = res.data as Map? ?? {};
-    final items = (data['items'] as List?) ?? [];
-    return (list: items.map((j) => SoftSkill.fromJson(j as Map<String, dynamic>)).toList(), count: (data['count'] as int?) ?? items.length);
+    String token, {required int roleId, int limit = 100, int offset = 0}) async {
+    final r = await _listResources(token, roleId: roleId, type: ResourceType.softSkill, limit: limit, offset: offset);
+    return (list: r.list.map((j) => SoftSkill.fromJson(j)).toList(), count: r.count);
   }
 
-  Future<SoftSkill> createSoftSkill(String token, Map<String, dynamic> payload) async {
-    final res = await _dio.post('/role-soft-skills/', data: payload, options: _authOptions(token));
-    return SoftSkill.fromJson(res.data);
+  Future<SoftSkill> createSoftSkill(String token, int roleId, Map<String, dynamic> payload) async {
+    final r = await _createResource(token, roleId, ResourceType.softSkill, payload);
+    return SoftSkill.fromJson(r);
   }
 
-  Future<SoftSkill> updateSoftSkill(String token, int id, Map<String, dynamic> payload) async {
-    final res = await _dio.put('/role-soft-skills/$id', data: payload, options: _authOptions(token));
-    return SoftSkill.fromJson(res.data);
+  Future<SoftSkill> updateSoftSkill(String token, int roleId, int id, Map<String, dynamic> payload) async {
+    final r = await _updateResource(token, roleId, id, payload);
+    return SoftSkill.fromJson(r);
   }
 
-  Future<void> deleteSoftSkill(String token, int id) async {
-    await _dio.delete('/role-soft-skills/$id', options: _authOptions(token));
+  Future<void> deleteSoftSkill(String token, int roleId, int id) async {
+    await _deleteResource(token, roleId, id);
   }
 
   // ─── EXPERIENCE REQUIREMENTS ──────────────────────────────────────────
 
   Future<({List<ExperienceRequirement> list, int count})> listExperienceRequirements(
-    String token, {int? roleId, int limit = 100, int offset = 0}) async {
-    final res = await _dio.get('/role-experience-requirements/',
-        queryParameters: _queryParams(roleId: roleId, limit: limit, offset: offset),
-        options: _authOptions(token));
-      final data = res.data as Map? ?? {};
-    final items = (data['items'] as List?) ?? [];
-    return (list: items.map((j) => ExperienceRequirement.fromJson(j as Map<String, dynamic>)).toList(), count: (data['count'] as int?) ?? items.length);
+    String token, {required int roleId, int limit = 100, int offset = 0}) async {
+    final r = await _listResources(token, roleId: roleId, type: ResourceType.experienceRequirement, limit: limit, offset: offset);
+    return (list: r.list.map((j) => ExperienceRequirement.fromJson(j)).toList(), count: r.count);
   }
 
-  Future<ExperienceRequirement> createExperienceRequirement(String token, Map<String, dynamic> payload) async {
-    final res = await _dio.post('/role-experience-requirements/', data: payload, options: _authOptions(token));
-    return ExperienceRequirement.fromJson(res.data);
+  Future<ExperienceRequirement> createExperienceRequirement(String token, int roleId, Map<String, dynamic> payload) async {
+    final r = await _createResource(token, roleId, ResourceType.experienceRequirement, payload);
+    return ExperienceRequirement.fromJson(r);
   }
 
-  Future<ExperienceRequirement> updateExperienceRequirement(String token, int id, Map<String, dynamic> payload) async {
-    final res = await _dio.put('/role-experience-requirements/$id', data: payload, options: _authOptions(token));
-    return ExperienceRequirement.fromJson(res.data);
+  Future<ExperienceRequirement> updateExperienceRequirement(String token, int roleId, int id, Map<String, dynamic> payload) async {
+    final r = await _updateResource(token, roleId, id, payload);
+    return ExperienceRequirement.fromJson(r);
   }
 
-  Future<void> deleteExperienceRequirement(String token, int id) async {
-    await _dio.delete('/role-experience-requirements/$id', options: _authOptions(token));
+  Future<void> deleteExperienceRequirement(String token, int roleId, int id) async {
+    await _deleteResource(token, roleId, id);
   }
 
   // ─── CERTIFICATIONS ───────────────────────────────────────────────────
 
   Future<({List<Certification> list, int count})> listCertifications(
-    String token, {int? roleId, int limit = 100, int offset = 0}) async {
-    final res = await _dio.get('/role-certifications/',
-        queryParameters: _queryParams(roleId: roleId, limit: limit, offset: offset),
-        options: _authOptions(token));
-      final data = res.data as Map? ?? {};
-    final items = (data['items'] as List?) ?? [];
-    return (list: items.map((j) => Certification.fromJson(j as Map<String, dynamic>)).toList(), count: (data['count'] as int?) ?? items.length);
+    String token, {required int roleId, int limit = 100, int offset = 0}) async {
+    final r = await _listResources(token, roleId: roleId, type: ResourceType.certification, limit: limit, offset: offset);
+    return (list: r.list.map((j) => Certification.fromJson(j)).toList(), count: r.count);
   }
 
-  Future<Certification> createCertification(String token, Map<String, dynamic> payload) async {
-    final res = await _dio.post('/role-certifications/', data: payload, options: _authOptions(token));
-    return Certification.fromJson(res.data);
+  Future<Certification> createCertification(String token, int roleId, Map<String, dynamic> payload) async {
+    final r = await _createResource(token, roleId, ResourceType.certification, payload);
+    return Certification.fromJson(r);
   }
 
-  Future<Certification> updateCertification(String token, int id, Map<String, dynamic> payload) async {
-    final res = await _dio.put('/role-certifications/$id', data: payload, options: _authOptions(token));
-    return Certification.fromJson(res.data);
+  Future<Certification> updateCertification(String token, int roleId, int id, Map<String, dynamic> payload) async {
+    final r = await _updateResource(token, roleId, id, payload);
+    return Certification.fromJson(r);
   }
 
-  Future<void> deleteCertification(String token, int id) async {
-    await _dio.delete('/role-certifications/$id', options: _authOptions(token));
-  }
-
-  // ─── HELPERS ──────────────────────────────────────────────────────────
-
-  Map<String, dynamic> _queryParams({int? roleId, int limit = 100, int offset = 0}) {
-    final params = <String, dynamic>{'limit': limit, 'offset': offset};
-    if (roleId != null) params['role_id'] = roleId;
-    return params;
+  Future<void> deleteCertification(String token, int roleId, int id) async {
+    await _deleteResource(token, roleId, id);
   }
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final msg = error.response?.data?['message'] ?? error.response?.data?['detail'] ?? error.message;
+      final body = error.response?.data;
+      final msg = (body is Map) ? (body['message'] ?? body['detail'] ?? error.message) : error.message;
       return Exception('API Error: ${error.response?.statusCode} - $msg');
     }
     return Exception('Unexpected error: $error');

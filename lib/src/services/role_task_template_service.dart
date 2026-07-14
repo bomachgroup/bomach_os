@@ -31,7 +31,7 @@ class RoleTaskTemplateService {
 
   Future<({List<RoleTaskTemplate> list, int count})> listTaskTemplates(
     String token, {
-    int? roleId,
+    required int roleId,
     String? frequency,
     String? priority,
     bool? isActive,
@@ -43,13 +43,12 @@ class RoleTaskTemplateService {
         'limit': limit,
         'offset': offset,
       };
-      if (roleId != null) queryParams['role_id'] = roleId;
       if (frequency != null) queryParams['frequency'] = frequency;
       if (priority != null) queryParams['priority'] = priority;
       if (isActive != null) queryParams['is_active'] = isActive;
 
       final response = await _dio.get(
-        '/api/v1/role-task-templates/',
+        '/api/v1/roles/$roleId/task-templates',
         queryParameters: queryParams,
         options: _authOptions(token),
       );
@@ -72,11 +71,12 @@ class RoleTaskTemplateService {
 
   Future<RoleTaskTemplate> createTaskTemplate(
     String token,
+    int roleId,
     Map<String, dynamic> payload,
   ) async {
     try {
       final response = await _dio.post(
-        '/api/v1/role-task-templates/',
+        '/api/v1/roles/$roleId/task-templates',
         data: payload,
         options: _authOptions(token),
       );
@@ -88,12 +88,13 @@ class RoleTaskTemplateService {
 
   Future<RoleTaskTemplate> updateTaskTemplate(
     String token,
-    int id,
+    int roleId,
+    int templateId,
     Map<String, dynamic> payload,
   ) async {
     try {
       final response = await _dio.put(
-        '/api/v1/role-task-templates/$id',
+        '/api/v1/roles/$roleId/task-templates/$templateId',
         data: payload,
         options: _authOptions(token),
       );
@@ -103,10 +104,10 @@ class RoleTaskTemplateService {
     }
   }
 
-  Future<void> deleteTaskTemplate(String token, int id) async {
+  Future<void> deleteTaskTemplate(String token, int roleId, int templateId) async {
     try {
       await _dio.delete(
-        '/api/v1/role-task-templates/$id',
+        '/api/v1/roles/$roleId/task-templates/$templateId',
         options: _authOptions(token),
       );
     } catch (e) {
@@ -116,9 +117,8 @@ class RoleTaskTemplateService {
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ??
-          error.response?.data?['detail'] ??
-          error.message;
+      final body = error.response?.data;
+      final errorMessage = (body is Map) ? (body['message'] ?? body['detail'] ?? error.message) : error.message;
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }

@@ -28,10 +28,12 @@ class RoleSuccessPlaybookController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return;
+      final rId = roleId ?? scopedRoleId;
+      if (rId == null) return;
 
       final result = await _service.listPlaybooks(
         token,
-        roleId: roleId ?? scopedRoleId,
+        roleId: rId,
         limit: 100,
       );
 
@@ -65,7 +67,7 @@ class RoleSuccessPlaybookController extends GetxController {
         'metrics': metrics,
       };
 
-      await _service.createPlaybook(token, payload);
+      await _service.createPlaybook(token, roleId, payload);
       await fetchPlaybooks(roleId: scopedRoleId);
 
       if (context.mounted) {
@@ -108,7 +110,9 @@ class RoleSuccessPlaybookController extends GetxController {
       if (phases != null) payload['phases'] = phases.map((p) => p.toJson()).toList();
       if (metrics != null) payload['metrics'] = metrics;
 
-      await _service.updatePlaybook(token, id, payload);
+      final rId = scopedRoleId;
+      if (rId == null) return false;
+      await _service.updatePlaybook(token, rId, id, payload);
       await fetchPlaybooks(roleId: scopedRoleId);
 
       if (context.mounted) {
@@ -137,7 +141,9 @@ class RoleSuccessPlaybookController extends GetxController {
       final token = await _getToken();
       if (token == null) return false;
 
-      await _service.deletePlaybook(token, id);
+      final rId = scopedRoleId;
+      if (rId == null) return false;
+      await _service.deletePlaybook(token, rId, id);
       await fetchPlaybooks(roleId: scopedRoleId);
 
       if (context.mounted) {

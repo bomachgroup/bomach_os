@@ -28,10 +28,12 @@ class RoleSopController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return;
+      final rId = roleId ?? scopedRoleId;
+      if (rId == null) return;
 
       final result = await _service.listSops(
         token,
-        roleId: roleId ?? scopedRoleId,
+        roleId: rId,
         limit: 100,
       );
 
@@ -67,7 +69,7 @@ class RoleSopController extends GetxController {
         if (category != null && category.isNotEmpty) 'category': category,
       };
 
-      await _service.createSop(token, payload);
+      await _service.createSop(token, roleId, payload);
       await fetchSops(roleId: scopedRoleId);
 
       if (context.mounted) {
@@ -114,7 +116,9 @@ class RoleSopController extends GetxController {
       if (isLatest != null) payload['is_latest'] = isLatest;
       if (category != null) payload['category'] = category;
 
-      await _service.updateSop(token, id, payload);
+      final rId = scopedRoleId;
+      if (rId == null) return false;
+      await _service.updateSop(token, rId, id, payload);
       await fetchSops(roleId: scopedRoleId);
 
       if (context.mounted) {
@@ -143,7 +147,9 @@ class RoleSopController extends GetxController {
       final token = await _getToken();
       if (token == null) return false;
 
-      await _service.deleteSop(token, id);
+      final rId = scopedRoleId;
+      if (rId == null) return false;
+      await _service.deleteSop(token, rId, id);
       await fetchSops(roleId: scopedRoleId);
 
       if (context.mounted) {

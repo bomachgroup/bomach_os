@@ -64,37 +64,37 @@ class RoleResourceController extends GetxController {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return false;
-
-      payload['role_id'] = scopedRoleId ?? payload['role_id'];
+      final roleId = scopedRoleId;
+      if (roleId == null) return false;
 
       switch (type) {
         case ResourceType.physicalResource:
-          await _service.createPhysicalResource(token, payload);
-          final r = await _service.listPhysicalResources(token, roleId: scopedRoleId);
+          await _service.createPhysicalResource(token, roleId, payload);
+          final r = await _service.listPhysicalResources(token, roleId: roleId);
           physicalResources.assignAll(r.list);
         case ResourceType.softwareTool:
-          await _service.createSoftwareTool(token, payload);
-          final r = await _service.listSoftwareTools(token, roleId: scopedRoleId);
+          await _service.createSoftwareTool(token, roleId, payload);
+          final r = await _service.listSoftwareTools(token, roleId: roleId);
           softwareTools.assignAll(r.list);
         case ResourceType.referenceDocument:
-          await _service.createReferenceDocument(token, payload);
-          final r = await _service.listReferenceDocuments(token, roleId: scopedRoleId);
+          await _service.createReferenceDocument(token, roleId, payload);
+          final r = await _service.listReferenceDocuments(token, roleId: roleId);
           referenceDocuments.assignAll(r.list);
         case ResourceType.technicalSkill:
-          await _service.createTechnicalSkill(token, payload);
-          final r = await _service.listTechnicalSkills(token, roleId: scopedRoleId);
+          await _service.createTechnicalSkill(token, roleId, payload);
+          final r = await _service.listTechnicalSkills(token, roleId: roleId);
           technicalSkills.assignAll(r.list);
         case ResourceType.softSkill:
-          await _service.createSoftSkill(token, payload);
-          final r = await _service.listSoftSkills(token, roleId: scopedRoleId);
+          await _service.createSoftSkill(token, roleId, payload);
+          final r = await _service.listSoftSkills(token, roleId: roleId);
           softSkills.assignAll(r.list);
         case ResourceType.experienceRequirement:
-          await _service.createExperienceRequirement(token, payload);
-          final r = await _service.listExperienceRequirements(token, roleId: scopedRoleId);
+          await _service.createExperienceRequirement(token, roleId, payload);
+          final r = await _service.listExperienceRequirements(token, roleId: roleId);
           experienceRequirements.assignAll(r.list);
         case ResourceType.certification:
-          await _service.createCertification(token, payload);
-          final r = await _service.listCertifications(token, roleId: scopedRoleId);
+          await _service.createCertification(token, roleId, payload);
+          final r = await _service.listCertifications(token, roleId: roleId);
           certifications.assignAll(r.list);
       }
 
@@ -123,28 +123,30 @@ class RoleResourceController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return false;
+      final roleId = scopedRoleId;
+      if (roleId == null) return false;
 
       switch (type) {
         case ResourceType.physicalResource:
-          await _service.deletePhysicalResource(token, id);
+          await _service.deletePhysicalResource(token, roleId, id);
           physicalResources.removeWhere((r) => r.id == id);
         case ResourceType.softwareTool:
-          await _service.deleteSoftwareTool(token, id);
+          await _service.deleteSoftwareTool(token, roleId, id);
           softwareTools.removeWhere((r) => r.id == id);
         case ResourceType.referenceDocument:
-          await _service.deleteReferenceDocument(token, id);
+          await _service.deleteReferenceDocument(token, roleId, id);
           referenceDocuments.removeWhere((r) => r.id == id);
         case ResourceType.technicalSkill:
-          await _service.deleteTechnicalSkill(token, id);
+          await _service.deleteTechnicalSkill(token, roleId, id);
           technicalSkills.removeWhere((r) => r.id == id);
         case ResourceType.softSkill:
-          await _service.deleteSoftSkill(token, id);
+          await _service.deleteSoftSkill(token, roleId, id);
           softSkills.removeWhere((r) => r.id == id);
         case ResourceType.experienceRequirement:
-          await _service.deleteExperienceRequirement(token, id);
+          await _service.deleteExperienceRequirement(token, roleId, id);
           experienceRequirements.removeWhere((r) => r.id == id);
         case ResourceType.certification:
-          await _service.deleteCertification(token, id);
+          await _service.deleteCertification(token, roleId, id);
           certifications.removeWhere((r) => r.id == id);
       }
 

@@ -45,10 +45,10 @@ class CareerPathService {
     }
   }
 
-  Future<CareerPathStep> createStep(String token, Map<String, dynamic> payload) async {
+  Future<CareerPathStep> createStep(String token, int roleId, Map<String, dynamic> payload) async {
     try {
       final response = await _dio.post(
-        '/api/v1/career-path/',
+        '/api/v1/roles/$roleId/career-path/',
         data: payload,
         options: _authOptions(token),
       );
@@ -61,10 +61,10 @@ class CareerPathService {
   }
 
   Future<CareerPathStep> updateStep(
-      String token, int id, Map<String, dynamic> payload) async {
+      String token, int roleId, int pathId, Map<String, dynamic> payload) async {
     try {
       final response = await _dio.put(
-        '/api/v1/career-path/$id',
+        '/api/v1/roles/$roleId/career-path/$pathId',
         data: payload,
         options: _authOptions(token),
       );
@@ -76,10 +76,10 @@ class CareerPathService {
     }
   }
 
-  Future<void> deleteStep(String token, int id) async {
+  Future<void> deleteStep(String token, int roleId, int pathId) async {
     try {
       await _dio.delete(
-        '/api/v1/career-path/$id',
+        '/api/v1/roles/$roleId/career-path/$pathId',
         options: _authOptions(token),
       );
     } catch (e) {
@@ -89,9 +89,8 @@ class CareerPathService {
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ??
-          error.response?.data?['detail'] ??
-          error.message;
+      final body = error.response?.data;
+      final errorMessage = (body is Map) ? (body['message'] ?? body['detail'] ?? error.message) : error.message;
       return Exception('API Error: ${error.response?.statusCode} - $errorMessage');
     }
     return Exception('Unexpected error: $error');

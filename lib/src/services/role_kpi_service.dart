@@ -33,7 +33,7 @@ class RoleKpiService {
 
   Future<({List<RoleKpi> list, int count})> listRoleKpis(
     String token, {
-    int? roleId,
+    required int roleId,
     String? category,
     bool? isActive,
     int limit = 100,
@@ -44,14 +44,13 @@ class RoleKpiService {
         'limit': limit,
         'offset': offset,
       };
-      if (roleId != null) queryParams['role_id'] = roleId;
       if (category != null && category.isNotEmpty) {
         queryParams['category'] = category;
       }
       if (isActive != null) queryParams['is_active'] = isActive;
 
       final response = await _dio.get(
-        '/api/v1/role-kpis/',
+        '/api/v1/roles/$roleId/kpis',
         queryParameters: queryParams,
         options: _authOptions(token),
       );
@@ -74,10 +73,10 @@ class RoleKpiService {
 
   // ─── GET SINGLE KPI ───────────────────────────────────────────────────
 
-  Future<RoleKpi> getRoleKpi(String token, int id) async {
+  Future<RoleKpi> getRoleKpi(String token, int roleId, int kpiId) async {
     try {
       final response = await _dio.get(
-        '/api/v1/role-kpis/$id',
+        '/api/v1/roles/$roleId/kpis/$kpiId',
         options: _authOptions(token),
       );
       return RoleKpi.fromJson(response.data);
@@ -90,11 +89,12 @@ class RoleKpiService {
 
   Future<RoleKpi> createRoleKpi(
     String token,
+    int roleId,
     Map<String, dynamic> payload,
   ) async {
     try {
       final response = await _dio.post(
-        '/api/v1/role-kpis/',
+        '/api/v1/roles/$roleId/kpis',
         data: payload,
         options: _authOptions(token),
       );
@@ -108,12 +108,13 @@ class RoleKpiService {
 
   Future<RoleKpi> updateRoleKpi(
     String token,
-    int id,
+    int roleId,
+    int kpiId,
     Map<String, dynamic> payload,
   ) async {
     try {
       final response = await _dio.put(
-        '/api/v1/role-kpis/$id',
+        '/api/v1/roles/$roleId/kpis/$kpiId',
         data: payload,
         options: _authOptions(token),
       );
@@ -125,10 +126,10 @@ class RoleKpiService {
 
   // ─── DELETE KPI ───────────────────────────────────────────────────────
 
-  Future<void> deleteRoleKpi(String token, int id) async {
+  Future<void> deleteRoleKpi(String token, int roleId, int kpiId) async {
     try {
       await _dio.delete(
-        '/api/v1/role-kpis/$id',
+        '/api/v1/roles/$roleId/kpis/$kpiId',
         options: _authOptions(token),
       );
     } catch (e) {
@@ -140,9 +141,8 @@ class RoleKpiService {
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ??
-          error.response?.data?['detail'] ??
-          error.message;
+      final body = error.response?.data;
+      final errorMessage = (body is Map) ? (body['message'] ?? body['detail'] ?? error.message) : error.message;
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }

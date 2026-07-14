@@ -28,10 +28,12 @@ class RoleTaskTemplateController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return;
+      final rId = roleId ?? scopedRoleId;
+      if (rId == null) return;
 
       final result = await _service.listTaskTemplates(
         token,
-        roleId: roleId ?? scopedRoleId,
+        roleId: rId,
         limit: 100,
       );
 
@@ -70,7 +72,7 @@ class RoleTaskTemplateController extends GetxController {
         if (category != null && category.isNotEmpty) 'category': category,
       };
 
-      await _service.createTaskTemplate(token, payload);
+      await _service.createTaskTemplate(token, roleId, payload);
       await fetchTemplates(roleId: scopedRoleId);
 
       if (context.mounted) {
@@ -118,7 +120,9 @@ class RoleTaskTemplateController extends GetxController {
       if (priority != null) payload['priority'] = priority;
       if (category != null) payload['category'] = category;
 
-      await _service.updateTaskTemplate(token, id, payload);
+      final rId = scopedRoleId;
+      if (rId == null) return false;
+      await _service.updateTaskTemplate(token, rId, id, payload);
       await fetchTemplates(roleId: scopedRoleId);
 
       if (context.mounted) {
@@ -147,7 +151,9 @@ class RoleTaskTemplateController extends GetxController {
       final token = await _getToken();
       if (token == null) return false;
 
-      await _service.deleteTaskTemplate(token, id);
+      final rId = scopedRoleId;
+      if (rId == null) return false;
+      await _service.deleteTaskTemplate(token, rId, id);
       await fetchTemplates(roleId: scopedRoleId);
 
       if (context.mounted) {

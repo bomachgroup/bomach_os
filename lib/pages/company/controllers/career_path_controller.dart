@@ -43,7 +43,7 @@ class CareerPathController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return false;
-      final step = await _service.createStep(token, body);
+      final step = await _service.createStep(token, scopedRoleId, body);
       steps.add(step);
       return true;
     } catch (e) {
@@ -59,7 +59,7 @@ class CareerPathController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return false;
-      final updated = await _service.updateStep(token, id, body);
+      final updated = await _service.updateStep(token, scopedRoleId, id, body);
       final idx = steps.indexWhere((s) => s.id == id);
       if (idx != -1) steps[idx] = updated;
       return true;
@@ -75,7 +75,7 @@ class CareerPathController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return false;
-      await _service.deleteStep(token, id);
+      await _service.deleteStep(token, scopedRoleId, id);
       steps.removeWhere((s) => s.id == id);
       return true;
     } catch (e) {
