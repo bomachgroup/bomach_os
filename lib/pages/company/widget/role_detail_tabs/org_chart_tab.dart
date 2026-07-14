@@ -23,7 +23,7 @@ class OrgChartTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (reportsTo != null) ...[
-            Text('Reports To', style: AppTextStyles.label),
+            const Text('Reports To', style: AppTextStyles.label),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(16),
@@ -103,7 +103,7 @@ class OrgChartTab extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Iconsax.hierarchy, size: 48, color: AppColors.textMuted),
+                    const Icon(Iconsax.hierarchy, size: 48, color: AppColors.textMuted),
                     const SizedBox(height: 16),
                     Text('No reporting relationships defined.',
                         style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted)),

@@ -14,10 +14,14 @@ import 'controllers/roles_controller.dart';
 import 'widget/roles_dialogs.dart';
 import 'widget/role_detail_tabs/authority_limits_tab.dart';
 import 'widget/role_detail_tabs/career_path_tab.dart';
+import 'widget/role_detail_tabs/daily_routine_tab.dart';
 import 'widget/role_detail_tabs/decision_matrix_tab.dart';
 import 'widget/role_detail_tabs/knowledge_base_tab.dart';
+import 'widget/role_detail_tabs/performance_analytics_tab.dart';
 import 'widget/role_detail_tabs/stakeholder_tab.dart';
 import 'widget/role_detail_tabs/succession_plan_tab.dart';
+import 'widget/role_detail_tabs/targets_tab.dart';
+import 'widget/role_detail_tabs/training_tab.dart';
 import 'widget/role_detail_tabs/kpi_tab.dart';
 import 'widget/role_detail_tabs/okr_tab.dart';
 import 'widget/role_detail_tabs/org_chart_tab.dart';
@@ -69,12 +73,16 @@ class RoleDetailPage extends StatelessWidget {
       'Org Chart',
       'KPIs',
       'OKRs',
+      'Targets',
       'Career Path',
+      'Training',
       'Risk Profile',
       'Decision Matrix',
       'Succession Plan',
       'Stakeholders',
       'Knowledge Base',
+      'Daily Work Routine',
+      'Performance Analytics',
     ];
 
     return PageScaffold(
@@ -148,12 +156,16 @@ class _RoleBody extends StatelessWidget {
                 _OrgChartWrapper(role: role),
                 KpiTab(roleId: roleId),
                 OkrTab(roleId: roleId),
+                TargetsTab(roleId: roleId),
                 CareerPathTab(role: role),
+                TrainingTab(roleId: roleId),
                 RiskProfileTab(roleId: roleId),
                 DecisionMatrixTab(roleId: roleId),
                 SuccessionPlanTab(roleId: roleId),
                 StakeholderTab(roleId: roleId),
                 KnowledgeBaseTab(roleId: roleId),
+                DailyRoutineTab(roleId: roleId),
+                PerformanceAnalyticsTab(roleId: roleId),
               ],
             ),
           ),

@@ -61,13 +61,13 @@ class DecisionMatrixTab extends StatelessWidget {
             // Table header
             Container(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-              child: Row(
+              child: const Row(
                 children: [
-                  const Expanded(flex: 3, child: Text('Decision', style: AppTextStyles.label)),
-                  const Expanded(flex: 2, child: Text('Authority', style: AppTextStyles.label)),
-                  const Expanded(flex: 2, child: Text('Approval', style: AppTextStyles.label)),
-                  const Expanded(flex: 2, child: Text('Escalation', style: AppTextStyles.label)),
-                  const SizedBox(width: 40),
+                  Expanded(flex: 3, child: Text('Decision', style: AppTextStyles.label)),
+                  Expanded(flex: 2, child: Text('Authority', style: AppTextStyles.label)),
+                  Expanded(flex: 2, child: Text('Approval', style: AppTextStyles.label)),
+                  Expanded(flex: 2, child: Text('Escalation', style: AppTextStyles.label)),
+                  SizedBox(width: 40),
                 ],
               ),
             ),

@@ -20,7 +20,7 @@ class ComplianceDashboardPage extends StatelessWidget {
 
     return PageScaffold(
       maxContentWidth: 1200,
-      header: PageHeader(
+      header: const PageHeader(
         title: 'Compliance Dashboard',
         subtitle: 'Role compliance and risk obligations overview',
       ),
