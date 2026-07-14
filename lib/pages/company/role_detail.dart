@@ -24,6 +24,8 @@ import 'widget/role_detail_tabs/stakeholder_tab.dart';
 import 'widget/role_detail_tabs/succession_plan_tab.dart';
 import 'widget/role_detail_tabs/targets_tab.dart';
 import 'widget/role_detail_tabs/task_template_tab.dart';
+import 'widget/role_detail_tabs/sop_tab.dart';
+import 'widget/role_detail_tabs/success_playbook_tab.dart';
 import 'widget/role_detail_tabs/training_tab.dart';
 import 'widget/role_detail_tabs/kpi_tab.dart';
 import 'widget/role_detail_tabs/okr_tab.dart';
@@ -78,6 +80,7 @@ class RoleDetailPage extends StatelessWidget {
       'OKRs',
       'Targets',
       'Career Path',
+      'Success Playbook',
       'Training',
       'Task Templates',
       'Reports',
@@ -86,6 +89,7 @@ class RoleDetailPage extends StatelessWidget {
       'Decision Matrix',
       'Succession Plan',
       'Stakeholders',
+      'SOPs',
       'Knowledge Base',
       'Daily Work Routine',
       'Performance Analytics',
@@ -164,6 +168,7 @@ class _RoleBody extends StatelessWidget {
                 OkrTab(roleId: roleId),
                 TargetsTab(roleId: roleId),
                 CareerPathTab(role: role),
+                SuccessPlaybookTab(roleId: roleId),
                 TrainingTab(roleId: roleId),
                 TaskTemplateTab(roleId: roleId),
                 ReportsTab(roleId: roleId),
@@ -172,6 +177,7 @@ class _RoleBody extends StatelessWidget {
                 DecisionMatrixTab(roleId: roleId),
                 SuccessionPlanTab(roleId: roleId),
                 StakeholderTab(roleId: roleId),
+                SopTab(roleId: roleId),
                 KnowledgeBaseTab(roleId: roleId),
                 DailyRoutineTab(roleId: roleId),
                 PerformanceAnalyticsTab(roleId: roleId),
