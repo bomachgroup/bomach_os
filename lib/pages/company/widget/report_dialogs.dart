@@ -60,17 +60,15 @@ class _CreateEditReportDialogState extends State<CreateEditReportDialog> {
     super.dispose();
   }
 
-  InputDecoration _dropdownDecoration() {
-    return InputDecoration(
-      filled: true,
-      fillColor: AppColors.surfaceMuted,
-      border: OutlineInputBorder(
-        borderRadius: AppRadii.brMd,
-        borderSide: BorderSide.none,
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    );
-  }
+  static const _defaultDropdownDecoration = InputDecoration(
+    filled: true,
+    fillColor: AppColors.surfaceMuted,
+    border: OutlineInputBorder(
+      borderRadius: AppRadii.brMd,
+      borderSide: BorderSide.none,
+    ),
+    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +101,7 @@ class _CreateEditReportDialogState extends State<CreateEditReportDialog> {
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: _reportType,
-                decoration: _dropdownDecoration(),
+                decoration: _defaultDropdownDecoration,
                 items: RoleReport.reportTypeOptions
                     .map((t) => DropdownMenuItem(
                         value: t,
@@ -119,7 +117,7 @@ class _CreateEditReportDialogState extends State<CreateEditReportDialog> {
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: _format,
-                decoration: _dropdownDecoration(),
+                decoration: _defaultDropdownDecoration,
                 items: RoleReport.formatOptions
                     .map((f) => DropdownMenuItem(
                         value: f,
