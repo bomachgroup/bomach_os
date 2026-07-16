@@ -6,10 +6,12 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/role_kpi_model.dart';
+import 'package:bomach_os/src/model/role_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/role_kpi_controller.dart';
+import '../controllers/roles_controller.dart';
 
 class CreateEditKpiDialog extends StatefulWidget {
   final RoleKpiController ctrl;
@@ -36,6 +38,8 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
   late String _selectedUnit;
   late String _selectedFrequency;
   late bool _isActive;
+  late int? _selectedRoleId;
+  Role? _selectedRole;
 
   @override
   void initState() {
@@ -49,6 +53,13 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
     _selectedUnit = kpi?.unit ?? '%';
     _selectedFrequency = kpi?.frequency ?? 'monthly';
     _isActive = kpi?.isActive ?? true;
+    _selectedRoleId = widget.presetRoleId ?? kpi?.roleId;
+    if (_selectedRoleId != null && _selectedRole == null) {
+      try {
+        _selectedRole = Get.find<RolesController>().roles.firstWhereOrNull(
+            (r) => r.id == _selectedRoleId);
+      } catch (_) {}
+    }
   }
 
   @override
@@ -73,6 +84,12 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
       return;
     }
 
+    if (_selectedRoleId == null) {
+      Get.snackbar('Validation', 'Please select a role',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
     final isEdit = widget.kpi != null;
     bool success;
 
@@ -93,7 +110,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
     } else {
       success = await widget.ctrl.createKpi(
         context,
-        roleId: widget.presetRoleId ?? 0,
+        roleId: _selectedRoleId!,
         metricName: _metricCtrl.text.trim(),
         description: _descCtrl.text.trim(),
         unit: _selectedUnit,
@@ -131,6 +148,32 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
             height: 48,
           ),
           const SizedBox(height: 16),
+
+          // ── Role Selector (when no preset role) ─────────────────────
+          if (widget.presetRoleId == null) ...[
+            const Text('Role', style: AppTextStyles.label),
+            const SizedBox(height: 8),
+            GetBuilder<RolesController>(
+              init: Get.find<RolesController>(),
+              builder: (rc) => DropdownButtonFormField<int>(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(borderRadius: AppRadii.brMd),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+                initialValue: _selectedRoleId,
+                hint: const Text('Select role'),
+                items: rc.roles.map((r) => DropdownMenuItem(
+                  value: r.id,
+                  child: Text(r.name),
+                )).toList(),
+                onChanged: (v) => setState(() {
+                  _selectedRoleId = v;
+                  _selectedRole = rc.roles.firstWhereOrNull((r) => r.id == v);
+                }),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
 
           // ── Description ─────────────────────────────────────────────
           const Text('Description', style: AppTextStyles.label),

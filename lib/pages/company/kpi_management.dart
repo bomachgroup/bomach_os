@@ -172,7 +172,7 @@ class KpiManagementPage extends StatelessWidget {
                                 onPressed: () => showDialog(
                                   context: context,
                                   builder: (_) => CreateEditKpiDialog(
-                                      ctrl: ctrl, kpi: kpi),
+                                      ctrl: ctrl, kpi: kpi, presetRoleId: kpi.roleId),
                                 ),
                                 tooltip: 'Edit KPI',
                               ),
