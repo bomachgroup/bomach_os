@@ -198,7 +198,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
           const SizedBox(height: 16),
 
           // ── Role Selector (when no preset role) ─────────────────────
-          if (widget.presetRoleId == null && !isEdit) ...[
+          if (widget.presetRoleId == null && !isEdit && Get.isRegistered<RolesController>()) ...[
             const Text('Role', style: AppTextStyles.label),
             const SizedBox(height: 8),
             GetBuilder<RolesController>(

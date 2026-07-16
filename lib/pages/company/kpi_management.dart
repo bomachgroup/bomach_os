@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 import 'controllers/role_kpi_controller.dart';
+import 'controllers/roles_controller.dart';
 import 'widget/kpi_dialogs.dart';
 
 class KpiManagementPage extends StatelessWidget {
@@ -19,6 +20,9 @@ class KpiManagementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.put(RoleKpiController());
+    if (!Get.isRegistered<RolesController>()) {
+      Get.put(RolesController());
+    }
 
     return PageScaffold(
       header: PageHeader(
