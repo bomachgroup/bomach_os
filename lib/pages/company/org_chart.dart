@@ -260,7 +260,7 @@ class _RoleTreeNode extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
-                            depth == 0 ? Iconsax.crown_2 : Iconsax.user,
+                            depth == 0 ? Iconsax.crown : Iconsax.user,
                             size: 18,
                             color: color,
                           ),
