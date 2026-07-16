@@ -307,12 +307,12 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          k.metricName,
+                                          k.metric?.name ?? '',
                                           style: const TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          '${k.frequency[0].toUpperCase()}${k.frequency.substring(1)}',
+                                          k.period.isNotEmpty ? k.period[0].toUpperCase() + k.period.substring(1) : '—',
                                           style: const TextStyle(
                                               fontSize: 12,
                                               color: AppColors.textSecondary),
@@ -320,7 +320,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                                       ],
                                     ),
                                     Text(
-                                      'Target: ${k.target.toStringAsFixed(k.target % 1 == 0 ? 0 : 1)} ${k.unit}',
+                                      'Target: ${k.targetValue?.toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1) ?? '-'} ${k.metric?.unit ?? ''}',
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w600),
                                     ),

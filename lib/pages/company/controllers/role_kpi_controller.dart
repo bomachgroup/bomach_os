@@ -20,7 +20,6 @@ class RoleKpiController extends GetxController {
   int offset = 0;
   int totalCount = 0;
 
-  /// Optional — set before calling fetchForRole to scope to one role.
   int? scopedRoleId;
 
   @override
@@ -39,20 +38,12 @@ class RoleKpiController extends GetxController {
   Future<void> fetchKpis({bool refresh = false, int? roleId}) async {
     if (refresh) offset = 0;
     if (!refresh) isLoading.value = true;
-
     try {
       final token = await _getToken();
       if (token == null) return;
       final rId = roleId ?? scopedRoleId;
       if (rId == null) return;
-
-      final result = await _service.listRoleKpis(
-        token,
-        roleId: rId,
-        limit: limit,
-        offset: offset,
-      );
-
+      final result = await _service.listRoleKpis(token, roleId: rId, limit: limit, offset: offset);
       if (refresh || offset == 0) {
         kpis.assignAll(result.list);
       } else {
@@ -70,30 +61,27 @@ class RoleKpiController extends GetxController {
   Future<bool> createKpi(
     BuildContext context, {
     required int roleId,
-    required String metricName,
-    required String unit,
-    required double target,
-    required String frequency,
-    String? description,
-    String? category,
+    required int metricId,
+    required String trackingMode,
+    required String period,
+    double? targetValue,
+    double? weight,
+    int? sequence,
     bool isActive = true,
   }) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return false;
-
       final payload = <String, dynamic>{
-        'role_id': roleId,
-        'metric_name': metricName,
-        'unit': unit,
-        'target': target,
-        'frequency': frequency,
-        if (description != null && description.isNotEmpty)
-          'description': description,
-        if (category != null && category.isNotEmpty) 'category': category,
+        'metric_id': metricId,
+        'tracking_mode': trackingMode,
+        'period': period,
         'is_active': isActive,
       };
+      if (targetValue != null) payload['target_value'] = targetValue;
+      if (weight != null) payload['weight'] = weight;
+      if (sequence != null) payload['sequence'] = sequence;
 
       await _service.createRoleKpi(token, roleId, payload);
       await fetchKpis(refresh: true, roleId: scopedRoleId);
@@ -122,26 +110,23 @@ class RoleKpiController extends GetxController {
   Future<bool> updateKpi(
     BuildContext context, {
     required int id,
-    String? metricName,
-    String? unit,
-    double? target,
-    String? frequency,
-    String? description,
-    String? category,
+    String? trackingMode,
+    String? period,
+    double? targetValue,
+    double? weight,
+    int? sequence,
     bool? isActive,
   }) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return false;
-
       final payload = <String, dynamic>{};
-      if (metricName != null) payload['metric_name'] = metricName;
-      if (unit != null) payload['unit'] = unit;
-      if (target != null) payload['target'] = target;
-      if (frequency != null) payload['frequency'] = frequency;
-      if (description != null) payload['description'] = description;
-      if (category != null) payload['category'] = category;
+      if (trackingMode != null) payload['tracking_mode'] = trackingMode;
+      if (period != null) payload['period'] = period;
+      if (targetValue != null) payload['target_value'] = targetValue;
+      if (weight != null) payload['weight'] = weight;
+      if (sequence != null) payload['sequence'] = sequence;
       if (isActive != null) payload['is_active'] = isActive;
 
       final rId = scopedRoleId;
@@ -176,10 +161,8 @@ class RoleKpiController extends GetxController {
       if (token == null) return false;
       final rId = scopedRoleId;
       if (rId == null) return false;
-
       await _service.deleteRoleKpi(token, rId, id);
       await fetchKpis(refresh: true, roleId: scopedRoleId);
-
       if (context.mounted) {
         Get.snackbar('Success', 'KPI deleted',
             snackPosition: SnackPosition.BOTTOM,

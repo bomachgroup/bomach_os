@@ -13,6 +13,9 @@ class KpiTab extends StatelessWidget {
 
   const KpiTab({super.key, required this.roleId});
 
+  String _fmt(String s) =>
+      s.split('_').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<RoleKpiController>(
@@ -69,6 +72,8 @@ class KpiTab extends StatelessWidget {
             }
 
             final k = roleKpis[index];
+            final name = k.metric?.name ?? '';
+            final unit = k.metric?.unit ?? '';
             return Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -91,16 +96,28 @@ class KpiTab extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(k.metricName,
+                        Text(name,
                             style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
                         const SizedBox(height: 4),
                         Text(
-                          '${k.frequency[0].toUpperCase()}${k.frequency.substring(1)} · Target: ${k.target.toStringAsFixed(k.target % 1 == 0 ? 0 : 1)} ${k.unit}',
+                          '${_fmt(k.period)} · ${_fmt(k.trackingMode)}'
+                          '${k.targetValue != null ? " · Target: ${k.targetValue!.toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1)} $unit" : ""}'
+                          '${k.weight != null ? " · Weight: ${k.weight!.toStringAsFixed(k.weight! % 1 == 0 ? 0 : 1)}" : ""}',
                           style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
                   ),
+                  if (!k.isActive)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text('Inactive',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey)),
+                    ),
                 ],
               ),
             );

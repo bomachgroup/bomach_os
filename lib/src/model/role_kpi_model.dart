@@ -1,16 +1,34 @@
-/// Role-level KPI definition (C12).
-/// A KPI is a standard measurable indicator attached to a role template,
-/// distinct from per-employee scorecard entries.
+class KPIMetricMinimal {
+  final int id;
+  final String name;
+  final String description;
+  final String unit;
+
+  const KPIMetricMinimal({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.unit,
+  });
+
+  factory KPIMetricMinimal.fromJson(Map<String, dynamic> json) => KPIMetricMinimal(
+    id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+    name: json['name'] ?? '',
+    description: json['description'] ?? '',
+    unit: json['unit'] ?? 'percentage',
+  );
+}
+
 class RoleKpi {
   final int? id;
   final int roleId;
-  final String roleName;
-  final String metricName;
-  final String? description;
-  final String unit; // e.g. '%', 'NGN', 'count', 'days'
-  final double target;
-  final String frequency; // 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annual'
-  final String? category; // e.g. 'Revenue', 'Attendance', 'Quality'
+  final int metricId;
+  final KPIMetricMinimal? metric;
+  final String trackingMode;
+  final double? targetValue;
+  final double? weight;
+  final String period;
+  final int? sequence;
   final bool isActive;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -18,99 +36,45 @@ class RoleKpi {
   const RoleKpi({
     this.id,
     required this.roleId,
-    this.roleName = '',
-    required this.metricName,
-    this.description,
-    required this.unit,
-    required this.target,
-    this.frequency = 'monthly',
-    this.category,
+    required this.metricId,
+    this.metric,
+    required this.trackingMode,
+    this.targetValue,
+    this.weight,
+    required this.period,
+    this.sequence,
     this.isActive = true,
     this.createdAt,
     this.updatedAt,
   });
 
-  factory RoleKpi.fromJson(Map<String, dynamic> json) {
-    return RoleKpi(
-      id: json['id'] is int
-          ? json['id']
-          : int.tryParse(json['id']?.toString() ?? ''),
-      roleId: json['role_id'] is int
-          ? json['role_id']
-          : int.tryParse(json['role_id']?.toString() ?? '0') ?? 0,
-      roleName: json['role_name'] ?? '',
-      metricName: json['metric_name'] ?? '',
-      description: json['description'],
-      unit: json['unit'] ?? '%',
-      target: double.tryParse(json['target']?.toString() ?? '0') ?? 0,
-      frequency: json['frequency'] ?? 'monthly',
-      category: json['category'],
-      isActive: json['is_active'] ?? true,
-      createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at'])
-          : null,
-      updatedAt: json['updated_at'] != null
-          ? DateTime.tryParse(json['updated_at'])
-          : null,
-    );
-  }
+  factory RoleKpi.fromJson(Map<String, dynamic> json) => RoleKpi(
+    id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? ''),
+    roleId: json['role_id'] is int ? json['role_id'] : int.tryParse(json['role_id']?.toString() ?? '0') ?? 0,
+    metricId: json['metric_id'] is int ? json['metric_id'] : int.tryParse(json['metric_id']?.toString() ?? '0') ?? 0,
+    metric: json['metric'] != null ? KPIMetricMinimal.fromJson(json['metric']) : null,
+    trackingMode: json['tracking_mode'] ?? '',
+    targetValue: json['target_value'] != null ? double.tryParse(json['target_value'].toString()) : null,
+    weight: json['weight'] != null ? double.tryParse(json['weight'].toString()) : null,
+    period: json['period'] ?? '',
+    sequence: json['sequence'] is int ? json['sequence'] : int.tryParse(json['sequence']?.toString() ?? ''),
+    isActive: json['is_active'] ?? true,
+    createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
+    updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+  );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'role_id': roleId,
-      'metric_name': metricName,
-      'description': description,
-      'unit': unit,
-      'target': target,
-      'frequency': frequency,
-      'category': category,
-      'is_active': isActive,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    if (id != null) 'id': id,
+    'role_id': roleId,
+    'metric_id': metricId,
+    'tracking_mode': trackingMode,
+    if (targetValue != null) 'target_value': targetValue,
+    if (weight != null) 'weight': weight,
+    'period': period,
+    if (sequence != null) 'sequence': sequence,
+    'is_active': isActive,
+  };
 
-  RoleKpi copyWith({
-    int? id,
-    int? roleId,
-    String? roleName,
-    String? metricName,
-    String? description,
-    String? unit,
-    double? target,
-    String? frequency,
-    String? category,
-    bool? isActive,
-  }) {
-    return RoleKpi(
-      id: id ?? this.id,
-      roleId: roleId ?? this.roleId,
-      roleName: roleName ?? this.roleName,
-      metricName: metricName ?? this.metricName,
-      description: description ?? this.description,
-      unit: unit ?? this.unit,
-      target: target ?? this.target,
-      frequency: frequency ?? this.frequency,
-      category: category ?? this.category,
-      isActive: isActive ?? this.isActive,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-    );
-  }
-
-  static const List<String> frequencyOptions = [
-    'daily',
-    'weekly',
-    'monthly',
-    'quarterly',
-    'annual',
-  ];
-
-  static const List<String> unitOptions = [
-    '%',
-    'NGN',
-    'count',
-    'days',
-    'hours',
-    'score',
-    'ratio',
-  ];
+  static const List<String> trackingModeOptions = ['manual', 'automatic', 'semi_automatic'];
+  static const List<String> periodOptions = ['weekly', 'monthly', 'quarterly', 'semi_annual', 'annual'];
 }

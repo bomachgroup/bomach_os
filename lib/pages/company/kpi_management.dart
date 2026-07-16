@@ -35,7 +35,6 @@ class KpiManagementPage extends StatelessWidget {
         ),
       ),
       children: [
-        // ── Search Bar ──────────────────────────────────────────────────
         AppCard(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: AppCardElevation.sm,
@@ -44,14 +43,9 @@ class KpiManagementPage extends StatelessWidget {
             height: 44,
             leading: const Icon(Iconsax.search_normal,
                 size: 18, color: AppColors.textMuted),
-            onChanged: (v) {
-              // local filter — no debounce needed at this scale
-              ctrl.fetchKpis(refresh: true);
-            },
+            onChanged: (_) => ctrl.fetchKpis(refresh: true),
           ),
         ),
-
-        // ── KPI Table ───────────────────────────────────────────────────
         AppCard(
           padding: EdgeInsets.zero,
           elevation: AppCardElevation.sm,
@@ -102,26 +96,27 @@ class KpiManagementPage extends StatelessWidget {
                       DataColumn(label: Text('Metric', style: AppTextStyles.label)),
                       DataColumn(label: Text('Role', style: AppTextStyles.label)),
                       DataColumn(label: Text('Target', style: AppTextStyles.label)),
-                      DataColumn(label: Text('Unit', style: AppTextStyles.label)),
-                      DataColumn(label: Text('Frequency', style: AppTextStyles.label)),
-                      DataColumn(label: Text('Category', style: AppTextStyles.label)),
+                      DataColumn(label: Text('Period', style: AppTextStyles.label)),
+                      DataColumn(label: Text('Tracking', style: AppTextStyles.label)),
+                      DataColumn(label: Text('Weight', style: AppTextStyles.label)),
                       DataColumn(label: Text('Status', style: AppTextStyles.label)),
                       DataColumn(label: Text('Actions', style: AppTextStyles.label)),
                     ],
                     rows: ctrl.kpis.map((kpi) {
-                      final isActive = kpi.isActive;
+                      final name = kpi.metric?.name ?? '';
+                      final unit = kpi.metric?.unit ?? '';
                       return DataRow(cells: [
                         DataCell(
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(kpi.metricName,
+                              Text(name,
                                   style: AppTextStyles.bodySm.copyWith(
                                       fontWeight: FontWeight.w600)),
-                              if (kpi.description != null &&
-                                  kpi.description!.isNotEmpty)
-                                Text(kpi.description!,
+                              if (kpi.metric?.description != null &&
+                                  kpi.metric!.description.isNotEmpty)
+                                Text(kpi.metric!.description,
                                     style: AppTextStyles.caption.copyWith(
                                         color: AppColors.textSecondary),
                                     maxLines: 1,
@@ -129,33 +124,33 @@ class KpiManagementPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        DataCell(Text(kpi.roleName.isEmpty
-                            ? '—'
-                            : kpi.roleName,
+                        const DataCell(Text('—', style: AppTextStyles.bodySm)),
+                        DataCell(Text(
+                            kpi.targetValue != null
+                                ? '${kpi.targetValue!.toStringAsFixed(kpi.targetValue! % 1 == 0 ? 0 : 1)} $unit'
+                                : '—',
                             style: AppTextStyles.bodySm)),
-                        DataCell(Text(kpi.target.toStringAsFixed(
-                            kpi.target % 1 == 0 ? 0 : 1),
-                            style: AppTextStyles.bodySm)),
-                        DataCell(Text(kpi.unit, style: AppTextStyles.bodySm)),
-                        DataCell(_FrequencyBadge(kpi.frequency)),
-                        DataCell(Text(kpi.category ?? '—',
+                        DataCell(_Badge(kpi.period, _periodColors)),
+                        DataCell(_Badge(kpi.trackingMode, _trackingColors)),
+                        DataCell(Text(
+                            kpi.weight?.toStringAsFixed(kpi.weight! % 1 == 0 ? 0 : 1) ?? '—',
                             style: AppTextStyles.bodySm)),
                         DataCell(
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: isActive
+                              color: kpi.isActive
                                   ? Colors.green.shade50
                                   : Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              isActive ? 'Active' : 'Inactive',
+                              kpi.isActive ? 'Active' : 'Inactive',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: isActive
+                                color: kpi.isActive
                                     ? Colors.green.shade700
                                     : Colors.grey.shade600,
                               ),
@@ -225,21 +220,28 @@ class KpiManagementPage extends StatelessWidget {
   }
 }
 
-class _FrequencyBadge extends StatelessWidget {
-  final String frequency;
-  const _FrequencyBadge(this.frequency);
+const _periodColors = {
+  'weekly': Color(0xFF8B5CF6),
+  'monthly': Color(0xFF059669),
+  'quarterly': Color(0xFFD97706),
+  'semi_annual': Color(0xFF3B82F6),
+  'annual': Color(0xFFDC2626),
+};
 
-  static const _colors = {
-    'daily': Color(0xFF3B82F6),
-    'weekly': Color(0xFF8B5CF6),
-    'monthly': Color(0xFF059669),
-    'quarterly': Color(0xFFD97706),
-    'annual': Color(0xFFDC2626),
-  };
+const _trackingColors = {
+  'manual': Color(0xFF6B7280),
+  'automatic': Color(0xFF059669),
+  'semi_automatic': Color(0xFFD97706),
+};
+
+class _Badge extends StatelessWidget {
+  final String label;
+  final Map<String, Color> colorMap;
+  const _Badge(this.label, this.colorMap);
 
   @override
   Widget build(BuildContext context) {
-    final color = _colors[frequency.toLowerCase()] ?? AppColors.textSecondary;
+    final color = colorMap[label.toLowerCase()] ?? AppColors.textSecondary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -248,7 +250,7 @@ class _FrequencyBadge extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
-        frequency[0].toUpperCase() + frequency.substring(1),
+        label.split('_').map((w) => w[0].toUpperCase() + w.substring(1)).join(' '),
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,

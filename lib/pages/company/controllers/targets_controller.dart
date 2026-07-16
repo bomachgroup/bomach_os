@@ -64,13 +64,14 @@ class TargetsController extends GetxController {
           limit: 100,
         );
         for (final kpi in kpiResult.list) {
+          final name = kpi.metric?.name ?? '';
+          final unit = kpi.metric?.unit ?? '';
           items.add(TargetItem(
             type: TargetType.kpi,
-            title: kpi.metricName,
-            subtitle: 'Target: ${kpi.target} ${kpi.unit}',
-            progress: kpi.target > 0 ? null : null,
-            unit: kpi.unit,
-            frequency: kpi.frequency,
+            title: name,
+            subtitle: kpi.targetValue != null ? 'Target: ${kpi.targetValue!.toStringAsFixed(kpi.targetValue! % 1 == 0 ? 0 : 1)} $unit' : 'No target set',
+            unit: unit,
+            frequency: kpi.period,
             source: kpi,
           ));
         }

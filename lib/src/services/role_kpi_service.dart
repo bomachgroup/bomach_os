@@ -113,7 +113,7 @@ class RoleKpiService {
     Map<String, dynamic> payload,
   ) async {
     try {
-      final response = await _dio.put(
+      final response = await _dio.patch(
         '/api/v1/roles/$roleId/kpis/$kpiId',
         data: payload,
         options: _authOptions(token),
