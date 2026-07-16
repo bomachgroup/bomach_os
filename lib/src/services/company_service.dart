@@ -3,11 +3,13 @@ import 'dart:developer';
 import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:bomach_os/src/helper/error_helper.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../model/company_model.dart';
 
 class CompanyService {
   final Dio _dio;
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
   static final baseUrl = ApiConstants.baseUrl;
   CompanyService({
     Dio? dioOverride,
@@ -217,28 +219,33 @@ class CompanyService {
 
   Future<EquityInfo> getEquityInfo(String token) async {
     try {
-      final response = await _dio.get(
-        '/api/v1/shareholders/equity',
-        options: _authOptions(token),
+      final shareholders = await getShareholders(token, limit: 200);
+      final issuedShares = shareholders.fold<int>(
+          0, (sum, s) => sum + s.shareCount);
+      final saved = await _storage.read(key: 'authorized_shares');
+      final authorizedShares = int.tryParse(saved ?? '') ?? 0;
+      return EquityInfo(
+        authorizedShares: authorizedShares,
+        issuedShares: issuedShares,
+        unissuedShares: authorizedShares - issuedShares,
       );
-      return EquityInfo.fromJson(response.data);
-    } on DioException catch (e) {
-      throw _handleError(e);
+    } catch (e) {
+      throw Exception('Could not compute equity info: $e');
     }
   }
 
   Future<EquityInfo> updateEquityInfo(
       String token, int authorizedShares) async {
-    try {
-      final response = await _dio.put(
-        '/api/v1/shareholders/equity',
-        data: {'authorized_shares': authorizedShares},
-        options: _authOptions(token),
-      );
-      return EquityInfo.fromJson(response.data);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
+    await _storage.write(
+        key: 'authorized_shares', value: authorizedShares.toString());
+    final shareholders = await getShareholders(token, limit: 200);
+    final issuedShares = shareholders.fold<int>(
+        0, (sum, s) => sum + s.shareCount);
+    return EquityInfo(
+      authorizedShares: authorizedShares,
+      issuedShares: issuedShares,
+      unissuedShares: authorizedShares - issuedShares,
+    );
   }
 
   Future<DashboardStats> getDashboardStats(
