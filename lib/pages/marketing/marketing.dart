@@ -53,7 +53,7 @@ class _MarketingPageState extends State<MarketingPage> {
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 15,
-                          color: Colors.black54,
+                          color: AppColors.textMuted,
                         ),
                       ),
                     ],
@@ -89,11 +89,21 @@ class _MarketingPageState extends State<MarketingPage> {
         const SizedBox(height: 18),
 
         // Tab Content
-        if (_selectedTab == 0) _campaigns(),
-        if (_selectedTab == 1) _leads(),
-        if (_selectedTab == 2) _content(),
-        if (_selectedTab == 3) _event(),
-        if (_selectedTab == 4) _analytics(),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: KeyedSubtree(
+            key: ValueKey(_selectedTab),
+            child: _selectedTab == 0
+                ? _campaigns()
+                : _selectedTab == 1
+                    ? _leads()
+                    : _selectedTab == 2
+                        ? _content()
+                        : _selectedTab == 3
+                            ? _event()
+                            : _analytics(),
+          ),
+        ),
       ],
     );
   }
@@ -122,7 +132,7 @@ class _MarketingPageState extends State<MarketingPage> {
                           const Text(
                               'Manage and track marketing campaign performance',
                               style: TextStyle(
-                                  fontSize: 14, color: Colors.black54)),
+                                  fontSize: 14, color: AppColors.textMuted)),
                         ],
                       )),
                   SizedBox(
@@ -209,7 +219,7 @@ class _MarketingPageState extends State<MarketingPage> {
                       SizedBox(height: 8),
                       Text('Track and nurture potential customers',
                           style:
-                              TextStyle(fontSize: 14, color: Colors.black54)),
+                              TextStyle(fontSize: 14, color: AppColors.textMuted)),
                     ],
                   ),
                   Row(
@@ -289,7 +299,7 @@ class _MarketingPageState extends State<MarketingPage> {
                       SizedBox(height: 8),
                       Text('Create, schedule, and manage marketing content',
                           style:
-                              TextStyle(fontSize: 14, color: Colors.black54)),
+                              TextStyle(fontSize: 14, color: AppColors.textMuted)),
                     ],
                   ),
                   Row(
@@ -329,7 +339,7 @@ class _MarketingPageState extends State<MarketingPage> {
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: 3,
+          itemCount: _controller.contentList.length,
           separatorBuilder: (_, __) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             return GestureDetector(
@@ -369,7 +379,7 @@ class _MarketingPageState extends State<MarketingPage> {
                       SizedBox(height: 8),
                       Text('Analyze marketing performance and insights',
                           style:
-                              TextStyle(fontSize: 14, color: Colors.black54)),
+                              TextStyle(fontSize: 14, color: AppColors.textMuted)),
                     ],
                   ),
                   Row(
@@ -436,7 +446,7 @@ class _MarketingPageState extends State<MarketingPage> {
                       SizedBox(height: 8),
                       Text('Analyze marketing performance and insights',
                           style:
-                              TextStyle(fontSize: 14, color: Colors.black54)),
+                              TextStyle(fontSize: 14, color: AppColors.textMuted)),
                     ],
                   ),
                   Row(
@@ -525,8 +535,8 @@ class _MarketingPageState extends State<MarketingPage> {
 
   Widget _buildTabs(BuildContext context, void Function(int) onTap) {
     final tabs = [
-      'Campaigns (12)',
-      'Leads (22)',
+      'Campaigns (${_controller.totalCampaigns.value})',
+      'Leads',
       'Content',
       'Events',
       'Analytics',
@@ -539,7 +549,8 @@ class _MarketingPageState extends State<MarketingPage> {
           final isActive = _selectedTab == index;
           return Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(25),
               onTap: () => onTap(index),
               child: Container(
                 padding:
@@ -548,13 +559,13 @@ class _MarketingPageState extends State<MarketingPage> {
                   color: isActive ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
                   border: Border.all(
-                    color: isActive ? AppColors.primary : Colors.grey.shade300,
+                    color: isActive ? AppColors.primary : AppColors.borderSubtle,
                   ),
                 ),
                 child: Text(
                   tabs[index],
                   style: TextStyle(
-                    color: isActive ? Colors.white : Colors.black54,
+                    color: isActive ? Colors.white : AppColors.textMuted,
                     fontWeight: isActive ? FontWeight.w500 : FontWeight.normal,
                     fontSize: 14,
                   ),
@@ -599,9 +610,15 @@ class CampaignCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.neutral200),
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -675,7 +692,7 @@ class CampaignCard extends StatelessWidget {
                   subtitle,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Colors.black54,
+                    color: AppColors.textMuted,
                   ),
                 ),
 
@@ -732,13 +749,15 @@ class CampaignCard extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
+                      fontFeatures: [FontFeature.tabularFigures()],
                     ),
                   ),
                   Text(
                     'of ₦${total.toStringAsFixed(0)}',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Colors.black54,
+                      color: AppColors.textMuted,
+                      fontFeatures: [FontFeature.tabularFigures()],
                     ),
                   ),
                 ],
@@ -768,7 +787,7 @@ class CampaignCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(fontSize: 11, color: Colors.black54)),
+            style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
         const SizedBox(height: 2),
         Text(
           value,
@@ -776,6 +795,7 @@ class CampaignCard extends StatelessWidget {
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: color ?? Colors.black87,
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
       ],
@@ -791,9 +811,15 @@ class LeadCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.neutral200),
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         spacing: 10,
@@ -865,7 +891,7 @@ class LeadCard extends StatelessWidget {
                     const Text(
                       'Johnson Properties Ltd',
                       style: TextStyle(
-                        color: Colors.black54,
+                        color: AppColors.textMuted,
                         fontSize: 14,
                       ),
                     ),
@@ -875,7 +901,7 @@ class LeadCard extends StatelessWidget {
                     const Row(
                       children: [
                         Icon(Iconsax.sms,
-                            size: 16, color: Colors.black54),
+                            size: 16, color: AppColors.textMuted),
                         SizedBox(width: 4),
                         Text(
                           'adebayo.johnson@example.com',
@@ -883,7 +909,7 @@ class LeadCard extends StatelessWidget {
                         ),
                         SizedBox(width: 12),
                         Icon(Iconsax.call,
-                            size: 16, color: Colors.black54),
+                            size: 16, color: AppColors.textMuted),
                         SizedBox(width: 4),
                         Text(
                           '+234 803 123 4567',
@@ -891,7 +917,7 @@ class LeadCard extends StatelessWidget {
                         ),
                         SizedBox(width: 12),
                         Icon(Iconsax.link_1,
-                            size: 16, color: Colors.black54),
+                            size: 16, color: AppColors.textMuted),
                         SizedBox(width: 4),
                         Text(
                           'LinkedIn',
@@ -919,24 +945,23 @@ class LeadCard extends StatelessWidget {
                         'LEAD-001',
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          color: Colors.black54,
+                          color: AppColors.textMuted,
                         ),
                       ),
                       SizedBox(height: 4),
                       Text(
                         '1/28/2025',
-                        style: TextStyle(color: Colors.black45, fontSize: 12),
+                        style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                       ),
                     ],
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          color: AppColors.black.withValues(alpha: 0.1)),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      child: const Icon(Iconsax.eye, size: 20, color: AppColors.neutral500),
                     ),
-                    padding: const EdgeInsets.all(5),
-                    child: const Icon(Iconsax.eye),
                   ),
                 ],
               ),
@@ -985,7 +1010,13 @@ class ContentCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -1064,24 +1095,23 @@ class ContentCard extends StatelessWidget {
                     'Published',
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
-                      color: Colors.black54,
+                      color: AppColors.textMuted,
                     ),
                   ),
                   SizedBox(height: 4),
                   Text(
                     '1/28/2025',
-                    style: TextStyle(color: Colors.black45, fontSize: 12),
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                   ),
                 ],
               ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  border:
-                      Border.all(color: AppColors.black.withValues(alpha: 0.1)),
+              InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  child: const Icon(Iconsax.eye, size: 20, color: AppColors.neutral500),
                 ),
-                padding: const EdgeInsets.all(5),
-                child: const Icon(Iconsax.eye),
               ),
             ],
           ),
@@ -1239,7 +1269,13 @@ class EventsCalendarWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.neutral200),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0A000000),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1359,7 +1395,13 @@ class EventsCalendarWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1559,12 +1601,15 @@ class EventsCalendarWidget extends StatelessWidget {
 
   Widget _buildActionButton(IconData icon) {
     return SizedBox(
-      width: 32,
-      height: 32,
-      child: Icon(
-        icon,
-        size: 16,
-        color: AppColors.neutral500,
+      width: 44,
+      height: 44,
+      child: IconButton(
+        icon: Icon(
+          icon,
+          size: 18,
+          color: AppColors.neutral500,
+        ),
+        onPressed: () {},
       ),
     );
   }
@@ -1646,9 +1691,15 @@ class AnalyticsDashboard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.neutral200),
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1681,7 +1732,13 @@ class AnalyticsDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1729,7 +1786,13 @@ class AnalyticsDashboard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.neutral200, width: 1),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1788,7 +1851,13 @@ class AnalyticsDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

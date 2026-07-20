@@ -57,7 +57,7 @@ class RoleKpiController extends GetxController {
   static final _successBg = Color(0xFFF0FDF4);
   // ignore: prefer_const_constructors
   static final _successText = Color(0xFF166534);
-  static final _snackMargin = EdgeInsets.all(16);
+  static const _snackMargin = EdgeInsets.all(16);
 
   void _showError(String msg) {
     Get.snackbar('Error', msg,
@@ -65,7 +65,7 @@ class RoleKpiController extends GetxController {
         backgroundColor: _errorBg,
         colorText: _errorText,
         margin: _snackMargin,
-        duration: Duration(seconds: 4));
+        duration: const Duration(seconds: 4));
   }
 
   void _showSuccess(String msg) {
@@ -74,7 +74,7 @@ class RoleKpiController extends GetxController {
         backgroundColor: _successBg,
         colorText: _successText,
         margin: _snackMargin,
-        duration: Duration(seconds: 3));
+        duration: const Duration(seconds: 3));
   }
 
   Future<void> fetchKpis({bool refresh = false, int? roleId}) async {

@@ -162,9 +162,9 @@ class _AddLeadDialogState extends State<AddLeadDialog> {
             // Action Buttons
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
+                  top: BorderSide(color: AppColors.borderSubtle, width: 0.5),
                 ),
               ),
               child: Row(

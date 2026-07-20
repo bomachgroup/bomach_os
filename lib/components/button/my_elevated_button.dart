@@ -45,20 +45,38 @@ class MyElevatedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: disable || isLoading ? null : onTap,
-      style: ElevatedButton.styleFrom(
-        side: borderColor != null ? BorderSide(color: borderColor!) : null,
-        padding:
-            padding ?? const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
-        disabledBackgroundColor: bgColor.withValues(alpha: 0.5),
-        backgroundColor: bgColor,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: borderCurve != null
-              ? BorderRadius.circular(borderCurve!)
-              : AppRadii.brMd,
+      style: ButtonStyle(
+        side: WidgetStateProperty.resolveWith((states) {
+          if (borderColor != null) return BorderSide(color: borderColor!);
+          return null;
+        }),
+        padding: WidgetStateProperty.all(
+          padding ?? const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         ),
-        shadowColor: AppColors.neutral900.withValues(alpha: 0.08),
-        minimumSize: Size(width ?? 0, height ?? 44), // Allows flexible width
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return bgColor.withValues(alpha: 0.5);
+          }
+          return bgColor;
+        }),
+        elevation: WidgetStateProperty.all(0),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: borderCurve != null
+                ? BorderRadius.circular(borderCurve!)
+                : AppRadii.brMd,
+          ),
+        ),
+        minimumSize: WidgetStateProperty.all(Size(width ?? 0, height ?? 44)),
+        overlayColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.pressed)) {
+            return AppColors.primaryPressed.withValues(alpha: 0.12);
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return AppColors.primaryHover.withValues(alpha: 0.08);
+          }
+          return null;
+        }),
       ),
       child: isLoading
           ? const SizedBox(
