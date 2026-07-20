@@ -209,7 +209,6 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
     bool success;
     if (isEdit) {
       success = await widget.ctrl.updateKpi(
-        context,
         id: widget.kpi!.id!,
         trackingMode: _trackingMode,
         period: _period,
@@ -220,7 +219,6 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
       );
     } else {
       success = await widget.ctrl.createKpi(
-        context,
         roleId: roleId,
         metricId: _selectedMetricId!,
         trackingMode: _trackingMode,

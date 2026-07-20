@@ -213,7 +213,7 @@ class KpiManagementPage extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              await ctrl.deleteKpi(context, id);
+              await ctrl.deleteKpi(id);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
             child: const Text('Delete'),

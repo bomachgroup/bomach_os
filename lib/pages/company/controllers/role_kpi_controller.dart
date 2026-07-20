@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
@@ -35,6 +34,38 @@ class RoleKpiController extends GetxController {
     return token.replaceAll('"', '').trim();
   }
 
+  String _friendlyError(dynamic e) {
+    final msg = e.toString();
+    if (msg.contains('403') || msg.contains('permission')) {
+      return 'You do not have permission to perform this action.';
+    }
+    if (msg.contains('422')) return 'Invalid data. Please check your inputs.';
+    if (msg.contains('404')) return 'Resource not found.';
+    if (msg.contains('500')) return 'Server error. Please try again later.';
+    if (msg.contains('DioException')) return 'Network error. Check your connection.';
+    // Strip "Exception: API Error: 4xx - " prefix for cleaner display
+    final cleaned = msg.replaceFirst(RegExp(r'^Exception:\s*API Error:\s*\d+\s*-\s*'), '');
+    return cleaned.length > 120 ? '${cleaned.substring(0, 120)}...' : cleaned;
+  }
+
+  void _showError(String msg) {
+    Get.snackbar('Error', msg,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFFEF2F2),
+        colorText: const Color(0xFF991B1B),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 4));
+  }
+
+  void _showSuccess(String msg) {
+    Get.snackbar('Success', msg,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFF0FDF4),
+        colorText: const Color(0xFF166534),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3));
+  }
+
   Future<void> fetchKpis({bool refresh = false, int? roleId}) async {
     if (refresh) offset = 0;
     if (!refresh) isLoading.value = true;
@@ -58,8 +89,7 @@ class RoleKpiController extends GetxController {
     }
   }
 
-  Future<bool> createKpi(
-    BuildContext context, {
+  Future<bool> createKpi({
     required int roleId,
     required int metricId,
     required String trackingMode,
@@ -85,30 +115,18 @@ class RoleKpiController extends GetxController {
 
       await _service.createRoleKpi(token, roleId, payload);
       await fetchKpis(refresh: true, roleId: scopedRoleId);
-
-      if (context.mounted) {
-        Get.snackbar('Success', 'KPI created successfully',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green.shade50,
-            colorText: Colors.green.shade800);
-      }
+      _showSuccess('KPI created successfully');
       return true;
     } catch (e) {
       log('RoleKpiController.createKpi error: $e');
-      if (context.mounted) {
-        Get.snackbar('Error', 'Failed to create KPI: $e',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.shade50,
-            colorText: Colors.red.shade800);
-      }
+      _showError(_friendlyError(e));
       return false;
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<bool> updateKpi(
-    BuildContext context, {
+  Future<bool> updateKpi({
     required int id,
     String? trackingMode,
     String? period,
@@ -133,29 +151,18 @@ class RoleKpiController extends GetxController {
       if (rId == null) return false;
       await _service.updateRoleKpi(token, rId, id, payload);
       await fetchKpis(refresh: true, roleId: scopedRoleId);
-
-      if (context.mounted) {
-        Get.snackbar('Success', 'KPI updated successfully',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green.shade50,
-            colorText: Colors.green.shade800);
-      }
+      _showSuccess('KPI updated successfully');
       return true;
     } catch (e) {
       log('RoleKpiController.updateKpi error: $e');
-      if (context.mounted) {
-        Get.snackbar('Error', 'Failed to update KPI: $e',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.shade50,
-            colorText: Colors.red.shade800);
-      }
+      _showError(_friendlyError(e));
       return false;
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<bool> deleteKpi(BuildContext context, int id) async {
+  Future<bool> deleteKpi(int id) async {
     try {
       final token = await _getToken();
       if (token == null) return false;
@@ -163,21 +170,11 @@ class RoleKpiController extends GetxController {
       if (rId == null) return false;
       await _service.deleteRoleKpi(token, rId, id);
       await fetchKpis(refresh: true, roleId: scopedRoleId);
-      if (context.mounted) {
-        Get.snackbar('Success', 'KPI deleted',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green.shade50,
-            colorText: Colors.green.shade800);
-      }
+      _showSuccess('KPI deleted');
       return true;
     } catch (e) {
       log('RoleKpiController.deleteKpi error: $e');
-      if (context.mounted) {
-        Get.snackbar('Error', 'Failed to delete KPI: $e',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.shade50,
-            colorText: Colors.red.shade800);
-      }
+      _showError(_friendlyError(e));
       return false;
     }
   }
