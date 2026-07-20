@@ -48,6 +48,24 @@ class KpiMetricService {
     }
   }
 
+  Future<KPIMetric> createMetric(
+    String token, {
+    required String name,
+    String description = '',
+    String unit = 'percentage',
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/kpis/metrics/',
+        data: {'name': name, 'description': description, 'unit': unit},
+        options: _authOptions(token),
+      );
+      return KPIMetric.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final body = error.response?.data;

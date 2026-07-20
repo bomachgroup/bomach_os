@@ -105,6 +105,88 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
     super.dispose();
   }
 
+  void _showCreateMetricDialog(BuildContext context) {
+    final nameCtrl = TextEditingController();
+    final unitCtrl = TextEditingController(text: 'percentage');
+    final descCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Create Metric'),
+        content: SizedBox(
+          width: 360,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MyTextFormField(
+                controller: nameCtrl,
+                hintText: 'Metric name (required)',
+                height: 44,
+              ),
+              const SizedBox(height: 12),
+              MyTextFormField(
+                controller: unitCtrl,
+                hintText: 'Unit (e.g. %, count, hours)',
+                height: 44,
+              ),
+              const SizedBox(height: 12),
+              MyTextFormField(
+                controller: descCtrl,
+                hintText: 'Description (optional)',
+                height: 44,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (nameCtrl.text.trim().isEmpty) {
+                Get.snackbar('Validation', 'Name is required',
+                    snackPosition: SnackPosition.BOTTOM);
+                return;
+              }
+              try {
+                final token = await _storage.read(key: 'access_token');
+                if (token == null) return;
+                final cleanToken = token.replaceAll('"', '').trim();
+                final created = await _metricService.createMetric(
+                  cleanToken,
+                  name: nameCtrl.text.trim(),
+                  unit: unitCtrl.text.trim().isEmpty
+                      ? 'percentage'
+                      : unitCtrl.text.trim(),
+                  description: descCtrl.text.trim(),
+                );
+                if (ctx.mounted) Navigator.pop(ctx);
+                setState(() {
+                  _metrics = [..._metrics, created];
+                  _selectedMetricId = created.id;
+                  _selectedMetricUnit = created.unit;
+                });
+                Get.snackbar('Success', 'Metric "${created.name}" created',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.green.shade50,
+                    colorText: Colors.green.shade800);
+              } catch (e) {
+                Get.snackbar('Error', 'Failed to create metric: $e',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.red.shade50,
+                    colorText: Colors.red.shade800);
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _onSave() async {
     if (_selectedMetricId == null) {
       Get.snackbar('Validation', 'Please select a metric',
@@ -167,7 +249,24 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Metric Selector ──────────────────────────────────────────
-          const Text('Metric', style: AppTextStyles.label),
+          Row(
+            children: [
+              const Expanded(child: Text('Metric', style: AppTextStyles.label)),
+              GestureDetector(
+                onTap: () => _showCreateMetricDialog(context),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add_circle_outline,
+                        size: 14, color: AppColors.primary),
+                    const SizedBox(width: 4),
+                    Text('New', style: AppTextStyles.caption.copyWith(
+                        color: AppColors.primary, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           _loadingMetrics
               ? const SizedBox(
@@ -184,7 +283,9 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                         EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   ),
                   initialValue: _selectedMetricId,
-                  hint: const Text('Select a metric'),
+                  hint: Text(_metrics.isEmpty
+                      ? 'No metrics available — click "+ New" above'
+                      : 'Select a metric'),
                   items: _metrics.map((m) => DropdownMenuItem(
                     value: m.id,
                     child: Text('${m.name} (${m.unit})'),
