@@ -9,11 +9,11 @@ class OkrBoardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const PageScaffold(
-      header: const PageHeader(
+      header: PageHeader(
         title: 'OKR Board',
         subtitle: 'Track Objectives and Key Results across role templates.',
       ),
-      children: const [
+      children: [
         ComingSoonTab(featureName: 'OKR Board'),
       ],
     );

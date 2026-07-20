@@ -49,21 +49,31 @@ class RoleKpiController extends GetxController {
     return cleaned.length > 120 ? '${cleaned.substring(0, 120)}...' : cleaned;
   }
 
+  // ignore: prefer_const_constructors
+  static final _errorBg = Color(0xFFFEF2F2);
+  // ignore: prefer_const_constructors
+  static final _errorText = Color(0xFF991B1B);
+  // ignore: prefer_const_constructors
+  static final _successBg = Color(0xFFF0FDF4);
+  // ignore: prefer_const_constructors
+  static final _successText = Color(0xFF166534);
+  static final _snackMargin = EdgeInsets.all(16);
+
   void _showError(String msg) {
     Get.snackbar('Error', msg,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Color(0xFFFEF2F2),
-        colorText: Color(0xFF991B1B),
-        margin: EdgeInsets.all(16),
+        backgroundColor: _errorBg,
+        colorText: _errorText,
+        margin: _snackMargin,
         duration: Duration(seconds: 4));
   }
 
   void _showSuccess(String msg) {
     Get.snackbar('Success', msg,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Color(0xFFF0FDF4),
-        colorText: Color(0xFF166534),
-        margin: EdgeInsets.all(16),
+        backgroundColor: _successBg,
+        colorText: _successText,
+        margin: _snackMargin,
         duration: Duration(seconds: 3));
   }
 

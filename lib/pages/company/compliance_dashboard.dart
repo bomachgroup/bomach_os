@@ -10,11 +10,11 @@ class ComplianceDashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const PageScaffold(
       maxContentWidth: 1200,
-      header: const PageHeader(
+      header: PageHeader(
         title: 'Compliance Dashboard',
         subtitle: 'Role compliance and risk obligations overview',
       ),
-      children: const [
+      children: [
         ComingSoonTab(featureName: 'Compliance Dashboard'),
       ],
     );

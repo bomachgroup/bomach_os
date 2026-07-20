@@ -10,11 +10,11 @@ class AuthorityLimitsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const PageScaffold(
       maxContentWidth: 1440,
-      header: const PageHeader(
+      header: PageHeader(
         title: 'Authority Limits',
         subtitle: 'Define approval authority limits across roles and resources',
       ),
-      children: const [
+      children: [
         ComingSoonTab(featureName: 'Authority Limits'),
       ],
     );

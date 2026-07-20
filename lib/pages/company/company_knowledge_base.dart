@@ -9,11 +9,11 @@ class CompanyKnowledgeBasePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const PageScaffold(
-      header: const PageHeader(
+      header: PageHeader(
         title: 'Knowledge Base',
         subtitle: 'Cross-role documents, templates, and references',
       ),
-      children: const [
+      children: [
         ComingSoonTab(featureName: 'Knowledge Base'),
       ],
     );

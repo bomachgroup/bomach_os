@@ -255,6 +255,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // ignore: prefer_const_constructors
                     Icon(Icons.add_circle_outline,
                         size: 14, color: AppColors.primary),
                     const SizedBox(width: 4),
