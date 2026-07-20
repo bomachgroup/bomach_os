@@ -23,6 +23,51 @@ enum ContentStatus {
     }
   }
 
+  Color get bgColor {
+    switch (this) {
+      case ContentStatus.briefed:
+        return const Color(0xFFDBEAFE);
+      case ContentStatus.inProgress:
+        return const Color(0xFFFEF3C7);
+      case ContentStatus.inReview:
+        return const Color(0xFFEDE9FE);
+      case ContentStatus.published:
+        return const Color(0xFFD1FAE5);
+      case ContentStatus.overdue:
+        return const Color(0xFFFEE2E2);
+    }
+  }
+
+  Color get textColor {
+    switch (this) {
+      case ContentStatus.briefed:
+        return const Color(0xFF1E40AF);
+      case ContentStatus.inProgress:
+        return const Color(0xFF92400E);
+      case ContentStatus.inReview:
+        return const Color(0xFF5B21B6);
+      case ContentStatus.published:
+        return const Color(0xFF065F46);
+      case ContentStatus.overdue:
+        return const Color(0xFF991B1B);
+    }
+  }
+
+  Color get borderColor {
+    switch (this) {
+      case ContentStatus.briefed:
+        return const Color(0xFF93C5FD);
+      case ContentStatus.inProgress:
+        return const Color(0xFFFCD34D);
+      case ContentStatus.inReview:
+        return const Color(0xFFC4B5FD);
+      case ContentStatus.published:
+        return const Color(0xFF6EE7B7);
+      case ContentStatus.overdue:
+        return const Color(0xFFFCA5A5);
+    }
+  }
+
   static ContentStatus fromString(String value) {
     final normalized = value.toLowerCase().replaceAll(' ', '');
     return ContentStatus.values.firstWhere(
