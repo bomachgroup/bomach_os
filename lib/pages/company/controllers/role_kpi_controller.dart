@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
@@ -51,19 +52,19 @@ class RoleKpiController extends GetxController {
   void _showError(String msg) {
     Get.snackbar('Error', msg,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFFEF2F2),
-        colorText: const Color(0xFF991B1B),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 4));
+        backgroundColor: Color(0xFFFEF2F2),
+        colorText: Color(0xFF991B1B),
+        margin: EdgeInsets.all(16),
+        duration: Duration(seconds: 4));
   }
 
   void _showSuccess(String msg) {
     Get.snackbar('Success', msg,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFF0FDF4),
-        colorText: const Color(0xFF166534),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3));
+        backgroundColor: Color(0xFFF0FDF4),
+        colorText: Color(0xFF166534),
+        margin: EdgeInsets.all(16),
+        duration: Duration(seconds: 3));
   }
 
   Future<void> fetchKpis({bool refresh = false, int? roleId}) async {
