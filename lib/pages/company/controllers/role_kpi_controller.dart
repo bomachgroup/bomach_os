@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 
 import '../../../src/model/role_kpi_model.dart';
 import '../../../src/services/role_kpi_service.dart';
+import '../../../src/services/role_service.dart';
 
 class RoleKpiController extends GetxController {
   final RoleKpiService _service = RoleKpiService();
@@ -59,22 +60,25 @@ class RoleKpiController extends GetxController {
   static final _successText = Color(0xFF166534);
   static const _snackMargin = EdgeInsets.all(16);
 
+  void _safeSnackbar(String title, String msg, {Color? bg, Color? fg}) {
+    try {
+      if (Get.context != null && !Get.isSnackbarOpen) {
+        Get.snackbar(title, msg,
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: bg ?? _successBg,
+            colorText: fg ?? _successText,
+            margin: _snackMargin,
+            duration: const Duration(seconds: 3));
+      }
+    } catch (_) {}
+  }
+
   void _showError(String msg) {
-    Get.snackbar('Error', msg,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: _errorBg,
-        colorText: _errorText,
-        margin: _snackMargin,
-        duration: const Duration(seconds: 4));
+    _safeSnackbar('Error', msg, bg: _errorBg, fg: _errorText);
   }
 
   void _showSuccess(String msg) {
-    Get.snackbar('Success', msg,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: _successBg,
-        colorText: _successText,
-        margin: _snackMargin,
-        duration: const Duration(seconds: 3));
+    _safeSnackbar('Success', msg);
   }
 
   Future<void> fetchKpis({bool refresh = false, int? roleId}) async {
@@ -125,7 +129,7 @@ class RoleKpiController extends GetxController {
       if (sequence != null) payload['sequence'] = sequence;
 
       await _service.createRoleKpi(token, roleId, payload);
-      await fetchKpis(refresh: true, roleId: scopedRoleId);
+      await fetchKpis(refresh: true, roleId: roleId);
       _showSuccess('KPI created successfully');
       return true;
     } catch (e) {
@@ -161,7 +165,7 @@ class RoleKpiController extends GetxController {
       final rId = scopedRoleId;
       if (rId == null) return false;
       await _service.updateRoleKpi(token, rId, id, payload);
-      await fetchKpis(refresh: true, roleId: scopedRoleId);
+      await fetchKpis(refresh: true, roleId: rId);
       _showSuccess('KPI updated successfully');
       return true;
     } catch (e) {
@@ -180,13 +184,40 @@ class RoleKpiController extends GetxController {
       final rId = scopedRoleId;
       if (rId == null) return false;
       await _service.deleteRoleKpi(token, rId, id);
-      await fetchKpis(refresh: true, roleId: scopedRoleId);
+      await fetchKpis(refresh: true, roleId: rId);
       _showSuccess('KPI deleted');
       return true;
     } catch (e) {
       log('RoleKpiController.deleteKpi error: $e');
       _showError(_friendlyError(e));
       return false;
+    }
+  }
+
+  /// Fetch KPIs from ALL roles for the management page.
+  Future<void> fetchAllKpis({bool refresh = false}) async {
+    if (!refresh) isLoading.value = true;
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+
+      // Get all roles first
+      final rolesService = RoleService();
+      final rolesResult = await rolesService.listRoles(token, limit: 100);
+      final allKpis = <RoleKpi>[];
+      for (final role in rolesResult.list) {
+        try {
+          final result = await _service.listRoleKpis(token, roleId: role.id, limit: 100, offset: 0);
+          allKpis.addAll(result.list);
+        } catch (_) {}
+      }
+      kpis.assignAll(allKpis);
+      totalCount = allKpis.length;
+    } catch (e) {
+      log('RoleKpiController.fetchAllKpis error: $e');
+      errorMessage.value = e.toString();
+    } finally {
+      isLoading.value = false;
     }
   }
 }

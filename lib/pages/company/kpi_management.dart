@@ -19,10 +19,12 @@ class KpiManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = Get.put(RoleKpiController());
+    final ctrl = Get.put(RoleKpiController(), tag: 'kpi_management');
     if (!Get.isRegistered<RolesController>()) {
       Get.put(RolesController());
     }
+    // Fetch all KPIs on first build
+    ctrl.fetchAllKpis();
 
     return PageScaffold(
       header: PageHeader(
@@ -35,7 +37,7 @@ class KpiManagementPage extends StatelessWidget {
           onTap: () => showDialog(
             context: context,
             builder: (_) => CreateEditKpiDialog(ctrl: ctrl),
-          ),
+          ).then((_) => ctrl.fetchAllKpis(refresh: true)),
         ),
       ),
       children: [
@@ -47,7 +49,7 @@ class KpiManagementPage extends StatelessWidget {
             height: 44,
             leading: const Icon(Iconsax.search_normal,
                 size: 18, color: AppColors.textMuted),
-            onChanged: (_) => ctrl.fetchKpis(refresh: true),
+            onChanged: (_) => ctrl.fetchAllKpis(refresh: true),
           ),
         ),
         AppCard(
@@ -172,7 +174,7 @@ class KpiManagementPage extends StatelessWidget {
                                   context: context,
                                   builder: (_) => CreateEditKpiDialog(
                                       ctrl: ctrl, kpi: kpi, presetRoleId: kpi.roleId),
-                                ),
+                                ).then((_) => ctrl.fetchAllKpis(refresh: true)),
                                 tooltip: 'Edit KPI',
                               ),
                               IconButton(
@@ -214,6 +216,7 @@ class KpiManagementPage extends StatelessWidget {
             onPressed: () async {
               Navigator.pop(context);
               await ctrl.deleteKpi(id);
+              ctrl.fetchAllKpis(refresh: true);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
             child: const Text('Delete'),

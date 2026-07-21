@@ -18,11 +18,15 @@ class KpiTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RoleKpiController>(
-      tag: 'role_detail_$roleId',
-      init: RoleKpiController()
+    final tag = 'role_detail_$roleId';
+    if (!Get.isRegistered<RoleKpiController>(tag: tag)) {
+      Get.put(RoleKpiController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchKpis(roleId: roleId),
+        ..fetchKpis(roleId: roleId);
+    }
+
+    return GetBuilder<RoleKpiController>(
+      tag: tag,
       builder: (ctrl) {
         final roleKpis = ctrl.kpis.where((k) => k.roleId == roleId).toList();
 

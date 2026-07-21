@@ -269,9 +269,15 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                 title: 'KPIs',
                 child: GetBuilder<RoleKpiController>(
                   tag: 'role_${widget.role!.id}',
-                  init: RoleKpiController()
-                    ..scopedRoleId = widget.role!.id
-                    ..fetchKpis(roleId: widget.role!.id),
+                  init: (() {
+                    final t = 'role_${widget.role!.id}';
+                    if (!Get.isRegistered<RoleKpiController>(tag: t)) {
+                      Get.put(RoleKpiController(), tag: t)
+                        ..scopedRoleId = widget.role!.id
+                        ..fetchKpis(roleId: widget.role!.id);
+                    }
+                    return Get.find<RoleKpiController>(tag: t);
+                  })(),
                   builder: (kpiCtrl) {
                     final roleKpis = kpiCtrl.kpis
                         .where((k) => k.roleId == widget.role!.id)
