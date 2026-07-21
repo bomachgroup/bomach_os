@@ -11,7 +11,7 @@ class MarketingDemoData {
 
   // ─── LEADS ─────────────────────────────────────────────────────
 
-  static final List<MarketingLead> leads = [
+  static const List<MarketingLead> leads = [
     MarketingLead(
       id: 'L-2247',
       name: 'Adaeze Chukwu',
@@ -23,7 +23,7 @@ class MarketingDemoData {
       stage: LeadStage.proposal,
       assignedTo: 'Emeka Obi',
       value: '₦4.5M',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Proposal sent via WhatsApp',
           meta: 'Jul 13, 2:15PM · Emeka Obi · Bethel City plot — ₦4.5M, 30% down',
@@ -52,7 +52,7 @@ class MarketingDemoData {
       stage: LeadStage.negotiation,
       assignedTo: 'Peace C.',
       value: '₦28M',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Negotiation call — pricing discussion',
           meta: 'Jul 13, 4:00PM · Peace C. · Discussing phased payment structure',
@@ -77,7 +77,7 @@ class MarketingDemoData {
       stage: LeadStage.won,
       assignedTo: 'Emeka Obi',
       value: '₦3.5M',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Deal won — vendor account activated',
           meta: 'Jul 12, 3:00PM · Emeka Obi · Vendor onboarded successfully',
@@ -98,7 +98,7 @@ class MarketingDemoData {
       stage: LeadStage.contacted,
       assignedTo: 'Chioma S.',
       value: '₦350K',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Follow-up call scheduled',
           meta: 'Jul 14, 9:00AM · Chioma S. · Discussed title documentation requirements',
@@ -121,7 +121,7 @@ class MarketingDemoData {
       assignedTo: 'Emeka Obi',
       value: '₦5M',
       isOverdue: true,
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Lead registered — no contact yet',
           meta: 'Jul 10, 2:00PM · Facebook Ad · Awaiting first contact',
@@ -137,7 +137,7 @@ class MarketingDemoData {
       campaign: 'ESUT Campus Activation',
       stage: LeadStage.newLead,
       assignedTo: 'Chioma S.',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Lead registered',
           meta: 'Jul 13, 8:00AM · Instagram DM enquiry',
@@ -154,7 +154,7 @@ class MarketingDemoData {
       stage: LeadStage.qualified,
       assignedTo: 'Emeka Obi',
       value: '₦6M',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Qualification completed — budget confirmed',
           meta: 'Jul 9, 3:00PM · Emeka Obi · Ready to proceed within 30 days',
@@ -175,7 +175,7 @@ class MarketingDemoData {
       stage: LeadStage.proposal,
       assignedTo: 'Peace C.',
       value: '₦2.1M',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Supply proposal sent',
           meta: 'Jul 11, 1:00PM · Peace C. · Monthly cassava & garri supply contract',
@@ -197,7 +197,7 @@ class MarketingDemoData {
       assignedTo: 'Chioma S.',
       value: '₦800K',
       isOverdue: true,
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'First contact made',
           meta: 'Jul 12, 10:00AM · Chioma S. · Discussed website development needs',
@@ -214,7 +214,7 @@ class MarketingDemoData {
       stage: LeadStage.qualified,
       assignedTo: 'Peace C.',
       value: '₦12M',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Site visit booked',
           meta: 'Jul 8, 2:00PM · Peace C. · Scheduled for Jul 20',
@@ -231,7 +231,7 @@ class MarketingDemoData {
       budget: '₦3M',
       stage: LeadStage.lost,
       assignedTo: 'Emeka Obi',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Marked as lost — budget mismatch',
           meta: 'Jun 30, 5:00PM · Emeka Obi · Client\'s available budget below minimum plot price',
@@ -249,7 +249,7 @@ class MarketingDemoData {
       stage: LeadStage.contacted,
       assignedTo: 'Emeka Obi',
       value: '₦4M',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'First WhatsApp contact',
           meta: 'Jul 13, 1:00PM · Emeka Obi · Interested in 2-plot combo',
@@ -266,7 +266,7 @@ class MarketingDemoData {
       stage: LeadStage.negotiation,
       assignedTo: 'Peace C.',
       value: '₦6.5M',
-      activities: const [
+      activities: [
         LeadActivity(
           title: 'Negotiating payment terms',
           meta: 'Jul 12, 4:30PM · Peace C. · Discussing 40% down vs 30% down options',
@@ -277,8 +277,8 @@ class MarketingDemoData {
 
   // ─── CAMPAIGNS ─────────────────────────────────────────────────
 
-  static final List<MarketingCampaignV2> campaigns = [
-    const MarketingCampaignV2(
+  static const List<MarketingCampaignV2> campaigns = [
+    MarketingCampaignV2(
       name: 'Bethel City Estate Launch',
       division: MarketingDivision.re,
       status: CampaignStatus.active,
@@ -290,7 +290,7 @@ class MarketingDemoData {
       daysActive: 12,
       channels: 'Facebook + Instagram',
     ),
-    const MarketingCampaignV2(
+    MarketingCampaignV2(
       name: 'ESUT Campus Activation',
       division: MarketingDivision.ben,
       status: CampaignStatus.active,
@@ -302,14 +302,14 @@ class MarketingDemoData {
       daysActive: 19,
       channels: 'TikTok + Field + Stickers',
     ),
-    const MarketingCampaignV2(
+    MarketingCampaignV2(
       name: 'Engineering Excellence Series',
       division: MarketingDivision.eng,
       status: CampaignStatus.draft,
       budget: 350000,
       channels: 'LinkedIn + WhatsApp',
     ),
-    const MarketingCampaignV2(
+    MarketingCampaignV2(
       name: 'Know Your Land Campaign',
       division: MarketingDivision.sur,
       status: CampaignStatus.active,
@@ -325,8 +325,8 @@ class MarketingDemoData {
 
   // ─── CONTENT ───────────────────────────────────────────────────
 
-  static final List<ContentCalendarItem> contentItems = [
-    const ContentCalendarItem(
+  static const List<ContentCalendarItem> contentItems = [
+    ContentCalendarItem(
       title: 'Bethel City estate walkthrough',
       format: 'Video',
       platform: 'Instagram',
@@ -335,7 +335,7 @@ class MarketingDemoData {
       status: ContentStatus.published,
       dueDate: 'Jul 14',
     ),
-    const ContentCalendarItem(
+    ContentCalendarItem(
       title: '"Survey before you build"',
       format: 'Carousel',
       platform: 'Facebook',
@@ -344,7 +344,7 @@ class MarketingDemoData {
       status: ContentStatus.published,
       dueDate: 'Jul 14',
     ),
-    const ContentCalendarItem(
+    ContentCalendarItem(
       title: 'Benji delivery speed demo',
       format: 'TikTok',
       platform: 'TikTok',
@@ -353,7 +353,7 @@ class MarketingDemoData {
       status: ContentStatus.inReview,
       dueDate: 'Jul 15',
     ),
-    const ContentCalendarItem(
+    ContentCalendarItem(
       title: 'Client testimonial — Adaeze',
       format: 'Graphic',
       platform: 'Instagram',
@@ -362,7 +362,7 @@ class MarketingDemoData {
       status: ContentStatus.briefed,
       dueDate: 'Jul 16',
     ),
-    const ContentCalendarItem(
+    ContentCalendarItem(
       title: 'Weekly property WA broadcast',
       format: 'Text+Image',
       platform: 'WhatsApp',
@@ -371,7 +371,7 @@ class MarketingDemoData {
       status: ContentStatus.overdue,
       dueDate: 'Jul 13',
     ),
-    const ContentCalendarItem(
+    ContentCalendarItem(
       title: 'Bomach OS feature spotlight',
       format: 'Carousel',
       platform: 'LinkedIn',
@@ -380,7 +380,7 @@ class MarketingDemoData {
       status: ContentStatus.inProgress,
       dueDate: 'Jul 17',
     ),
-    const ContentCalendarItem(
+    ContentCalendarItem(
       title: 'Benji vendor onboarding explainer',
       format: 'Video',
       platform: 'TikTok',
@@ -389,7 +389,7 @@ class MarketingDemoData {
       status: ContentStatus.inProgress,
       dueDate: 'Jul 15',
     ),
-    const ContentCalendarItem(
+    ContentCalendarItem(
       title: 'Engineering project showcase',
       format: 'Carousel',
       platform: 'Instagram',
@@ -402,8 +402,8 @@ class MarketingDemoData {
 
   // ─── TEAM ──────────────────────────────────────────────────────
 
-  static final List<MarketingTeamMember> team = [
-    const MarketingTeamMember(
+  static const List<MarketingTeamMember> team = [
+    MarketingTeamMember(
       name: 'Engr. Tochukwu David',
       role: 'CEO & Founder',
       initials: 'TD',
@@ -413,7 +413,7 @@ class MarketingDemoData {
       stat: 'Oversees all divisions',
       kpiPercentage: 0,
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Peace Chukwuwike',
       role: 'Acting Marketing Coordinator',
       initials: 'PC',
@@ -425,7 +425,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFF059669),
       kpiStatus: 'On target',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Emeka Obi',
       role: 'Sales Representative',
       initials: 'EO',
@@ -437,7 +437,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFF059669),
       kpiStatus: 'On target',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Chioma Sale',
       role: 'Sales Representative',
       initials: 'CS',
@@ -449,7 +449,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFFD97706),
       kpiStatus: 'Close',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Williams Favor',
       role: 'Videographer / Content Director',
       initials: 'WF',
@@ -461,7 +461,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFFD97706),
       kpiStatus: 'Close',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Content Creator',
       role: 'Content Creator',
       initials: 'CC',
@@ -473,7 +473,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFFD97706),
       kpiStatus: 'Close',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Digital Marketer',
       role: 'Digital Marketing Specialist',
       initials: 'DM',
@@ -485,7 +485,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFF059669),
       kpiStatus: 'On target',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Graphic Designer',
       role: 'Creative / Graphic Designer',
       initials: 'GD',
@@ -497,7 +497,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFFDC2626),
       kpiStatus: 'Below target',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Customer Care Officer',
       role: 'Customer Support',
       initials: 'CO',
@@ -509,7 +509,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFF059669),
       kpiStatus: 'On target',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Business Developer',
       role: 'Business Development',
       initials: 'BD',
@@ -521,7 +521,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFFD97706),
       kpiStatus: 'Close',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Partner Manager',
       role: 'Partnerships & Media',
       initials: 'PM',
@@ -533,7 +533,7 @@ class MarketingDemoData {
       kpiColor: Color(0xFF059669),
       kpiStatus: 'On target',
     ),
-    const MarketingTeamMember(
+    MarketingTeamMember(
       name: 'Analytics Officer',
       role: 'Analytics & Insights',
       initials: 'AN',
@@ -550,34 +550,34 @@ class MarketingDemoData {
   // ─── OKRs ──────────────────────────────────────────────────────
 
   static final List<MarketingOKR> okrs = [
-    MarketingOKR(
+    const MarketingOKR(
       objective: 'O1 — Generate ₦85M monthly revenue across all divisions',
-      keyResults: const [
+      keyResults: [
         KeyResult(label: 'Real Estate closes ₦30M/month', percentage: 93, color: Color(0xFF059669)),
         KeyResult(label: 'Benji generates ₦15M/month', percentage: 47, color: Color(0xFFDC2626)),
         KeyResult(label: 'Engineering closes ₦20M/month', percentage: 60, color: Color(0xFFD97706)),
         KeyResult(label: 'Surveying closes ₦5M/month', percentage: 84, color: Color(0xFF059669)),
       ],
     ),
-    MarketingOKR(
+    const MarketingOKR(
       objective: 'O2 — Consistently generate 100+ qualified leads per week',
-      keyResults: const [
+      keyResults: [
         KeyResult(label: '100+ leads/week for 8 consecutive weeks', percentage: 82, color: Color(0xFFD97706)),
         KeyResult(label: '100% of leads contacted within 2 hours', percentage: 91, color: Color(0xFF059669)),
         KeyResult(label: 'Conversion rate reaches 25%', percentage: 73, color: Color(0xFFD97706)),
       ],
     ),
-    MarketingOKR(
+    const MarketingOKR(
       objective: 'O3 — Build a world-class content machine',
-      keyResults: const [
+      keyResults: [
         KeyResult(label: '20 content pieces published every week', percentage: 68, color: Color(0xFFD97706)),
         KeyResult(label: 'Average reach of 5,000+ per piece', percentage: 55, color: Color(0xFFDC2626)),
         KeyResult(label: '50+ WhatsApp broadcast responses/week', percentage: 76, color: Color(0xFFD97706)),
       ],
     ),
-    MarketingOKR(
+    const MarketingOKR(
       objective: 'O4 — Activate and grow partner and media network',
-      keyResults: const [
+      keyResults: [
         KeyResult(label: '10 active realtor partners generating leads', percentage: 30, color: Color(0xFFDC2626)),
         KeyResult(label: '5 active influencer partnerships', percentage: 40, color: Color(0xFFDC2626)),
         KeyResult(label: '3 active radio/TV placements', percentage: 67, color: Color(0xFFD97706)),
@@ -587,51 +587,51 @@ class MarketingDemoData {
 
   // ─── TARGETS ───────────────────────────────────────────────────
 
-  static final List<TargetRow> targets = [
-    const TargetRow(label: 'Leads generated', target: '100', actual: '127', percentage: 127, color: Color(0xFF059669)),
-    const TargetRow(label: 'Leads contacted within 2h', target: '100%', actual: '91%', percentage: 91, color: Color(0xFFD97706)),
-    const TargetRow(label: 'Content pieces published', target: '20', actual: '17', percentage: 85, color: Color(0xFFD97706)),
-    const TargetRow(label: 'Deals closed', target: '5', actual: '4', percentage: 80, color: Color(0xFFD97706)),
-    const TargetRow(label: 'Revenue closed', target: '₦21.25M', actual: '₦14.2M', percentage: 67, color: Color(0xFFDC2626)),
-    const TargetRow(label: 'New Benji vendors onboarded', target: '10', actual: '6', percentage: 60, color: Color(0xFFDC2626)),
-    const TargetRow(label: 'Follow-up cadence compliance', target: '100%', actual: '84%', percentage: 84, color: Color(0xFFD97706)),
+  static const List<TargetRow> targets = [
+    TargetRow(label: 'Leads generated', target: '100', actual: '127', percentage: 127, color: Color(0xFF059669)),
+    TargetRow(label: 'Leads contacted within 2h', target: '100%', actual: '91%', percentage: 91, color: Color(0xFFD97706)),
+    TargetRow(label: 'Content pieces published', target: '20', actual: '17', percentage: 85, color: Color(0xFFD97706)),
+    TargetRow(label: 'Deals closed', target: '5', actual: '4', percentage: 80, color: Color(0xFFD97706)),
+    TargetRow(label: 'Revenue closed', target: '₦21.25M', actual: '₦14.2M', percentage: 67, color: Color(0xFFDC2626)),
+    TargetRow(label: 'New Benji vendors onboarded', target: '10', actual: '6', percentage: 60, color: Color(0xFFDC2626)),
+    TargetRow(label: 'Follow-up cadence compliance', target: '100%', actual: '84%', percentage: 84, color: Color(0xFFD97706)),
   ];
 
   // ─── NOTIFICATIONS ─────────────────────────────────────────────
 
-  static final List<MarketingNotification> notifications = [
+  static const List<MarketingNotification> notifications = [
     MarketingNotification(
       icon: 'ti-alert-triangle',
-      iconBg: const Color(0xFFFEE2E2),
-      iconColor: const Color(0xFFDC2626),
+      iconBg: Color(0xFFFEE2E2),
+      iconColor: Color(0xFFDC2626),
       text: '5 leads overdue for follow-up — oldest is 3 days',
       time: '5 min ago',
     ),
     MarketingNotification(
       icon: 'ti-photo',
-      iconBg: const Color(0xFFFEF3C7),
-      iconColor: const Color(0xFFD97706),
+      iconBg: Color(0xFFFEF3C7),
+      iconColor: Color(0xFFD97706),
       text: 'Content 3 pieces behind weekly target',
       time: '1 hour ago',
     ),
     MarketingNotification(
       icon: 'ti-check',
-      iconBg: const Color(0xFFD1FAE5),
-      iconColor: const Color(0xFF059669),
+      iconBg: Color(0xFFD1FAE5),
+      iconColor: Color(0xFF059669),
       text: 'Deal won — Ngozi Kamalu closed ₦3.5M',
       time: '2 hours ago',
     ),
     MarketingNotification(
       icon: 'ti-users',
-      iconBg: const Color(0xFFDBEAFE),
-      iconColor: const Color(0xFF1E40AF),
+      iconBg: Color(0xFFDBEAFE),
+      iconColor: Color(0xFF1E40AF),
       text: '3 influencer proposals pending your approval',
       time: '3 hours ago',
     ),
     MarketingNotification(
       icon: 'ti-headset',
-      iconBg: const Color(0xFFFCE7F3),
-      iconColor: const Color(0xFF9D174D),
+      iconBg: Color(0xFFFCE7F3),
+      iconColor: Color(0xFF9D174D),
       text: 'Urgent support ticket opened — Benji vendor issue',
       time: 'Yesterday',
       isRead: true,
@@ -640,8 +640,8 @@ class MarketingDemoData {
 
   // ─── WHATSAPP ──────────────────────────────────────────────────
 
-  static final List<WhatsAppConversation> whatsappConversations = [
-    const WhatsAppConversation(
+  static const List<WhatsAppConversation> whatsappConversations = [
+    WhatsAppConversation(
       id: 'wa1',
       initials: 'AC',
       bgColor: Color(0xFFDBEAFE),
@@ -657,7 +657,7 @@ class MarketingDemoData {
         ),
       ],
     ),
-    const WhatsAppConversation(
+    WhatsAppConversation(
       id: 'wa2',
       initials: 'EO',
       bgColor: Color(0xFFFEF3C7),
@@ -673,7 +673,7 @@ class MarketingDemoData {
         ),
       ],
     ),
-    const WhatsAppConversation(
+    WhatsAppConversation(
       id: 'wa3',
       initials: 'NK',
       bgColor: Color(0xFFEDE9FE),
@@ -693,7 +693,7 @@ class MarketingDemoData {
         ),
       ],
     ),
-    const WhatsAppConversation(
+    WhatsAppConversation(
       id: 'wa4',
       initials: 'FI',
       bgColor: Color(0xFFD1FAE5),
@@ -708,7 +708,7 @@ class MarketingDemoData {
         ),
       ],
     ),
-    const WhatsAppConversation(
+    WhatsAppConversation(
       id: 'wa5',
       initials: 'BO',
       bgColor: Color(0xFFFEE2E2),
@@ -728,8 +728,8 @@ class MarketingDemoData {
 
   // ─── DESIGN TASKS ──────────────────────────────────────────────
 
-  static final List<DesignTask> designTasks = [
-    const DesignTask(
+  static const List<DesignTask> designTasks = [
+    DesignTask(
       id: 'dt1',
       thumbLabel: 'IMG',
       thumbBg: Color(0xFFDBEAFE),
@@ -740,7 +740,7 @@ class MarketingDemoData {
       dueDate: 'Jul 16',
       status: 'todo',
     ),
-    const DesignTask(
+    DesignTask(
       id: 'dt2',
       thumbLabel: 'VID',
       thumbBg: Color(0xFFEDE9FE),
@@ -751,7 +751,7 @@ class MarketingDemoData {
       dueDate: 'Jul 15',
       status: 'todo',
     ),
-    const DesignTask(
+    DesignTask(
       id: 'dt3',
       thumbLabel: 'GFX',
       thumbBg: Color(0xFFD1FAE5),
@@ -762,7 +762,7 @@ class MarketingDemoData {
       dueDate: 'Jul 17',
       status: 'todo',
     ),
-    const DesignTask(
+    DesignTask(
       id: 'dt4',
       thumbLabel: 'OVR',
       thumbBg: Color(0xFFFEE2E2),
@@ -774,7 +774,7 @@ class MarketingDemoData {
       status: 'todo',
       isOverdue: true,
     ),
-    const DesignTask(
+    DesignTask(
       id: 'dt5',
       thumbLabel: 'REV',
       thumbBg: Color(0xFFFEF3C7),
@@ -785,7 +785,7 @@ class MarketingDemoData {
       dueDate: 'Jul 15',
       status: 'review',
     ),
-    const DesignTask(
+    DesignTask(
       id: 'dt6',
       thumbLabel: '✓',
       thumbBg: Color(0xFFD1FAE5),
@@ -796,7 +796,7 @@ class MarketingDemoData {
       dueDate: 'Jul 14',
       status: 'done',
     ),
-    const DesignTask(
+    DesignTask(
       id: 'dt7',
       thumbLabel: '✓',
       thumbBg: Color(0xFFD1FAE5),
@@ -807,7 +807,7 @@ class MarketingDemoData {
       dueDate: 'Jul 14',
       status: 'done',
     ),
-    const DesignTask(
+    DesignTask(
       id: 'dt8',
       thumbLabel: '✓',
       thumbBg: Color(0xFFD1FAE5),
@@ -822,52 +822,52 @@ class MarketingDemoData {
 
   // ─── MEDIA ASSETS ──────────────────────────────────────────────
 
-  static final List<MediaAsset> mediaAssets = [
-    MediaAsset(title: 'Bethel City Drone Footage', type: 'video', bgColor: const Color(0xFF1F3D7A), icon: 'ti-video', division: MarketingDivision.re, size: '240 MB'),
-    MediaAsset(title: 'Estate Logo Pack', type: 'image', bgColor: const Color(0xFF0A6B3E), icon: 'ti-photo', division: MarketingDivision.re, size: '12 MB'),
-    MediaAsset(title: 'Benji App Screenshots', type: 'image', bgColor: const Color(0xFF7C3AED), icon: 'ti-device-mobile', division: MarketingDivision.ben, size: '8 MB'),
-    MediaAsset(title: 'Engineering Showcase Reel', type: 'video', bgColor: const Color(0xFFCC0000), icon: 'ti-video', division: MarketingDivision.eng, size: '180 MB'),
-    MediaAsset(title: 'Brand Guideline PDF', type: 'doc', bgColor: const Color(0xFFB87D00), icon: 'ti-file-text', division: MarketingDivision.re, size: '4 MB'),
-    MediaAsset(title: 'Survey Site Photos', type: 'image', bgColor: const Color(0xFF059669), icon: 'ti-photo', division: MarketingDivision.sur, size: '56 MB'),
-    MediaAsset(title: 'Vendor Testimonial Clips', type: 'video', bgColor: const Color(0xFF7C3AED), icon: 'ti-video', division: MarketingDivision.ben, size: '310 MB'),
-    MediaAsset(title: 'Farm Produce Photos', type: 'image', bgColor: const Color(0xFFDC2626), icon: 'ti-photo', division: MarketingDivision.agr, size: '22 MB'),
+  static const List<MediaAsset> mediaAssets = [
+    MediaAsset(title: 'Bethel City Drone Footage', type: 'video', bgColor: Color(0xFF1F3D7A), icon: 'ti-video', division: MarketingDivision.re, size: '240 MB'),
+    MediaAsset(title: 'Estate Logo Pack', type: 'image', bgColor: Color(0xFF0A6B3E), icon: 'ti-photo', division: MarketingDivision.re, size: '12 MB'),
+    MediaAsset(title: 'Benji App Screenshots', type: 'image', bgColor: Color(0xFF7C3AED), icon: 'ti-device-mobile', division: MarketingDivision.ben, size: '8 MB'),
+    MediaAsset(title: 'Engineering Showcase Reel', type: 'video', bgColor: Color(0xFFCC0000), icon: 'ti-video', division: MarketingDivision.eng, size: '180 MB'),
+    MediaAsset(title: 'Brand Guideline PDF', type: 'doc', bgColor: Color(0xFFB87D00), icon: 'ti-file-text', division: MarketingDivision.re, size: '4 MB'),
+    MediaAsset(title: 'Survey Site Photos', type: 'image', bgColor: Color(0xFF059669), icon: 'ti-photo', division: MarketingDivision.sur, size: '56 MB'),
+    MediaAsset(title: 'Vendor Testimonial Clips', type: 'video', bgColor: Color(0xFF7C3AED), icon: 'ti-video', division: MarketingDivision.ben, size: '310 MB'),
+    MediaAsset(title: 'Farm Produce Photos', type: 'image', bgColor: Color(0xFFDC2626), icon: 'ti-photo', division: MarketingDivision.agr, size: '22 MB'),
   ];
 
   // ─── BROADCASTS ────────────────────────────────────────────────
 
-  static final List<BroadcastRecord> broadcasts = [
-    const BroadcastRecord(date: 'Jul 10', audience: 'All RE leads', sent: 310, delivered: 298, responses: 47, generated: 12),
-    const BroadcastRecord(date: 'Jul 7', audience: 'Benji vendors', sent: 124, delivered: 119, responses: 31, generated: 8),
-    const BroadcastRecord(date: 'Jul 3', audience: 'Dormant leads', sent: 89, delivered: 84, responses: 12, generated: 3),
-    const BroadcastRecord(date: 'Jun 28', audience: 'All RE leads', sent: 275, delivered: 261, responses: 39, generated: 9),
+  static const List<BroadcastRecord> broadcasts = [
+    BroadcastRecord(date: 'Jul 10', audience: 'All RE leads', sent: 310, delivered: 298, responses: 47, generated: 12),
+    BroadcastRecord(date: 'Jul 7', audience: 'Benji vendors', sent: 124, delivered: 119, responses: 31, generated: 8),
+    BroadcastRecord(date: 'Jul 3', audience: 'Dormant leads', sent: 89, delivered: 84, responses: 12, generated: 3),
+    BroadcastRecord(date: 'Jun 28', audience: 'All RE leads', sent: 275, delivered: 261, responses: 39, generated: 9),
   ];
 
   // ─── SUPPORT TICKETS ───────────────────────────────────────────
 
-  static final List<SupportTicket> tickets = [
-    const SupportTicket(id: 'TK-041', customerName: 'Ngozi Kamalu', issue: 'Benji app not activating vendor account', division: MarketingDivision.ben, priority: 'urgent', time: '2h ago', assignedTo: 'Customer Care'),
-    const SupportTicket(id: 'TK-040', customerName: 'Adaeze Chukwu', issue: 'Payment plan clarification request', division: MarketingDivision.re, priority: 'high', time: '4h ago', assignedTo: 'Customer Care'),
-    const SupportTicket(id: 'TK-039', customerName: 'Emeka Eze', issue: 'Site visit rescheduling request', division: MarketingDivision.eng, priority: 'medium', time: 'Yesterday', assignedTo: 'Customer Care'),
-    const SupportTicket(id: 'TK-038', customerName: 'Peter Ani', issue: 'Technical issue with Bomach OS login', division: MarketingDivision.ict, priority: 'high', time: 'Yesterday', assignedTo: 'Tech Dept'),
-    const SupportTicket(id: 'TK-037', customerName: 'Ifeoma Nze', issue: 'Agriculture supply contract query', division: MarketingDivision.agr, priority: 'medium', time: '2 days ago', assignedTo: 'Business Dev'),
+  static const List<SupportTicket> tickets = [
+    SupportTicket(id: 'TK-041', customerName: 'Ngozi Kamalu', issue: 'Benji app not activating vendor account', division: MarketingDivision.ben, priority: 'urgent', time: '2h ago', assignedTo: 'Customer Care'),
+    SupportTicket(id: 'TK-040', customerName: 'Adaeze Chukwu', issue: 'Payment plan clarification request', division: MarketingDivision.re, priority: 'high', time: '4h ago', assignedTo: 'Customer Care'),
+    SupportTicket(id: 'TK-039', customerName: 'Emeka Eze', issue: 'Site visit rescheduling request', division: MarketingDivision.eng, priority: 'medium', time: 'Yesterday', assignedTo: 'Customer Care'),
+    SupportTicket(id: 'TK-038', customerName: 'Peter Ani', issue: 'Technical issue with Bomach OS login', division: MarketingDivision.ict, priority: 'high', time: 'Yesterday', assignedTo: 'Tech Dept'),
+    SupportTicket(id: 'TK-037', customerName: 'Ifeoma Nze', issue: 'Agriculture supply contract query', division: MarketingDivision.agr, priority: 'medium', time: '2 days ago', assignedTo: 'Business Dev'),
   ];
 
   // ─── REALTORS ──────────────────────────────────────────────────
 
-  static final List<RealtorPartner> realtors = [
-    const RealtorPartner(initials: 'CH', bgColor: Color(0xFFDBEAFE), textColor: Color(0xFF1E40AF), name: 'Chukwudi Habitat Agency', since: 'Jan 2025', commission: '3%', phone: '08031234567', referrals: '₦14.2M', status: 'active'),
-    const RealtorPartner(initials: 'NE', bgColor: Color(0xFFD1FAE5), textColor: Color(0xFF065F46), name: 'Nwachukwu Estates Ltd', since: 'Mar 2025', commission: '2.5%', phone: '07041234567', referrals: '₦8.7M', status: 'active'),
-    const RealtorPartner(initials: 'PP', bgColor: Color(0xFFFEF3C7), textColor: Color(0xFF92400E), name: 'Prime Properties Enugu', since: '—', commission: '3%', phone: '—', referrals: '—', status: 'pending'),
-    const RealtorPartner(initials: 'GH', bgColor: Color(0xFFEDE9FE), textColor: Color(0xFF5B21B6), name: 'Greater Horizons Realty', since: 'Jun 2025', commission: '2%', phone: '08021234567', referrals: '₦3.1M', status: 'active'),
+  static const List<RealtorPartner> realtors = [
+    RealtorPartner(initials: 'CH', bgColor: Color(0xFFDBEAFE), textColor: Color(0xFF1E40AF), name: 'Chukwudi Habitat Agency', since: 'Jan 2025', commission: '3%', phone: '08031234567', referrals: '₦14.2M', status: 'active'),
+    RealtorPartner(initials: 'NE', bgColor: Color(0xFFD1FAE5), textColor: Color(0xFF065F46), name: 'Nwachukwu Estates Ltd', since: 'Mar 2025', commission: '2.5%', phone: '07041234567', referrals: '₦8.7M', status: 'active'),
+    RealtorPartner(initials: 'PP', bgColor: Color(0xFFFEF3C7), textColor: Color(0xFF92400E), name: 'Prime Properties Enugu', since: '—', commission: '3%', phone: '—', referrals: '—', status: 'pending'),
+    RealtorPartner(initials: 'GH', bgColor: Color(0xFFEDE9FE), textColor: Color(0xFF5B21B6), name: 'Greater Horizons Realty', since: 'Jun 2025', commission: '2%', phone: '08021234567', referrals: '₦3.1M', status: 'active'),
   ];
 
   // ─── INFLUENCERS ───────────────────────────────────────────────
 
-  static final List<InfluencerPartner> influencers = [
-    const InfluencerPartner(initials: 'AO', bgColor: Color(0xFF7C3AED), name: 'Adaora Okafor', handle: '@adaora_enugu', platform: 'Instagram + TikTok', followers: '48K', engagement: '6.2%', niche: 'Real Estate', rate: '₦180K/post', status: 'active'),
-    const InfluencerPartner(initials: 'KN', bgColor: Color(0xFF059669), name: 'Kelechi Nwosu', handle: '@kelechi_foodie', platform: 'TikTok + Instagram', followers: '112K', engagement: '8.9%', niche: 'Food / Benji', rate: '₦350K/post', status: 'negotiation'),
-    const InfluencerPartner(initials: 'CI', bgColor: Color(0xFFCC0000), name: 'Chisom Igwe', handle: '@chisom_builds', platform: 'YouTube + Instagram', followers: '29K', engagement: '4.1%', niche: 'Engineering', rate: '₦120K/post', status: 'pending'),
-    const InfluencerPartner(initials: 'TM', bgColor: Color(0xFFD97706), name: 'Tochi Mbah', handle: '@tochi_enugu', platform: 'Instagram', followers: '67K', engagement: '5.8%', niche: 'Lifestyle', rate: '₦220K/post', status: 'active'),
+  static const List<InfluencerPartner> influencers = [
+    InfluencerPartner(initials: 'AO', bgColor: Color(0xFF7C3AED), name: 'Adaora Okafor', handle: '@adaora_enugu', platform: 'Instagram + TikTok', followers: '48K', engagement: '6.2%', niche: 'Real Estate', rate: '₦180K/post', status: 'active'),
+    InfluencerPartner(initials: 'KN', bgColor: Color(0xFF059669), name: 'Kelechi Nwosu', handle: '@kelechi_foodie', platform: 'TikTok + Instagram', followers: '112K', engagement: '8.9%', niche: 'Food / Benji', rate: '₦350K/post', status: 'negotiation'),
+    InfluencerPartner(initials: 'CI', bgColor: Color(0xFFCC0000), name: 'Chisom Igwe', handle: '@chisom_builds', platform: 'YouTube + Instagram', followers: '29K', engagement: '4.1%', niche: 'Engineering', rate: '₦120K/post', status: 'pending'),
+    InfluencerPartner(initials: 'TM', bgColor: Color(0xFFD97706), name: 'Tochi Mbah', handle: '@tochi_enugu', platform: 'Instagram', followers: '67K', engagement: '5.8%', niche: 'Lifestyle', rate: '₦220K/post', status: 'active'),
   ];
 
   // ─── KPI PERIODS ───────────────────────────────────────────────

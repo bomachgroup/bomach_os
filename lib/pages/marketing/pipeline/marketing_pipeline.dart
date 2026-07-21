@@ -225,7 +225,7 @@ class MarketingPipeline extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.person_outline, size: 14, color: AppColors.textMuted),
+              const Icon(Icons.person_outline, size: 14, color: AppColors.textMuted),
               const SizedBox(width: 4),
               Text(lead.assignedTo, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
               const Spacer(),

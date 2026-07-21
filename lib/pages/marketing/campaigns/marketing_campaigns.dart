@@ -219,15 +219,15 @@ class MarketingCampaigns extends StatelessWidget {
   }
 
   Widget _buildRequestsTab(MarketingModuleController c) {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.inbox_outlined, size: 48, color: AppColors.textMuted),
-          const SizedBox(height: 12),
-          const Text('No pending campaign requests', style: TextStyle(color: AppColors.textMuted)),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 12),
+          Text('No pending campaign requests', style: TextStyle(color: AppColors.textMuted)),
+          SizedBox(height: 8),
+          Text(
             'Campaign requests from team members will appear here for approval',
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             textAlign: TextAlign.center,

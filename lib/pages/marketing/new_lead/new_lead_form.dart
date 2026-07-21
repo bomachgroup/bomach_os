@@ -149,7 +149,7 @@ class _NewLeadFormState extends State<NewLeadForm> {
 
   Widget _buildDivisionDropdown() {
     return DropdownButtonFormField<MarketingDivision>(
-      value: _selectedDivision,
+      initialValue: _selectedDivision,
       decoration: InputDecoration(
         labelText: 'Division',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -170,7 +170,7 @@ class _NewLeadFormState extends State<NewLeadForm> {
 
   Widget _buildStageDropdown() {
     return DropdownButtonFormField<LeadStage>(
-      value: _selectedStage,
+      initialValue: _selectedStage,
       decoration: InputDecoration(
         labelText: 'Stage',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),

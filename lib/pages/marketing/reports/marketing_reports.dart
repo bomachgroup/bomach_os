@@ -220,15 +220,15 @@ class MarketingReports extends StatelessWidget {
   }
 
   Widget _buildAuditLog(MarketingModuleController c) {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.history, size: 48, color: AppColors.textMuted),
-          const SizedBox(height: 12),
-          const Text('Audit Log', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 12),
+          Text('Audit Log', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          SizedBox(height: 8),
+          Text(
             'All team actions and system events will be logged here',
             style: TextStyle(fontSize: 13, color: AppColors.textMuted),
           ),
