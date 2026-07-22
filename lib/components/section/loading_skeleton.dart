@@ -191,4 +191,45 @@ class LoadingSkeleton {
       ],
     );
   }
+
+  /// Table skeleton — mimics a DataTable with heading + N rows.
+  static Widget table({int rows = 5}) {
+    return Column(
+      children: [
+        for (int i = 0; i < rows; i++)
+          Padding(
+            padding: EdgeInsets.only(bottom: i == rows - 1 ? 0 : 12),
+            child: const AppCard(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              elevation: AppCardElevation.none,
+              child: Row(
+                children: [
+                  SkeletonBox(width: 120, height: 14),
+                  SizedBox(width: 24),
+                  SkeletonBox(width: 80, height: 14),
+                  SizedBox(width: 24),
+                  SkeletonBox(width: 60, height: 14),
+                  SizedBox(width: 24),
+                  SkeletonBox(
+                    width: 64,
+                    height: 22,
+                    borderRadius: AppRadii.brPill,
+                  ),
+                  SizedBox(width: 24),
+                  SkeletonBox(
+                    width: 56,
+                    height: 22,
+                    borderRadius: AppRadii.brPill,
+                  ),
+                  Spacer(),
+                  SkeletonBox(width: 24, height: 24),
+                  SizedBox(width: 8),
+                  SkeletonBox(width: 24, height: 24),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 }
