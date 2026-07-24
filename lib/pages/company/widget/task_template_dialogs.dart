@@ -31,11 +31,11 @@ class CreateEditTaskTemplateDialog extends StatefulWidget {
 class _CreateEditTaskTemplateDialogState
     extends State<CreateEditTaskTemplateDialog> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameCtrl;
+  late final TextEditingController _titleCtrl;
   late final TextEditingController _descCtrl;
-  late final TextEditingController _durationCtrl;
-  late String _frequency;
+  late final TextEditingController _minutesCtrl;
   late String _priority;
+  bool _isActive = true;
 
   bool get isEditing => widget.template != null;
 
@@ -43,19 +43,19 @@ class _CreateEditTaskTemplateDialogState
   void initState() {
     super.initState();
     final t = widget.template;
-    _nameCtrl = TextEditingController(text: t?.taskName ?? '');
+    _titleCtrl = TextEditingController(text: t?.title ?? '');
     _descCtrl = TextEditingController(text: t?.description ?? '');
-    _durationCtrl =
-        TextEditingController(text: (t?.estimatedDuration ?? 30).toString());
-    _frequency = t?.frequency ?? 'weekly';
-    _priority = t?.priority ?? 'medium';
+    _minutesCtrl = TextEditingController(
+        text: (t?.estimatedMinutes ?? 30).toString());
+    _priority = t?.defaultPriority ?? 'medium';
+    _isActive = t?.isActive ?? true;
   }
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
+    _titleCtrl.dispose();
     _descCtrl.dispose();
-    _durationCtrl.dispose();
+    _minutesCtrl.dispose();
     super.dispose();
   }
 
@@ -81,44 +81,28 @@ class _CreateEditTaskTemplateDialogState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MyTextFormField(
-                title: 'Task Name',
+                title: 'Title',
                 hintText: 'e.g. Conduct site inspection',
-                controller: _nameCtrl,
+                controller: _titleCtrl,
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 16),
               MyTextFormField(
                 title: 'Description (optional)',
-                hintText: 'Describe the task in detail',
+                hintText: 'Describe the task template in detail',
                 controller: _descCtrl,
                 maxLines: 3,
               ),
               const SizedBox(height: 16),
               MyTextFormField(
-                title: 'Estimated Duration (minutes)',
+                title: 'Estimated Minutes',
                 hintText: '30',
-                controller: _durationCtrl,
+                controller: _minutesCtrl,
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),
-              Text('Frequency',
-                  style: AppTextStyles.label.copyWith(color: AppColors.textPrimary)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                initialValue: _frequency,
-                decoration: _defaultDropdownDecoration,
-                items: RoleTaskTemplate.frequencyOptions
-                    .map((f) => DropdownMenuItem(
-                        value: f,
-                        child: Text(f[0].toUpperCase() + f.substring(1))))
-                    .toList(),
-                onChanged: (v) {
-                  if (v != null) setState(() => _frequency = v);
-                },
-              ),
-              const SizedBox(height: 16),
-              Text('Priority',
+              Text('Default Priority',
                   style: AppTextStyles.label.copyWith(color: AppColors.textPrimary)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
@@ -132,6 +116,20 @@ class _CreateEditTaskTemplateDialogState
                 onChanged: (v) {
                   if (v != null) setState(() => _priority = v);
                 },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Text('Active',
+                      style: AppTextStyles.label
+                          .copyWith(color: AppColors.textPrimary)),
+                  const SizedBox(width: 12),
+                  Switch(
+                    activeThumbColor: AppColors.primary,
+                    value: _isActive,
+                    onChanged: (v) => setState(() => _isActive = v),
+                  ),
+                ],
               ),
             ],
           ),
@@ -158,25 +156,25 @@ class _CreateEditTaskTemplateDialogState
     if (!_formKey.currentState!.validate()) return;
     final navigator = Navigator.of(context);
 
-    final duration = int.tryParse(_durationCtrl.text) ?? 30;
+    final minutes = int.tryParse(_minutesCtrl.text) ?? 30;
     final success = isEditing
         ? await widget.ctrl.updateTemplate(
             context,
             id: widget.template!.id!,
-            taskName: _nameCtrl.text.trim(),
+            title: _titleCtrl.text.trim(),
             description: _descCtrl.text.trim(),
-            estimatedDuration: duration,
-            frequency: _frequency,
-            priority: _priority,
+            estimatedMinutes: minutes,
+            defaultPriority: _priority,
+            isActive: _isActive,
           )
         : await widget.ctrl.createTemplate(
             context,
             roleId: widget.presetRoleId ?? 0,
-            taskName: _nameCtrl.text.trim(),
+            title: _titleCtrl.text.trim(),
             description: _descCtrl.text.trim(),
-            estimatedDuration: duration,
-            frequency: _frequency,
-            priority: _priority,
+            estimatedMinutes: minutes,
+            defaultPriority: _priority,
+            isActive: _isActive,
           );
 
     if (success && context.mounted) navigator.pop();

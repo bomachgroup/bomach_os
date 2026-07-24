@@ -1,13 +1,11 @@
 class RoleTaskTemplate {
   final int? id;
   final int roleId;
-  final String roleName;
-  final String taskName;
-  final String? description;
-  final int estimatedDuration; // minutes
-  final String frequency; // once | daily | weekly | monthly | quarterly
-  final String priority; // low | medium | high | critical
-  final String? category;
+  final String title;
+  final String description;
+  final int sequence;
+  final String defaultPriority;
+  final int? estimatedMinutes;
   final bool isActive;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -15,13 +13,11 @@ class RoleTaskTemplate {
   const RoleTaskTemplate({
     this.id,
     required this.roleId,
-    this.roleName = '',
-    required this.taskName,
-    this.description,
-    this.estimatedDuration = 30,
-    this.frequency = 'weekly',
-    this.priority = 'medium',
-    this.category,
+    required this.title,
+    this.description = '',
+    this.sequence = 1,
+    this.defaultPriority = 'medium',
+    this.estimatedMinutes = 30,
     this.isActive = true,
     this.createdAt,
     this.updatedAt,
@@ -35,14 +31,17 @@ class RoleTaskTemplate {
       roleId: json['role_id'] is int
           ? json['role_id']
           : int.tryParse(json['role_id']?.toString() ?? '0') ?? 0,
-      roleName: json['role_name'] ?? '',
-      taskName: json['task_name'] ?? '',
-      description: json['description'],
-      estimatedDuration:
-          int.tryParse(json['estimated_duration']?.toString() ?? '30') ?? 30,
-      frequency: json['frequency'] ?? 'weekly',
-      priority: json['priority'] ?? 'medium',
-      category: json['category'],
+      title: json['title'] ?? json['task_name'] ?? '',
+      description: json['description'] ?? '',
+      sequence: json['sequence'] is int
+          ? json['sequence']
+          : int.tryParse(json['sequence']?.toString() ?? '1') ?? 1,
+      defaultPriority: json['default_priority'] ?? json['priority'] ?? 'medium',
+      estimatedMinutes: json['estimated_minutes'] is int
+          ? json['estimated_minutes']
+          : int.tryParse(json['estimated_minutes']?.toString() ??
+              json['estimated_duration']?.toString() ??
+              '30'),
       isActive: json['is_active'] ?? true,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
@@ -53,54 +52,27 @@ class RoleTaskTemplate {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toCreateJson() {
     return {
-      'role_id': roleId,
-      'task_name': taskName,
-      'description': description,
-      'estimated_duration': estimatedDuration,
-      'frequency': frequency,
-      'priority': priority,
-      'category': category,
+      'title': title,
+      if (description.isNotEmpty) 'description': description,
+      'sequence': sequence,
+      'default_priority': defaultPriority,
+      if (estimatedMinutes != null) 'estimated_minutes': estimatedMinutes,
       'is_active': isActive,
     };
   }
 
-  RoleTaskTemplate copyWith({
-    int? id,
-    int? roleId,
-    String? roleName,
-    String? taskName,
-    String? description,
-    int? estimatedDuration,
-    String? frequency,
-    String? priority,
-    String? category,
-    bool? isActive,
-  }) {
-    return RoleTaskTemplate(
-      id: id ?? this.id,
-      roleId: roleId ?? this.roleId,
-      roleName: roleName ?? this.roleName,
-      taskName: taskName ?? this.taskName,
-      description: description ?? this.description,
-      estimatedDuration: estimatedDuration ?? this.estimatedDuration,
-      frequency: frequency ?? this.frequency,
-      priority: priority ?? this.priority,
-      category: category ?? this.category,
-      isActive: isActive ?? this.isActive,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-    );
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      'title': title,
+      'description': description,
+      'sequence': sequence,
+      'default_priority': defaultPriority,
+      'estimated_minutes': estimatedMinutes,
+      'is_active': isActive,
+    };
   }
-
-  static const List<String> frequencyOptions = [
-    'once',
-    'daily',
-    'weekly',
-    'monthly',
-    'quarterly',
-  ];
 
   static const List<String> priorityOptions = [
     'low',

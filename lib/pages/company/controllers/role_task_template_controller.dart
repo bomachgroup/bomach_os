@@ -49,27 +49,28 @@ class RoleTaskTemplateController extends GetxController {
   Future<bool> createTemplate(
     BuildContext context, {
     required int roleId,
-    required String taskName,
+    required String title,
     String? description,
-    int estimatedDuration = 30,
-    String frequency = 'weekly',
-    String priority = 'medium',
-    String? category,
+    int? sequence,
+    String defaultPriority = 'medium',
+    int? estimatedMinutes,
+    bool isActive = true,
   }) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return false;
 
+      final seq = sequence ?? (templates.length + 1);
+
       final payload = <String, dynamic>{
-        'role_id': roleId,
-        'task_name': taskName,
-        'estimated_duration': estimatedDuration,
-        'frequency': frequency,
-        'priority': priority,
+        'title': title,
         if (description != null && description.isNotEmpty)
           'description': description,
-        if (category != null && category.isNotEmpty) 'category': category,
+        'sequence': seq,
+        'default_priority': defaultPriority,
+        if (estimatedMinutes != null) 'estimated_minutes': estimatedMinutes,
+        'is_active': isActive,
       };
 
       await _service.createTaskTemplate(token, roleId, payload);
@@ -99,12 +100,12 @@ class RoleTaskTemplateController extends GetxController {
   Future<bool> updateTemplate(
     BuildContext context, {
     required int id,
-    String? taskName,
+    String? title,
     String? description,
-    int? estimatedDuration,
-    String? frequency,
-    String? priority,
-    String? category,
+    int? sequence,
+    String? defaultPriority,
+    int? estimatedMinutes,
+    bool? isActive,
   }) async {
     try {
       isSaving.value = true;
@@ -112,13 +113,13 @@ class RoleTaskTemplateController extends GetxController {
       if (token == null) return false;
 
       final payload = <String, dynamic>{};
-      if (taskName != null) payload['task_name'] = taskName;
+      if (title != null) payload['title'] = title;
       if (description != null) payload['description'] = description;
-      if (estimatedDuration != null)
-        payload['estimated_duration'] = estimatedDuration;
-      if (frequency != null) payload['frequency'] = frequency;
-      if (priority != null) payload['priority'] = priority;
-      if (category != null) payload['category'] = category;
+      if (sequence != null) payload['sequence'] = sequence;
+      if (defaultPriority != null) payload['default_priority'] = defaultPriority;
+      if (estimatedMinutes != null)
+        payload['estimated_minutes'] = estimatedMinutes;
+      if (isActive != null) payload['is_active'] = isActive;
 
       final rId = scopedRoleId;
       if (rId == null) return false;
