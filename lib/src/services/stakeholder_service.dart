@@ -20,7 +20,12 @@ class StakeholderService {
       final res = await _dio.get('/api/v1/roles/$roleId/stakeholders', options: _authOptions(token));
       final data = res.data; final List items = data is Map ? (data['data'] ?? data['items'] ?? []) : data;
       return items.map((j) => RoleStakeholder.fromJson(j as Map<String, dynamic>)).toList();
-    } catch (e) { throw _handleError(e); }
+    } catch (e) {
+      if (e is DioException && e.response?.statusCode == 404) {
+        return [];
+      }
+      throw _handleError(e);
+    }
   }
 
   Future<RoleStakeholder> createStakeholder(String token, Map<String, dynamic> payload) async {

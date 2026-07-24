@@ -19,103 +19,105 @@ class DecisionMatrixTab extends StatelessWidget {
       tag: 'decision_matrix_$roleId',
       init: DecisionMatrixController()..fetchEntries(roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        final entries = ctrl.entries;
+          final entries = ctrl.entries;
 
-        if (entries.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(40),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Iconsax.category,
-                      size: 48, color: AppColors.textMuted),
-                  const SizedBox(height: 16),
-                  Text('No decision matrix entries defined.',
-                      style: AppTextStyles.bodyMd
-                          .copyWith(color: AppColors.textMuted)),
-                  const SizedBox(height: 16),
-                  MyElevatedButton(
-                    height: 40,
-                    child: 'Add Decision Entry',
-                    icon: const Icon(Iconsax.add,
-                        size: 16, color: AppColors.textOnPrimary),
-                    onTap: () => showDialog(
-                      context: context,
-                      builder: (_) => CreateEditDecisionMatrixEntryDialog(
-                        ctrl: ctrl,
-                        roleId: roleId,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Table header
-            Container(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-              child: const Row(
-                children: [
-                  Expanded(
-                      flex: 3,
-                      child: Text('Decision', style: AppTextStyles.label)),
-                  Expanded(
-                      flex: 2,
-                      child: Text('Authority', style: AppTextStyles.label)),
-                  Expanded(
-                      flex: 2,
-                      child: Text('Approval', style: AppTextStyles.label)),
-                  Expanded(
-                      flex: 2,
-                      child: Text('Escalation', style: AppTextStyles.label)),
-                  SizedBox(width: 40),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: entries.length + 1,
-                separatorBuilder: (_, __) =>
-                    const Divider(height: 1, color: AppColors.borderSubtle),
-                itemBuilder: (context, index) {
-                  if (index == entries.length) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
-                        child: TextButton.icon(
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (_) => CreateEditDecisionMatrixEntryDialog(
-                              ctrl: ctrl,
-                              roleId: roleId,
-                            ),
-                          ),
-                          icon: const Icon(Icons.add, size: 16),
-                          label: const Text('Add Decision Entry'),
+          if (entries.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Iconsax.category,
+                        size: 48, color: AppColors.textMuted),
+                    const SizedBox(height: 16),
+                    Text('No decision matrix entries defined.',
+                        style: AppTextStyles.bodyMd
+                            .copyWith(color: AppColors.textMuted)),
+                    const SizedBox(height: 16),
+                    MyElevatedButton(
+                      height: 40,
+                      child: 'Add Decision Entry',
+                      icon: const Icon(Iconsax.add,
+                          size: 16, color: AppColors.textOnPrimary),
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (_) => CreateEditDecisionMatrixEntryDialog(
+                          ctrl: ctrl,
+                          roleId: roleId,
                         ),
                       ),
-                    );
-                  }
-
-                  final e = entries[index];
-                  return _buildEntryRow(context, ctrl, e);
-                },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        );
+            );
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Table header
+              Container(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+                child: const Row(
+                  children: [
+                    Expanded(
+                        flex: 3,
+                        child: Text('Decision', style: AppTextStyles.label)),
+                    Expanded(
+                        flex: 2,
+                        child: Text('Authority', style: AppTextStyles.label)),
+                    Expanded(
+                        flex: 2,
+                        child: Text('Approval', style: AppTextStyles.label)),
+                    Expanded(
+                        flex: 2,
+                        child: Text('Escalation', style: AppTextStyles.label)),
+                    SizedBox(width: 40),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.borderSubtle),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  itemCount: entries.length + 1,
+                  separatorBuilder: (_, __) =>
+                      const Divider(height: 1, color: AppColors.borderSubtle),
+                  itemBuilder: (context, index) {
+                    if (index == entries.length) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: TextButton.icon(
+                            onPressed: () => showDialog(
+                              context: context,
+                              builder: (_) => CreateEditDecisionMatrixEntryDialog(
+                                ctrl: ctrl,
+                                roleId: roleId,
+                              ),
+                            ),
+                            icon: const Icon(Icons.add, size: 16),
+                            label: const Text('Add Decision Entry'),
+                          ),
+                        ),
+                      );
+                    }
+
+                    final e = entries[index];
+                    return _buildEntryRow(context, ctrl, e);
+                  },
+                ),
+              ),
+            ],
+          );
+        });
       },
     );
   }

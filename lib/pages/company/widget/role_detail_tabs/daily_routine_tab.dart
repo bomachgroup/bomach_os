@@ -21,9 +21,10 @@ class DailyRoutineTab extends StatelessWidget {
         ..scopedRoleId = roleId
         ..fetchData(roleId: roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
         if (ctrl.employees.isEmpty) {
           return Center(
@@ -164,7 +165,8 @@ class DailyRoutineTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 }

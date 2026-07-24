@@ -24,9 +24,10 @@ class CareerPathTab extends StatelessWidget {
       tag: 'career_${role.id}',
       init: CareerPathController()..fetchSteps(role.id),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
         if (ctrl.steps.isEmpty) {
           return Center(
@@ -79,9 +80,10 @@ class CareerPathTab extends StatelessWidget {
             return _buildStepCard(context, ctrl, step, rolesCtrl);
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 
   void _openAddDialog(
       BuildContext context, CareerPathController ctrl, RolesController rolesCtrl) {

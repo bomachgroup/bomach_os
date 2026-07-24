@@ -19,9 +19,10 @@ class RiskProfileTab extends StatelessWidget {
       tag: 'risk_$roleId',
       init: RoleRiskController()..fetchRiskProfiles(roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
         final profiles = ctrl.riskProfiles;
 
@@ -175,9 +176,10 @@ class RiskProfileTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 
   Color _priorityColor(String priority) {
     switch (priority.toLowerCase()) {

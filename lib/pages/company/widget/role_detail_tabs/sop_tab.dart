@@ -21,9 +21,10 @@ class SopTab extends StatelessWidget {
         ..scopedRoleId = roleId
         ..fetchSops(roleId: roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
         if (ctrl.sops.isEmpty) {
           return Center(
@@ -208,7 +209,8 @@ class SopTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 }

@@ -32,6 +32,9 @@ class DecisionMatrixService {
       final List items = data is Map ? (data['data'] ?? data['items'] ?? []) : data;
       return items.map((j) => DecisionMatrixEntry.fromJson(j as Map<String, dynamic>)).toList();
     } catch (e) {
+      if (e is DioException && e.response?.statusCode == 404) {
+        return [];
+      }
       throw _handleError(e);
     }
   }

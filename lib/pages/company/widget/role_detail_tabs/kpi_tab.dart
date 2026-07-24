@@ -28,6 +28,10 @@ class KpiTab extends StatelessWidget {
     return GetBuilder<RoleKpiController>(
       tag: tag,
       builder: (ctrl) {
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
         final roleKpis = ctrl.kpis.where((k) => k.roleId == roleId).toList();
 
         if (roleKpis.isEmpty) {
@@ -112,22 +116,13 @@ class KpiTab extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (!k.isActive)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text('Inactive',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey)),
-                    ),
                 ],
               ),
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 }

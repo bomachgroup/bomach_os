@@ -18,38 +18,40 @@ class PerformanceAnalyticsTab extends StatelessWidget {
         ..scopedRoleId = roleId
         ..fetchAnalytics(roleId: roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (ctrl.employees.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(40),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Iconsax.chart, size: 48, color: AppColors.textMuted),
-                  const SizedBox(height: 16),
-                  Text('No employees assigned to this role.',
-                      style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted)),
-                ],
+          if (ctrl.employees.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Iconsax.chart, size: 48, color: AppColors.textMuted),
+                    const SizedBox(height: 16),
+                    Text('No employees assigned to this role.',
+                        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted)),
+                  ],
+                ),
               ),
-            ),
-          );
-        }
+            );
+          }
 
-        return ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            _buildSummaryRow(ctrl),
-            const SizedBox(height: 24),
-            Text('Individual Performance',
-                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            ...ctrl.perfData.map((pd) => _buildEmployeeCard(pd)),
-          ],
-        );
+          return ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              _buildSummaryRow(ctrl),
+              const SizedBox(height: 24),
+              Text('Individual Performance',
+                  style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 12),
+              ...ctrl.perfData.map((pd) => _buildEmployeeCard(pd)),
+            ],
+          );
+        });
       },
     );
   }

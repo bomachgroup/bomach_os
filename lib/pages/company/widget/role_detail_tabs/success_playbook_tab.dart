@@ -21,9 +21,10 @@ class SuccessPlaybookTab extends StatelessWidget {
         ..scopedRoleId = roleId
         ..fetchPlaybooks(roleId: roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
         if (ctrl.playbooks.isEmpty) {
           return Center(
@@ -217,7 +218,8 @@ class SuccessPlaybookTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 }

@@ -18,7 +18,8 @@ class StakeholderTab extends StatelessWidget {
       tag: 'stake_$roleId',
       init: StakeholderController()..fetchStakeholders(roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
+        return Obx(() {
+          if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
         final items = ctrl.stakeholders;
 
         if (items.isEmpty) {
@@ -93,9 +94,10 @@ class StakeholderTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 
   void _confirmDelete(BuildContext context, StakeholderController ctrl, dynamic s) {
     showDialog(context: context, builder: (ctx) => AlertDialog(

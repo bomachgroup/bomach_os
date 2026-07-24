@@ -21,9 +21,10 @@ class ReportsTab extends StatelessWidget {
         ..scopedRoleId = roleId
         ..fetchReports(roleId: roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
         if (ctrl.reports.isEmpty) {
           return Center(
@@ -197,7 +198,8 @@ class ReportsTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 }

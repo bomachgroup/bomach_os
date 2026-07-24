@@ -20,9 +20,10 @@ class TrainingTab extends StatelessWidget {
         ..scopedRoleId = roleId
         ..fetchPrograms(roleId: roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
         if (ctrl.programs.isEmpty) {
           return Center(
@@ -155,7 +156,8 @@ class TrainingTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 }

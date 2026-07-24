@@ -19,7 +19,8 @@ class KnowledgeBaseTab extends StatelessWidget {
       tag: 'kb_$roleId',
       init: RoleKnowledgeBaseController()..fetchEntries(roleId: roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
+        return Obx(() {
+          if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
         final entries = ctrl.entries;
 
         return Column(children: [
@@ -104,9 +105,10 @@ class KnowledgeBaseTab extends StatelessWidget {
                   ),
           ),
         ]);
-      },
-    );
-  }
+      });
+    },
+  );
+}
 
   void _confirmDelete(BuildContext context, RoleKnowledgeBaseController ctrl, dynamic e) {
     showDialog(context: context, builder: (ctx) => AlertDialog(

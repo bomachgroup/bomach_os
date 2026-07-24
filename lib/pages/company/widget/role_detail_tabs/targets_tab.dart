@@ -19,9 +19,10 @@ class TargetsTab extends StatelessWidget {
         ..scopedRoleId = roleId
         ..fetchTargets(roleId: roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
         if (ctrl.targets.isEmpty) {
           return Center(
@@ -136,7 +137,8 @@ class TargetsTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 }

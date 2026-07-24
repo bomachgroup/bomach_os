@@ -18,7 +18,8 @@ class SuccessionPlanTab extends StatelessWidget {
       tag: 'succ_$roleId',
       init: SuccessionPlanController()..fetchPlans(roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
+        return Obx(() {
+          if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
         final plans = ctrl.plans;
 
         if (plans.isEmpty) {
@@ -92,9 +93,10 @@ class SuccessionPlanTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 
   Color _readinessColor(String r) {
     switch (r) { case 'ready_now': return AppColors.success; case 'ready_1yr': return AppColors.warning; default: return AppColors.textMuted; }

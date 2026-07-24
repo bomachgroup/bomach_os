@@ -8,7 +8,7 @@ class AuthorityLimitsTab extends StatelessWidget {
   final int roleId;
   final List<AuthorityLimit> limits;
 
-  const AuthorityLimitsTab({super.key, required this.roleId, required this.limits});
+  const AuthorityLimitsTab({super.key, required this.roleId, this.limits = const []});
 
   @override
   Widget build(BuildContext context) {

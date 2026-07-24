@@ -21,9 +21,10 @@ class TaskTemplateTab extends StatelessWidget {
         ..scopedRoleId = roleId
         ..fetchTemplates(roleId: roleId),
       builder: (ctrl) {
-        if (ctrl.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return Obx(() {
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
         if (ctrl.templates.isEmpty) {
           return Center(
@@ -187,7 +188,8 @@ class TaskTemplateTab extends StatelessWidget {
             );
           },
         );
-      },
-    );
-  }
+      });
+    },
+  );
+}
 }
