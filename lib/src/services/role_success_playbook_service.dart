@@ -49,13 +49,13 @@ class RoleSuccessPlaybookService {
 
       final data = response.data;
       final List<dynamic> items =
-          (data is Map && data.containsKey('items')) ? data['items'] : data;
+          (data is Map && data.containsKey('items')) ? data['items'] : (data is List ? data : []);
       final int count = (data is Map && data.containsKey('count'))
           ? data['count']
           : items.length;
 
       return (
-        list: items.map((json) => RoleSuccessPlaybook.fromJson(json)).toList(),
+        list: items.map((json) => RoleSuccessPlaybook.fromJson(json as Map<String, dynamic>)).toList(),
         count: count,
       );
     } catch (e) {
@@ -83,12 +83,12 @@ class RoleSuccessPlaybookService {
   Future<RoleSuccessPlaybook> updatePlaybook(
     String token,
     int roleId,
-    int playbookId,
+    int itemId,
     Map<String, dynamic> payload,
   ) async {
     try {
-      final response = await _dio.put(
-        '/api/v1/roles/$roleId/success-playbook/$playbookId',
+      final response = await _dio.patch(
+        '/api/v1/roles/$roleId/success-playbook/$itemId',
         data: payload,
         options: _authOptions(token),
       );
@@ -98,10 +98,10 @@ class RoleSuccessPlaybookService {
     }
   }
 
-  Future<void> deletePlaybook(String token, int roleId, int playbookId) async {
+  Future<void> deletePlaybook(String token, int roleId, int itemId) async {
     try {
       await _dio.delete(
-        '/api/v1/roles/$roleId/success-playbook/$playbookId',
+        '/api/v1/roles/$roleId/success-playbook/$itemId',
         options: _authOptions(token),
       );
     } catch (e) {

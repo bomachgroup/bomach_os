@@ -50,28 +50,32 @@ class RoleSuccessPlaybookController extends GetxController {
     BuildContext context, {
     required int roleId,
     required String title,
+    required String kind,
     String? description,
-    List<PlaybookPhase> phases = const [],
-    List<String> metrics = const [],
+    int? sequence,
+    bool isActive = true,
   }) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return false;
 
+      final seq = sequence ?? (playbooks.length + 1);
+
       final payload = <String, dynamic>{
-        'role_id': roleId,
         'title': title,
-        if (description != null && description.isNotEmpty) 'description': description,
-        'phases': phases.map((p) => p.toJson()).toList(),
-        'metrics': metrics,
+        'kind': kind,
+        if (description != null && description.isNotEmpty)
+          'description': description,
+        'sequence': seq,
+        'is_active': isActive,
       };
 
       await _service.createPlaybook(token, roleId, payload);
       await fetchPlaybooks(roleId: scopedRoleId);
 
       if (context.mounted) {
-        Get.snackbar('Success', 'Success playbook created',
+        Get.snackbar('Success', 'Playbook item added',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green.shade50,
             colorText: Colors.green.shade800);
@@ -80,7 +84,7 @@ class RoleSuccessPlaybookController extends GetxController {
     } catch (e) {
       log('RoleSuccessPlaybookController.createPlaybook error: $e');
       if (context.mounted) {
-        Get.snackbar('Error', 'Failed to create success playbook: $e',
+        Get.snackbar('Error', 'Failed to create playbook item: $e',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,
             colorText: Colors.red.shade800);
@@ -95,9 +99,10 @@ class RoleSuccessPlaybookController extends GetxController {
     BuildContext context, {
     required int id,
     String? title,
+    String? kind,
     String? description,
-    List<PlaybookPhase>? phases,
-    List<String>? metrics,
+    int? sequence,
+    bool? isActive,
   }) async {
     try {
       isSaving.value = true;
@@ -106,9 +111,10 @@ class RoleSuccessPlaybookController extends GetxController {
 
       final payload = <String, dynamic>{};
       if (title != null) payload['title'] = title;
+      if (kind != null) payload['kind'] = kind;
       if (description != null) payload['description'] = description;
-      if (phases != null) payload['phases'] = phases.map((p) => p.toJson()).toList();
-      if (metrics != null) payload['metrics'] = metrics;
+      if (sequence != null) payload['sequence'] = sequence;
+      if (isActive != null) payload['is_active'] = isActive;
 
       final rId = scopedRoleId;
       if (rId == null) return false;
@@ -116,7 +122,7 @@ class RoleSuccessPlaybookController extends GetxController {
       await fetchPlaybooks(roleId: scopedRoleId);
 
       if (context.mounted) {
-        Get.snackbar('Success', 'Success playbook updated',
+        Get.snackbar('Success', 'Playbook item updated',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green.shade50,
             colorText: Colors.green.shade800);
@@ -125,7 +131,7 @@ class RoleSuccessPlaybookController extends GetxController {
     } catch (e) {
       log('RoleSuccessPlaybookController.updatePlaybook error: $e');
       if (context.mounted) {
-        Get.snackbar('Error', 'Failed to update success playbook: $e',
+        Get.snackbar('Error', 'Failed to update playbook item: $e',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,
             colorText: Colors.red.shade800);
@@ -147,7 +153,7 @@ class RoleSuccessPlaybookController extends GetxController {
       await fetchPlaybooks(roleId: scopedRoleId);
 
       if (context.mounted) {
-        Get.snackbar('Success', 'Success playbook deleted',
+        Get.snackbar('Success', 'Playbook item deleted',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green.shade50,
             colorText: Colors.green.shade800);
@@ -156,7 +162,7 @@ class RoleSuccessPlaybookController extends GetxController {
     } catch (e) {
       log('RoleSuccessPlaybookController.deletePlaybook error: $e');
       if (context.mounted) {
-        Get.snackbar('Error', 'Failed to delete success playbook: $e',
+        Get.snackbar('Error', 'Failed to delete playbook item: $e',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,
             colorText: Colors.red.shade800);
