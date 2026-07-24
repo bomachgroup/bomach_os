@@ -15,14 +15,9 @@ class DecisionMatrixTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tag = 'decision_matrix_$roleId';
-    if (!Get.isRegistered<DecisionMatrixController>(tag: tag)) {
-      Get.put(DecisionMatrixController(), tag: tag);
-      Get.find<DecisionMatrixController>(tag: tag).fetchEntries(roleId);
-    }
-
     return GetBuilder<DecisionMatrixController>(
-      tag: tag,
+      tag: 'decision_matrix_$roleId',
+      init: DecisionMatrixController()..fetchEntries(roleId),
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

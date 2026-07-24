@@ -14,14 +14,9 @@ class StakeholderTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tag = 'stake_$roleId';
-    if (!Get.isRegistered<StakeholderController>(tag: tag)) {
-      Get.put(StakeholderController(), tag: tag);
-      Get.find<StakeholderController>(tag: tag).fetchStakeholders(roleId);
-    }
-
     return GetBuilder<StakeholderController>(
-      tag: tag,
+      tag: 'stake_$roleId',
+      init: StakeholderController()..fetchStakeholders(roleId),
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());

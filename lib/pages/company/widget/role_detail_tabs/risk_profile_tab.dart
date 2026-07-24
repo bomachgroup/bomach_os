@@ -15,14 +15,9 @@ class RiskProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tag = 'risk_$roleId';
-    if (!Get.isRegistered<RoleRiskController>(tag: tag)) {
-      Get.put(RoleRiskController(), tag: tag);
-      Get.find<RoleRiskController>(tag: tag).fetchRiskProfiles(roleId);
-    }
-
     return GetBuilder<RoleRiskController>(
-      tag: tag,
+      tag: 'risk_$roleId',
+      init: RoleRiskController()..fetchRiskProfiles(roleId),
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

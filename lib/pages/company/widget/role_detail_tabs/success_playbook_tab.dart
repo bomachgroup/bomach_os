@@ -59,6 +59,8 @@ class SuccessPlaybookTab extends StatelessWidget {
           }
 
           return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(24),
             itemCount: ctrl.playbooks.length + 1,
             separatorBuilder: (_, __) => const SizedBox(height: 12),
