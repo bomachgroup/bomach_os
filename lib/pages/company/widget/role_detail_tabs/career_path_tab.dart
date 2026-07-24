@@ -33,61 +33,61 @@ class CareerPathTab extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-        if (ctrl.steps.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(40),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Iconsax.map, size: 48, color: AppColors.textMuted),
-                  const SizedBox(height: 16),
-                  Text('No career path defined for this role.',
-                      style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted)),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Define possible next roles and their criteria.',
-                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
-                  ),
-                  const SizedBox(height: 16),
-                  MyElevatedButton(
-                    height: 40,
-                    child: 'Add Career Step',
-                    icon: const Icon(Iconsax.add, size: 16, color: AppColors.textOnPrimary),
-                    onTap: () => _openAddDialog(context, ctrl, rolesCtrl),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return ListView.separated(
-          padding: const EdgeInsets.all(24),
-          itemCount: ctrl.steps.length + 1,
-          separatorBuilder: (_, __) => const SizedBox(height: 0),
-          itemBuilder: (context, index) {
-            if (index == ctrl.steps.length) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Center(
-                  child: TextButton.icon(
-                    onPressed: () => _openAddDialog(context, ctrl, rolesCtrl),
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add Career Step'),
-                  ),
+          if (ctrl.steps.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Iconsax.map, size: 48, color: AppColors.textMuted),
+                    const SizedBox(height: 16),
+                    Text('No career path defined for this role.',
+                        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted)),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Define possible next roles and their transition criteria.',
+                      style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
+                    ),
+                    const SizedBox(height: 16),
+                    MyElevatedButton(
+                      height: 40,
+                      child: 'Add Career Step',
+                      icon: const Icon(Iconsax.add, size: 16, color: AppColors.textOnPrimary),
+                      onTap: () => _openAddDialog(context, ctrl, rolesCtrl),
+                    ),
+                  ],
                 ),
-              );
-            }
+              ),
+            );
+          }
 
-            final step = ctrl.steps[index];
-            return _buildStepCard(context, ctrl, step, rolesCtrl);
-          },
-        );
-      });
-    },
-  );
-}
+          return ListView.separated(
+            padding: const EdgeInsets.all(24),
+            itemCount: ctrl.steps.length + 1,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              if (index == ctrl.steps.length) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Center(
+                    child: TextButton.icon(
+                      onPressed: () => _openAddDialog(context, ctrl, rolesCtrl),
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text('Add Career Step'),
+                    ),
+                  ),
+                );
+              }
+
+              final step = ctrl.steps[index];
+              return _buildStepCard(context, ctrl, step, rolesCtrl);
+            },
+          );
+        });
+      },
+    );
+  }
 
   void _openAddDialog(
       BuildContext context, CareerPathController ctrl, RolesController rolesCtrl) {
@@ -129,8 +129,10 @@ class CareerPathTab extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(step.nextRoleName,
-                          style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
+                      child: Text(
+                        step.toRoleName.isNotEmpty ? step.toRoleName : 'Role #${step.toRoleId}',
+                        style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                      ),
                     ),
                     PopupMenuButton<String>(
                       icon: const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
@@ -141,7 +143,7 @@ class CareerPathTab extends StatelessWidget {
                             builder: (_) => CreateEditCareerPathStepDialog(
                               ctrl: ctrl,
                               roles: rolesCtrl.roles,
-                              currentRoleId: step.roleId,
+                              currentRoleId: step.fromRoleId,
                               step: step,
                             ),
                           );
@@ -158,22 +160,35 @@ class CareerPathTab extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                _buildCriteriaChips(step),
-                const SizedBox(height: 8),
-                if (step.requiredCertifications.isNotEmpty)
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: step.requiredCertifications.map((cert) {
-                      return Chip(
-                        label: Text(cert, style: const TextStyle(fontSize: 11)),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        visualDensity: VisualDensity.compact,
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.08),
-                      );
-                    }).toList(),
+                const SizedBox(height: 6),
+                _buildMetaRow(step),
+                if (step.description.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    step.description,
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                ],
+                if (step.requirements.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Iconsax.tick_circle, size: 13, color: AppColors.success),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          step.requirements,
+                          style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -182,24 +197,34 @@ class CareerPathTab extends StatelessWidget {
     );
   }
 
-  Widget _buildCriteriaChips(CareerPathStep step) {
+  Widget _buildMetaRow(CareerPathStep step) {
     return Wrap(
       spacing: 8,
-      runSpacing: 6,
+      runSpacing: 4,
       children: [
-        if (step.minYearsInRole != null)
-          _chip(Iconsax.clock, '${step.minYearsInRole!.toStringAsFixed(0)} yrs', AppColors.warning),
-        if (step.minKpiScore != null)
-          _chip(Iconsax.chart, 'KPI ${step.minKpiScore!.toStringAsFixed(0)}+', AppColors.info),
-        if (step.requiredCertifications.isNotEmpty)
-          _chip(Iconsax.tick_circle, '${step.requiredCertifications.length} certs', AppColors.success),
+        _chip(
+          Iconsax.ranking,
+          'Step ${step.sequence + 1}',
+          AppColors.primary,
+        ),
+        if (step.estimatedDurationMonths != null)
+          _chip(
+            Iconsax.clock,
+            '~${step.estimatedDurationMonths}mo',
+            AppColors.warning,
+          ),
+        _chip(
+          step.isActive ? Iconsax.tick_circle : Iconsax.close_circle,
+          step.isActive ? 'Active' : 'Inactive',
+          step.isActive ? AppColors.success : AppColors.textMuted,
+        ),
       ],
     );
   }
 
   Widget _chip(IconData icon, String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
@@ -207,9 +232,10 @@ class CareerPathTab extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 5),
+          Text(label,
+              style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -221,7 +247,9 @@ class CareerPathTab extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Step'),
-        content: Text('Remove "${step.nextRoleName}" from the career path?'),
+        content: Text(
+          'Remove "${step.toRoleName.isNotEmpty ? step.toRoleName : 'this career step'}" from the path?',
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           TextButton(

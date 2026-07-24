@@ -1,59 +1,70 @@
 class CareerPathStep {
   final int id;
-  final int roleId;
-  final int nextRoleId;
-  final String nextRoleName;
-  final double? minYearsInRole;
-  final double? minKpiScore;
-  final List<String> requiredCertifications;
-  final int sortOrder;
+  final int fromRoleId;
+  final int toRoleId;
+  final String toRoleName; // from nested to_role object
+  final String description;
+  final String requirements;
+  final int? estimatedDurationMonths;
+  final int sequence;
   final bool isActive;
 
   CareerPathStep({
     required this.id,
-    required this.roleId,
-    required this.nextRoleId,
-    required this.nextRoleName,
-    this.minYearsInRole,
-    this.minKpiScore,
-    this.requiredCertifications = const [],
-    this.sortOrder = 0,
+    required this.fromRoleId,
+    required this.toRoleId,
+    required this.toRoleName,
+    this.description = '',
+    this.requirements = '',
+    this.estimatedDurationMonths,
+    this.sequence = 0,
     this.isActive = true,
   });
 
   factory CareerPathStep.fromJson(Map<String, dynamic> json) {
+    final toRole = json['to_role'] as Map<String, dynamic>?;
     return CareerPathStep(
       id: json['id'] ?? 0,
-      roleId: json['role_id'] ?? 0,
-      nextRoleId: json['next_role_id'] ?? 0,
-      nextRoleName: json['next_role_name'] ?? '',
-      minYearsInRole: (json['min_years_in_role'] as num?)?.toDouble(),
-      minKpiScore: (json['min_kpi_score'] as num?)?.toDouble(),
-      requiredCertifications: json['required_certifications'] != null
-          ? List<String>.from(json['required_certifications'])
-          : [],
-      sortOrder: json['sort_order'] ?? 0,
+      fromRoleId: json['from_role_id'] ?? 0,
+      toRoleId: json['to_role_id'] ?? 0,
+      toRoleName: toRole?['name'] ?? '',
+      description: json['description'] ?? '',
+      requirements: json['requirements'] ?? '',
+      estimatedDurationMonths: json['estimated_duration_months'] as int?,
+      sequence: json['sequence'] ?? 0,
       isActive: json['is_active'] ?? true,
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toCreateJson() {
     return {
-      'role_id': roleId,
-      'next_role_id': nextRoleId,
-      'min_years_in_role': minYearsInRole,
-      'min_kpi_score': minKpiScore,
-      'required_certifications': requiredCertifications,
-      'sort_order': sortOrder,
+      'to_role_id': toRoleId,
+      'description': description,
+      'requirements': requirements,
+      if (estimatedDurationMonths != null)
+        'estimated_duration_months': estimatedDurationMonths,
+      'sequence': sequence,
+      'is_active': isActive,
+    };
+  }
+
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      if (toRoleId != 0) 'to_role_id': toRoleId,
+      'description': description,
+      'requirements': requirements,
+      'estimated_duration_months': estimatedDurationMonths,
+      'sequence': sequence,
       'is_active': isActive,
     };
   }
 
   String get criteriaSummary {
     final parts = <String>[];
-    if (minYearsInRole != null) parts.add('${minYearsInRole!.toStringAsFixed(0)} yrs');
-    if (minKpiScore != null) parts.add('KPI ${minKpiScore!.toStringAsFixed(0)}+');
-    if (requiredCertifications.isNotEmpty) parts.add('${requiredCertifications.length} cert(s)');
-    return parts.isEmpty ? 'No criteria' : parts.join(' · ');
+    if (estimatedDurationMonths != null) {
+      parts.add('~${estimatedDurationMonths}mo');
+    }
+    if (requirements.isNotEmpty) parts.add('Has requirements');
+    return parts.isEmpty ? 'No criteria set' : parts.join(' · ');
   }
 }

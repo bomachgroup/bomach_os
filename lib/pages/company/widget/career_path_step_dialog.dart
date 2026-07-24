@@ -32,32 +32,30 @@ class CreateEditCareerPathStepDialog extends StatefulWidget {
 
 class _CreateEditCareerPathStepDialogState
     extends State<CreateEditCareerPathStepDialog> {
-  late final TextEditingController _yearsCtrl;
-  late final TextEditingController _kpiCtrl;
-  late final TextEditingController _certsCtrl;
+  late final TextEditingController _descriptionCtrl;
+  late final TextEditingController _requirementsCtrl;
+  late final TextEditingController _durationCtrl;
 
-  int? _nextRoleId;
+  int? _toRoleId;
   bool _isActive = true;
 
   @override
   void initState() {
     super.initState();
     final s = widget.step;
-    _nextRoleId = s?.nextRoleId;
-    _yearsCtrl = TextEditingController(
-        text: s?.minYearsInRole?.toStringAsFixed(1) ?? '');
-    _kpiCtrl = TextEditingController(
-        text: s?.minKpiScore?.toStringAsFixed(1) ?? '');
-    _certsCtrl = TextEditingController(
-        text: s?.requiredCertifications.join('\n') ?? '');
+    _toRoleId = s?.toRoleId;
+    _descriptionCtrl = TextEditingController(text: s?.description ?? '');
+    _requirementsCtrl = TextEditingController(text: s?.requirements ?? '');
+    _durationCtrl = TextEditingController(
+        text: s?.estimatedDurationMonths?.toString() ?? '');
     _isActive = s?.isActive ?? true;
   }
 
   @override
   void dispose() {
-    _yearsCtrl.dispose();
-    _kpiCtrl.dispose();
-    _certsCtrl.dispose();
+    _descriptionCtrl.dispose();
+    _requirementsCtrl.dispose();
+    _durationCtrl.dispose();
     super.dispose();
   }
 
@@ -65,21 +63,21 @@ class _CreateEditCareerPathStepDialogState
   Widget build(BuildContext context) {
     final isEdit = widget.step != null;
     return DialogScaffold(
-      title: isEdit ? 'Edit Career Step' : 'Add Career Step',
-      subtitle: 'Define the next role in the career ladder and its criteria.',
+      title: isEdit ? 'Edit Career Path Step' : 'Add Career Path Step',
+      subtitle: 'Define a career progression target role and transition details.',
       size: DialogSize.md,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Next Role', style: AppTextStyles.label),
+          const Text('Target Role (To)', style: AppTextStyles.label),
           const SizedBox(height: 8),
           DropdownButtonFormField<int>(
             decoration: const InputDecoration(
-              hintText: 'Select next role',
+              hintText: 'Select target role',
               border: OutlineInputBorder(borderRadius: AppRadii.brMd),
               contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
-            initialValue: _nextRoleId,
+            initialValue: _toRoleId,
             items: widget.roles
                 .where((r) => r.id != widget.currentRoleId)
                 .map((r) => DropdownMenuItem(
@@ -87,34 +85,34 @@ class _CreateEditCareerPathStepDialogState
                       child: Text(r.name),
                     ))
                 .toList(),
-            onChanged: (val) => setState(() => _nextRoleId = val),
+            onChanged: (val) => setState(() => _toRoleId = val),
           ),
           const SizedBox(height: 20),
-          const Text('Minimum Years in Role', style: AppTextStyles.label),
+          const Text('Description', style: AppTextStyles.label),
           const SizedBox(height: 8),
           MyTextFormField(
-            controller: _yearsCtrl,
-            hintText: 'e.g. 2.0',
-            height: 48,
-            keyboardType: TextInputType.number,
+            controller: _descriptionCtrl,
+            hintText: 'Brief description of this career step…',
+            height: 80,
+            maxLines: 3,
           ),
           const SizedBox(height: 20),
-          const Text('Minimum KPI Score', style: AppTextStyles.label),
+          const Text('Requirements', style: AppTextStyles.label),
           const SizedBox(height: 8),
           MyTextFormField(
-            controller: _kpiCtrl,
-            hintText: 'e.g. 80.0',
-            height: 48,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 20),
-          const Text('Required Certifications', style: AppTextStyles.label),
-          const SizedBox(height: 8),
-          MyTextFormField(
-            controller: _certsCtrl,
-            hintText: 'One per line\ne.g. PMP\nSix Sigma Black Belt\nFirst Aid',
+            controller: _requirementsCtrl,
+            hintText: 'Skills, certifications, or experience needed…',
             height: 100,
-            maxLines: 5,
+            maxLines: 4,
+          ),
+          const SizedBox(height: 20),
+          const Text('Estimated Duration (months)', style: AppTextStyles.label),
+          const SizedBox(height: 8),
+          MyTextFormField(
+            controller: _durationCtrl,
+            hintText: 'e.g. 12',
+            height: 48,
+            keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 20),
           Row(
@@ -149,35 +147,28 @@ class _CreateEditCareerPathStepDialogState
   }
 
   void _onSave() async {
-    if (_nextRoleId == null) {
-      Get.snackbar('Validation', 'Please select a next role',
+    if (_toRoleId == null) {
+      Get.snackbar('Validation', 'Please select a target role.',
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
+    final duration = int.tryParse(_durationCtrl.text.trim());
+    final sequence = widget.step?.sequence ?? widget.ctrl.steps.length;
+
     final body = <String, dynamic>{
-      'next_role_id': _nextRoleId,
+      'to_role_id': _toRoleId!,
+      'description': _descriptionCtrl.text.trim(),
+      'requirements': _requirementsCtrl.text.trim(),
+      if (duration != null) 'estimated_duration_months': duration,
+      'sequence': sequence,
       'is_active': _isActive,
-      'sort_order': widget.step?.sortOrder ?? widget.ctrl.steps.length,
     };
-
-    final years = double.tryParse(_yearsCtrl.text);
-    final kpi = double.tryParse(_kpiCtrl.text);
-    if (years != null) body['min_years_in_role'] = years;
-    if (kpi != null) body['min_kpi_score'] = kpi;
-
-    final certs = _certsCtrl.text
-        .split('\n')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-    if (certs.isNotEmpty) body['required_certifications'] = certs;
 
     bool success;
     if (widget.step != null) {
       success = await widget.ctrl.updateStep(widget.step!.id, body);
     } else {
-      body['role_id'] = widget.currentRoleId;
       success = await widget.ctrl.addStep(body);
     }
 
