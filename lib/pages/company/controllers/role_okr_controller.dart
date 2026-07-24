@@ -26,12 +26,6 @@ class RoleOkrController extends GetxController {
   int? filterYear;
   String filterStatus = '';
 
-  @override
-  void onInit() {
-    super.onInit();
-    fetchOkrs();
-  }
-
   Future<String?> _getToken() async {
     String? token = await _storage.read(key: 'access_token');
     if (token == null) return null;
