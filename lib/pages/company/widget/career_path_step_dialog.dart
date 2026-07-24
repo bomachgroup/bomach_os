@@ -154,7 +154,7 @@ class _CreateEditCareerPathStepDialogState
     }
 
     final duration = int.tryParse(_durationCtrl.text.trim());
-    final sequence = widget.step?.sequence ?? widget.ctrl.steps.length;
+    final sequence = widget.step?.sequence ?? (widget.ctrl.steps.length + 1);
 
     final body = <String, dynamic>{
       'to_role_id': _toRoleId!,

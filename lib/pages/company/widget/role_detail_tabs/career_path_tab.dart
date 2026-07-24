@@ -204,7 +204,7 @@ class CareerPathTab extends StatelessWidget {
       children: [
         _chip(
           Iconsax.ranking,
-          'Step ${step.sequence + 1}',
+          'Step ${step.sequence}',
           AppColors.primary,
         ),
         if (step.estimatedDurationMonths != null)
