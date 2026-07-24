@@ -31,6 +31,8 @@ class ResourcesTab extends StatelessWidget {
           }
 
           return ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(24),
             children: [
               _section('Physical Resources', Iconsax.box, AppColors.primary, ctrl.physicalResources.length,

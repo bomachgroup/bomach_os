@@ -45,6 +45,8 @@ class PerformanceAnalyticsTab extends StatelessWidget {
           }
 
           return ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(24),
             children: [
               _buildSummaryRow(ctrl),
