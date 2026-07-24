@@ -159,8 +159,8 @@ class DashboardService {
     required String status,
   }) async {
     try {
-      final response = await _dio.patch(
-        '/api/v1/projects/$projectId/status',
+      final response = await _dio.put(
+        '/api/v1/projects/$projectId',
         data: {'status': status},
         options: _authOptions(accessToken),
       );

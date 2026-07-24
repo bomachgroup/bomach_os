@@ -116,6 +116,45 @@ class KpiTab extends StatelessWidget {
                       ],
                     ),
                   ),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert, size: 18, color: AppColors.textMuted),
+                    onSelected: (val) {
+                      if (val == 'edit') {
+                        showDialog(
+                          context: context,
+                          builder: (_) => CreateEditKpiDialog(
+                            ctrl: ctrl,
+                            kpi: k,
+                            presetRoleId: roleId,
+                          ),
+                        );
+                      } else if (val == 'delete' && k.id != null) {
+                        _showDeleteConfirm(context, ctrl, k.id!);
+                      }
+                    },
+                    itemBuilder: (_) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Iconsax.edit, size: 16, color: AppColors.textPrimary),
+                            SizedBox(width: 8),
+                            Text('Edit KPI'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Iconsax.trash, size: 16, color: AppColors.danger),
+                            SizedBox(width: 8),
+                            Text('Delete KPI', style: TextStyle(color: AppColors.danger)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             );
@@ -123,6 +162,30 @@ class KpiTab extends StatelessWidget {
         );
       });
     },
+  );
+}
+
+void _showDeleteConfirm(BuildContext context, RoleKpiController ctrl, int kpiId) {
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Delete KPI'),
+      content: const Text('Are you sure you want to delete this KPI?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+          onPressed: () async {
+            Navigator.pop(ctx);
+            await ctrl.deleteKpi(kpiId);
+          },
+          child: const Text('Delete', style: TextStyle(color: Colors.white)),
+        ),
+      ],
+    ),
   );
 }
 }

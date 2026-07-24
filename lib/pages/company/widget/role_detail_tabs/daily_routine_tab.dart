@@ -15,11 +15,15 @@ class DailyRoutineTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<DailyRoutineController>(
-      tag: 'role_detail_$roleId',
-      init: DailyRoutineController()
+    final tag = 'role_detail_$roleId';
+    if (!Get.isRegistered<DailyRoutineController>(tag: tag)) {
+      Get.put(DailyRoutineController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchData(roleId: roleId),
+        ..fetchData(roleId: roleId);
+    }
+
+    return GetBuilder<DailyRoutineController>(
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

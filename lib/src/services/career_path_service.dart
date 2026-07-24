@@ -48,7 +48,7 @@ class CareerPathService {
   Future<CareerPathStep> createStep(String token, int roleId, Map<String, dynamic> payload) async {
     try {
       final response = await _dio.post(
-        '/api/v1/roles/$roleId/career-path/',
+        '/api/v1/roles/$roleId/career-path',
         data: payload,
         options: _authOptions(token),
       );

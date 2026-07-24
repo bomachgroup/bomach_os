@@ -12,11 +12,15 @@ class PerformanceAnalyticsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<PerformanceAnalyticsController>(
-      tag: 'role_detail_$roleId',
-      init: PerformanceAnalyticsController()
+    final tag = 'role_detail_$roleId';
+    if (!Get.isRegistered<PerformanceAnalyticsController>(tag: tag)) {
+      Get.put(PerformanceAnalyticsController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchAnalytics(roleId: roleId),
+        ..fetchAnalytics(roleId: roleId);
+    }
+
+    return GetBuilder<PerformanceAnalyticsController>(
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

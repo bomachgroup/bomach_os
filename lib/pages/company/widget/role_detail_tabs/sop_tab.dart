@@ -15,11 +15,15 @@ class SopTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RoleSopController>(
-      tag: 'role_detail_$roleId',
-      init: RoleSopController()
+    final tag = 'role_detail_$roleId';
+    if (!Get.isRegistered<RoleSopController>(tag: tag)) {
+      Get.put(RoleSopController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchSops(roleId: roleId),
+        ..fetchSops(roleId: roleId);
+    }
+
+    return GetBuilder<RoleSopController>(
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

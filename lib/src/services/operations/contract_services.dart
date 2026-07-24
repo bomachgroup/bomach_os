@@ -130,8 +130,8 @@ class ContractService {
     required String status,
   }) async {
     try {
-      final response = await _dio.patch(
-        '/api/v1/contracts/$contractId/status',
+      final response = await _dio.put(
+        '/api/v1/contracts/$contractId',
         data: {'status': status},
         options: _authOptions(accessToken),
       );

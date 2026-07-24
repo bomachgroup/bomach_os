@@ -14,11 +14,15 @@ class TrainingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<TrainingController>(
-      tag: 'role_detail_$roleId',
-      init: TrainingController()
+    final tag = 'role_detail_$roleId';
+    if (!Get.isRegistered<TrainingController>(tag: tag)) {
+      Get.put(TrainingController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchPrograms(roleId: roleId),
+        ..fetchPrograms(roleId: roleId);
+    }
+
+    return GetBuilder<TrainingController>(
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

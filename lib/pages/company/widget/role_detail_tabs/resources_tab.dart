@@ -15,11 +15,15 @@ class ResourcesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RoleResourceController>(
-      tag: 'role_detail_$roleId',
-      init: RoleResourceController()
+    final tag = 'role_detail_$roleId';
+    if (!Get.isRegistered<RoleResourceController>(tag: tag)) {
+      Get.put(RoleResourceController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchAll(roleId: roleId),
+        ..fetchAll(roleId: roleId);
+    }
+
+    return GetBuilder<RoleResourceController>(
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

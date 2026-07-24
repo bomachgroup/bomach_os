@@ -15,11 +15,15 @@ class OkrTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RoleOkrController>(
-      tag: 'role_detail_okr_$roleId',
-      init: RoleOkrController()
+    final tag = 'role_detail_okr_$roleId';
+    if (!Get.isRegistered<RoleOkrController>(tag: tag)) {
+      Get.put(RoleOkrController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchOkrs(roleId: roleId),
+        ..fetchOkrs(roleId: roleId);
+    }
+
+    return GetBuilder<RoleOkrController>(
+      tag: tag,
       builder: (ctrl) {
         final roleOkrs = ctrl.okrs.where((o) => o.roleId == roleId).toList();
 

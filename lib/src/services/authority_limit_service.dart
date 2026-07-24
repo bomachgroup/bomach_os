@@ -57,18 +57,11 @@ class AuthorityLimitService {
       }
 
       Response response;
-      try {
-        response = await _dio.get(
-          '/api/v1/authority-limits/',
-          queryParameters: queryParams,
-          options: _authOptions(token),
-        );
-      } catch (_) {
-        response = await _dio.get(
-          '/api/v1/roles/me/authority-limits',
-          options: _authOptions(token),
-        );
-      }
+      response = await _dio.get(
+        '/api/v1/roles/me/authority-limits',
+        queryParameters: queryParams,
+        options: _authOptions(token),
+      );
 
       final data = response.data;
       final List<dynamic> items =

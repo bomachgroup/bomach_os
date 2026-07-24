@@ -15,11 +15,15 @@ class TaskTemplateTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RoleTaskTemplateController>(
-      tag: 'role_detail_$roleId',
-      init: RoleTaskTemplateController()
+    final tag = 'role_detail_$roleId';
+    if (!Get.isRegistered<RoleTaskTemplateController>(tag: tag)) {
+      Get.put(RoleTaskTemplateController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchTemplates(roleId: roleId),
+        ..fetchTemplates(roleId: roleId);
+    }
+
+    return GetBuilder<RoleTaskTemplateController>(
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

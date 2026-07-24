@@ -15,11 +15,15 @@ class SuccessPlaybookTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RoleSuccessPlaybookController>(
-      tag: 'role_detail_$roleId',
-      init: RoleSuccessPlaybookController()
+    final tag = 'role_detail_$roleId';
+    if (!Get.isRegistered<RoleSuccessPlaybookController>(tag: tag)) {
+      Get.put(RoleSuccessPlaybookController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchPlaybooks(roleId: roleId),
+        ..fetchPlaybooks(roleId: roleId);
+    }
+
+    return GetBuilder<RoleSuccessPlaybookController>(
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

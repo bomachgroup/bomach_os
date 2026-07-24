@@ -20,9 +20,13 @@ class CareerPathTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final rolesCtrl = Get.find<RolesController>();
 
+    final tag = 'career_${role.id}';
+    if (!Get.isRegistered<CareerPathController>(tag: tag)) {
+      Get.put(CareerPathController(), tag: tag).fetchSteps(role.id);
+    }
+
     return GetBuilder<CareerPathController>(
-      tag: 'career_${role.id}',
-      init: CareerPathController()..fetchSteps(role.id),
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {

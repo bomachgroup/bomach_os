@@ -13,11 +13,15 @@ class TargetsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<TargetsController>(
-      tag: 'role_detail_$roleId',
-      init: TargetsController()
+    final tag = 'role_detail_$roleId';
+    if (!Get.isRegistered<TargetsController>(tag: tag)) {
+      Get.put(TargetsController(), tag: tag)
         ..scopedRoleId = roleId
-        ..fetchTargets(roleId: roleId),
+        ..fetchTargets(roleId: roleId);
+    }
+
+    return GetBuilder<TargetsController>(
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) {
