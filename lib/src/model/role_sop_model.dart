@@ -1,128 +1,51 @@
 class RoleSop {
-  final int? id;
+  final int id;
   final int roleId;
-  final String roleName;
+  final int sopId;
   final String title;
-  final String? description;
-  final List<SopStep> steps;
-  final int version;
-  final bool isLatest;
-  final String? category;
+  final String description;
+  final String version;
+  final String priority;
+  final bool isUpToDate;
   final bool isActive;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+  final int? departmentId;
+  final int? unitId;
 
   const RoleSop({
-    this.id,
+    required this.id,
     required this.roleId,
-    this.roleName = '',
+    required this.sopId,
     required this.title,
-    this.description,
-    this.steps = const [],
-    this.version = 1,
-    this.isLatest = true,
-    this.category,
+    this.description = '',
+    this.version = 'v1.0',
+    this.priority = 'Medium',
+    this.isUpToDate = true,
     this.isActive = true,
-    this.createdAt,
-    this.updatedAt,
+    this.departmentId,
+    this.unitId,
   });
 
   factory RoleSop.fromJson(Map<String, dynamic> json) {
+    final sopMap = json['sop'] as Map<String, dynamic>?;
     return RoleSop(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? ''),
-      roleId: json['role_id'] is int ? json['role_id'] : int.tryParse(json['role_id']?.toString() ?? '0') ?? 0,
-      roleName: json['role_name'] ?? '',
-      title: json['title'] ?? '',
-      description: json['description'],
-      steps: (json['steps'] as List?)?.map((s) => SopStep.fromJson(s as Map<String, dynamic>)).toList() ?? const [],
-      version: json['version'] ?? 1,
-      isLatest: json['is_latest'] ?? true,
-      category: json['category'],
+      id: json['id'] ?? 0,
+      roleId: json['role_id'] ?? 0,
+      sopId: json['sop_id'] ?? sopMap?['id'] ?? 0,
+      title: sopMap?['title'] ?? '',
+      description: sopMap?['description'] ?? '',
+      version: sopMap?['version'] ?? 'v1.0',
+      priority: sopMap?['priority'] ?? 'Medium',
+      isUpToDate: sopMap?['is_up_to_date'] ?? true,
       isActive: json['is_active'] ?? true,
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      departmentId: sopMap?['department_id'],
+      unitId: sopMap?['unit_id'],
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toCreateJson() {
     return {
-      'role_id': roleId,
-      'title': title,
-      'description': description,
-      'steps': steps.map((s) => s.toJson()).toList(),
-      'version': version,
-      'is_latest': isLatest,
-      'category': category,
+      'sop_id': sopId,
       'is_active': isActive,
-    };
-  }
-
-  RoleSop copyWith({
-    int? id,
-    int? roleId,
-    String? roleName,
-    String? title,
-    String? description,
-    List<SopStep>? steps,
-    int? version,
-    bool? isLatest,
-    String? category,
-    bool? isActive,
-  }) {
-    return RoleSop(
-      id: id ?? this.id,
-      roleId: roleId ?? this.roleId,
-      roleName: roleName ?? this.roleName,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      steps: steps ?? this.steps,
-      version: version ?? this.version,
-      isLatest: isLatest ?? this.isLatest,
-      category: category ?? this.category,
-      isActive: isActive ?? this.isActive,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-    );
-  }
-
-  static const List<String> categoryOptions = [
-    'Administrative',
-    'Technical',
-    'Safety',
-    'Quality',
-    'Onboarding',
-    'Compliance',
-  ];
-}
-
-class SopStep {
-  final int stepNumber;
-  final String title;
-  final String? description;
-  final String? mediaUrl;
-
-  const SopStep({
-    this.stepNumber = 1,
-    required this.title,
-    this.description,
-    this.mediaUrl,
-  });
-
-  factory SopStep.fromJson(Map<String, dynamic> json) {
-    return SopStep(
-      stepNumber: json['step_number'] ?? 1,
-      title: json['title'] ?? '',
-      description: json['description'],
-      mediaUrl: json['media_url'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'step_number': stepNumber,
-      'title': title,
-      'description': description,
-      'media_url': mediaUrl,
     };
   }
 }

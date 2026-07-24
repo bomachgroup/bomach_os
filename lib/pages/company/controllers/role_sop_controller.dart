@@ -10,6 +10,7 @@ class RoleSopController extends GetxController {
   final _storage = const FlutterSecureStorage();
 
   var sops = <RoleSop>[].obs;
+  var availableSops = <Map<String, dynamic>>[].obs;
   var isLoading = false.obs;
   var isSaving = false.obs;
   var errorMessage = ''.obs;
@@ -46,43 +47,42 @@ class RoleSopController extends GetxController {
     }
   }
 
-  Future<bool> createSop(
+  Future<void> fetchAvailableSops({int? deptId}) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+      final list = await _service.fetchAvailableSops(token, deptId: deptId);
+      availableSops.assignAll(list);
+    } catch (e) {
+      log('RoleSopController.fetchAvailableSops error: $e');
+    }
+  }
+
+  Future<bool> attachSop(
     BuildContext context, {
     required int roleId,
-    required String title,
-    String? description,
-    List<SopStep> steps = const [],
-    String? category,
+    required int sopId,
+    bool isActive = true,
   }) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return false;
 
-      final payload = <String, dynamic>{
-        'role_id': roleId,
-        'title': title,
-        if (description != null && description.isNotEmpty) 'description': description,
-        'steps': steps.map((s) => s.toJson()).toList(),
-        'version': 1,
-        'is_latest': true,
-        if (category != null && category.isNotEmpty) 'category': category,
-      };
-
-      await _service.createSop(token, roleId, payload);
+      await _service.attachSopToRole(token, roleId, sopId, isActive: isActive);
       await fetchSops(roleId: scopedRoleId);
 
       if (context.mounted) {
-        Get.snackbar('Success', 'SOP created',
+        Get.snackbar('Success', 'SOP linked to role',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green.shade50,
             colorText: Colors.green.shade800);
       }
       return true;
     } catch (e) {
-      log('RoleSopController.createSop error: $e');
+      log('RoleSopController.attachSop error: $e');
       if (context.mounted) {
-        Get.snackbar('Error', 'Failed to create SOP: $e',
+        Get.snackbar('Error', 'Failed to link SOP: $e',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,
             colorText: Colors.red.shade800);
@@ -93,45 +93,35 @@ class RoleSopController extends GetxController {
     }
   }
 
-  Future<bool> updateSop(
+  Future<bool> updateRoleSop(
     BuildContext context, {
-    required int id,
-    String? title,
-    String? description,
-    List<SopStep>? steps,
-    int? version,
-    bool? isLatest,
-    String? category,
+    required int roleSopId,
+    int? sopId,
+    bool? isActive,
   }) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return false;
 
-      final payload = <String, dynamic>{};
-      if (title != null) payload['title'] = title;
-      if (description != null) payload['description'] = description;
-      if (steps != null) payload['steps'] = steps.map((s) => s.toJson()).toList();
-      if (version != null) payload['version'] = version;
-      if (isLatest != null) payload['is_latest'] = isLatest;
-      if (category != null) payload['category'] = category;
-
       final rId = scopedRoleId;
       if (rId == null) return false;
-      await _service.updateSop(token, rId, id, payload);
+
+      await _service.updateRoleSop(token, rId, roleSopId,
+          sopId: sopId, isActive: isActive);
       await fetchSops(roleId: scopedRoleId);
 
       if (context.mounted) {
-        Get.snackbar('Success', 'SOP updated',
+        Get.snackbar('Success', 'SOP link updated',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green.shade50,
             colorText: Colors.green.shade800);
       }
       return true;
     } catch (e) {
-      log('RoleSopController.updateSop error: $e');
+      log('RoleSopController.updateRoleSop error: $e');
       if (context.mounted) {
-        Get.snackbar('Error', 'Failed to update SOP: $e',
+        Get.snackbar('Error', 'Failed to update SOP link: $e',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,
             colorText: Colors.red.shade800);
@@ -142,18 +132,18 @@ class RoleSopController extends GetxController {
     }
   }
 
-  Future<bool> deleteSop(BuildContext context, int id) async {
+  Future<bool> deleteSop(BuildContext context, int roleSopId) async {
     try {
       final token = await _getToken();
       if (token == null) return false;
 
       final rId = scopedRoleId;
       if (rId == null) return false;
-      await _service.deleteSop(token, rId, id);
+      await _service.deleteRoleSop(token, rId, roleSopId);
       await fetchSops(roleId: scopedRoleId);
 
       if (context.mounted) {
-        Get.snackbar('Success', 'SOP deleted',
+        Get.snackbar('Success', 'SOP removed from role',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green.shade50,
             colorText: Colors.green.shade800);
@@ -162,7 +152,7 @@ class RoleSopController extends GetxController {
     } catch (e) {
       log('RoleSopController.deleteSop error: $e');
       if (context.mounted) {
-        Get.snackbar('Error', 'Failed to delete SOP: $e',
+        Get.snackbar('Error', 'Failed to remove SOP: $e',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,
             colorText: Colors.red.shade800);
