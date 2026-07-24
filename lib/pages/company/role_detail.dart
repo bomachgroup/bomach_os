@@ -94,7 +94,6 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
       );
     }
 
-    // Only active functional tabs (Coming Soon items and categories removed)
     final categories = [
       RoleCategory(
         title: 'Core & Structure',
@@ -104,6 +103,14 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
           RoleTabItem(label: 'Authority Limits', builder: (role, id) => AuthorityLimitsTab(roleId: id)),
           RoleTabItem(label: 'Org Chart', builder: (role, id) => _OrgChartWrapper(role: role, allRoles: ctrl.roles)),
           RoleTabItem(label: 'Career Path', builder: (role, id) => CareerPathTab(role: role)),
+          // RoleTabItem(
+          //   label: 'Succession Plan',
+          //   builder: (role, id) => const ComingSoonTab(
+          //     title: 'Succession Planning',
+          //     description: 'Identify and track potential successors for key organizational roles.',
+          //     icon: Iconsax.user_search,
+          //   ),
+          // ),
         ],
       ),
       RoleCategory(
@@ -111,8 +118,24 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
         icon: Iconsax.status_up,
         items: [
           RoleTabItem(label: 'KPIs', builder: (role, id) => KpiTab(roleId: id)),
+          // RoleTabItem(
+          //   label: 'OKRs',
+          //   builder: (role, id) => const ComingSoonTab(
+          //     title: 'Role OKRs',
+          //     description: 'Set and track quarterly objectives and key results for this role.',
+          //     icon: Iconsax.ranking,
+          //   ),
+          // ),
           RoleTabItem(label: 'Targets', builder: (role, id) => TargetsTab(roleId: id)),
           RoleTabItem(label: 'Performance Analytics', builder: (role, id) => PerformanceAnalyticsTab(roleId: id)),
+          // RoleTabItem(
+          //   label: 'Reports',
+          //   builder: (role, id) => const ComingSoonTab(
+          //     title: 'Role Reports',
+          //     description: 'Configure and track recurring performance and compliance reports for this role.',
+          //     icon: Iconsax.document_text,
+          //   ),
+          // ),
         ],
       ),
       RoleCategory(
@@ -122,6 +145,14 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
           RoleTabItem(label: 'Task Templates', builder: (role, id) => TaskTemplateTab(roleId: id)),
           RoleTabItem(label: 'SOPs', builder: (role, id) => SopTab(roleId: id)),
           RoleTabItem(label: 'Daily Work Routine', builder: (role, id) => DailyRoutineTab(roleId: id)),
+          // RoleTabItem(
+          //   label: 'Decision Matrix',
+          //   builder: (role, id) => const ComingSoonTab(
+          //     title: 'Decision Matrix',
+          //     description: 'Define decision authority, required approvals, and escalation paths for this role.',
+          //     icon: Iconsax.category,
+          //   ),
+          // ),
         ],
       ),
       RoleCategory(
@@ -131,8 +162,38 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
           RoleTabItem(label: 'Training', builder: (role, id) => TrainingTab(roleId: id)),
           RoleTabItem(label: 'Success Playbook', builder: (role, id) => SuccessPlaybookTab(roleId: id)),
           RoleTabItem(label: 'Resources', builder: (role, id) => ResourcesTab(roleId: id)),
+          // RoleTabItem(
+          //   label: 'Knowledge Base',
+          //   builder: (role, id) => const ComingSoonTab(
+          //     title: 'Knowledge Base',
+          //     description: 'Centralized repository of role-specific documentation and guides.',
+          //     icon: Iconsax.book,
+          //   ),
+          // ),
         ],
       ),
+      // RoleCategory(
+      //   title: 'Governance & People',
+      //   icon: Iconsax.shield_tick,
+      //   items: [
+      //     RoleTabItem(
+      //       label: 'Risk Profile',
+      //       builder: (role, id) => const ComingSoonTab(
+      //         title: 'Risk Profile',
+      //         description: 'Identify operational, financial, and compliance risks associated with this role.',
+      //         icon: Iconsax.warning_2,
+      //       ),
+      //     ),
+      //     RoleTabItem(
+      //       label: 'Stakeholders',
+      //       builder: (role, id) => const ComingSoonTab(
+      //         title: 'Role Stakeholders',
+      //         description: 'Manage internal and external key stakeholder relationships for this role.',
+      //         icon: Iconsax.people,
+      //       ),
+      //     ),
+      //   ],
+      // ),
     ];
 
     if (_selectedCategoryIndex >= categories.length) {
@@ -242,7 +303,7 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
                 const Divider(height: 1, color: AppColors.border),
                 const SizedBox(height: 16),
 
-                // Sub-Tab Level 2 Pills (Only showing active/available features)
+                // Sub-Tab Level 2 Pills
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
