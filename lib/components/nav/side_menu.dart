@@ -59,6 +59,7 @@ class _SideMenuState extends State<SideMenu> {
   final FocusNode _searchFocusNode = FocusNode(debugLabel: 'sidebar-search');
   final ScrollController _scrollController = ScrollController();
   final Map<MainMenuItem, GlobalKey> _menuKeys = {};
+  final Map<MainMenuItem, GlobalKey> _headerKeys = {};
   String _searchQuery = '';
 
   /// Pinned sub-items (e.g. "Employees", "Leave Requests"). Rendered as a
@@ -478,7 +479,7 @@ class _SideMenuState extends State<SideMenu> {
           _saveOpenMenu(_openMenu);
         }
       },
-      headerKey: _menuKeys.putIfAbsent(menuItem.id, () => GlobalKey()),
+      headerKey: _headerKeys.putIfAbsent(menuItem.id, () => GlobalKey()),
       children: authorizedSubItems
           .map<Widget>((subItem) => _buildSubItem(subItem, menuItem.id))
           .toList(),

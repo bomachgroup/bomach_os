@@ -14,9 +14,14 @@ class SuccessionPlanTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tag = 'succ_$roleId';
+    if (!Get.isRegistered<SuccessionPlanController>(tag: tag)) {
+      Get.put(SuccessionPlanController(), tag: tag);
+      Get.find<SuccessionPlanController>(tag: tag).fetchPlans(roleId);
+    }
+
     return GetBuilder<SuccessionPlanController>(
-      tag: 'succ_$roleId',
-      init: SuccessionPlanController()..fetchPlans(roleId),
+      tag: tag,
       builder: (ctrl) {
         return Obx(() {
           if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());

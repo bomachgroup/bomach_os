@@ -341,7 +341,9 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
                 const SizedBox(height: 24),
 
                 // Main Sub-Tab Body View
-                activeSubTab.builder(role, role.id),
+                Expanded(
+                  child: activeSubTab.builder(role, role.id),
+                ),
               ],
             ),
           ),
