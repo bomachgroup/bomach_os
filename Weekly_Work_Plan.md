@@ -17,10 +17,10 @@
 - If deployed: remove the `ComingSoonTab` placeholder in `okr_tab.dart` and activate the pre-built `RoleOkrController` and `RoleOkrService`
 - If not yet deployed: flag status to backend team and hold this item
 
-## Phase 3: Marketing OS Sub-Module Deepening
+## Phase 3: Marketing OS Sub-Module Deepening (Completed)
 
-- Implement role-based persona view filters in the Marketing UI (e.g. Telemarketer lead queue vs. CMO high-level revenue dashboard)
-- Wire up automated lead distribution rules based on branch/department parameters
+- Implement role-based persona view filters in the Marketing UI (`Full Command Centre`, `Telemarketer Queue`, `Branch Manager View`, `CMO Dashboard`)
+- Wire up automated lead distribution rules based on branch/department parameters (`Auto-Distribute Leads`)
 
 ## Phase 4: Final Acceptance & End-to-End Testing
 
