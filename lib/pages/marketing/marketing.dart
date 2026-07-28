@@ -31,9 +31,13 @@ class _MarketingPageState extends State<MarketingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = Get.find<MarketingModuleController>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildPersonaHeader(c),
+        const SizedBox(height: 12),
         Expanded(
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
@@ -46,6 +50,71 @@ class _MarketingPageState extends State<MarketingPage> {
         const SizedBox(height: 12),
         _buildBottomNav(),
       ],
+    );
+  }
+
+  Widget _buildPersonaHeader(MarketingModuleController c) {
+    final personas = [
+      {'id': 'all', 'label': 'Full Command Centre'},
+      {'id': 'telemarketer', 'label': 'Telemarketer Queue'},
+      {'id': 'branch_manager', 'label': 'Branch Manager View'},
+      {'id': 'cmo', 'label': 'CMO Dashboard'},
+    ];
+
+    final branches = ['All Branches', 'Enugu', 'Abuja', 'Lagos', 'Port Harcourt'];
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.person_pin_outlined, size: 20, color: AppColors.primary),
+          const SizedBox(width: 8),
+          const Text(
+            'Persona Filter:',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+          ),
+          const SizedBox(width: 12),
+          Obx(() => DropdownButton<String>(
+            value: c.selectedPersona.value,
+            underline: const SizedBox(),
+            isDense: true,
+            items: personas.map((p) {
+              return DropdownMenuItem<String>(
+                value: p['id'],
+                child: Text(
+                  p['label']!,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                ),
+              );
+            }).toList(),
+            onChanged: (val) {
+              if (val != null) c.setPersona(val);
+            },
+          )),
+          const Spacer(),
+          const Icon(Icons.location_city_outlined, size: 18, color: AppColors.textMuted),
+          const SizedBox(width: 6),
+          Obx(() => DropdownButton<String>(
+            value: c.selectedBranch.value,
+            underline: const SizedBox(),
+            isDense: true,
+            items: branches.map((b) {
+              return DropdownMenuItem<String>(
+                value: b,
+                child: Text(b, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+              );
+            }).toList(),
+            onChanged: (val) {
+              if (val != null) c.setBranch(val);
+            },
+          )),
+        ],
+      ),
     );
   }
 

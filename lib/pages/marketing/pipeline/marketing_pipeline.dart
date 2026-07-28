@@ -41,6 +41,26 @@ class MarketingPipeline extends StatelessWidget {
             ],
           ),
         ),
+        ElevatedButton.icon(
+          onPressed: () {
+            c.autoDistributeLeads();
+            Get.snackbar(
+              'Lead Distribution',
+              'Unassigned leads automatically distributed across regional branches!',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: AppColors.primary,
+              colorText: Colors.white,
+            );
+          },
+          icon: const Icon(Icons.hub_outlined, size: 16, color: Colors.white),
+          label: const Text('Auto-Distribute Leads', style: TextStyle(color: Colors.white, fontSize: 13)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          ),
+        ),
+        const SizedBox(width: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
