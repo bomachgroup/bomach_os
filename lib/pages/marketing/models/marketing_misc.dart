@@ -289,3 +289,25 @@ class InfluencerPartner {
     return Color(int.parse('FF$clean', radix: 16));
   }
 }
+
+class RoleRoutine {
+  final String name;
+  final List<String> morning;
+  final List<String> afternoon;
+  final List<String> close;
+
+  const RoleRoutine({
+    required this.name,
+    required this.morning,
+    required this.afternoon,
+    required this.close,
+  });
+}
+
+class FiveUnit {
+  final String num;
+  final String name;
+  final String kpi;
+
+  const FiveUnit({required this.num, required this.name, required this.kpi});
+}

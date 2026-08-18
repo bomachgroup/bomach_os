@@ -435,7 +435,7 @@ class _SideMenuState extends State<SideMenu> {
         _searchQuery.trim().isNotEmpty ? true : _openMenu == menuItem.id;
 
     return _ExpandableMenuRow(
-      key: _menuKeys.putIfAbsent(menuItem.id, () => GlobalKey()),
+      key: ValueKey('exp-${menuItem.id.name}'),
       icon: menuItem.icon,
       label: menuItem.label,
       isSelected: isSelected,

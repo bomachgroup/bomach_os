@@ -33,7 +33,6 @@ class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.sizeOf(context);
     final double sidebarWidth =
         _sidebarCollapsed ? kSidebarCollapsedWidth : kSidebarExpandedWidth;
 
@@ -52,20 +51,7 @@ class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
             ),
           ),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                    width: media.width - sidebarWidth,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32.0, vertical: 28),
-                    child: widget.navigationShell,
-                  ),
-                ),
-              ],
-            ),
+            child: widget.navigationShell,
           ),
         ],
       ),

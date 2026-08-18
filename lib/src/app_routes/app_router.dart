@@ -48,6 +48,7 @@ import 'package:bomach_os/pages/finance/payments.dart';
 import 'package:bomach_os/pages/hr/assets.dart';
 import 'package:bomach_os/pages/hr/associates.dart';
 import 'package:bomach_os/pages/hr/attendance.dart';
+import 'package:bomach_os/pages/marketing/widget/marketing_webview.dart';
 import 'package:bomach_os/pages/hr/hr.dart';
 import 'package:bomach_os/pages/hr/job_post.dart';
 import 'package:bomach_os/pages/hr/leave_request.dart';
@@ -226,6 +227,54 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.operationsTimelineDetail: const TimelineDetailPage(),
   // marketing
   RouteConstants.marketing: const MarketingPage(),
+  RouteConstants.marketingDashboard: const MarketingWebView(route: '/dashboard'),
+  RouteConstants.marketingPipeline: const MarketingWebView(route: '/pipeline'),
+  RouteConstants.marketingCampaigns: const MarketingWebView(route: '/campaigns'),
+  RouteConstants.marketingCalendar: const MarketingWebView(route: '/calendar'),
+  RouteConstants.marketingAnalytics: const MarketingWebView(route: '/analytics'),
+  RouteConstants.marketingOkrs: const MarketingWebView(route: '/okrs'),
+  RouteConstants.marketingReports: const MarketingWebView(route: '/audit-log'),
+  RouteConstants.marketingTeam: const MarketingWebView(route: '/team-directory'),
+  RouteConstants.marketingNewLead: const MarketingWebView(route: '/new-lead'),
+  RouteConstants.marketingMedia: const MarketingWebView(route: '/media'),
+
+  // revenue execution
+  RouteConstants.marketingRevenueCommand: const MarketingWebView(route: '/revenue-command'),
+  RouteConstants.marketingDailyExecution: const MarketingWebView(route: '/daily-execution'),
+  RouteConstants.marketingLeadControl: const MarketingWebView(route: '/lead-control'),
+  RouteConstants.marketingFunnelAudit: const MarketingWebView(route: '/funnel-audit'),
+  RouteConstants.marketingPlaybooks: const MarketingWebView(route: '/playbooks'),
+  RouteConstants.marketingContentStudio: const MarketingWebView(route: '/content-studio'),
+  RouteConstants.marketingCoaching: const MarketingWebView(route: '/coaching'),
+  RouteConstants.marketingForecast: const MarketingWebView(route: '/forecast'),
+  RouteConstants.marketingRetention: const MarketingWebView(route: '/retention'),
+
+  // integrations & workdesk
+  RouteConstants.marketingWorkdesk: const MarketingWebView(route: '/workdesk'),
+  RouteConstants.marketingLeadJournal: const MarketingWebView(route: '/lead-journal'),
+  RouteConstants.marketingIntegrations: const MarketingWebView(route: '/integrations'),
+
+  // commercial operations
+  RouteConstants.marketingEmailCenter: const MarketingWebView(route: '/email-center'),
+  RouteConstants.marketingMediaRegister: const MarketingWebView(route: '/media-register'),
+  RouteConstants.marketingHandoff: const MarketingWebView(route: '/handoff'),
+  RouteConstants.marketingRealtorPortal: const MarketingWebView(route: '/realtor-portal'),
+  RouteConstants.marketingPartnerPortal: const MarketingWebView(route: '/partner-portal'),
+
+  // governance
+  RouteConstants.marketingRoleGovernance: const MarketingWebView(route: '/role-governance'),
+  RouteConstants.marketingApprovals: const MarketingWebView(route: '/approvals'),
+  RouteConstants.marketingAuditLog: const MarketingWebView(route: '/audit-log'),
+
+  // campaign operations & additional tools
+  RouteConstants.marketingMeetings: const MarketingWebView(route: '/marketing-meetings'),
+  RouteConstants.marketingTurnaround: const MarketingWebView(route: '/turnaround'),
+  RouteConstants.marketingCompliance: const MarketingWebView(route: '/compliance'),
+  RouteConstants.marketingPartners: const MarketingWebView(route: '/partners'),
+  RouteConstants.marketingSupport: const MarketingWebView(route: '/support'),
+  RouteConstants.marketingDesign: const MarketingWebView(route: '/design'),
+  RouteConstants.marketingWhatsapp: const MarketingWebView(route: '/whatsapp'),
+
   RouteConstants.marketingLeadDetail: const LeadDetailPage(),
   RouteConstants.marketingCampaignDetail: const CampaignDetailPage(),
   RouteConstants.marketingSiteDetail: const SiteDetailPage(),

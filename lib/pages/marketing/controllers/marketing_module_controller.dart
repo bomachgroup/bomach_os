@@ -153,4 +153,96 @@ class MarketingModuleController extends GetxController {
       );
     }
   }
+
+  // ─── WORK DESK ─────────────────────────────────────────────────
+  var selectedRole = 'ceo'.obs;
+  var dailyChecks = <String, Map<String, bool>>{}.obs;
+  var dailyReports = <String, Map<String, String>>{}.obs;
+  var currentDailyReport = ''.obs;
+
+  String get todayKey {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+
+  RoleRoutine get currentRoleRoutine {
+    return MarketingDemoData.roleRoutines[selectedRole.value] ?? MarketingDemoData.roleRoutines['mgr']!;
+  }
+
+  List<String> get currentRoleObligations {
+    return MarketingDemoData.roleObligations[selectedRole.value] ?? MarketingDemoData.roleObligations['mgr']!;
+  }
+
+  List<FiveUnit> get fiveUnits => MarketingDemoData.fiveUnits;
+
+  Map<String, String> get currentRoleMeta {
+    return MarketingDemoData.roles[selectedRole.value] ?? MarketingDemoData.roles['mgr']!;
+  }
+
+  String get workdeskWelcomeName {
+    return currentRoleMeta['n'] ?? 'User';
+  }
+
+  int get workdeskTotalTasks {
+    final r = currentRoleRoutine;
+    return r.morning.length + r.afternoon.length + r.close.length;
+  }
+
+  int get workdeskDoneTasks {
+    final key = todayKey;
+    final dayChecks = dailyChecks[key] ?? {};
+    int done = 0;
+    final r = currentRoleRoutine;
+    const groups = ['morning', 'afternoon', 'close'];
+    for (int gi = 0; gi < groups.length; gi++) {
+      final list = gi == 0 ? r.morning : gi == 1 ? r.afternoon : r.close;
+      for (int i = 0; i < list.length; i++) {
+        if (dayChecks['$gi-$i'] == true) done++;
+      }
+    }
+    return done;
+  }
+
+  int get workdeskScore {
+    final total = workdeskTotalTasks;
+    if (total == 0) return 0;
+    return (workdeskDoneTasks * 100 / total).round();
+  }
+
+  String get workdeskRank {
+    final score = workdeskScore;
+    if (score >= 80) return '#1 of 5';
+    if (score >= 60) return '#2 of 5';
+    return '#3 of 5';
+  }
+
+  bool get isDailyReportSubmitted {
+    final key = todayKey;
+    return dailyReports[key]?.containsKey(selectedRole.value) ?? false;
+  }
+
+  void toggleRoutine(String id) {
+    final key = todayKey;
+    final dayChecks = Map<String, Map<String, bool>>.from(dailyChecks);
+    dayChecks[key] ??= {};
+    dayChecks[key]![id] = !(dayChecks[key]?[id] ?? false);
+    dailyChecks.value = dayChecks;
+  }
+
+  void submitDailyReport() {
+    final text = currentDailyReport.value.trim();
+    if (text.isEmpty) return;
+    final key = todayKey;
+    final reports = Map<String, Map<String, String>>.from(dailyReports);
+    reports[key] ??= {};
+    reports[key]![selectedRole.value] = text;
+    dailyReports.value = reports;
+    currentDailyReport.value = '';
+  }
+
+  void setRole(String role) {
+    selectedRole.value = role;
+  }
+
+  static Map<String, Map<String, String>> get demoRoles => MarketingDemoData.roles;
 }

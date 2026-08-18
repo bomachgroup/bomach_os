@@ -26,11 +26,13 @@ class MarketingDemoData {
       activities: [
         LeadActivity(
           title: 'Proposal sent via WhatsApp',
-          meta: 'Jul 13, 2:15PM · Emeka Obi · Bethel City plot — ₦4.5M, 30% down',
+          meta:
+              'Jul 13, 2:15PM · Emeka Obi · Bethel City plot — ₦4.5M, 30% down',
         ),
         LeadActivity(
           title: 'Qualification call completed',
-          meta: 'Jul 12, 11:30AM · Emeka Obi · Budget confirmed ₦3-8M, decision-maker, ready Q3',
+          meta:
+              'Jul 12, 11:30AM · Emeka Obi · Budget confirmed ₦3-8M, decision-maker, ready Q3',
         ),
         LeadActivity(
           title: 'Follow-up WhatsApp sent',
@@ -38,7 +40,8 @@ class MarketingDemoData {
         ),
         LeadActivity(
           title: 'Lead registered',
-          meta: 'Jul 10, 3:45PM · Facebook Ad · Bethel City Estate Launch campaign',
+          meta:
+              'Jul 10, 3:45PM · Facebook Ad · Bethel City Estate Launch campaign',
         ),
       ],
     ),
@@ -55,11 +58,13 @@ class MarketingDemoData {
       activities: [
         LeadActivity(
           title: 'Negotiation call — pricing discussion',
-          meta: 'Jul 13, 4:00PM · Peace C. · Discussing phased payment structure',
+          meta:
+              'Jul 13, 4:00PM · Peace C. · Discussing phased payment structure',
         ),
         LeadActivity(
           title: 'Site assessment completed',
-          meta: 'Jul 11, 10:00AM · Head of Operations · 5-bed duplex, foundation confirmed viable',
+          meta:
+              'Jul 11, 10:00AM · Head of Operations · 5-bed duplex, foundation confirmed viable',
         ),
         LeadActivity(
           title: 'Lead registered',
@@ -101,7 +106,8 @@ class MarketingDemoData {
       activities: [
         LeadActivity(
           title: 'Follow-up call scheduled',
-          meta: 'Jul 14, 9:00AM · Chioma S. · Discussed title documentation requirements',
+          meta:
+              'Jul 14, 9:00AM · Chioma S. · Discussed title documentation requirements',
         ),
         LeadActivity(
           title: 'Lead registered',
@@ -178,7 +184,8 @@ class MarketingDemoData {
       activities: [
         LeadActivity(
           title: 'Supply proposal sent',
-          meta: 'Jul 11, 1:00PM · Peace C. · Monthly cassava & garri supply contract',
+          meta:
+              'Jul 11, 1:00PM · Peace C. · Monthly cassava & garri supply contract',
         ),
         LeadActivity(
           title: 'Lead registered',
@@ -200,7 +207,8 @@ class MarketingDemoData {
       activities: [
         LeadActivity(
           title: 'First contact made',
-          meta: 'Jul 12, 10:00AM · Chioma S. · Discussed website development needs',
+          meta:
+              'Jul 12, 10:00AM · Chioma S. · Discussed website development needs',
         ),
       ],
     ),
@@ -234,7 +242,8 @@ class MarketingDemoData {
       activities: [
         LeadActivity(
           title: 'Marked as lost — budget mismatch',
-          meta: 'Jun 30, 5:00PM · Emeka Obi · Client\'s available budget below minimum plot price',
+          meta:
+              'Jun 30, 5:00PM · Emeka Obi · Client\'s available budget below minimum plot price',
         ),
       ],
     ),
@@ -269,7 +278,8 @@ class MarketingDemoData {
       activities: [
         LeadActivity(
           title: 'Negotiating payment terms',
-          meta: 'Jul 12, 4:30PM · Peace C. · Discussing 40% down vs 30% down options',
+          meta:
+              'Jul 12, 4:30PM · Peace C. · Discussing 40% down vs 30% down options',
         ),
       ],
     ),
@@ -553,34 +563,73 @@ class MarketingDemoData {
     const MarketingOKR(
       objective: 'O1 — Generate ₦85M monthly revenue across all divisions',
       keyResults: [
-        KeyResult(label: 'Real Estate closes ₦30M/month', percentage: 93, color: Color(0xFF059669)),
-        KeyResult(label: 'Benji generates ₦15M/month', percentage: 47, color: Color(0xFFDC2626)),
-        KeyResult(label: 'Engineering closes ₦20M/month', percentage: 60, color: Color(0xFFD97706)),
-        KeyResult(label: 'Surveying closes ₦5M/month', percentage: 84, color: Color(0xFF059669)),
+        KeyResult(
+            label: 'Real Estate closes ₦30M/month',
+            percentage: 93,
+            color: Color(0xFF059669)),
+        KeyResult(
+            label: 'Benji generates ₦15M/month',
+            percentage: 47,
+            color: Color(0xFFDC2626)),
+        KeyResult(
+            label: 'Engineering closes ₦20M/month',
+            percentage: 60,
+            color: Color(0xFFD97706)),
+        KeyResult(
+            label: 'Surveying closes ₦5M/month',
+            percentage: 84,
+            color: Color(0xFF059669)),
       ],
     ),
     const MarketingOKR(
       objective: 'O2 — Consistently generate 100+ qualified leads per week',
       keyResults: [
-        KeyResult(label: '100+ leads/week for 8 consecutive weeks', percentage: 82, color: Color(0xFFD97706)),
-        KeyResult(label: '100% of leads contacted within 2 hours', percentage: 91, color: Color(0xFF059669)),
-        KeyResult(label: 'Conversion rate reaches 25%', percentage: 73, color: Color(0xFFD97706)),
+        KeyResult(
+            label: '100+ leads/week for 8 consecutive weeks',
+            percentage: 82,
+            color: Color(0xFFD97706)),
+        KeyResult(
+            label: '100% of leads contacted within 2 hours',
+            percentage: 91,
+            color: Color(0xFF059669)),
+        KeyResult(
+            label: 'Conversion rate reaches 25%',
+            percentage: 73,
+            color: Color(0xFFD97706)),
       ],
     ),
     const MarketingOKR(
       objective: 'O3 — Build a world-class content machine',
       keyResults: [
-        KeyResult(label: '20 content pieces published every week', percentage: 68, color: Color(0xFFD97706)),
-        KeyResult(label: 'Average reach of 5,000+ per piece', percentage: 55, color: Color(0xFFDC2626)),
-        KeyResult(label: '50+ WhatsApp broadcast responses/week', percentage: 76, color: Color(0xFFD97706)),
+        KeyResult(
+            label: '20 content pieces published every week',
+            percentage: 68,
+            color: Color(0xFFD97706)),
+        KeyResult(
+            label: 'Average reach of 5,000+ per piece',
+            percentage: 55,
+            color: Color(0xFFDC2626)),
+        KeyResult(
+            label: '50+ WhatsApp broadcast responses/week',
+            percentage: 76,
+            color: Color(0xFFD97706)),
       ],
     ),
     const MarketingOKR(
       objective: 'O4 — Activate and grow partner and media network',
       keyResults: [
-        KeyResult(label: '10 active realtor partners generating leads', percentage: 30, color: Color(0xFFDC2626)),
-        KeyResult(label: '5 active influencer partnerships', percentage: 40, color: Color(0xFFDC2626)),
-        KeyResult(label: '3 active radio/TV placements', percentage: 67, color: Color(0xFFD97706)),
+        KeyResult(
+            label: '10 active realtor partners generating leads',
+            percentage: 30,
+            color: Color(0xFFDC2626)),
+        KeyResult(
+            label: '5 active influencer partnerships',
+            percentage: 40,
+            color: Color(0xFFDC2626)),
+        KeyResult(
+            label: '3 active radio/TV placements',
+            percentage: 67,
+            color: Color(0xFFD97706)),
       ],
     ),
   ];
@@ -588,13 +637,48 @@ class MarketingDemoData {
   // ─── TARGETS ───────────────────────────────────────────────────
 
   static const List<TargetRow> targets = [
-    TargetRow(label: 'Leads generated', target: '100', actual: '127', percentage: 127, color: Color(0xFF059669)),
-    TargetRow(label: 'Leads contacted within 2h', target: '100%', actual: '91%', percentage: 91, color: Color(0xFFD97706)),
-    TargetRow(label: 'Content pieces published', target: '20', actual: '17', percentage: 85, color: Color(0xFFD97706)),
-    TargetRow(label: 'Deals closed', target: '5', actual: '4', percentage: 80, color: Color(0xFFD97706)),
-    TargetRow(label: 'Revenue closed', target: '₦21.25M', actual: '₦14.2M', percentage: 67, color: Color(0xFFDC2626)),
-    TargetRow(label: 'New Benji vendors onboarded', target: '10', actual: '6', percentage: 60, color: Color(0xFFDC2626)),
-    TargetRow(label: 'Follow-up cadence compliance', target: '100%', actual: '84%', percentage: 84, color: Color(0xFFD97706)),
+    TargetRow(
+        label: 'Leads generated',
+        target: '100',
+        actual: '127',
+        percentage: 127,
+        color: Color(0xFF059669)),
+    TargetRow(
+        label: 'Leads contacted within 2h',
+        target: '100%',
+        actual: '91%',
+        percentage: 91,
+        color: Color(0xFFD97706)),
+    TargetRow(
+        label: 'Content pieces published',
+        target: '20',
+        actual: '17',
+        percentage: 85,
+        color: Color(0xFFD97706)),
+    TargetRow(
+        label: 'Deals closed',
+        target: '5',
+        actual: '4',
+        percentage: 80,
+        color: Color(0xFFD97706)),
+    TargetRow(
+        label: 'Revenue closed',
+        target: '₦21.25M',
+        actual: '₦14.2M',
+        percentage: 67,
+        color: Color(0xFFDC2626)),
+    TargetRow(
+        label: 'New Benji vendors onboarded',
+        target: '10',
+        actual: '6',
+        percentage: 60,
+        color: Color(0xFFDC2626)),
+    TargetRow(
+        label: 'Follow-up cadence compliance',
+        target: '100%',
+        actual: '84%',
+        percentage: 84,
+        color: Color(0xFFD97706)),
   ];
 
   // ─── NOTIFICATIONS ─────────────────────────────────────────────
@@ -652,7 +736,8 @@ class MarketingDemoData {
       thread: [
         WhatsAppMessage(
           isOutgoing: false,
-          text: 'Good morning, please I want to know more about the payment plan for Bethel City',
+          text:
+              'Good morning, please I want to know more about the payment plan for Bethel City',
           time: '9:02 AM',
         ),
       ],
@@ -688,7 +773,8 @@ class MarketingDemoData {
         ),
         WhatsAppMessage(
           isOutgoing: true,
-          text: 'Hi Ngozi! Your vendor account is now active. You can start listing products right away 🎉',
+          text:
+              'Hi Ngozi! Your vendor account is now active. You can start listing products right away 🎉',
           time: '8:05 AM',
         ),
       ],
@@ -823,70 +909,663 @@ class MarketingDemoData {
   // ─── MEDIA ASSETS ──────────────────────────────────────────────
 
   static const List<MediaAsset> mediaAssets = [
-    MediaAsset(title: 'Bethel City Drone Footage', type: 'video', bgColor: Color(0xFF1F3D7A), icon: 'ti-video', division: MarketingDivision.re, size: '240 MB'),
-    MediaAsset(title: 'Estate Logo Pack', type: 'image', bgColor: Color(0xFF0A6B3E), icon: 'ti-photo', division: MarketingDivision.re, size: '12 MB'),
-    MediaAsset(title: 'Benji App Screenshots', type: 'image', bgColor: Color(0xFF7C3AED), icon: 'ti-device-mobile', division: MarketingDivision.ben, size: '8 MB'),
-    MediaAsset(title: 'Engineering Showcase Reel', type: 'video', bgColor: Color(0xFFCC0000), icon: 'ti-video', division: MarketingDivision.eng, size: '180 MB'),
-    MediaAsset(title: 'Brand Guideline PDF', type: 'doc', bgColor: Color(0xFFB87D00), icon: 'ti-file-text', division: MarketingDivision.re, size: '4 MB'),
-    MediaAsset(title: 'Survey Site Photos', type: 'image', bgColor: Color(0xFF059669), icon: 'ti-photo', division: MarketingDivision.sur, size: '56 MB'),
-    MediaAsset(title: 'Vendor Testimonial Clips', type: 'video', bgColor: Color(0xFF7C3AED), icon: 'ti-video', division: MarketingDivision.ben, size: '310 MB'),
-    MediaAsset(title: 'Farm Produce Photos', type: 'image', bgColor: Color(0xFFDC2626), icon: 'ti-photo', division: MarketingDivision.agr, size: '22 MB'),
+    MediaAsset(
+        title: 'Bethel City Drone Footage',
+        type: 'video',
+        bgColor: Color(0xFF1F3D7A),
+        icon: 'ti-video',
+        division: MarketingDivision.re,
+        size: '240 MB'),
+    MediaAsset(
+        title: 'Estate Logo Pack',
+        type: 'image',
+        bgColor: Color(0xFF0A6B3E),
+        icon: 'ti-photo',
+        division: MarketingDivision.re,
+        size: '12 MB'),
+    MediaAsset(
+        title: 'Benji App Screenshots',
+        type: 'image',
+        bgColor: Color(0xFF7C3AED),
+        icon: 'ti-device-mobile',
+        division: MarketingDivision.ben,
+        size: '8 MB'),
+    MediaAsset(
+        title: 'Engineering Showcase Reel',
+        type: 'video',
+        bgColor: Color(0xFFCC0000),
+        icon: 'ti-video',
+        division: MarketingDivision.eng,
+        size: '180 MB'),
+    MediaAsset(
+        title: 'Brand Guideline PDF',
+        type: 'doc',
+        bgColor: Color(0xFFB87D00),
+        icon: 'ti-file-text',
+        division: MarketingDivision.re,
+        size: '4 MB'),
+    MediaAsset(
+        title: 'Survey Site Photos',
+        type: 'image',
+        bgColor: Color(0xFF059669),
+        icon: 'ti-photo',
+        division: MarketingDivision.sur,
+        size: '56 MB'),
+    MediaAsset(
+        title: 'Vendor Testimonial Clips',
+        type: 'video',
+        bgColor: Color(0xFF7C3AED),
+        icon: 'ti-video',
+        division: MarketingDivision.ben,
+        size: '310 MB'),
+    MediaAsset(
+        title: 'Farm Produce Photos',
+        type: 'image',
+        bgColor: Color(0xFFDC2626),
+        icon: 'ti-photo',
+        division: MarketingDivision.agr,
+        size: '22 MB'),
   ];
 
   // ─── BROADCASTS ────────────────────────────────────────────────
 
   static const List<BroadcastRecord> broadcasts = [
-    BroadcastRecord(date: 'Jul 10', audience: 'All RE leads', sent: 310, delivered: 298, responses: 47, generated: 12),
-    BroadcastRecord(date: 'Jul 7', audience: 'Benji vendors', sent: 124, delivered: 119, responses: 31, generated: 8),
-    BroadcastRecord(date: 'Jul 3', audience: 'Dormant leads', sent: 89, delivered: 84, responses: 12, generated: 3),
-    BroadcastRecord(date: 'Jun 28', audience: 'All RE leads', sent: 275, delivered: 261, responses: 39, generated: 9),
+    BroadcastRecord(
+        date: 'Jul 10',
+        audience: 'All RE leads',
+        sent: 310,
+        delivered: 298,
+        responses: 47,
+        generated: 12),
+    BroadcastRecord(
+        date: 'Jul 7',
+        audience: 'Benji vendors',
+        sent: 124,
+        delivered: 119,
+        responses: 31,
+        generated: 8),
+    BroadcastRecord(
+        date: 'Jul 3',
+        audience: 'Dormant leads',
+        sent: 89,
+        delivered: 84,
+        responses: 12,
+        generated: 3),
+    BroadcastRecord(
+        date: 'Jun 28',
+        audience: 'All RE leads',
+        sent: 275,
+        delivered: 261,
+        responses: 39,
+        generated: 9),
   ];
 
   // ─── SUPPORT TICKETS ───────────────────────────────────────────
 
   static const List<SupportTicket> tickets = [
-    SupportTicket(id: 'TK-041', customerName: 'Ngozi Kamalu', issue: 'Benji app not activating vendor account', division: MarketingDivision.ben, priority: 'urgent', time: '2h ago', assignedTo: 'Customer Care'),
-    SupportTicket(id: 'TK-040', customerName: 'Adaeze Chukwu', issue: 'Payment plan clarification request', division: MarketingDivision.re, priority: 'high', time: '4h ago', assignedTo: 'Customer Care'),
-    SupportTicket(id: 'TK-039', customerName: 'Emeka Eze', issue: 'Site visit rescheduling request', division: MarketingDivision.eng, priority: 'medium', time: 'Yesterday', assignedTo: 'Customer Care'),
-    SupportTicket(id: 'TK-038', customerName: 'Peter Ani', issue: 'Technical issue with Bomach OS login', division: MarketingDivision.ict, priority: 'high', time: 'Yesterday', assignedTo: 'Tech Dept'),
-    SupportTicket(id: 'TK-037', customerName: 'Ifeoma Nze', issue: 'Agriculture supply contract query', division: MarketingDivision.agr, priority: 'medium', time: '2 days ago', assignedTo: 'Business Dev'),
+    SupportTicket(
+        id: 'TK-041',
+        customerName: 'Ngozi Kamalu',
+        issue: 'Benji app not activating vendor account',
+        division: MarketingDivision.ben,
+        priority: 'urgent',
+        time: '2h ago',
+        assignedTo: 'Customer Care'),
+    SupportTicket(
+        id: 'TK-040',
+        customerName: 'Adaeze Chukwu',
+        issue: 'Payment plan clarification request',
+        division: MarketingDivision.re,
+        priority: 'high',
+        time: '4h ago',
+        assignedTo: 'Customer Care'),
+    SupportTicket(
+        id: 'TK-039',
+        customerName: 'Emeka Eze',
+        issue: 'Site visit rescheduling request',
+        division: MarketingDivision.eng,
+        priority: 'medium',
+        time: 'Yesterday',
+        assignedTo: 'Customer Care'),
+    SupportTicket(
+        id: 'TK-038',
+        customerName: 'Peter Ani',
+        issue: 'Technical issue with Bomach OS login',
+        division: MarketingDivision.ict,
+        priority: 'high',
+        time: 'Yesterday',
+        assignedTo: 'Tech Dept'),
+    SupportTicket(
+        id: 'TK-037',
+        customerName: 'Ifeoma Nze',
+        issue: 'Agriculture supply contract query',
+        division: MarketingDivision.agr,
+        priority: 'medium',
+        time: '2 days ago',
+        assignedTo: 'Business Dev'),
   ];
 
   // ─── REALTORS ──────────────────────────────────────────────────
 
   static const List<RealtorPartner> realtors = [
-    RealtorPartner(initials: 'CH', bgColor: Color(0xFFDBEAFE), textColor: Color(0xFF1E40AF), name: 'Chukwudi Habitat Agency', since: 'Jan 2025', commission: '3%', phone: '08031234567', referrals: '₦14.2M', status: 'active'),
-    RealtorPartner(initials: 'NE', bgColor: Color(0xFFD1FAE5), textColor: Color(0xFF065F46), name: 'Nwachukwu Estates Ltd', since: 'Mar 2025', commission: '2.5%', phone: '07041234567', referrals: '₦8.7M', status: 'active'),
-    RealtorPartner(initials: 'PP', bgColor: Color(0xFFFEF3C7), textColor: Color(0xFF92400E), name: 'Prime Properties Enugu', since: '—', commission: '3%', phone: '—', referrals: '—', status: 'pending'),
-    RealtorPartner(initials: 'GH', bgColor: Color(0xFFEDE9FE), textColor: Color(0xFF5B21B6), name: 'Greater Horizons Realty', since: 'Jun 2025', commission: '2%', phone: '08021234567', referrals: '₦3.1M', status: 'active'),
+    RealtorPartner(
+        initials: 'CH',
+        bgColor: Color(0xFFDBEAFE),
+        textColor: Color(0xFF1E40AF),
+        name: 'Chukwudi Habitat Agency',
+        since: 'Jan 2025',
+        commission: '3%',
+        phone: '08031234567',
+        referrals: '₦14.2M',
+        status: 'active'),
+    RealtorPartner(
+        initials: 'NE',
+        bgColor: Color(0xFFD1FAE5),
+        textColor: Color(0xFF065F46),
+        name: 'Nwachukwu Estates Ltd',
+        since: 'Mar 2025',
+        commission: '2.5%',
+        phone: '07041234567',
+        referrals: '₦8.7M',
+        status: 'active'),
+    RealtorPartner(
+        initials: 'PP',
+        bgColor: Color(0xFFFEF3C7),
+        textColor: Color(0xFF92400E),
+        name: 'Prime Properties Enugu',
+        since: '—',
+        commission: '3%',
+        phone: '—',
+        referrals: '—',
+        status: 'pending'),
+    RealtorPartner(
+        initials: 'GH',
+        bgColor: Color(0xFFEDE9FE),
+        textColor: Color(0xFF5B21B6),
+        name: 'Greater Horizons Realty',
+        since: 'Jun 2025',
+        commission: '2%',
+        phone: '08021234567',
+        referrals: '₦3.1M',
+        status: 'active'),
   ];
 
   // ─── INFLUENCERS ───────────────────────────────────────────────
 
   static const List<InfluencerPartner> influencers = [
-    InfluencerPartner(initials: 'AO', bgColor: Color(0xFF7C3AED), name: 'Adaora Okafor', handle: '@adaora_enugu', platform: 'Instagram + TikTok', followers: '48K', engagement: '6.2%', niche: 'Real Estate', rate: '₦180K/post', status: 'active'),
-    InfluencerPartner(initials: 'KN', bgColor: Color(0xFF059669), name: 'Kelechi Nwosu', handle: '@kelechi_foodie', platform: 'TikTok + Instagram', followers: '112K', engagement: '8.9%', niche: 'Food / Benji', rate: '₦350K/post', status: 'negotiation'),
-    InfluencerPartner(initials: 'CI', bgColor: Color(0xFFCC0000), name: 'Chisom Igwe', handle: '@chisom_builds', platform: 'YouTube + Instagram', followers: '29K', engagement: '4.1%', niche: 'Engineering', rate: '₦120K/post', status: 'pending'),
-    InfluencerPartner(initials: 'TM', bgColor: Color(0xFFD97706), name: 'Tochi Mbah', handle: '@tochi_enugu', platform: 'Instagram', followers: '67K', engagement: '5.8%', niche: 'Lifestyle', rate: '₦220K/post', status: 'active'),
+    InfluencerPartner(
+        initials: 'AO',
+        bgColor: Color(0xFF7C3AED),
+        name: 'Adaora Okafor',
+        handle: '@adaora_enugu',
+        platform: 'Instagram + TikTok',
+        followers: '48K',
+        engagement: '6.2%',
+        niche: 'Real Estate',
+        rate: '₦180K/post',
+        status: 'active'),
+    InfluencerPartner(
+        initials: 'KN',
+        bgColor: Color(0xFF059669),
+        name: 'Kelechi Nwosu',
+        handle: '@kelechi_foodie',
+        platform: 'TikTok + Instagram',
+        followers: '112K',
+        engagement: '8.9%',
+        niche: 'Food / Benji',
+        rate: '₦350K/post',
+        status: 'negotiation'),
+    InfluencerPartner(
+        initials: 'CI',
+        bgColor: Color(0xFFCC0000),
+        name: 'Chisom Igwe',
+        handle: '@chisom_builds',
+        platform: 'YouTube + Instagram',
+        followers: '29K',
+        engagement: '4.1%',
+        niche: 'Engineering',
+        rate: '₦120K/post',
+        status: 'pending'),
+    InfluencerPartner(
+        initials: 'TM',
+        bgColor: Color(0xFFD97706),
+        name: 'Tochi Mbah',
+        handle: '@tochi_enugu',
+        platform: 'Instagram',
+        followers: '67K',
+        engagement: '5.8%',
+        niche: 'Lifestyle',
+        rate: '₦220K/post',
+        status: 'active'),
   ];
 
   // ─── KPI PERIODS ───────────────────────────────────────────────
 
   static const Map<String, Map<String, String>> periodData = {
-    'today': {'leads': '23', 'conv': '21.4%', 'pipe': '₦12M', 'content': '4', 'allLeads': '83', 'allRevenue': '₦8.2M'},
-    'week': {'leads': '127', 'conv': '18.2%', 'pipe': '₦84M', 'content': '17', 'allLeads': '483', 'allRevenue': '₦47.3M'},
-    'month': {'leads': '483', 'conv': '15.8%', 'pipe': '₦210M', 'content': '68', 'allLeads': '1,420', 'allRevenue': '₦142M'},
-    'quarter': {'leads': '1,420', 'conv': '14.2%', 'pipe': '₦580M', 'content': '186', 'allLeads': '4,100', 'allRevenue': '₦389M'},
+    'today': {
+      'leads': '23',
+      'conv': '21.4%',
+      'pipe': '₦12M',
+      'content': '4',
+      'allLeads': '83',
+      'allRevenue': '₦8.2M'
+    },
+    'week': {
+      'leads': '127',
+      'conv': '18.2%',
+      'pipe': '₦84M',
+      'content': '17',
+      'allLeads': '483',
+      'allRevenue': '₦47.3M'
+    },
+    'month': {
+      'leads': '483',
+      'conv': '15.8%',
+      'pipe': '₦210M',
+      'content': '68',
+      'allLeads': '1,420',
+      'allRevenue': '₦142M'
+    },
+    'quarter': {
+      'leads': '1,420',
+      'conv': '14.2%',
+      'pipe': '₦580M',
+      'content': '186',
+      'allLeads': '4,100',
+      'allRevenue': '₦389M'
+    },
   };
 
   // ─── CAMPAIGN TEMPLATES ────────────────────────────────────────
 
   static const List<CampaignTemplate> campaignTemplates = [
-    CampaignTemplate(name: 'Estate Launch', icon: 'ti-home', description: 'Full campaign for new estate development — social, field, WhatsApp and print'),
-    CampaignTemplate(name: 'Campus Activation', icon: 'ti-school', description: 'Student and youth-focused outreach campaign for Benji vendor recruitment'),
-    CampaignTemplate(name: 'Content Series', icon: 'ti-photo-video', description: 'Multi-week content series — video, graphics, carousels and stories'),
-    CampaignTemplate(name: 'Product Spotlight', icon: 'ti-star', description: 'Focused campaign highlighting a single product or service line'),
-    CampaignTemplate(name: 'Seasonal Promo', icon: 'ti-gift', description: 'Time-limited promotional campaign with urgency and special offers'),
-    CampaignTemplate(name: 'Partner Co-Brand', icon: 'ti-handshake', description: 'Joint campaign with realtor or influencer partner'),
+    CampaignTemplate(
+        name: 'Estate Launch',
+        icon: 'ti-home',
+        description:
+            'Full campaign for new estate development — social, field, WhatsApp and print'),
+    CampaignTemplate(
+        name: 'Campus Activation',
+        icon: 'ti-school',
+        description:
+            'Student and youth-focused outreach campaign for Benji vendor recruitment'),
+    CampaignTemplate(
+        name: 'Content Series',
+        icon: 'ti-photo-video',
+        description:
+            'Multi-week content series — video, graphics, carousels and stories'),
+    CampaignTemplate(
+        name: 'Product Spotlight',
+        icon: 'ti-star',
+        description:
+            'Focused campaign highlighting a single product or service line'),
+    CampaignTemplate(
+        name: 'Seasonal Promo',
+        icon: 'ti-gift',
+        description:
+            'Time-limited promotional campaign with urgency and special offers'),
+    CampaignTemplate(
+        name: 'Partner Co-Brand',
+        icon: 'ti-handshake',
+        description: 'Joint campaign with realtor or influencer partner'),
   ];
+
+  // ─── FIVE UNITS ────────────────────────────────────────────────
+
+  static const List<FiveUnit> fiveUnits = [
+    FiveUnit(
+        num: 'Unit 1',
+        name: 'Business Development & Market Intelligence',
+        kpi:
+            'Market intelligence, opportunities, strategy, partnerships and control'),
+    FiveUnit(
+        num: 'Unit 2',
+        name: 'Digital Marketing & Social',
+        kpi:
+            'Paid media, funnels, landing pages, tracking, email and automation'),
+    FiveUnit(
+        num: 'Unit 3',
+        name: 'Content, Media & Creative',
+        kpi:
+            'Strategy, scripts, production, design, publishing and asset intelligence'),
+    FiveUnit(
+        num: 'Unit 4',
+        name: 'Sales & Traditional Marketing',
+        kpi:
+            'Prospecting, field marketing, realtor network, inspections, negotiation and closing'),
+    FiveUnit(
+        num: 'Unit 5',
+        name: 'Analytics, Tech & Operations',
+        kpi:
+            'Reporting, CRM, automation, compliance, approvals and process improvement'),
+  ];
+
+  // ─── ROLE ROUTINES ─────────────────────────────────────────────
+
+  static const Map<String, RoleRoutine> roleRoutines = {
+    'ceo': RoleRoutine(
+      name: 'CEO & Founder',
+      morning: [
+        'Review revenue command centre',
+        'Review critical risks and approvals',
+        'Check branch and unit performance',
+        'Review major opportunities'
+      ],
+      afternoon: [
+        'Remove cross-department blockers',
+        'Approve strategic spend and partnerships',
+        'Review top 10 deals',
+        'Coach department heads'
+      ],
+      close: [
+        'Review department summaries',
+        'Confirm executive decisions',
+        'Set tomorrow priorities'
+      ],
+    ),
+    'mgr': RoleRoutine(
+      name: 'Marketing Manager',
+      morning: [
+        'Review daily pipeline and targets',
+        'Check lead SLA compliance',
+        'Review content calendar',
+        'Check team attendance'
+      ],
+      afternoon: [
+        'Approve campaigns and content',
+        'Remove team blockers',
+        'Review partner performance',
+        'Prepare weekly report'
+      ],
+      close: [
+        'Submit daily report',
+        'Confirm tomorrow priorities',
+        'Review team summaries'
+      ],
+    ),
+    'digital': RoleRoutine(
+      name: 'Digital Marketer',
+      morning: [
+        'Check ad campaigns performance',
+        'Review CPL and ROAS',
+        'Respond to new leads',
+        'Optimise underperforming ads'
+      ],
+      afternoon: [
+        'Create and schedule new content',
+        'Monitor social engagement',
+        'Update tracking and UTM',
+        'Prepare ad performance report'
+      ],
+      close: [
+        'Log daily ad spend',
+        'Report campaign results',
+        'Plan next day optimisations'
+      ],
+    ),
+    'content': RoleRoutine(
+      name: 'Content & Media Director',
+      morning: [
+        'Review content calendar',
+        'Check briefs and deadlines',
+        'Approve creative drafts',
+        'Assign tasks to team'
+      ],
+      afternoon: [
+        'Review produced content',
+        'Coordinate with design and video',
+        'Schedule publishing',
+        'Archive completed assets'
+      ],
+      close: [
+        'Report content compliance',
+        'Log completed items',
+        'Plan next day content'
+      ],
+    ),
+    'graphic': RoleRoutine(
+      name: 'Graphic Designer',
+      morning: [
+        'Review design briefs',
+        'Check priority items',
+        'Create assigned designs',
+        'Update task status'
+      ],
+      afternoon: [
+        'Submit designs for review',
+        'Make revisions',
+        'Archive source files',
+        'Prepare next batch'
+      ],
+      close: ['Log completed items', 'Confirm approvals', 'Organise files'],
+    ),
+    'sales': RoleRoutine(
+      name: 'Sales Representative',
+      morning: [
+        'Review assigned leads',
+        'Contact new leads within SLA',
+        'Follow up on pending',
+        'Update CRM before 10 AM'
+      ],
+      afternoon: [
+        'Conduct inspections and meetings',
+        'Send proposals',
+        'Negotiate and close',
+        'Log all activities'
+      ],
+      close: [
+        'Update deal stages',
+        'Submit daily report',
+        'Plan next day priorities'
+      ],
+    ),
+    'care': RoleRoutine(
+      name: 'Customer Relations Officer',
+      morning: [
+        'Review open tickets',
+        'Respond to new inquiries',
+        'Check SLA compliance',
+        'Follow up on pending'
+      ],
+      afternoon: [
+        'Resolve tickets and complaints',
+        'Update customer records',
+        'Escalate urgent issues',
+        'Log all conversations'
+      ],
+      close: [
+        'Report resolution metrics',
+        'Close completed tickets',
+        'Plan next day follow-ups'
+      ],
+    ),
+    'bizdev': RoleRoutine(
+      name: 'Business Development Officer',
+      morning: [
+        'Review market intelligence',
+        'Check opportunity pipeline',
+        'Contact new prospects',
+        'Update CRM'
+      ],
+      afternoon: [
+        'Develop partnership proposals',
+        'Meet potential partners',
+        'Research new markets',
+        'Prepare reports'
+      ],
+      close: [
+        'Log activities and outcomes',
+        'Update pipeline',
+        'Plan next day outreach'
+      ],
+    ),
+    'partner': RoleRoutine(
+      name: 'Partner Manager',
+      morning: [
+        'Check realtor and influencer activities',
+        'Review partner performance',
+        'Approve partner reports',
+        'Respond to enquiries'
+      ],
+      afternoon: [
+        'Verify partner deliverables',
+        'Process commission and payments',
+        'Onboard new partners',
+        'Update partner records'
+      ],
+      close: [
+        'Report partner KPIs',
+        'Log partner interactions',
+        'Plan next day activities'
+      ],
+    ),
+    'realtor': RoleRoutine(
+      name: 'External Realtor',
+      morning: [
+        'Check new listings and prices',
+        'Respond to client inquiries',
+        'Share estate information',
+        'Book inspections'
+      ],
+      afternoon: [
+        'Conduct site inspections',
+        'Follow up on interested leads',
+        'Register leads in system',
+        'Submit reports'
+      ],
+      close: [
+        'Report activities',
+        'Log client interactions',
+        'Plan next day visits'
+      ],
+    ),
+    'influencer': RoleRoutine(
+      name: 'External Partner / Influencer',
+      morning: [
+        'Review brief and requirements',
+        'Plan content creation',
+        'Confirm deadline',
+        'Gather materials'
+      ],
+      afternoon: [
+        'Create and edit content',
+        'Submit for review',
+        'Post approved content',
+        'Share performance report'
+      ],
+      close: [
+        'Submit proof and report',
+        'Log deliverables',
+        'Plan next assignment'
+      ],
+    ),
+  };
+
+  // ─── ROLE OBLIGATIONS ──────────────────────────────────────────
+
+  static final Map<String, List<String>> roleObligations = {
+    'ceo': [
+      'Approve strategic campaigns and expenditure',
+      'Review weekly executive dashboard',
+      'Remove critical blockers'
+    ],
+    'mgr': [
+      'Own department revenue and pipeline',
+      'Approve campaigns and content',
+      'Submit daily/weekly/monthly reports'
+    ],
+    'digital': [
+      'Maintain tracking accuracy',
+      'Optimise spend daily',
+      'Report CPL, CTR, ROAS and lead quality'
+    ],
+    'content': [
+      'Meet content calendar',
+      'Maintain brand and approval quality',
+      'Archive all content assets'
+    ],
+    'graphic': [
+      'Deliver approved designs on time',
+      'Maintain brand consistency',
+      'Store editable source files'
+    ],
+    'sales': [
+      'No lead without follow-up and next action',
+      'Update CRM before close of day',
+      'Meet revenue and conversion targets'
+    ],
+    'care': [
+      'First response within SLA',
+      'Log every conversation and complaint',
+      'Follow through to resolution'
+    ],
+    'bizdev': [
+      'Produce actionable market intelligence',
+      'Maintain opportunity pipeline',
+      'Develop qualified partnerships'
+    ],
+    'partner': [
+      'Verify partner performance before payment',
+      'Maintain agreements and KYC',
+      'Track partner-sourced revenue'
+    ],
+    'realtor': [
+      'Register leads before inspection',
+      'Use only approved information',
+      'Maintain client confidentiality'
+    ],
+    'influencer': [
+      'Follow approved brief',
+      'Disclose partnership where required',
+      'Submit proof and performance report'
+    ],
+  };
+
+  // ─── ROLE DISPLAY NAMES ────────────────────────────────────────
+
+  static const Map<String, Map<String, String>> roles = {
+    'ceo': {'n': 'CEO & Founder', 'i': 'TD', 'r': 'CEO & Founder'},
+    'mgr': {'n': 'Marketing Manager', 'i': 'PC', 'r': 'Marketing Manager'},
+    'digital': {
+      'n': 'Digital Marketer',
+      'i': 'DM',
+      'r': 'Digital Marketing Specialist'
+    },
+    'content': {
+      'n': 'Content Director',
+      'i': 'WF',
+      'r': 'Content & Media Director'
+    },
+    'graphic': {
+      'n': 'Graphic Designer',
+      'i': 'GD',
+      'r': 'Creative / Graphic Designer'
+    },
+    'sales': {
+      'n': 'Sales Representative',
+      'i': 'EO',
+      'r': 'Sales Representative'
+    },
+    'care': {
+      'n': 'Customer Care Officer',
+      'i': 'CO',
+      'r': 'Customer Relations Officer'
+    },
+    'bizdev': {
+      'n': 'Business Developer',
+      'i': 'BD',
+      'r': 'Business Development Officer'
+    },
+    'partner': {
+      'n': 'Partner Manager',
+      'i': 'PM',
+      'r': 'Partnerships & Media Manager'
+    },
+    'realtor': {'n': 'External Realtor', 'i': 'ER', 'r': 'External Realtor'},
+    'influencer': {
+      'n': 'External Partner',
+      'i': 'EP',
+      'r': 'External Partner / Influencer'
+    },
+  };
 }

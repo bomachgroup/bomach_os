@@ -16,6 +16,7 @@ class AppIcons {
   static const IconData operations = Iconsax.briefcase;
   static const IconData services = Iconsax.box;
   static const IconData marketingCrm = Iconsax.chart_2;
+  static const IconData marketing = Iconsax.lamp_charge;
   static const IconData crm = Iconsax.profile_2user;
   static const IconData finance = Iconsax.wallet_3;
   static const IconData events = Iconsax.calendar_1;

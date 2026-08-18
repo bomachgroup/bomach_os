@@ -26,6 +26,54 @@ class RouteConstants {
 
   // marketing
   static const String marketing = '/marketing';
+  static const String marketingDashboard = '/marketing/dashboard';
+  static const String marketingPipeline = '/marketing/pipeline';
+  static const String marketingCampaigns = '/marketing/campaigns';
+  static const String marketingCalendar = '/marketing/calendar';
+  static const String marketingAnalytics = '/marketing/analytics';
+  static const String marketingOkrs = '/marketing/okrs';
+  static const String marketingReports = '/marketing/reports';
+  static const String marketingTeam = '/marketing/team';
+  static const String marketingNewLead = '/marketing/new-lead';
+  static const String marketingMedia = '/marketing/media';
+
+  // revenue execution
+  static const String marketingRevenueCommand = '/marketing/revenue-command';
+  static const String marketingDailyExecution = '/marketing/daily-execution';
+  static const String marketingLeadControl = '/marketing/lead-control';
+  static const String marketingFunnelAudit = '/marketing/funnel-audit';
+  static const String marketingPlaybooks = '/marketing/playbooks';
+  static const String marketingContentStudio = '/marketing/content-studio';
+  static const String marketingCoaching = '/marketing/coaching';
+  static const String marketingForecast = '/marketing/forecast';
+  static const String marketingRetention = '/marketing/retention';
+
+  // integrations & workdesk
+  static const String marketingWorkdesk = '/marketing/workdesk';
+  static const String marketingLeadJournal = '/marketing/lead-journal';
+  static const String marketingIntegrations = '/marketing/integrations';
+
+  // commercial operations
+  static const String marketingEmailCenter = '/marketing/email-center';
+  static const String marketingMediaRegister = '/marketing/media-register';
+  static const String marketingHandoff = '/marketing/handoff';
+  static const String marketingRealtorPortal = '/marketing/realtor-portal';
+  static const String marketingPartnerPortal = '/marketing/partner-portal';
+
+  // governance
+  static const String marketingRoleGovernance = '/marketing/role-governance';
+  static const String marketingApprovals = '/marketing/approvals';
+  static const String marketingAuditLog = '/marketing/audit-log';
+
+  // campaign operations & additional tools
+  static const String marketingMeetings = '/marketing/marketing-meetings';
+  static const String marketingTurnaround = '/marketing/turnaround';
+  static const String marketingCompliance = '/marketing/compliance';
+  static const String marketingPartners = '/marketing/partners';
+  static const String marketingSupport = '/marketing/support';
+  static const String marketingDesign = '/marketing/design';
+  static const String marketingWhatsapp = '/marketing/whatsapp';
+
   static const String marketingLeadDetail = '/marketing/lead/detail';
   static const String marketingCampaignDetail = '/marketing/campaign/detail';
   static const String marketingSiteDetail = '/marketin/site/detail';

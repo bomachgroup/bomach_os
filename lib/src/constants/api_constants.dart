@@ -24,6 +24,13 @@ class ApiConstants {
         : 'https://bomachauthtest.bgbot.app';
   }
 
+  static String get marketingBaseUrl {
+    return const String.fromEnvironment(
+      'MARKETING_URL',
+      defaultValue: 'http://localhost:5173',
+    );
+  }
+
   // Deprecated: migrate to authBaseUrl or operationsBaseUrl
   static String get baseUrl => authBaseUrl;
 
