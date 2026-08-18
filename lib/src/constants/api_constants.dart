@@ -31,6 +31,13 @@ class ApiConstants {
     );
   }
 
+  static String get servicesBaseUrl {
+    return const String.fromEnvironment(
+      'SERVICES_URL',
+      defaultValue: 'http://localhost:5174',
+    );
+  }
+
   // Deprecated: migrate to authBaseUrl or operationsBaseUrl
   static String get baseUrl => authBaseUrl;
 

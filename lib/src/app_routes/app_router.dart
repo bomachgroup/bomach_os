@@ -61,7 +61,6 @@ import 'package:bomach_os/pages/hr/monthly_scorecard.dart';
 import 'package:bomach_os/pages/hr/awards_recognition.dart';
 import 'package:bomach_os/pages/hr/performance_leaderboard.dart';
 import 'package:bomach_os/pages/hr/employee_evaluation.dart';
-import 'package:bomach_os/pages/hr/disciplinary_process.dart';
 import 'package:bomach_os/pages/large_screen.dart';
 import 'package:bomach_os/pages/legal/legal.dart';
 import 'package:bomach_os/pages/marketing/campaign_detail.dart';
@@ -100,6 +99,7 @@ import 'package:bomach_os/pages/services/service_order.dart';
 import 'package:bomach_os/pages/services/services.dart';
 import 'package:bomach_os/pages/services/services_calculator.dart';
 import 'package:bomach_os/pages/services/services_property.dart';
+import 'package:bomach_os/pages/services/widget/services_webview.dart';
 import 'package:bomach_os/pages/small_screen.dart';
 import 'package:bomach_os/pages/workspace/workspace.dart';
 import 'package:bomach_os/pages/workspace/workspace_dashboard.dart';
@@ -197,8 +197,24 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.awardsRecognition: const AwardsRecognitionPage(),
   RouteConstants.performanceLeaderboard: const PerformanceLeaderboardPage(),
   RouteConstants.employeeEvaluation: const EmployeeEvaluationPage(),
-  RouteConstants.disciplinaryProcess: const DisciplinaryProcessPage(),
   RouteConstants.services: const ServicesPage(),
+  RouteConstants.servicesDashboard: const ServicesWebView(route: '/app/dashboard'),
+  RouteConstants.servicesCatalogue: const ServicesWebView(route: '/app/service-catalogue'),
+  RouteConstants.servicesCalculators: const ServicesWebView(route: '/app/calculator-library'),
+  RouteConstants.servicesRequestFormBuilder: const ServicesWebView(route: '/app/request-form-builder'),
+  RouteConstants.servicesWorkflowDesigner: const ServicesWebView(route: '/app/workflow-designer'),
+  RouteConstants.servicesBranchActivation: const ServicesWebView(route: '/app/branch-activation'),
+  RouteConstants.servicesRequests: const ServicesWebView(route: '/app/service-requests'),
+  RouteConstants.servicesQuotations: const ServicesWebView(route: '/app/quotations'),
+  RouteConstants.servicesInvoicesPayments: const ServicesWebView(route: '/app/invoices-payments'),
+  RouteConstants.servicesApprovals: const ServicesWebView(route: '/app/approvals'),
+  RouteConstants.servicesOrders: const ServicesWebView(route: '/app/service-orders'),
+  RouteConstants.servicesExecutionTasks: const ServicesWebView(route: '/app/execution-tasks'),
+  RouteConstants.servicesDeliverables: const ServicesWebView(route: '/app/deliverables'),
+  RouteConstants.servicesRealEstateInventory: const ServicesWebView(route: '/app/real-estate-inventory'),
+  RouteConstants.servicesSurveyEngineeringOthers: const ServicesWebView(route: '/app/survey-engineering-others'),
+  RouteConstants.servicesFeedbackQuality: const ServicesWebView(route: '/app/feedback-quality'),
+  RouteConstants.servicesReportsAnalytics: const ServicesWebView(route: '/app/reports-analytics'),
   RouteConstants.landSurveyCalculator: const LandSurveyCalculatorPage(),
   RouteConstants.servicesCalculator: const ServicesCalculatorPage(),
   // Property Management

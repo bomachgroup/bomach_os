@@ -119,6 +119,24 @@ class RouteConstants {
 
   // services
   static const String services = '/services';
+  static const String servicesDashboard = '/services/dashboard';
+  static const String servicesCatalogue = '/services/service-catalogue';
+  static const String servicesCalculators = '/services/calculator-library';
+  static const String servicesRequestFormBuilder = '/services/request-form-builder';
+  static const String servicesWorkflowDesigner = '/services/workflow-designer';
+  static const String servicesBranchActivation = '/services/branch-activation';
+  static const String servicesRequests = '/services/service-requests';
+  static const String servicesQuotations = '/services/quotations';
+  static const String servicesInvoicesPayments = '/services/invoices-payments';
+  static const String servicesApprovals = '/services/approvals';
+  static const String servicesOrders = '/services/service-orders';
+  static const String servicesExecutionTasks = '/services/execution-tasks';
+  static const String servicesDeliverables = '/services/deliverables';
+  static const String servicesRealEstateInventory = '/services/real-estate-inventory';
+  static const String servicesSurveyEngineeringOthers = '/services/survey-engineering-others';
+  static const String servicesFeedbackQuality = '/services/feedback-quality';
+  static const String servicesReportsAnalytics = '/services/reports-analytics';
+
   static const String servicesProperty = '/services-property';
   static const String serviceDetail = '/services/detail';
   static const String realEstate = '/services/real-estate';
