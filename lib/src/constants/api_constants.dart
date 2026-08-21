@@ -34,7 +34,7 @@ class ApiConstants {
   static String get servicesBaseUrl {
     return const String.fromEnvironment(
       'SERVICES_URL',
-      defaultValue: 'https://services-iota-two.vercel.app',
+      defaultValue: 'https://services-mocha-xi.vercel.app',
     );
   }
 
