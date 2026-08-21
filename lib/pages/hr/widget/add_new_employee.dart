@@ -249,13 +249,13 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     }
   }
 
-  Future<void> _selectDate(bool isDob) async {
+  Future<void> _selectDate(BuildContext anchorContext, bool isDob) async {
     final picked = await showDatePopover(
-      context,
+      anchorContext,
       initialDate:
-          isDob ? (_dob ?? DateTime(1990)) : (_joinDate ?? DateTime.now()),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
+          isDob ? (_dob ?? DateTime(1995, 1, 1)) : (_joinDate ?? DateTime.now()),
+      firstDate: isDob ? DateTime(1920) : DateTime(2000),
+      lastDate: isDob ? DateTime.now() : DateTime(2100),
     );
     if (picked != null) {
       setState(() {
@@ -1095,42 +1095,47 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   }
 
   Widget _buildDatePicker(String title, DateTime? date, bool isDob) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTextStyles.label),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: () => _selectDate(isDob),
-          borderRadius: AppRadii.brMd,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              border: Border.all(color: AppColors.borderSubtle),
+    return Builder(
+      builder: (fieldContext) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTextStyles.label),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: () => _selectDate(fieldContext, isDob),
               borderRadius: AppRadii.brMd,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  date != null
-                      ? DateFormat('yyyy-MM-dd').format(date)
-                      : 'Select Date',
-                  style: AppTextStyles.bodyMd.copyWith(
-                    color: date != null
-                        ? AppColors.textPrimary
-                        : AppColors.textMuted,
-                  ),
+              child: Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  border: Border.all(color: AppColors.borderSubtle),
+                  borderRadius: AppRadii.brMd,
                 ),
-                const Icon(Iconsax.calendar_1,
-                    size: 16, color: AppColors.textSecondary),
-              ],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      date != null
+                          ? DateFormat('yyyy-MM-dd').format(date)
+                          : 'Select Date',
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: date != null
+                            ? AppColors.textPrimary
+                            : AppColors.textMuted,
+                      ),
+                    ),
+                    const Icon(Iconsax.calendar_1,
+                        size: 16, color: AppColors.textSecondary),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }

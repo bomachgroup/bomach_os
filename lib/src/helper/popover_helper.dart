@@ -79,6 +79,25 @@ OverlayEntry showGlobalPopover({
   final renderBox = anchor.findRenderObject() as RenderBox;
   final globalPos = renderBox.localToGlobal(Offset.zero);
   final size = renderBox.size;
+  final overlay = Overlay.of(anchor);
+  final overlayRenderBox = overlay.context.findRenderObject() as RenderBox?;
+  final overlaySize = overlayRenderBox?.size ?? MediaQuery.of(anchor).size;
+
+  final popoverWidth = width ?? size.width;
+  double left = globalPos.dx;
+  if (left + popoverWidth > overlaySize.width - 16) {
+    left = overlaySize.width - popoverWidth - 16;
+  }
+  if (left < 16) left = 16;
+
+  const estimatedHeight = 360.0;
+  double top = globalPos.dy + size.height + verticalOffset;
+  if (top + estimatedHeight > overlaySize.height - 16 &&
+      globalPos.dy - estimatedHeight - verticalOffset >= 16) {
+    top = globalPos.dy - estimatedHeight - verticalOffset;
+  } else if (top + estimatedHeight > overlaySize.height - 16) {
+    top = (overlaySize.height - estimatedHeight - 16).clamp(16.0, double.infinity);
+  }
 
   // Declared before the entry so the builder closure can capture it
   // and resolve the real reference at runtime (after insertion).
@@ -100,9 +119,9 @@ OverlayEntry showGlobalPopover({
             ),
           ),
           Positioned(
-            left: globalPos.dx,
-            top: globalPos.dy + size.height + verticalOffset,
-            width: width ?? size.width,
+            left: left,
+            top: top,
+            width: popoverWidth,
             child: KeyboardListener(
               focusNode: FocusNode()..requestFocus(),
               onKeyEvent: (event) {
@@ -120,7 +139,7 @@ OverlayEntry showGlobalPopover({
   );
 
   entryRef = entry;
-  Overlay.of(anchor).insert(entry);
+  overlay.insert(entry);
   return entry;
 }
 

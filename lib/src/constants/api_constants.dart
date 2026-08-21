@@ -27,14 +27,14 @@ class ApiConstants {
   static String get marketingBaseUrl {
     return const String.fromEnvironment(
       'MARKETING_URL',
-      defaultValue: 'http://localhost:5173',
+      defaultValue: 'https://marketing-wine-alpha.vercel.app',
     );
   }
 
   static String get servicesBaseUrl {
     return const String.fromEnvironment(
       'SERVICES_URL',
-      defaultValue: 'http://localhost:5174',
+      defaultValue: 'https://services-iota-two.vercel.app',
     );
   }
 
