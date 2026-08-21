@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/api_constants.dart';
 
 Widget buildMarketingPlatformView({
   required String initialUrl,
@@ -78,6 +79,8 @@ String _buildFullUrl({
   if (hideSidebar) queryParams['hideSidebar'] = 'true';
   if (hideTopbar) queryParams['hideTopbar'] = 'true';
   if (token.isNotEmpty) queryParams['token'] = token;
+  queryParams['apiBaseUrl'] = ApiConstants.authBaseUrl;
+  queryParams['backendUrl'] = ApiConstants.authBaseUrl;
 
   return uri.replace(queryParameters: queryParams).toString();
 }

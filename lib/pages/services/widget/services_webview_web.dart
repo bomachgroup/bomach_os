@@ -1,6 +1,7 @@
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
+import 'package:bomach_os/src/constants/api_constants.dart';
 
 final Map<String, web.HTMLIFrameElement> _activeServicesIframes = {};
 
@@ -96,6 +97,8 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
     if (widget.hideSidebar) queryParams['hideSidebar'] = 'true';
     if (widget.hideTopbar) queryParams['hideTopbar'] = 'true';
     if (widget.token.isNotEmpty) queryParams['token'] = widget.token;
+    queryParams['apiBaseUrl'] = ApiConstants.authBaseUrl;
+    queryParams['backendUrl'] = ApiConstants.authBaseUrl;
 
     return uri.replace(queryParameters: queryParams).toString();
   }

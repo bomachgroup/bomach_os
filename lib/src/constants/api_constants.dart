@@ -3,8 +3,12 @@ import 'package:flutter/foundation.dart';
 class ApiConstants {
   static String get authBaseUrl {
     if (kIsWeb) {
-      if (Uri.base.host.contains('test') || Uri.base.host.contains('staging')) {
+      final host = Uri.base.host.toLowerCase();
+      if (host.contains('test') || host.contains('staging') || host == 'localhost' || host == '127.0.0.1') {
         return 'https://bomachauthtest.bgbot.app';
+      }
+      if (host.contains('bomach-os-app') || host.isNotEmpty) {
+        return 'https://bomachauth.bgbot.app';
       }
     }
     return kReleaseMode
@@ -14,9 +18,12 @@ class ApiConstants {
 
   static String get operationsBaseUrl {
     if (kIsWeb) {
-      if (Uri.base.host.contains('test') || Uri.base.host.contains('staging')) {
-        // Evidence suggests operations might be on the same domain or a dedicated one
+      final host = Uri.base.host.toLowerCase();
+      if (host.contains('test') || host.contains('staging') || host == 'localhost' || host == '127.0.0.1') {
         return 'https://bomachauthtest.bgbot.app';
+      }
+      if (host.contains('bomach-os-app') || host.isNotEmpty) {
+        return 'https://bomachauth.bgbot.app';
       }
     }
     return kReleaseMode
