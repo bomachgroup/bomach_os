@@ -381,7 +381,122 @@ class EmployeeController extends GetxController {
     }
   }
 
+  // ─── STATUS ACTIONS & EXIT ──────────────────────────────────────────
+
+  Future<void> suspendEmployee(
+    BuildContext context,
+    String userId, {
+    String? reason,
+  }) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _service.suspendEmployee(token, userId, reason: reason);
+
+      if (context.mounted) {
+        fetchEmployees(refresh: true);
+        fetchEmployeeById(userId);
+        _showSnackBar(context, "Employee suspended successfully");
+      }
+    } catch (e) {
+      log("Suspend Employee Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to suspend employee: ${e.toString()}");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> deactivateEmployee(
+    BuildContext context,
+    String userId,
+  ) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _service.deactivateEmployee(token, userId);
+
+      if (context.mounted) {
+        fetchEmployees(refresh: true);
+        fetchEmployeeById(userId);
+        _showSnackBar(context, "Employee deactivated successfully");
+      }
+    } catch (e) {
+      log("Deactivate Employee Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to deactivate employee: ${e.toString()}");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> activateEmployee(
+    BuildContext context,
+    String userId,
+  ) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _service.activateEmployee(token, userId);
+
+      if (context.mounted) {
+        fetchEmployees(refresh: true);
+        fetchEmployeeById(userId);
+        _showSnackBar(context, "Employee activated successfully");
+      }
+    } catch (e) {
+      log("Activate Employee Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to activate employee: ${e.toString()}");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> exitEmployee(
+    BuildContext context,
+    String userId, {
+    required String exitDate,
+    required String reason,
+  }) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _service.exitEmployee(
+        token,
+        userId,
+        exitDate: exitDate,
+        reason: reason,
+      );
+
+      if (context.mounted) {
+        fetchEmployees(refresh: true);
+        fetchEmployeeById(userId);
+        _showSnackBar(context, "Employee offboarded successfully");
+      }
+    } catch (e) {
+      log("Exit Employee Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to offboard employee: ${e.toString()}");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
   // ─── SEARCH / FILTER / PAGINATION ──────────────────────────────────
+
 
   void changePage(int newPage) {
     currentPage.value = newPage;

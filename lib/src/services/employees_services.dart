@@ -115,6 +115,62 @@ class EmployeeService {
     }
   }
 
+  // ─── EMPLOYEE STATUS ACTIONS & EXIT ───────────────────────────────────
+
+  Future<Employee> suspendEmployee(
+    String token,
+    String userId, {
+    String? reason,
+  }) async {
+    return updateEmployee(token, userId, {
+      'is_active': false,
+      'employment_status': 'suspended',
+      if (reason != null && reason.isNotEmpty) 'suspension_reason': reason,
+    });
+  }
+
+  Future<Employee> deactivateEmployee(
+    String token,
+    String userId,
+  ) async {
+    return updateEmployee(token, userId, {
+      'is_active': false,
+      'employment_status': 'inactive',
+    });
+  }
+
+  Future<Employee> activateEmployee(
+    String token,
+    String userId,
+  ) async {
+    return updateEmployee(token, userId, {
+      'is_active': true,
+      'employment_status': 'active',
+    });
+  }
+
+  Future<dynamic> exitEmployee(
+    String token,
+    String userId, {
+    required String exitDate,
+    required String reason,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/employees/exit/$userId',
+        data: {
+          'exit_date': exitDate,
+          'reason': reason,
+        },
+        options: _authOptions(token),
+      );
+      return response.data;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+
   // ─── DEPARTMENTS ────────────────────────────────────────────────────
 
   Future<List<Department>> getDepartments(

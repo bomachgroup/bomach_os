@@ -21,6 +21,8 @@ import 'controller/employees_controller.dart';
 import 'widget/add_employee_appraisal.dart';
 import 'widget/add_employee_document.dart';
 import 'widget/add_new_employee.dart';
+import 'widget/exit_employee_dialog.dart';
+import 'widget/suspend_employee_dialog.dart';
 
 class EmployeeProfile extends StatefulWidget {
   final Employee? e;
@@ -100,6 +102,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
   }
 
   Widget? _buildHeaderActions(BuildContext context, Employee employee) {
+    final bool isActive = employee.isActive;
+
     if (context.isMobile) {
       return Wrap(
         spacing: 8,
@@ -119,7 +123,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
             ),
           ),
           MyElevatedButton(
-            child: 'Give Review',
+            child: 'Review',
             height: 40,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
             icon: const Icon(Iconsax.star1,
@@ -129,6 +133,12 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
               builder: (_) => EmployeeAppraisalDialog(userId: employee.id),
             ),
           ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, size: 20, color: AppColors.textSecondary),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+            onSelected: (val) => _handleActionSelected(context, employee, val),
+            itemBuilder: (ctx) => _buildMenuItems(isActive),
+          ),
         ],
       );
     }
@@ -136,17 +146,6 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        MyOutlinedButton(
-          child: 'Export',
-          height: 44,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-          textColor: AppColors.textPrimary,
-          borderColor: AppColors.borderStrong,
-          icon: const Icon(Iconsax.export_1,
-              size: 16, color: AppColors.textPrimary),
-          onTap: () {},
-        ),
-        const SizedBox(width: 12),
         MyOutlinedButton(
           child: 'Edit Profile',
           height: 44,
@@ -169,9 +168,139 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
             builder: (_) => EmployeeAppraisalDialog(userId: employee.id),
           ),
         ),
+        const SizedBox(width: 8),
+        PopupMenuButton<String>(
+          icon: Container(
+            height: 44,
+            width: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.borderStrong),
+              borderRadius: AppRadii.brMd,
+            ),
+            child: const Icon(Icons.more_vert, size: 20, color: AppColors.textPrimary),
+          ),
+          tooltip: 'More actions',
+          shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+          onSelected: (val) => _handleActionSelected(context, employee, val),
+          itemBuilder: (ctx) => _buildMenuItems(isActive),
+        ),
       ],
     );
   }
+
+  List<PopupMenuEntry<String>> _buildMenuItems(bool isActive) {
+    return [
+      if (isActive)
+        const PopupMenuItem(
+          value: 'suspend',
+          child: Row(
+            children: [
+              Icon(Iconsax.user_minus, size: 16, color: AppColors.warning),
+              SizedBox(width: 10),
+              Text('Suspend Employee', style: TextStyle(color: AppColors.warning)),
+            ],
+          ),
+        )
+      else
+        const PopupMenuItem(
+          value: 'activate',
+          child: Row(
+            children: [
+              Icon(Iconsax.user_tick, size: 16, color: AppColors.success),
+              SizedBox(width: 10),
+              Text('Activate Employee', style: TextStyle(color: AppColors.success)),
+            ],
+          ),
+        ),
+      if (isActive)
+        const PopupMenuItem(
+          value: 'deactivate',
+          child: Row(
+            children: [
+              Icon(Iconsax.user_remove, size: 16, color: AppColors.textSecondary),
+              SizedBox(width: 10),
+              Text('Deactivate'),
+            ],
+          ),
+        ),
+      const PopupMenuDivider(),
+      const PopupMenuItem(
+        value: 'exit',
+        child: Row(
+          children: [
+            Icon(Iconsax.trash, size: 16, color: AppColors.danger),
+            SizedBox(width: 10),
+            Text('Exit / Offboard', style: TextStyle(color: AppColors.danger)),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  void _handleActionSelected(BuildContext context, Employee employee, String action) {
+    switch (action) {
+      case 'suspend':
+        showDialog(
+          context: context,
+          builder: (_) => SuspendEmployeeDialog(employee: employee),
+        );
+        break;
+      case 'activate':
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Activate Employee'),
+            content: Text('Are you sure you want to activate ${employee.fullName}?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  controller.activateEmployee(context, employee.id);
+                },
+                child: const Text('Activate'),
+              ),
+            ],
+          ),
+        );
+        break;
+      case 'deactivate':
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Deactivate Employee'),
+            content: Text('Are you sure you want to deactivate ${employee.fullName}?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  controller.deactivateEmployee(context, employee.id);
+                },
+                child: const Text('Deactivate'),
+              ),
+            ],
+          ),
+        );
+        break;
+      case 'exit':
+        showDialog(
+          context: context,
+          builder: (_) => ExitEmployeeDialog(employee: employee),
+        );
+        break;
+    }
+  }
+
 
   Widget _buildSummaryCard(BuildContext context, Employee employee) {
     final bool isActive = employee.isActive;

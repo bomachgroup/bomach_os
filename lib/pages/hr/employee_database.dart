@@ -23,6 +23,8 @@ import '../../src/model/employees_model.dart';
 import 'controller/employees_controller.dart';
 import 'employee_profile.dart';
 import 'widget/add_new_employee.dart';
+import 'widget/exit_employee_dialog.dart';
+import 'widget/suspend_employee_dialog.dart';
 
 class EmployeeDatabase extends StatefulWidget {
   const EmployeeDatabase({super.key});
@@ -476,7 +478,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                   const SizedBox(width: 16),
                   _buildHeaderCell('Status', flex: 2),
                   const SizedBox(width: 16),
-                  _buildHeaderCell('', width: 130),
+                  _buildHeaderCell('', width: 160),
                 ],
               ),
             ),
@@ -562,10 +564,10 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
           ),
           const SizedBox(width: 16),
           SizedBox(
-            width: 130,
+            width: 160,
             child: Align(
               alignment: Alignment.centerRight,
-              child: _buildViewButton(context, emp),
+              child: _buildActionsMenu(context, emp),
             ),
           ),
         ],
@@ -620,7 +622,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                 const SizedBox(height: 14),
                 SizedBox(
                   width: double.infinity,
-                  child: _buildViewButton(context, emp),
+                  child: _buildActionsMenu(context, emp),
                 ),
               ],
             ),
@@ -728,4 +730,159 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
       ),
     );
   }
+
+  Widget _buildActionsMenu(BuildContext context, Employee emp) {
+    final bool isActive = emp.isActive;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildViewButton(context, emp),
+        const SizedBox(width: 8),
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert, size: 20, color: AppColors.textSecondary),
+          tooltip: 'More actions',
+          shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+          onSelected: (value) {
+            switch (value) {
+              case 'edit':
+                showDialog(
+                  context: context,
+                  builder: (_) => AddEmployeeDialog(employee: emp),
+                );
+                break;
+              case 'suspend':
+                showDialog(
+                  context: context,
+                  builder: (_) => SuspendEmployeeDialog(employee: emp),
+                );
+                break;
+              case 'activate':
+                _confirmActivate(context, emp);
+                break;
+              case 'deactivate':
+                _confirmDeactivate(context, emp);
+                break;
+              case 'exit':
+                showDialog(
+                  context: context,
+                  builder: (_) => ExitEmployeeDialog(employee: emp),
+                );
+                break;
+            }
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'edit',
+              child: Row(
+                children: [
+                  Icon(Iconsax.edit, size: 16, color: AppColors.textPrimary),
+                  SizedBox(width: 10),
+                  Text('Edit Details'),
+                ],
+              ),
+            ),
+            if (isActive)
+              const PopupMenuItem(
+                value: 'suspend',
+                child: Row(
+                  children: [
+                    Icon(Iconsax.user_minus, size: 16, color: AppColors.warning),
+                    SizedBox(width: 10),
+                    Text('Suspend Employee',
+                        style: TextStyle(color: AppColors.warning)),
+                  ],
+                ),
+              )
+            else
+              const PopupMenuItem(
+                value: 'activate',
+                child: Row(
+                  children: [
+                    Icon(Iconsax.user_tick, size: 16, color: AppColors.success),
+                    SizedBox(width: 10),
+                    Text('Activate Employee',
+                        style: TextStyle(color: AppColors.success)),
+                  ],
+                ),
+              ),
+            if (isActive)
+              const PopupMenuItem(
+                value: 'deactivate',
+                child: Row(
+                  children: [
+                    Icon(Iconsax.user_remove,
+                        size: 16, color: AppColors.textSecondary),
+                    SizedBox(width: 10),
+                    Text('Deactivate'),
+                  ],
+                ),
+              ),
+            const PopupMenuDivider(),
+            const PopupMenuItem(
+              value: 'exit',
+              child: Row(
+                children: [
+                  Icon(Iconsax.trash, size: 16, color: AppColors.danger),
+                  SizedBox(width: 10),
+                  Text('Exit / Offboard',
+                      style: TextStyle(color: AppColors.danger)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _confirmActivate(BuildContext context, Employee emp) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Activate Employee'),
+        content: Text('Are you sure you want to activate ${emp.fullName}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppColors.success),
+            onPressed: () {
+              Navigator.pop(ctx);
+              controller.activateEmployee(context, emp.id);
+            },
+            child: const Text('Activate'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeactivate(BuildContext context, Employee emp) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Deactivate Employee'),
+        content: Text('Are you sure you want to deactivate ${emp.fullName}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            onPressed: () {
+              Navigator.pop(ctx);
+              controller.deactivateEmployee(context, emp.id);
+            },
+            child: const Text('Deactivate'),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
