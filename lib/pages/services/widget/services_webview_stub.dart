@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 Widget buildServicesPlatformView({
   required String initialUrl,
   required String token,
+  String refreshToken = '',
   required String currentRoute,
   bool hideSidebar = true,
   bool hideTopbar = false,

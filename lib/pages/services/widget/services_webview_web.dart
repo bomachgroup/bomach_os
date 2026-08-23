@@ -8,6 +8,7 @@ final Map<String, web.HTMLIFrameElement> _activeServicesIframes = {};
 Widget buildServicesPlatformView({
   required String initialUrl,
   required String token,
+  String refreshToken = '',
   required String currentRoute,
   bool hideSidebar = true,
   bool hideTopbar = false,
@@ -15,6 +16,7 @@ Widget buildServicesPlatformView({
   return _ServicesIFrameView(
     initialUrl: initialUrl,
     token: token,
+    refreshToken: refreshToken,
     currentRoute: currentRoute,
     hideSidebar: hideSidebar,
     hideTopbar: hideTopbar,
@@ -24,6 +26,7 @@ Widget buildServicesPlatformView({
 class _ServicesIFrameView extends StatefulWidget {
   final String initialUrl;
   final String token;
+  final String refreshToken;
   final String currentRoute;
   final bool hideSidebar;
   final bool hideTopbar;
@@ -31,6 +34,7 @@ class _ServicesIFrameView extends StatefulWidget {
   const _ServicesIFrameView({
     required this.initialUrl,
     required this.token,
+    this.refreshToken = '',
     required this.currentRoute,
     required this.hideSidebar,
     required this.hideTopbar,
@@ -68,6 +72,7 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentRoute != widget.currentRoute ||
         oldWidget.token != widget.token ||
+        oldWidget.refreshToken != widget.refreshToken ||
         oldWidget.initialUrl != widget.initialUrl ||
         oldWidget.hideSidebar != widget.hideSidebar ||
         oldWidget.hideTopbar != widget.hideTopbar) {
@@ -96,7 +101,14 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
     queryParams['embed'] = 'true';
     if (widget.hideSidebar) queryParams['hideSidebar'] = 'true';
     if (widget.hideTopbar) queryParams['hideTopbar'] = 'true';
-    if (widget.token.isNotEmpty) queryParams['token'] = widget.token;
+    if (widget.token.isNotEmpty) {
+      queryParams['token'] = widget.token;
+      queryParams['access_token'] = widget.token;
+    }
+    if (widget.refreshToken.isNotEmpty) {
+      queryParams['refresh_token'] = widget.refreshToken;
+      queryParams['refreshToken'] = widget.refreshToken;
+    }
     queryParams['apiBaseUrl'] = ApiConstants.authBaseUrl;
     queryParams['backendUrl'] = ApiConstants.authBaseUrl;
 

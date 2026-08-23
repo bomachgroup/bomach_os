@@ -26,6 +26,7 @@ class ServicesWebView extends StatefulWidget {
 class _ServicesWebViewState extends State<ServicesWebView> {
   static const _storage = FlutterSecureStorage();
   String _token = '';
+  String _refreshToken = '';
   bool _isLoading = true;
 
   @override
@@ -37,9 +38,11 @@ class _ServicesWebViewState extends State<ServicesWebView> {
   Future<void> _loadAuthToken() async {
     try {
       final token = await _storage.read(key: 'access_token');
+      final refreshToken = await _storage.read(key: 'refresh_token');
       if (mounted) {
         setState(() {
           _token = token ?? '';
+          _refreshToken = refreshToken ?? '';
           _isLoading = false;
         });
       }
@@ -65,6 +68,7 @@ class _ServicesWebViewState extends State<ServicesWebView> {
     return platform.buildServicesPlatformView(
       initialUrl: baseUrl,
       token: _token,
+      refreshToken: _refreshToken,
       currentRoute: widget.route,
       hideSidebar: widget.hideSidebar,
       hideTopbar: widget.hideTopbar,

@@ -5,6 +5,7 @@ import 'package:bomach_os/src/constants/api_constants.dart';
 Widget buildMarketingPlatformView({
   required String initialUrl,
   required String token,
+  String refreshToken = '',
   required String currentRoute,
   bool hideSidebar = true,
   bool hideTopbar = false,
@@ -13,6 +14,7 @@ Widget buildMarketingPlatformView({
     initialUrl: initialUrl,
     route: currentRoute,
     token: token,
+    refreshToken: refreshToken,
     hideSidebar: hideSidebar,
     hideTopbar: hideTopbar,
   );
@@ -67,6 +69,7 @@ String _buildFullUrl({
   required String initialUrl,
   required String route,
   required String token,
+  String refreshToken = '',
   required bool hideSidebar,
   required bool hideTopbar,
 }) {
@@ -78,7 +81,14 @@ String _buildFullUrl({
   queryParams['embed'] = 'true';
   if (hideSidebar) queryParams['hideSidebar'] = 'true';
   if (hideTopbar) queryParams['hideTopbar'] = 'true';
-  if (token.isNotEmpty) queryParams['token'] = token;
+  if (token.isNotEmpty) {
+    queryParams['token'] = token;
+    queryParams['access_token'] = token;
+  }
+  if (refreshToken.isNotEmpty) {
+    queryParams['refresh_token'] = refreshToken;
+    queryParams['refreshToken'] = refreshToken;
+  }
   queryParams['apiBaseUrl'] = ApiConstants.authBaseUrl;
   queryParams['backendUrl'] = ApiConstants.authBaseUrl;
 
