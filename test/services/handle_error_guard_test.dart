@@ -50,14 +50,12 @@ void main() {
         if (service is EmployeeService) {
           dioAdapter.onGet(
             '/api/v1/employees/employees',
-            (server) =>
-                server.reply<String>(502, '<html>Bad Gateway</html>'),
+            (server) => server.reply(502, '<html>Bad Gateway</html>'),
           );
         } else {
           dioAdapter.onGet(
             '/orders',
-            (server) =>
-                server.reply<String>(502, '<html>Bad Gateway</html>'),
+            (server) => server.reply(502, '<html>Bad Gateway</html>'),
           );
         }
 
@@ -74,12 +72,12 @@ void main() {
         if (service is EmployeeService) {
           dioAdapter.onGet(
             '/api/v1/employees/employees',
-            (server) => server.reply<List<dynamic>>(500, ['boom']),
+            (server) => server.reply(500, ['boom']),
           );
         } else {
           dioAdapter.onGet(
             '/orders',
-            (server) => server.reply<List<dynamic>>(500, ['boom']),
+            (server) => server.reply(500, ['boom']),
           );
         }
 

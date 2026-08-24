@@ -125,6 +125,7 @@ import '../../pages/operations/work_site.dart';
 import '../../pages/security/security.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
+import 'detail_fallbacks.dart';
 import 'refresh_route.dart';
 
 final Map<String, Widget> _dashboardRoutes = {
@@ -340,16 +341,25 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
       GoRoute(
         path: path,
         builder: (context, state) {
-          // Handle estate detail route with extra parameter
-          if (path == RouteConstants.estateDetail && state.extra != null) {
-            return EstateDetailPage(estate: state.extra as Estate);
+          // Detail routes carry their object via in-memory `extra`; a
+          // missing or wrong-typed extra (refresh, deep link) now shows a
+          // helpful empty-state instead of a blank pane (audit B12).
+          if (path == RouteConstants.estateDetail ||
+              path == RouteConstants.estatePerformance) {
+            final extra = state.extra;
+            if (extra is Estate) {
+              return path == RouteConstants.estateDetail
+                  ? EstateDetailPage(estate: extra)
+                  : EstatePerformancePage(estate: extra);
+            }
+            return const EstateDetailUnavailable();
           }
-          if (path == RouteConstants.roleDetail && state.extra != null) {
-            return RoleDetailPage(roleId: state.extra as int);
-          }
-          // Handle estate performance route with extra parameter
-          if (path == RouteConstants.estatePerformance && state.extra != null) {
-            return EstatePerformancePage(estate: state.extra as Estate);
+          if (path == RouteConstants.roleDetail) {
+            final extra = state.extra;
+            if (extra is int) {
+              return RoleDetailPage(roleId: extra);
+            }
+            return const RoleDetailUnavailable();
           }
           return screen;
         },

@@ -1,4 +1,4 @@
-import 'package:bomach_os/src/app_routes/app_router.dart';
+import 'package:bomach_os/src/app_routes/detail_fallbacks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

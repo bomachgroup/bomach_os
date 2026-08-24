@@ -398,11 +398,15 @@ class EmployeeService {
 
   // ─── ERROR HANDLER ──────────────────────────────────────────────────
 
+  // Audit B8: guard the body type — non-JSON error bodies (HTML/plain-text
+  // proxy pages, JSON arrays) made `['message']` throw NoSuchMethodError
+  // inside this handler, masking the real HTTP status.
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ??
-          error.response?.data?['detail'] ??
-          error.message;
+      final body = error.response?.data;
+      final errorMessage = (body is Map)
+          ? (body['message'] ?? body['detail'] ?? error.message)
+          : error.message;
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }

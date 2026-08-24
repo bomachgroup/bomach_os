@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
-import 'package:bomach_os/main.dart';
 import 'package:bomach_os/src/services/events/event_service.dart';
 
 class EventController extends GetxController {
   final EventService _service = EventService();
+  final _storage = const FlutterSecureStorage();
 
   var events = <Event>[].obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
-
-  String get _token => prefs.getString('access_token') ?? '';
 
   @override
   void onInit() {
@@ -19,11 +18,29 @@ class EventController extends GetxController {
     fetchEvents();
   }
 
+  /// Audit B4 fix: tokens live in FlutterSecureStorage (written at login),
+  /// never in SharedPreferences. The old `prefs.getString('access_token')`
+  /// read a key nothing ever writes, so every request went out with an
+  /// empty bearer and the calendar could never load.
+  Future<String?> _getToken() async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    if (token.startsWith('Bearer ')) {
+      token = token.replaceFirst('Bearer ', '');
+    }
+    return token.replaceAll('"', '').trim();
+  }
+
   Future<void> fetchEvents() async {
     try {
       isLoading(true);
       errorMessage('');
-      final result = await _service.getEvents(_token);
+      final token = await _getToken();
+      if (token == null) {
+        errorMessage('Please sign in to view events.');
+        return;
+      }
+      final result = await _service.getEvents(token);
       events.assignAll(result.items);
     } catch (e) {
       errorMessage('Failed to load events: $e');
@@ -37,7 +54,12 @@ class EventController extends GetxController {
   Future<bool> createEvent(Map<String, dynamic> data) async {
     try {
       isLoading(true);
-      await _service.createEvent(_token, data);
+      final token = await _getToken();
+      if (token == null) {
+        Get.snackbar('Error', 'Please sign in again.');
+        return false;
+      }
+      await _service.createEvent(token, data);
       await fetchEvents();
       Get.snackbar('Success', 'Event created successfully');
       return true;
@@ -52,7 +74,12 @@ class EventController extends GetxController {
 
   Future<bool> deleteEvent(int id) async {
     try {
-      await _service.deleteEvent(_token, id);
+      final token = await _getToken();
+      if (token == null) {
+        Get.snackbar('Error', 'Please sign in again.');
+        return false;
+      }
+      await _service.deleteEvent(token, id);
       events.removeWhere((e) => e.id == id);
       Get.snackbar('Success', 'Event deleted successfully');
       return true;
