@@ -1,35 +1,43 @@
 import 'package:flutter/foundation.dart';
 
 class ApiConstants {
-  static String get authBaseUrl {
-    if (kIsWeb) {
-      final host = Uri.base.host.toLowerCase();
-      if (host.contains('test') || host.contains('staging') || host == 'localhost' || host == '127.0.0.1') {
-        return 'https://bomachauthtest.bgbot.app';
-      }
-      if (host.contains('bomach-os-app') || host.isNotEmpty) {
-        return 'https://bomachauth.bgbot.app';
-      }
-    }
-    return kReleaseMode
-        ? 'https://bomachauth.bgbot.app'
-        : 'https://bomachauthtest.bgbot.app';
+  static const String _prodBase = 'https://bomachauth.bgbot.app';
+  static const String _stagingBase = 'https://bomachauthtest.bgbot.app';
+
+  /// Exact-host staging allowlist (audit V5 fix). Substring matching
+  /// (`contains('test')`) used to route production credentials to the
+  /// staging backend on hosts like `evil-test.attacker.com` or branch
+  /// preview URLs; the old `|| host.isNotEmpty` tautology made the prod
+  /// allowlist dead code. Fail closed: anything not listed here is PROD.
+  @visibleForTesting
+  static bool isStagingHost(String host) {
+    final h = host.toLowerCase();
+    return h == 'localhost' || h == '127.0.0.1' || h == 'bomach-os-test.web.app';
   }
 
-  static String get operationsBaseUrl {
-    if (kIsWeb) {
-      final host = Uri.base.host.toLowerCase();
-      if (host.contains('test') || host.contains('staging') || host == 'localhost' || host == '127.0.0.1') {
-        return 'https://bomachauthtest.bgbot.app';
-      }
-      if (host.contains('bomach-os-app') || host.isNotEmpty) {
-        return 'https://bomachauth.bgbot.app';
-      }
+  /// Pure, testable base-URL resolver. Web builds pick by window host;
+  /// non-web builds keep the release/debug split.
+  @visibleForTesting
+  static String resolveApiBase({
+    required bool isWeb,
+    required bool isRelease,
+    required String host,
+  }) {
+    if (!isWeb) {
+      return isRelease ? _prodBase : _stagingBase;
     }
-    return kReleaseMode
-        ? 'https://bomachauth.bgbot.app'
-        : 'https://bomachauthtest.bgbot.app';
+    return isStagingHost(host) ? _stagingBase : _prodBase;
   }
+
+  static String get authBaseUrl {
+    return resolveApiBase(
+      isWeb: kIsWeb,
+      isRelease: kReleaseMode,
+      host: kIsWeb ? Uri.base.host : '',
+    );
+  }
+
+  static String get operationsBaseUrl => authBaseUrl;
 
   static String get marketingBaseUrl {
     return const String.fromEnvironment(
