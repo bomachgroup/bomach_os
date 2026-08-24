@@ -5,7 +5,10 @@ import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/password_generator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -65,13 +68,19 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
         isActive: true,
       );
 
+      // Audit V2: generate a unique strong password per associate instead
+      // of shipping a known default inside the app bundle.
+      final generatedPassword = generateStrongPassword();
+
       final success = await controller.createAssociate(
         widget.token,
         newAssociate,
-        password: 'Password123!',
+        password: generatedPassword,
       );
 
       if (success && mounted) {
+        await _showCredentialsDialog(generatedPassword);
+        if (!mounted) return;
         Navigator.pop(context);
         AppToast.success(context, 'Associate added successfully');
       } else if (mounted) {
@@ -80,6 +89,113 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
     } else if (_selectedRole == null) {
       AppToast.error(context, 'Please select a role');
     }
+  }
+
+  /// Show-once credentials dialog (audit V2). The password is displayed
+  /// exactly here; the associate changes it after first login.
+  Future<void> _showCredentialsDialog(String password) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => DialogScaffold(
+        title: 'Associate created',
+        subtitle:
+            'Share these credentials with ${_firstNameCtrl.text.trim()} — '
+            'they will not be shown again.',
+        size: DialogSize.sm,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _credentialRow(
+              label: 'Email',
+              value: _emailCtrl.text.trim(),
+              context: context,
+            ),
+            const SizedBox(height: 12),
+            _credentialRow(
+              label: 'Temporary password',
+              value: password,
+              context: context,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppColors.warning.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Iconsax.info_circle,
+                      color: AppColors.warning, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'This password is shown once. Copy it now and ask '
+                      'the associate to change it after first login.',
+                      style: AppTextStyles.bodySm
+                          .copyWith(color: AppColors.textPrimary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          MyElevatedButton(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            child: 'Done',
+            onTap: () => Navigator.pop(dialogContext),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _credentialRow({
+    required String label,
+    required String value,
+    required BuildContext context,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: AppTextStyles.label
+                        .copyWith(color: AppColors.textSecondary)),
+                const SizedBox(height: 2),
+                Text(value,
+                    style: AppTextStyles.bodyMd
+                        .copyWith(fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: 'Copy',
+            icon: const Icon(Iconsax.copy, size: 18),
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: value));
+              if (context.mounted) AppToast.success(context, 'Copied');
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override

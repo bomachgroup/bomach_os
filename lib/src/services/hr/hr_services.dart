@@ -1,5 +1,6 @@
 import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'applicants_service.dart';
@@ -57,11 +58,16 @@ class HRServices {
     scorecards = MonthlyScorecardService(dioOverride: _dio);
     evaluations = EmployeeEvaluationService(dioOverride: _dio);
 
-    _dio.interceptors.add(LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-      logPrint: (obj) => debugPrint('HR_API: $obj'),
-    ));
+    // Audit V6: the custom logPrint wrapper bypasses Dio's assert-gated
+    // default printer, so this interceptor printed Authorization headers
+    // and response bodies even in release builds. Debug-only now.
+    if (kDebugMode) {
+      _dio.interceptors.add(LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        logPrint: (obj) => debugPrint('HR_API: $obj'),
+      ));
+    }
   }
 
   Options _authOptions(String token) {

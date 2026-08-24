@@ -20,6 +20,23 @@ void main() {
   tearDown(unregisterTestControllers);
 
   Future<void> pumpDialog(WidgetTester tester) async {
+    await tester.pumpWidget(GetMaterialApp(
+      scaffoldMessengerKey: testMessengerKey,
+      home: Scaffold(body: Builder(builder: (context) {
+        return Center(
+          child: ElevatedButton(
+            onPressed: () => showDialog(
+              context: context,
+              builder: (_) => const AddAssociateDialog(token: 'tok'),
+            ),
+            child: const Text('open'),
+          ),
+        );
+      })),
+    ));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+  }
 
   testWidgets('success shows generated credentials and closes both dialogs '
       'on acknowledge', (tester) async {
@@ -28,12 +45,15 @@ void main() {
 
     await pumpDialog(tester);
 
+    // MyTextFormField renders its title as a sibling Text, so target the
+    // raw TextFormField widgets by their hintText.
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'First Name*').first, 'Ada');
+        find.widgetWithText(TextFormField, 'Enter first name'), 'Ada');
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'Last Name*').first, 'Lovelace');
+        find.widgetWithText(TextFormField, 'Enter last name'), 'Lovelace');
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'Email*'), 'ada@x.com');
+        find.widgetWithText(TextFormField, 'email@example.com'),
+        'ada@x.com');
     // Open role dropdown and pick the first associate role.
     await tester.tap(find.text('Select role'));
     await tester.pumpAndSettle();
@@ -67,11 +87,11 @@ void main() {
     await pumpDialog(tester);
 
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'First Name*').first, 'Bo');
+        find.widgetWithText(TextFormField, 'Enter first name'), 'Bo');
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'Last Name*').first, 'B');
+        find.widgetWithText(TextFormField, 'Enter last name'), 'B');
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'Email*'), 'bo@x.com');
+        find.widgetWithText(TextFormField, 'email@example.com'), 'bo@x.com');
     await tester.tap(find.text('Select role'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('surveyor-associate').last);
@@ -83,8 +103,9 @@ void main() {
     expect(find.text('New Associate'), findsOneWidget,
         reason: 'form stays open on failure');
     expect(find.byType(SnackBar), findsOneWidget);
-    expect(controller.lastGeneratedPassword, isNull,
-        reason: 'no credentials dialog on failure');
+    // The credentials dialog must NOT appear on failure (the password may
+    // have been generated for the API call, but nothing shows it).
+    expect(find.textContaining('shown once'), findsNothing);
   });
 }
 

@@ -75,7 +75,8 @@ class AuthService {
       );
 
       log("AuthService: Response received. Status: ${response.statusCode}");
-      log("AuthService: Data: ${response.data}");
+      // Audit V8: never dump response bodies — they carry access/refresh
+      // tokens on login and 2FA verification.
 
       if (response.data == null) {
         throw AuthException(message: 'Server returned an empty response');
@@ -112,7 +113,6 @@ class AuthService {
       );
 
       log("AuthService: 2FA Response received. Status: ${response.statusCode}");
-      log("AuthService: Data: ${response.data}");
 
       if (response.data == null) {
         throw AuthException(message: 'Server returned an empty response');

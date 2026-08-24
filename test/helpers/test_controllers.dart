@@ -11,9 +11,17 @@ import 'package:get/get.dart';
 final GlobalKey<ScaffoldMessengerState> testMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
-/// Registers a fake controller for the widget under test (GetX `Get.put`).
+/// Registers a fake controller for the widget under test. GetX keys
+/// instances by the STATIC generic on [Get.put], so each fake gets an
+/// explicitly typed registration under its base class.
 void registerTestController(Object controller) {
-  Get.put(controller as dynamic, permanent: false);
+  if (controller is EmployeeController) {
+    Get.put<EmployeeController>(controller, permanent: false);
+  } else if (controller is AssociatesController) {
+    Get.put<AssociatesController>(controller, permanent: false);
+  } else {
+    Get.put(controller as dynamic, permanent: false);
+  }
 }
 
 void unregisterTestControllers() {

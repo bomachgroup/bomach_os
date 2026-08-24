@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:bomach_os/components/feedback/app_toast.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/src/constants/api_constants.dart';
 
@@ -15,9 +16,12 @@ import '../../src/services/auth_service.dart';
 import '../../src/services/permission_service.dart';
 
 class AuthController extends GetxController {
-  final AuthService _authService = AuthService();
+  final AuthService _authService;
   final PermissionService _permissionService = Get.put(PermissionService());
   final _storage = const FlutterSecureStorage();
+
+  AuthController({AuthService? authService})
+      : _authService = authService ?? AuthService();
 
   var isLoading = false.obs;
   var obscurePassword = true.obs;
@@ -63,15 +67,15 @@ class AuthController extends GetxController {
     obscurePassword.value = !obscurePassword.value;
   }
 
-  void _showSnackBar(BuildContext context, String message,
+  void _showSnackBar(BuildContext? context, String message,
       {bool isError = false}) {
-    if (!context.mounted) return;
+    if (context == null || !context.mounted) return;
     AppToast.info(context, message);
   }
 
-  void _showDialog(BuildContext context, String title, String message,
+  void _showDialog(BuildContext? context, String title, String message,
       {VoidCallback? onConfirm, String confirmText = "OK"}) {
-    if (!context.mounted) return;
+    if (context == null || !context.mounted) return;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -94,7 +98,9 @@ class AuthController extends GetxController {
     );
   }
 
-  Future<void> login(BuildContext context) async {
+  /// Nullable context so headless callers (tests, background flows) can
+  /// drive the flow without a widget; all UI touches are guarded.
+  Future<void> login(BuildContext? context) async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       _showSnackBar(context, 'Please enter both User ID and PIN',
           isError: true);
@@ -112,11 +118,15 @@ class AuthController extends GetxController {
       );
 
       if (response.requires2Fa) {
-        // Pending 2FA
+        // Pending 2FA — keep the session token BOTH in the field (read by
+        // verify2Fa) and in storage (survives a web refresh mid-2FA).
+        // Audit V1: writing only to storage left currentSessionToken null,
+        // so every correct 2FA code bounced with "Session expired".
         isPending2Fa.value = true;
+        currentSessionToken = response.sessionToken;
         _storage.write(key: 'session_token', value: response.sessionToken);
 
-        if (context.mounted) {
+        if (context != null && context.mounted) {
           _showSnackBar(
               context,
               response.detail.isNotEmpty
@@ -141,7 +151,7 @@ class AuthController extends GetxController {
         await _fetchUserProfile(response.accessToken, response.userId);
         _notifyRefresh();
 
-        if (context.mounted) {
+        if (context != null && context.mounted) {
           _showSnackBar(context, 'Login Successful');
           context.go(RouteConstants.home);
         }
@@ -151,9 +161,11 @@ class AuthController extends GetxController {
                 'Invalid server response without access token or session token');
       }
     } on AuthException catch (e) {
-      if (context.mounted) _showDialog(context, "Error", e.message);
+      if (context != null && context.mounted) {
+        _showDialog(context, "Error", e.message);
+      }
     } catch (e) {
-      if (context.mounted) {
+      if (context != null && context.mounted) {
         _showDialog(context, "Connection Error",
             "Please check your internet connection.");
       }
@@ -364,15 +376,25 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> verify2Fa(BuildContext context) async {
+  Future<void> verify2Fa(BuildContext? context) async {
     if (twoFactorCodeController.text.trim().isEmpty) {
       _showSnackBar(context, 'Please enter the 6-digit code', isError: true);
       return;
     }
     if (currentSessionToken == null || currentSessionToken!.isEmpty) {
+      // Audit V1 hardening: recover the pending token from storage so a
+      // web refresh mid-2FA doesn't kill the login session.
+      final stored = await _storage.read(key: 'session_token');
+      if (stored != null && stored.isNotEmpty) {
+        currentSessionToken = stored;
+      }
+    }
+    if (currentSessionToken == null || currentSessionToken!.isEmpty) {
       _showSnackBar(context, 'Session expired. Please log in again.',
           isError: true);
-      context.go(RouteConstants.login);
+      if (context != null && context.mounted) {
+        context.go(RouteConstants.login);
+      }
       return;
     }
 
@@ -388,6 +410,8 @@ class AuthController extends GetxController {
       await _storage.write(key: 'access_token', value: response.accessToken);
       await _storage.write(key: 'refresh_token', value: response.refreshToken);
       await _storage.write(key: 'user_id', value: response.userId.toString());
+      // The pending token must not outlive a completed login.
+      await _storage.delete(key: 'session_token');
 
       // Fetch permissions
       await _fetchUserPermissions(response.accessToken, response.userId);
@@ -397,21 +421,43 @@ class AuthController extends GetxController {
 
       currentSessionToken = null;
       twoFactorCodeController.clear();
+      isPending2Fa.value = false;
 
-      if (context.mounted) {
+      if (context != null && context.mounted) {
         _showSnackBar(context, 'Login Successful');
         context.go(RouteConstants.home);
       }
     } on AuthException catch (e) {
-      if (context.mounted) _showDialog(context, "Error", e.message);
+      if (context != null && context.mounted) {
+        _showDialog(context, "Error", e.message);
+      }
     } catch (e) {
-      if (context.mounted) {
+      if (context != null && context.mounted) {
         _showDialog(context, "Connection Error",
             "Please check your internet connection.");
       }
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Test seam: drive [login] without a BuildContext. Production code
+  /// should call [login] directly.
+  @visibleForTesting
+  Future<void> loginForTest({
+    required String email,
+    required String password,
+  }) async {
+    emailController.text = email;
+    passwordController.text = password;
+    await login(null);
+  }
+
+  /// Test seam: drive [verify2Fa] without a BuildContext.
+  @visibleForTesting
+  Future<void> verify2FaForTest({required String code}) async {
+    twoFactorCodeController.text = code;
+    await verify2Fa(null);
   }
 
   Future<void> checkAuthStatus() async {
