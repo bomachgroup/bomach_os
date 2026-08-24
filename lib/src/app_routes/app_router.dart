@@ -37,6 +37,7 @@ import 'package:bomach_os/pages/employee/employee_directory.dart';
 import 'package:bomach_os/pages/employee/employee_performance.dart';
 import 'package:bomach_os/pages/employee/employee_training.dart';
 import 'package:bomach_os/pages/hr/loans.dart';
+import 'package:bomach_os/pages/hr/disciplinary_process.dart';
 import 'package:bomach_os/pages/hr/employee_database.dart';
 import 'package:bomach_os/pages/hr/employee_profile.dart';
 import 'package:bomach_os/pages/finance/budget.dart';
@@ -198,6 +199,9 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.awardsRecognition: const AwardsRecognitionPage(),
   RouteConstants.performanceLeaderboard: const PerformanceLeaderboardPage(),
   RouteConstants.employeeEvaluation: const EmployeeEvaluationPage(),
+  // Audit B2 fix: sidebar item existed, page existed — only the router
+  // entry was missing, so the menu link rendered "Page not found".
+  RouteConstants.disciplinaryProcess: const DisciplinaryProcessPage(),
   RouteConstants.services: const ServicesPage(),
   RouteConstants.servicesDashboard: const ServicesWebView(route: '/app/dashboard'),
   RouteConstants.servicesCatalogue: const ServicesWebView(route: '/app/service-catalogue'),

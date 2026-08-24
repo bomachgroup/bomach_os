@@ -17,7 +17,7 @@ import '../helpers/test_controllers.dart';
 void main() {
   tearDown(unregisterTestControllers);
 
-  const employee = Employee(
+  final employee = Employee(
     id: '42',
     email: 'e@x.com',
     firstName: 'Test',
@@ -55,7 +55,8 @@ void main() {
           builder: () => SuspendEmployeeDialog(employee: employee));
 
       await tester.enterText(find.byType(TextField), 'policy breach');
-      await tester.tap(find.text('Suspend Employee'));
+      // The title also reads "Suspend Employee" — target the button.
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Suspend Employee'));
       await tester.pumpAndSettle();
 
       expect(find.text('Suspension Notice'), findsNothing,
@@ -73,7 +74,8 @@ void main() {
           builder: () => SuspendEmployeeDialog(employee: employee));
 
       await tester.enterText(find.byType(TextField), 'oops');
-      await tester.tap(find.text('Suspend Employee'));
+      // The title also reads "Suspend Employee" — target the button.
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Suspend Employee'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -93,7 +95,13 @@ void main() {
       await pumpDialog(tester,
           builder: () => ExitEmployeeDialog(employee: employee));
 
-      await tester.tap(find.text('Confirm Exit'));
+      // The reason field is required by the form validator.
+      await tester.enterText(find.byType(TextField).last, 'contract end');
+
+      final submitFinder =
+          find.widgetWithText(ElevatedButton, 'Confirm Exit');
+      expect(submitFinder, findsOneWidget);
+      await tester.tap(submitFinder);
       await tester.pumpAndSettle();
 
       expect(controller.lastExitedUserId, '42');
@@ -108,7 +116,13 @@ void main() {
       await pumpDialog(tester,
           builder: () => ExitEmployeeDialog(employee: employee));
 
-      await tester.tap(find.text('Confirm Exit'));
+      // The reason field is required by the form validator.
+      await tester.enterText(find.byType(TextField).last, 'contract end');
+
+      final submitFinder =
+          find.widgetWithText(ElevatedButton, 'Confirm Exit');
+      expect(submitFinder, findsOneWidget);
+      await tester.tap(submitFinder);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 

@@ -1,5 +1,36 @@
 import 'package:intl/intl.dart';
 
+/// Statuses the backend actively writes (suspend action sets
+/// 'employment_status': 'suspended').
+const List<String> knownEmploymentStatusOptions = [
+  'active',
+  'inactive',
+  'suspended',
+];
+
+/// Audit B6 fix: seed the Edit-Employee status dropdown from the model's
+/// REAL employment status instead of collapsing everything through the
+/// boolean [isActive]. Unknown/legacy values (e.g. 'on_leave') pass
+/// through so a save round-trip can never silently rewrite them.
+String resolveEmploymentStatus(String? employmentStatus, bool isActive) {
+  if (employmentStatus != null && employmentStatus.trim().isNotEmpty) {
+    return employmentStatus.trim().toLowerCase();
+  }
+  return isActive ? 'active' : 'inactive';
+}
+
+/// Build the dropdown option list: known statuses plus the current value
+/// when it isn't one of them (so unknown statuses survive editing).
+List<String> buildStatusOptions({required String? currentValue}) {
+  final options = List<String>.from(knownEmploymentStatusOptions);
+  if (currentValue != null &&
+      currentValue.isNotEmpty &&
+      !options.contains(currentValue)) {
+    options.add(currentValue);
+  }
+  return options;
+}
+
 class Employee {
   // Identifiers
   final String id; // Maps to user_id (e.g., 10)

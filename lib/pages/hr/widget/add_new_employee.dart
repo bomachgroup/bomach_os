@@ -75,6 +75,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   final _designationCtrl = TextEditingController();
   String _selectedEmpType = 'full-time';
   String _selectedStatus = 'active';
+  List<String> _statusOptions = knownEmploymentStatusOptions;
   DateTime? _joinDate;
   final _probationCtrl = TextEditingController();
   final _workScheduleCtrl = TextEditingController();
@@ -158,7 +159,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     // 3. Employment
     _designationCtrl.text = e.designation ?? '';
     if (e.employmentType != null) _selectedEmpType = e.employmentType!;
-    _selectedStatus = e.isActive ? 'active' : 'inactive';
+    // Audit B6 fix: seed from the real employment status so a suspended
+    // employee isn't silently rewritten to inactive on the next edit.
+    _selectedStatus =
+        resolveEmploymentStatus(e.employmentStatus, e.isActive);
+    _statusOptions = buildStatusOptions(currentValue: _selectedStatus);
     _joinDate = e.startDate;
     _probationCtrl.text = e.probationPeriod ?? '';
     _workScheduleCtrl.text = e.workSchedule ?? '';
@@ -745,7 +750,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               _buildDropdown(
                 'Status',
                 _selectedStatus,
-                ['active', 'inactive'],
+                _statusOptions,
                 (v) => setState(() => _selectedStatus = v ?? _selectedStatus),
               ),
             ]),

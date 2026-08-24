@@ -49,6 +49,9 @@ class FakeEmployeeController extends EmployeeController {
   }) async {
     lastSuspendedUserId = userId;
     lastSuspendReason = reason;
+    // Mirror the real controller's contract: a clean message is set on
+    // failure so dialogs can surface it via AppToast.
+    errorMessage.value = nextResult ? '' : 'Could not suspend employee.';
     return nextResult;
   }
 
@@ -62,6 +65,7 @@ class FakeEmployeeController extends EmployeeController {
     lastExitedUserId = userId;
     lastExitDate = exitDate;
     lastExitReason = reason;
+    errorMessage.value = nextResult ? '' : 'Could not offboard employee.';
     return nextResult;
   }
 }

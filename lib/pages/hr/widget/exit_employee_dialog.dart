@@ -1,6 +1,7 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
@@ -57,19 +58,24 @@ class _ExitEmployeeDialogState extends State<ExitEmployeeDialog> {
     }
   }
 
-  void _onSubmit() {
+  void _onSubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    controller.exitEmployee(
+    // Audit B5 fix: pop ONLY on success; failure shows an error toast and
+    // keeps the form open (the old `.then(pop)` closed the error dialog).
+    final ok = await controller.exitEmployee(
       context,
       widget.employee.id,
       exitDate: _dateCtrl.text.trim(),
       reason: _reasonCtrl.text.trim(),
-    ).then((_) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    });
+    );
+    if (!mounted) return;
+    if (ok) {
+      Navigator.pop(context);
+      AppToast.success(context, 'Employee offboarded successfully');
+    } else {
+      AppToast.error(context, controller.errorMessage.value);
+    }
   }
 
   @override

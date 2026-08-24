@@ -382,88 +382,110 @@ class EmployeeController extends GetxController {
   }
 
   // ─── STATUS ACTIONS & EXIT ──────────────────────────────────────────
+  //
+  // Audit B5 fix: these return Future<bool> instead of swallowing errors
+  // while pushing their own dialog — the old contract made callers'
+  // `.then(pop)` close the error dialog one frame after it opened
+  // (silent failure). Callers decide UI from the result.
 
-  Future<void> suspendEmployee(
-    BuildContext context,
+  /// Success/failure message surfaced via [errorMessage] for toast display.
+  Future<bool> suspendEmployee(
+    BuildContext? context,
     String userId, {
     String? reason,
   }) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return;
+      if (token == null) {
+        errorMessage.value = 'Not signed in.';
+        return false;
+      }
 
       await _service.suspendEmployee(token, userId, reason: reason);
 
-      if (context.mounted) {
-        fetchEmployees(refresh: true);
-        fetchEmployeeById(userId);
-        _showSnackBar(context, "Employee suspended successfully");
-      }
+      fetchEmployees(refresh: true);
+      fetchEmployeeById(userId);
+      errorMessage.value = '';
+      return true;
     } catch (e) {
       log("Suspend Employee Error: $e");
-      if (context.mounted) {
-        _showErrorDialog(context, "Failed to suspend employee: ${e.toString()}");
-      }
+      errorMessage.value = 'Could not suspend employee. Please try again.';
+      return false;
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<void> deactivateEmployee(
-    BuildContext context,
+  Future<bool> deactivateEmployee(
+    BuildContext? context,
     String userId,
   ) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return;
+      if (token == null) {
+        errorMessage.value = 'Not signed in.';
+        return false;
+      }
 
       await _service.deactivateEmployee(token, userId);
 
-      if (context.mounted) {
-        fetchEmployees(refresh: true);
-        fetchEmployeeById(userId);
+      fetchEmployees(refresh: true);
+      fetchEmployeeById(userId);
+      if (context != null && context.mounted) {
         _showSnackBar(context, "Employee deactivated successfully");
       }
+      errorMessage.value = '';
+      return true;
     } catch (e) {
       log("Deactivate Employee Error: $e");
-      if (context.mounted) {
-        _showErrorDialog(context, "Failed to deactivate employee: ${e.toString()}");
+      errorMessage.value =
+          'Could not deactivate employee. Please try again.';
+      if (context != null && context.mounted) {
+        AppToast.error(context, errorMessage.value);
       }
+      return false;
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<void> activateEmployee(
-    BuildContext context,
+  Future<bool> activateEmployee(
+    BuildContext? context,
     String userId,
   ) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return;
+      if (token == null) {
+        errorMessage.value = 'Not signed in.';
+        return false;
+      }
 
       await _service.activateEmployee(token, userId);
 
-      if (context.mounted) {
-        fetchEmployees(refresh: true);
-        fetchEmployeeById(userId);
+      fetchEmployees(refresh: true);
+      fetchEmployeeById(userId);
+      if (context != null && context.mounted) {
         _showSnackBar(context, "Employee activated successfully");
       }
+      errorMessage.value = '';
+      return true;
     } catch (e) {
       log("Activate Employee Error: $e");
-      if (context.mounted) {
-        _showErrorDialog(context, "Failed to activate employee: ${e.toString()}");
+      errorMessage.value = 'Could not activate employee. Please try again.';
+      if (context != null && context.mounted) {
+        AppToast.error(context, errorMessage.value);
       }
+      return false;
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<void> exitEmployee(
-    BuildContext context,
+  Future<bool> exitEmployee(
+    BuildContext? context,
     String userId, {
     required String exitDate,
     required String reason,
@@ -471,7 +493,10 @@ class EmployeeController extends GetxController {
     try {
       isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return;
+      if (token == null) {
+        errorMessage.value = 'Not signed in.';
+        return false;
+      }
 
       await _service.exitEmployee(
         token,
@@ -480,16 +505,14 @@ class EmployeeController extends GetxController {
         reason: reason,
       );
 
-      if (context.mounted) {
-        fetchEmployees(refresh: true);
-        fetchEmployeeById(userId);
-        _showSnackBar(context, "Employee offboarded successfully");
-      }
+      fetchEmployees(refresh: true);
+      fetchEmployeeById(userId);
+      errorMessage.value = '';
+      return true;
     } catch (e) {
       log("Exit Employee Error: $e");
-      if (context.mounted) {
-        _showErrorDialog(context, "Failed to offboard employee: ${e.toString()}");
-      }
+      errorMessage.value = 'Could not offboard employee. Please try again.';
+      return false;
     } finally {
       isSaving.value = false;
     }
