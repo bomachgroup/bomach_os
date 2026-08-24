@@ -286,17 +286,12 @@ class AuthController extends GetxController {
   }
 
   Future<void> _fetchUserPermissions(String token, int userId) async {
-    // Super admin shortcut — user_id == 1 is the platform owner with full
-    // access. Remove this once the backend exposes an explicit is_superuser
-    // flag on the user model.
-    if (userId == 1) {
-      log("AuthController: Super admin detected (user_id=1). "
-          "Granting wildcard permissions.");
-      _permissionService.loadSuperAdminPermissions();
-      // Still do drift validation so devs catch backend changes.
-      _validatePermissionDrift(token);
-      return;
-    }
+    // Audit B14 fix: removed the client-side `userId == 1` super-admin
+    // shortcut. Any future account receiving id 1 (DB re-provisioning,
+    // multi-tenant collision) silently got full admin UI. Super-admin
+    // access now comes exclusively from a backend-assigned wildcard role,
+    // which PermissionService._detectSuperAdmin honors; drift validation
+    // still runs on every login.
 
     try {
       log("AuthController: Fetching roles for user $userId.");
