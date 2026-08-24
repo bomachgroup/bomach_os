@@ -126,6 +126,7 @@ import '../../pages/operations/work_site.dart';
 import '../../pages/security/security.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
+import 'dashboard_route_paths.dart';
 import 'detail_fallbacks.dart';
 import 'refresh_route.dart';
 
@@ -338,6 +339,33 @@ final Map<String, Widget> _dashboardRoutes = {
 
 // Route permissions are centralised in PermissionService.routePermissions
 
+/// Public read-only view of [_dashboardRoutes] for tests (T9 regression:
+/// every sidebar route must resolve here).
+Map<String, Widget> get dashboardRoutes => _dashboardRoutes;
+
+/// Asserts the web-free path registry stays in sync with the real map
+/// (debug-only guard; the registry exists so VM tests can run without
+/// importing this file's package:web graph).
+void _verifyRoutePathRegistry() {
+  assert(() {
+    for (final path in dashboardRoutePaths) {
+      if (!_dashboardRoutes.containsKey(path)) {
+        throw StateError(
+            'dashboard_route_paths.dart lists "$path" but the router map '
+            'does not register it — sync them.');
+      }
+    }
+    for (final path in _dashboardRoutes.keys) {
+      if (!dashboardRoutePaths.contains(path)) {
+        throw StateError(
+            'Router registers "$path" but dashboard_route_paths.dart does '
+            'not list it — sync them.');
+      }
+    }
+    return true;
+  }());
+}
+
 /// Creates a branch for StatefulShellRoute with a single route
 StatefulShellBranch _createBranch(String path, Widget screen) {
   return StatefulShellBranch(
@@ -374,6 +402,13 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
 
 /// Main router configuration
 final AuthController authController = Get.find<AuthController>();
+
+// Keep the web-free path registry honest (debug builds only).
+final void Function() _routeRegistryGuard = () {
+  _verifyRoutePathRegistry();
+  return;
+}();
+
 final goRouter = GoRouter(
   initialLocation: RouteConstants.splash,
   debugLogDiagnostics: true,

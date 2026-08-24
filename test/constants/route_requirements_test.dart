@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bomach_os/src/app_routes/app_route_constants.dart';
-import 'package:bomach_os/src/app_routes/app_router.dart';
+import 'package:bomach_os/src/app_routes/dashboard_route_paths.dart';
 import 'package:bomach_os/src/app_routes/menu_structure.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
@@ -190,22 +190,24 @@ void main() {
   group('T9: sidebar routes all resolve to registered dashboard routes',
       () {
     test('Disciplinary Process is registered (the audited 404)', () {
-      expect(dashboardRoutes.containsKey(RouteConstants.disciplinaryProcess),
+      expect(
+          dashboardRoutePaths.contains(RouteConstants.disciplinaryProcess),
           isTrue,
-          reason:
-              'HR > Disciplinary Process leads to Page not found');
+          reason: 'HR > Disciplinary Process leads to Page not found');
     });
 
-    test('EVERY sidebar main+sub route exists in dashboardRoutes', () {
+    test('EVERY sidebar main+sub route exists in the dashboard registry',
+        () {
       final problems = <String>[];
       for (final section in sidebarStructure) {
         for (final item in section.items) {
-          if (item.route != null && !dashboardRoutes.containsKey(item.route)) {
+          if (item.route != null &&
+              !dashboardRoutePaths.contains(item.route)) {
             problems.add('${item.id.name} → ${item.route}');
           }
           for (final child in item.children) {
             if (child.route != null &&
-                !dashboardRoutes.containsKey(child.route)) {
+                !dashboardRoutePaths.contains(child.route)) {
               problems.add('${child.id.name} → ${child.route}');
             }
           }
@@ -216,7 +218,7 @@ void main() {
               'sidebar entries with unregistered routes render "Page not '
               'found": $problems');
       // Sanity: the structure actually has routes to check.
-      expect(problems.length, 0);
+      expect(dashboardRoutePaths.length, greaterThan(50));
     });
   });
 }

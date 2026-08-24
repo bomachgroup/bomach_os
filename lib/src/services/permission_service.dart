@@ -132,6 +132,18 @@ class PermissionService extends GetxService {
     _bump();
   }
 
+  /// Test-only seam: inject a permission map directly, bypassing role
+  /// parsing. Used by widget/permission tests to simulate role shapes.
+  @visibleForTesting
+  void testInjectPermissions(Map<String, Set<String>> permissions) {
+    _userPermissions
+      ..clear()
+      ..addAll(permissions.map((k, v) => MapEntry(k, Set<String>.from(v))))
+      ..refresh();
+    _isSuperAdmin = _detectSuperAdmin();
+    _bump();
+  }
+
   bool _detectSuperAdmin() {
     final wildcard = _userPermissions['*'];
     if (wildcard != null &&
@@ -394,6 +406,7 @@ class PermissionService extends GetxService {
       Perms.marketingCampaignsUpdate,
       Perms.servicesList, Perms.servicesCreate, Perms.servicesUpdate,
       Perms.ordersList, Perms.quotesList,
+      Perms.kpisList,
       Perms.clientInventoryList, Perms.walletView, Perms.walletViewOwn,
     ];
   }

@@ -1003,6 +1003,48 @@ const List<SidebarSection> sidebarStructure = [
           ),
         ],
       ),
+      // Audit B11 fix: CRM pages were registered and route-gated but no
+      // sidebar section linked to them — unreachable except by URL.
+      MenuItem(
+        id: MainMenuItem.crm,
+        label: 'CRM',
+        icon: Iconsax.people,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resClients,
+          PermissionConstants.resLeads,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.crmClients,
+            icon: Iconsax.profile_2user,
+            label: 'Clients',
+            route: RouteConstants.crmClients,
+            resources: [PermissionConstants.resClients],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmLeads,
+            icon: Iconsax.user_tag,
+            label: 'Leads',
+            route: RouteConstants.crmLeads,
+            resources: [PermissionConstants.resLeads],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmInteractions,
+            icon: Iconsax.messages_2,
+            label: 'Interactions',
+            route: RouteConstants.crmInteractions,
+            resources: [PermissionConstants.resClients],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmAnalytics,
+            icon: Iconsax.chart_2,
+            label: 'Analytics',
+            route: RouteConstants.crmAnalytics,
+            resources: [PermissionConstants.resStats],
+          ),
+        ],
+      ),
       MenuItem(
         id: MainMenuItem.financeAccounting,
         label: 'Finance & Accounting',
@@ -1166,6 +1208,59 @@ const List<SidebarSection> sidebarStructure = [
               PermissionConstants.resStats,
               PermissionConstants.resClients,
             ],
+          ),
+        ],
+      ),
+      // Audit B11 fix: the Security & Authorization module was registered
+      // and gated but absent from navigation — restored for admins.
+      MenuItem(
+        id: MainMenuItem.security,
+        label: 'Security',
+        icon: Iconsax.shield_tick,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resAuditLogs,
+          PermissionConstants.resRoles,
+          PermissionConstants.resApprovalFlows,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.securityOverview,
+            icon: Iconsax.element_4,
+            label: 'Overview',
+            route: RouteConstants.securityOverview,
+            resources: [
+              PermissionConstants.resAuditLogs,
+              PermissionConstants.resRoles,
+            ],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.securityCodes,
+            icon: Iconsax.security_user,
+            label: 'Codes & Permissions',
+            route: RouteConstants.securityCodes,
+            resources: [PermissionConstants.resRoles],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.securityWorkflow,
+            icon: Iconsax.tick_circle,
+            label: 'Workflows',
+            route: RouteConstants.securityWorkflow,
+            resources: [PermissionConstants.resApprovalFlows],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.securityAlerts,
+            icon: Iconsax.warning_2,
+            label: 'Alerts',
+            route: RouteConstants.securityAlerts,
+            resources: [PermissionConstants.resAuditLogs],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.securityLogs,
+            icon: Iconsax.clipboard_text,
+            label: 'Audit Logs',
+            route: RouteConstants.securityLogs,
+            resources: [PermissionConstants.resAuditLogs],
           ),
         ],
       ),

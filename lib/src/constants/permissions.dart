@@ -468,6 +468,9 @@ class Perms {
   static const ordersList = Permission('orders', 'list');
   static const quotesList = Permission('quotes', 'list');
 
+  // KPIs (sidebar uses resKpis; typed constant needed by route gates)
+  static const kpisList = Permission('kpis', 'list');
+
   // Work Locations (employee-submitted workspaces, admin-approved)
   static const workLocationsList = Permission('work_locations', 'list');
   static const workLocationsListOwn = Permission('work_locations', 'list_own');
@@ -515,6 +518,16 @@ const Map<String, List<Permission>> routeRequirements = {
     Perms.workLocationsReject,
     Perms.workLocationsList,
   ],
+  // Company sub-pages (audit V4 fix): sidebar hid them via resRoles but
+  // the router left them unmapped (fail-open). These expose org-wide data
+  // (hierarchy, KPIs, compliance), so they require the ADMIN list action —
+  // default employees' roles:view_own must not open them.
+  RouteConstants.orgChart: [Perms.rolesList],
+  RouteConstants.kpiManagement: [Perms.rolesList],
+  RouteConstants.okrBoard: [Perms.rolesList],
+  RouteConstants.complianceDashboard: [Perms.rolesList],
+  RouteConstants.knowledgeBase: [Perms.rolesList],
+  RouteConstants.enugu: [Perms.branchesList, Perms.branchesView],
   RouteConstants.auditLog: [Perms.auditLogsList],
   RouteConstants.department: [Perms.departmentsList],
   RouteConstants.assets: [Perms.assetsList, Perms.assetsListOwn],
@@ -542,6 +555,11 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.workReport: [Perms.workReportsList],
   RouteConstants.employeeEvaluation: [Perms.employeeEvaluationsList],
   RouteConstants.disciplinaryProcess: [Perms.disciplinaryCasesList],
+  // Audit V4 fix: previously unmapped gap routes.
+  RouteConstants.benefits: [Perms.payrollList, Perms.payrollListOwn],
+  RouteConstants.associates: [Perms.employeesList],
+  RouteConstants.eachProjects: [Perms.projectsList],
+  RouteConstants.taskDetail: [Perms.tasksList, Perms.tasksListOwn],
   RouteConstants.performanceLeaderboard: [Perms.monthlyScorecardsList],
   RouteConstants.meetings: [Perms.meetingsList],
 
@@ -554,7 +572,9 @@ const Map<String, List<Permission>> routeRequirements = {
     Perms.monthlyScorecardsListOwn,
     Perms.monthlyScorecardsList,
   ],
-  RouteConstants.awardsRecognition: [Perms.awardsListOwn, Perms.awardsList],
+  // Boss/HR only — the default employee baseline grants everyone
+  // `awards:list_own`, so that action must NOT appear here.
+  RouteConstants.awardsRecognition: [Perms.awardsList],
 
   // ── Operations (admin list) ───────────────────────────────────────────
   RouteConstants.operations: [Perms.projectsList, Perms.tasksList],
@@ -612,6 +632,33 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.landSurveyCalculator: _publicToLoggedIn,
   RouteConstants.servicesCalculator: _publicToLoggedIn,
 
+  // ── Services webview module (audit V4 fix) ───────────────────────────
+  // Explicit gates mirroring each sidebar entry's resource array; these
+  // pages hand tokens to the embedded services app.
+  RouteConstants.servicesDashboard: [Perms.servicesList],
+  RouteConstants.servicesCatalogue: [Perms.servicesList],
+  RouteConstants.servicesCalculators: [Perms.servicesList],
+  RouteConstants.servicesRequestFormBuilder: [Perms.servicesList],
+  RouteConstants.servicesWorkflowDesigner: [Perms.servicesList],
+  RouteConstants.servicesBranchActivation: [Perms.servicesList],
+  RouteConstants.servicesRequests: [Perms.servicesList, Perms.clientsList],
+  RouteConstants.servicesQuotations: [Perms.servicesList],
+  RouteConstants.servicesInvoicesPayments: [
+    Perms.serviceInvoicesList,
+    Perms.paymentsList,
+  ],
+  RouteConstants.servicesApprovals: [Perms.servicesList],
+  RouteConstants.servicesOrders: [Perms.servicesList],
+  RouteConstants.servicesExecutionTasks: [Perms.tasksList],
+  RouteConstants.servicesDeliverables: [Perms.documentsList],
+  RouteConstants.servicesRealEstateInventory: [
+    Perms.propertiesList,
+    Perms.estatesList,
+  ],
+  RouteConstants.servicesSurveyEngineeringOthers: [Perms.servicesList],
+  RouteConstants.servicesFeedbackQuality: [Perms.clientsList],
+  RouteConstants.servicesReportsAnalytics: [Perms.statsView],
+
   // Analytics (stats permission gates all)
   RouteConstants.analyticsOverview: [Perms.statsView],
   RouteConstants.analyticsRevenue: [Perms.statsView],
@@ -638,11 +685,71 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.workspace: _publicToLoggedIn,
   RouteConstants.workspaceDashboard: _publicToLoggedIn,
 
-  // Marketing
+  // ── Marketing (audit V4 fix) ─────────────────────────────────────────
+  // Every webview route is now explicitly gated, mirroring the resource
+  // array of its sidebar entry in menu_structure.dart. Previously these
+  // were unmapped (fail-open), so any logged-in user could reach them —
+  // and each page hands the user's access+refresh tokens to the embedded
+  // marketing app.
   RouteConstants.marketing: [Perms.marketingCampaignsList],
   RouteConstants.marketingLeadDetail: [Perms.leadsList],
   RouteConstants.marketingCampaignDetail: [Perms.marketingCampaignsList],
   RouteConstants.marketingSiteDetail: [Perms.marketingCampaignsList],
+
+  // Overview / command centre family
+  RouteConstants.marketingDashboard: [Perms.marketingCampaignsList],
+  RouteConstants.marketingOkrs: [Perms.kpisList],
+
+  // Leads family
+  RouteConstants.marketingPipeline: [Perms.leadsList],
+  RouteConstants.marketingLeadControl: [Perms.leadsList],
+  RouteConstants.marketingLeadJournal: [Perms.leadsList],
+  RouteConstants.marketingNewLead: [Perms.leadsList],
+
+  // Campaigns & content family
+  RouteConstants.marketingCampaigns: [Perms.marketingCampaignsList],
+  RouteConstants.marketingCalendar: [Perms.marketingCampaignsList],
+  RouteConstants.marketingPlaybooks: [Perms.marketingCampaignsList],
+  RouteConstants.marketingContentStudio: [Perms.marketingCampaignsList],
+  RouteConstants.marketingEmailCenter: [Perms.marketingCampaignsList],
+  RouteConstants.marketingMediaRegister: [Perms.marketingCampaignsList],
+  RouteConstants.marketingRealtorPortal: [Perms.marketingCampaignsList],
+  RouteConstants.marketingPartnerPortal: [Perms.marketingCampaignsList],
+  RouteConstants.marketingPartners: [Perms.marketingCampaignsList],
+  RouteConstants.marketingMeetings: [Perms.marketingCampaignsList],
+
+  // Analytics family
+  RouteConstants.marketingAnalytics: [Perms.statsView],
+  RouteConstants.marketingRevenueCommand: [Perms.statsView],
+  RouteConstants.marketingFunnelAudit: [Perms.statsView],
+  RouteConstants.marketingTurnaround: [Perms.statsView],
+
+  // Team / workdesk
+  RouteConstants.marketingTeam: [Perms.employeesList, Perms.employeesViewOwn],
+  RouteConstants.marketingWorkdesk: [
+    Perms.employeesList,
+    Perms.employeesViewOwn,
+  ],
+
+  // Tasks / documents / training / budgets / clients families
+  RouteConstants.marketingDailyExecution: [Perms.tasksList, Perms.tasksListOwn],
+  RouteConstants.marketingMedia: [Perms.documentsList],
+  RouteConstants.marketingCoaching: [Perms.trainingProgramsList],
+  RouteConstants.marketingForecast: [Perms.budgetsList],
+  RouteConstants.marketingRetention: [Perms.clientsList],
+  RouteConstants.marketingHandoff: [Perms.clientsList],
+  RouteConstants.marketingSupport: [Perms.clientsList],
+
+  // Governance family
+  RouteConstants.marketingRoleGovernance: [Perms.rolesList, Perms.rolesViewOwn],
+  RouteConstants.marketingApprovals: [Perms.approvalFlowsList],
+  RouteConstants.marketingAuditLog: [Perms.auditLogsList],
+  RouteConstants.marketingCompliance: [Perms.auditLogsList],
+  // Registered but sidebar-orphaned routes get module-default gates.
+  RouteConstants.marketingReports: [Perms.auditLogsList],
+  RouteConstants.marketingIntegrations: [Perms.marketingCampaignsList],
+  RouteConstants.marketingDesign: [Perms.marketingCampaignsList],
+  RouteConstants.marketingWhatsapp: [Perms.marketingCampaignsList],
 
   // CRM
   RouteConstants.crmClients: [Perms.clientsList],
