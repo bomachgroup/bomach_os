@@ -9,8 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../src/app_routes/app_route_constants.dart';
+import '../../src/app_routes/sidebar_prefs.dart';
 import '../../src/model/user_model.dart';
 import '../../src/services/auth_service.dart';
 import '../../src/services/permission_service.dart';
@@ -259,6 +261,14 @@ class AuthController extends GetxController {
           await _authService.getCurrentUser(accessToken: token, userId: userId);
       currentUser.value = user;
 
+      // HR endpoints (/monthly-scorecards/employee/{id}, evaluations, …)
+      // key on the EMPLOYEE-record PK, not the auth account id. Persist
+      // both so controllers can pick the right one.
+      if (user.id > 0) {
+        await _storage.write(
+            key: 'employee_record_id', value: user.id.toString());
+      }
+
       try {
         is2FaEnabled.value = await _authService.get2FaStatus(token);
       } catch (e) {
@@ -331,6 +341,17 @@ class AuthController extends GetxController {
     } finally {
       await _storage.deleteAll();
       _permissionService.clearPermissions();
+      // Audit B9 fix: sidebar menu/pin state lived in SharedPreferences
+      // and survived logout, leaking one user's UI state into the next
+      // account on a shared machine.
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        for (final key in sidebarPrefsKeys) {
+          await prefs.remove(key);
+        }
+      } catch (e) {
+        log("Sidebar pref cleanup skipped: $e");
+      }
       currentUser.value = null;
       _notifyRefresh();
       emailController.clear();

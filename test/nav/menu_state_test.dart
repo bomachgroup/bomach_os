@@ -152,13 +152,16 @@ void main() {
       );
     });
 
-    test('super admin CAN see the Company menu even with no resource hit',
-        () {
+    test('expandable menus need at least one accessible child even for '
+        'super admin (matches real _buildMenuItem)', () {
       final company = expandable([]);
+      // In production a super admin's wildcard makes every child pass, so
+      // this branch is unreachable — but the predicate must mirror the
+      // widget exactly: no authorized children → hidden.
       expect(
         shouldShowMenuItem(company,
             isSuperAdmin: true, hasCompanySettings: false, canAccess: deny),
-        isTrue,
+        isFalse,
       );
     });
 

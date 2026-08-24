@@ -6,6 +6,7 @@ import 'package:bomach_os/pages/auth/controller.dart';
 import 'package:bomach_os/pages/company/controllers/broadcast_controller.dart';
 import 'package:bomach_os/src/app_routes/app_route_constants.dart';
 import 'package:bomach_os/src/app_routes/menu_structure.dart';
+import 'package:bomach_os/src/app_routes/sidebar_prefs.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
@@ -304,17 +305,17 @@ class _SideMenuState extends State<SideMenu> {
     final openMenuIndex = prefs.getInt('sidebarOpenMenu');
 
     setState(() {
-      selectedMainMenu = mainMenuIndex != null
-          ? MainMenuItem.values[mainMenuIndex]
-          : MainMenuItem.dashboard;
-      selectedSubMenu = subMenuIndex != null && subMenuIndex >= 0
-          ? SubMenuItem.values[subMenuIndex]
-          : null;
+      // Audit B13 fix: bound-check every restored ordinal via the shared
+      // helpers — a stale index after an enum reorder used to throw.
+      selectedMainMenu =
+          safeMainIndex(mainMenuIndex) ?? MainMenuItem.dashboard;
+      selectedSubMenu = safeSubIndex(subMenuIndex);
       // Restore accordion state: prefer the saved open group; fall back to
       // the parent of the selected sub-item so a first-time user with no
       // saved pref still lands with the right group expanded.
-      if (openMenuIndex != null && openMenuIndex >= 0) {
-        _openMenu = MainMenuItem.values[openMenuIndex];
+      final restoredOpen = safeMainIndex(openMenuIndex);
+      if (restoredOpen != null) {
+        _openMenu = restoredOpen;
       } else if (selectedSubMenu != null) {
         _openMenu = selectedMainMenu;
       }
@@ -673,12 +674,24 @@ class _SideMenuState extends State<SideMenu> {
     if (pinnedSectionVisible) {
       rows.add(const _SectionHeader(label: 'Pinned', showDivider: false));
       for (final menuItem in menuItems) {
+        // Audit B9 fix: pinned rows go through the SAME visibility
+        // predicate as regular rows — pins used to bypass permissions.
+        final visible = shouldShowMenuItem(
+          menuItem,
+          isSuperAdmin: permissionService.isSuperAdmin,
+          hasCompanySettings: permissionService.hasAnyPermissionForResource(
+              PermissionConstants.resCompanySettings),
+          canAccess: permissionService.canAccessRoute,
+        );
+        if (!visible) continue;
+
         if (_pinnedMains.contains(menuItem.id) && !menuItem.isExpandable) {
           rows.add(_buildPinnedMainRow(menuItem));
         }
         if (menuItem.isExpandable) {
           for (final sub in menuItem.children) {
-            if (_pinnedSubs.contains(sub.id)) {
+            if (_pinnedSubs.contains(sub.id) &&
+                permissionService.canAccessRoute(sub.route, sub.resources)) {
               rows.add(_buildPinnedSubRow(sub, menuItem.id));
             }
           }
@@ -1465,10 +1478,9 @@ class _AccountCard extends StatelessWidget {
       final name = user.firstName.isEmpty && user.lastName.isEmpty
           ? user.username
           : '${user.firstName} ${user.lastName}';
-      final role =
-          (user.employmentType != null && user.employmentType!.isNotEmpty)
-              ? user.employmentType!
-              : 'Super Admin';
+      // Audit B7 fix: neutral fallback instead of the misleading
+      // 'Super Admin' label for users without an employment type.
+      final role = resolveRoleLabel(user.employmentType);
 
       if (isCollapsed) {
         return Material(
