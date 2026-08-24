@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:bomach_os/src/constants/colors.dart';
-import 'package:bomach_os/src/constants/api_constants.dart';
 
+/// Desktop/non-web fallback. Audit V7 fix: this used to render the full
+/// token-bearing URL on screen ('Target URL: ...') — showing the live
+/// access/refresh token pair to anyone near the screen. Only the route
+/// name is shown now; no credential material exists in this widget.
 Widget buildMarketingPlatformView({
   required String initialUrl,
   required String token,
@@ -10,15 +13,6 @@ Widget buildMarketingPlatformView({
   bool hideSidebar = true,
   bool hideTopbar = false,
 }) {
-  final fullUrl = _buildFullUrl(
-    initialUrl: initialUrl,
-    route: currentRoute,
-    token: token,
-    refreshToken: refreshToken,
-    hideSidebar: hideSidebar,
-    hideTopbar: hideTopbar,
-  );
-
   return Container(
     width: double.infinity,
     height: double.infinity,
@@ -45,7 +39,7 @@ Widget buildMarketingPlatformView({
             ),
             const SizedBox(height: 8),
             Text(
-              'Target URL: $fullUrl',
+              'Route: $currentRoute',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
@@ -63,34 +57,4 @@ Widget buildMarketingPlatformView({
       ),
     ),
   );
-}
-
-String _buildFullUrl({
-  required String initialUrl,
-  required String route,
-  required String token,
-  String refreshToken = '',
-  required bool hideSidebar,
-  required bool hideTopbar,
-}) {
-  final cleanBase = initialUrl.replaceAll(RegExp(r'/+$'), '');
-  final cleanRoute = route.startsWith('/') ? route : '/$route';
-  final uri = Uri.parse('$cleanBase$cleanRoute');
-
-  final queryParams = Map<String, String>.from(uri.queryParameters);
-  queryParams['embed'] = 'true';
-  if (hideSidebar) queryParams['hideSidebar'] = 'true';
-  if (hideTopbar) queryParams['hideTopbar'] = 'true';
-  if (token.isNotEmpty) {
-    queryParams['token'] = token;
-    queryParams['access_token'] = token;
-  }
-  if (refreshToken.isNotEmpty) {
-    queryParams['refresh_token'] = refreshToken;
-    queryParams['refreshToken'] = refreshToken;
-  }
-  queryParams['apiBaseUrl'] = ApiConstants.authBaseUrl;
-  queryParams['backendUrl'] = ApiConstants.authBaseUrl;
-
-  return uri.replace(queryParameters: queryParams).toString();
 }

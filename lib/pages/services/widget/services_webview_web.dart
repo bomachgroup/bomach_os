@@ -1,7 +1,10 @@
+import 'dart:async';
+import 'dart:js_interop';
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
-import 'package:bomach_os/src/constants/api_constants.dart';
+
+import '../../shared/embedded_web_view.dart';
 
 final Map<String, web.HTMLIFrameElement> _activeServicesIframes = {};
 
@@ -47,11 +50,19 @@ class _ServicesIFrameView extends StatefulWidget {
 class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
   late final String _viewType;
   late final String _targetUrl;
+  Timer? _tokenRetryTimer;
+  int _postAttempts = 0;
 
   @override
   void initState() {
     super.initState();
-    _targetUrl = _buildFullUrl();
+    // Audit V3 fix: tokens no longer ride in the URL.
+    _targetUrl = buildEmbeddedUrl(
+      baseUrl: widget.initialUrl,
+      route: widget.currentRoute,
+      hideSidebar: widget.hideSidebar,
+      hideTopbar: widget.hideTopbar,
+    );
     _viewType = 'services-iframe-${DateTime.now().millisecondsSinceEpoch}';
 
     ui_web.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
@@ -62,9 +73,16 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
         ..style.height = '100%'
         ..style.display = 'block';
 
+      iframe.addEventListener(
+        'load',
+        ((web.Event _) => _postTokens(iframe)).toJS,
+      );
+
       _activeServicesIframes[_viewType] = iframe;
       return iframe;
     });
+
+    _scheduleTokenRetries();
   }
 
   @override
@@ -76,43 +94,67 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
         oldWidget.initialUrl != widget.initialUrl ||
         oldWidget.hideSidebar != widget.hideSidebar ||
         oldWidget.hideTopbar != widget.hideTopbar) {
-      final newUrl = _buildFullUrl();
+      final newUrl = buildEmbeddedUrl(
+        baseUrl: widget.initialUrl,
+        route: widget.currentRoute,
+        hideSidebar: widget.hideSidebar,
+        hideTopbar: widget.hideTopbar,
+      );
       final iframe = _activeServicesIframes[_viewType];
       if (iframe != null) {
         iframe.src = newUrl;
+        _postAttempts = 0;
+        _scheduleTokenRetries();
       }
     }
   }
 
-  @override
-  void dispose() {
-    _activeServicesIframes.remove(_viewType);
-    super.dispose();
+  void _scheduleTokenRetries() {
+    _tokenRetryTimer?.cancel();
+    _postAttempts = 0;
+    _tokenRetryTimer = Timer.periodic(const Duration(milliseconds: 1500),
+        (timer) {
+      if (_postAttempts >= 3) {
+        timer.cancel();
+        return;
+      }
+      _postAttempts++;
+      final iframe = _activeServicesIframes[_viewType];
+      if (iframe != null) {
+        _postTokens(iframe);
+      }
+    });
   }
 
-  String _buildFullUrl() {
-    final cleanBase = widget.initialUrl.replaceAll(RegExp(r'/+$'), '');
-    final cleanRoute = widget.currentRoute.startsWith('/')
-        ? widget.currentRoute
-        : '/${widget.currentRoute}';
-    final uri = Uri.parse('$cleanBase$cleanRoute');
+  void _postTokens(web.HTMLIFrameElement iframe) {
+    if (widget.token.isEmpty) return;
+    final win = iframe.contentWindow;
+    if (win == null) return;
 
-    final queryParams = Map<String, String>.from(uri.queryParameters);
-    queryParams['embed'] = 'true';
-    if (widget.hideSidebar) queryParams['hideSidebar'] = 'true';
-    if (widget.hideTopbar) queryParams['hideTopbar'] = 'true';
-    if (widget.token.isNotEmpty) {
-      queryParams['token'] = widget.token;
-      queryParams['access_token'] = widget.token;
+    final Uri parsed;
+    try {
+      parsed = Uri.parse(_targetUrl);
+    } on FormatException {
+      return;
     }
-    if (widget.refreshToken.isNotEmpty) {
-      queryParams['refresh_token'] = widget.refreshToken;
-      queryParams['refreshToken'] = widget.refreshToken;
-    }
-    queryParams['apiBaseUrl'] = ApiConstants.authBaseUrl;
-    queryParams['backendUrl'] = ApiConstants.authBaseUrl;
+    if (!parsed.hasScheme || parsed.host.isEmpty) return;
+    final targetOrigin =
+        '${parsed.scheme}://${parsed.host}${parsed.hasPort ? ':${parsed.port}' : ''}';
 
-    return uri.replace(queryParameters: queryParams).toString();
+    final payload = <String, String>{
+      'type': 'BOMACH_AUTH_TOKEN',
+      'token': widget.token,
+      if (widget.refreshToken.isNotEmpty) 'refreshToken': widget.refreshToken,
+    };
+
+    win.postMessage(payload.jsify(), targetOrigin.toJS);
+  }
+
+  @override
+  void dispose() {
+    _tokenRetryTimer?.cancel();
+    _activeServicesIframes.remove(_viewType);
+    super.dispose();
   }
 
   @override
