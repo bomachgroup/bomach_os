@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:bomach_os/components/feedback/app_toast.dart';
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/src/constants/api_constants.dart';
 
 import 'package:flutter/material.dart';
+// visibleForTesting comes from material's re-export of foundation.
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';

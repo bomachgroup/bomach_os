@@ -16,7 +16,7 @@ class RoleDetailUnavailable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _DetailUnavailableScaffold(
+    return const _DetailUnavailableScaffold(
       icon: Iconsax.shield_tick,
       message: 'Role details open from the Roles list. '
           'Pick a role to view its details.',
@@ -32,7 +32,7 @@ class EstateDetailUnavailable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _DetailUnavailableScaffold(
+    return const _DetailUnavailableScaffold(
       icon: Iconsax.building_4,
       message: 'Estate details open from Estate Management. '
           'Pick an estate to view its details.',

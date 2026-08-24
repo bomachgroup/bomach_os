@@ -27,6 +27,10 @@ class MonthlyScorecardController extends GetxController {
   }
 
   Future<String?> _getEmployeeId() async {
+    // Scorecard endpoints key on the employee-record PK (user_employee.id),
+    // NOT the auth account id stored under 'user_id'.
+    final recordId = await _storage.read(key: 'employee_record_id');
+    if (recordId != null && recordId.isNotEmpty) return recordId;
     return await _storage.read(key: 'user_id');
   }
 

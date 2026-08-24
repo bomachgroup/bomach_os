@@ -1,4 +1,3 @@
-import 'package:bomach_os/pages/hr/controller/employees_controller.dart';
 import 'package:bomach_os/pages/hr/widget/exit_employee_dialog.dart';
 import 'package:bomach_os/pages/hr/widget/suspend_employee_dialog.dart';
 import 'package:bomach_os/src/model/employees_model.dart';

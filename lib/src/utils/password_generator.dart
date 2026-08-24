@@ -17,7 +17,7 @@ const String _symbols = '!@#\$%&*?-+';
 String generateStrongPassword({Random? rng, int length = 16}) {
   assert(length >= 8, 'passwords shorter than 8 chars are not strong');
   final random = rng ?? Random.secure();
-  final all = _lower + _upper + _digits + _symbols;
+  const all = _lower + _upper + _digits + _symbols;
 
   // Guarantee at least one of each class, then fill from the full set.
   final chars = <String>[

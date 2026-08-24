@@ -115,10 +115,10 @@ void main() {
     bool deny(String? route, List<String>? resources) => false;
 
     test('super admin does not see the employee Dashboard menu', () {
-      final dashboard = MenuItem(
+      const dashboard = MenuItem(
         id: MainMenuItem.dashboard,
         label: 'Dashboard',
-        icon: const IconData(0xe800),
+        icon: IconData(0xe800),
         isExpandable: true,
       );
       expect(
@@ -129,10 +129,10 @@ void main() {
     });
 
     test('company_settings holder does not see Dashboard either', () {
-      final dashboard = MenuItem(
+      const dashboard = MenuItem(
         id: MainMenuItem.dashboard,
         label: 'Dashboard',
-        icon: const IconData(0xe800),
+        icon: IconData(0xe800),
         isExpandable: true,
       );
       expect(
@@ -166,31 +166,31 @@ void main() {
     });
 
     test('expandable menu visible iff any child is accessible', () {
-      final company = MenuItem(
+      const company = MenuItem(
         id: MainMenuItem.company,
         label: 'Company',
-        icon: const IconData(0xe800),
+        icon: IconData(0xe800),
         isExpandable: true,
         children: [
           SubMenuItemData(
             id: SubMenuItem.roles,
             label: 'Roles',
-            icon: const IconData(0xe800),
+            icon: IconData(0xe800),
             route: '/company/roles',
             resources: ['roles'],
           ),
           SubMenuItemData(
             id: SubMenuItem.branch,
             label: 'Branch',
-            icon: const IconData(0xe800),
+            icon: IconData(0xe800),
             route: '/company/branch',
             resources: ['branches'],
           ),
         ],
       );
 
-      var allowedRoute;
-      final result = shouldShowMenuItem(company,
+      String? allowedRoute;
+      shouldShowMenuItem(company,
           isSuperAdmin: false,
           hasCompanySettings: true,
           canAccess: (route, resources) => route == allowedRoute);

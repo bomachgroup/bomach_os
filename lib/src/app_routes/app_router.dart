@@ -403,13 +403,10 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
 /// Main router configuration
 final AuthController authController = Get.find<AuthController>();
 
-// Keep the web-free path registry honest (debug builds only).
-final void Function() _routeRegistryGuard = () {
+/// Router construction runs the registry check once, up front.
+final GoRouter goRouter = (() {
   _verifyRoutePathRegistry();
-  return;
-}();
-
-final goRouter = GoRouter(
+  return GoRouter(
   initialLocation: RouteConstants.splash,
   debugLogDiagnostics: true,
   refreshListenable: GoRouterRefreshStream(authController.refreshStream),
@@ -517,4 +514,6 @@ final goRouter = GoRouter(
   errorBuilder: (context, state) => const Center(
     child: MyText('Page not found'),
   ),
-);
+  );
+}());
+
