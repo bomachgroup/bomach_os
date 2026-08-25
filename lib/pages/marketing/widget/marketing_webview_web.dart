@@ -177,6 +177,8 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
       if (widget.fullName.isNotEmpty) 'fullName': widget.fullName,
       if (widget.fullName.isNotEmpty) 'name': widget.fullName,
       if (widget.email.isNotEmpty) 'email': widget.email,
+      'apiBaseUrl': ApiConstants.authBaseUrl,
+      'backendUrl': ApiConstants.authBaseUrl,
     };
 
     win.postMessage(payload.jsify(), targetOrigin.toJS);
