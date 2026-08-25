@@ -68,17 +68,33 @@ class _MarketingWebViewState extends State<MarketingWebView> {
     final baseUrl = widget.customBaseUrl ?? ApiConstants.marketingBaseUrl;
     final authCtrl =
         Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
-    final user = authCtrl?.currentUser.value;
-    final fullName =
-        user != null ? '${user.firstName} ${user.lastName}'.trim() : '';
-    final email = user?.email ?? '';
+
+    if (authCtrl != null) {
+      return Obx(() {
+        final user = authCtrl.currentUser.value;
+        final fullName =
+            user != null ? '${user.firstName} ${user.lastName}'.trim() : '';
+        final email = user?.email ?? '';
+
+        return platform.buildMarketingPlatformView(
+          initialUrl: baseUrl,
+          token: _token,
+          refreshToken: _refreshToken,
+          fullName: fullName,
+          email: email,
+          currentRoute: widget.route,
+          hideSidebar: widget.hideSidebar,
+          hideTopbar: widget.hideTopbar,
+        );
+      });
+    }
 
     return platform.buildMarketingPlatformView(
       initialUrl: baseUrl,
       token: _token,
       refreshToken: _refreshToken,
-      fullName: fullName,
-      email: email,
+      fullName: '',
+      email: '',
       currentRoute: widget.route,
       hideSidebar: widget.hideSidebar,
       hideTopbar: widget.hideTopbar,

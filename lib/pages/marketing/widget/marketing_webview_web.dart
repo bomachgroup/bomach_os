@@ -92,14 +92,19 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
     if (oldWidget.currentRoute != widget.currentRoute ||
         oldWidget.token != widget.token ||
         oldWidget.refreshToken != widget.refreshToken ||
+        oldWidget.fullName != widget.fullName ||
+        oldWidget.email != widget.email ||
         oldWidget.initialUrl != widget.initialUrl ||
         oldWidget.hideSidebar != widget.hideSidebar ||
         oldWidget.hideTopbar != widget.hideTopbar) {
       final newUrl = _buildFullUrl();
       final iframe = _activeIframes[_viewType];
       if (iframe != null) {
-        iframe.src = newUrl;
+        if (oldWidget.currentRoute != widget.currentRoute) {
+          iframe.src = newUrl;
+        }
         _postAttempts = 0;
+        _postTokens(iframe);
         _scheduleTokenRetries();
       }
     }
