@@ -110,6 +110,9 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
     if (widget.hideTopbar) queryParams['hideTopbar'] = 'true';
     if (widget.token.isNotEmpty) queryParams['token'] = widget.token;
     if (widget.refreshToken.isNotEmpty) queryParams['refreshToken'] = widget.refreshToken;
+    final effectiveApiBase = ApiConstants.authBaseUrl;
+    queryParams['apiBaseUrl'] = effectiveApiBase;
+    queryParams['backendUrl'] = effectiveApiBase;
 
     return uri.replace(queryParameters: queryParams).toString();
   }
