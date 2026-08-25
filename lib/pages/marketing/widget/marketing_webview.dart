@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:bomach_os/src/constants/api_constants.dart';
+import '../../auth/controller.dart';
 
 import 'marketing_webview_stub.dart'
     if (dart.library.js_interop) 'marketing_webview_web.dart' as platform;
@@ -64,11 +66,19 @@ class _MarketingWebViewState extends State<MarketingWebView> {
     }
 
     final baseUrl = widget.customBaseUrl ?? ApiConstants.marketingBaseUrl;
+    final authCtrl =
+        Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
+    final user = authCtrl?.currentUser.value;
+    final fullName =
+        user != null ? '${user.firstName} ${user.lastName}'.trim() : '';
+    final email = user?.email ?? '';
 
     return platform.buildMarketingPlatformView(
       initialUrl: baseUrl,
       token: _token,
       refreshToken: _refreshToken,
+      fullName: fullName,
+      email: email,
       currentRoute: widget.route,
       hideSidebar: widget.hideSidebar,
       hideTopbar: widget.hideTopbar,

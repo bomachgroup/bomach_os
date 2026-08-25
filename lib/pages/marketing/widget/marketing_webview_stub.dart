@@ -9,6 +9,8 @@ Widget buildMarketingPlatformView({
   required String initialUrl,
   required String token,
   String refreshToken = '',
+  String fullName = '',
+  String email = '',
   required String currentRoute,
   bool hideSidebar = true,
   bool hideTopbar = false,

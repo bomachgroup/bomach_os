@@ -10,6 +10,8 @@ Widget buildMarketingPlatformView({
   required String initialUrl,
   required String token,
   String refreshToken = '',
+  String fullName = '',
+  String email = '',
   required String currentRoute,
   bool hideSidebar = true,
   bool hideTopbar = false,
@@ -18,6 +20,8 @@ Widget buildMarketingPlatformView({
     initialUrl: initialUrl,
     token: token,
     refreshToken: refreshToken,
+    fullName: fullName,
+    email: email,
     currentRoute: currentRoute,
     hideSidebar: hideSidebar,
     hideTopbar: hideTopbar,
@@ -28,6 +32,8 @@ class _MarketingIFrameView extends StatefulWidget {
   final String initialUrl;
   final String token;
   final String refreshToken;
+  final String fullName;
+  final String email;
   final String currentRoute;
   final bool hideSidebar;
   final bool hideTopbar;
@@ -36,6 +42,8 @@ class _MarketingIFrameView extends StatefulWidget {
     required this.initialUrl,
     required this.token,
     this.refreshToken = '',
+    this.fullName = '',
+    this.email = '',
     required this.currentRoute,
     required this.hideSidebar,
     required this.hideTopbar,
@@ -110,6 +118,13 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
     if (widget.hideTopbar) queryParams['hideTopbar'] = 'true';
     if (widget.token.isNotEmpty) queryParams['token'] = widget.token;
     if (widget.refreshToken.isNotEmpty) queryParams['refreshToken'] = widget.refreshToken;
+    if (widget.fullName.isNotEmpty) {
+      queryParams['name'] = widget.fullName;
+      queryParams['fullName'] = widget.fullName;
+    }
+    if (widget.email.isNotEmpty) {
+      queryParams['email'] = widget.email;
+    }
     final effectiveApiBase = ApiConstants.authBaseUrl;
     queryParams['apiBaseUrl'] = effectiveApiBase;
     queryParams['backendUrl'] = effectiveApiBase;
@@ -159,6 +174,9 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
       'type': 'BOMACH_AUTH_TOKEN',
       'token': widget.token,
       if (widget.refreshToken.isNotEmpty) 'refreshToken': widget.refreshToken,
+      if (widget.fullName.isNotEmpty) 'fullName': widget.fullName,
+      if (widget.fullName.isNotEmpty) 'name': widget.fullName,
+      if (widget.email.isNotEmpty) 'email': widget.email,
     };
 
     win.postMessage(payload.jsify(), targetOrigin.toJS);
