@@ -4,8 +4,6 @@ import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 
-import '../../shared/embedded_web_view.dart';
-
 final Map<String, web.HTMLIFrameElement> _activeIframes = {};
 
 Widget buildMarketingPlatformView({
@@ -56,13 +54,7 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
   @override
   void initState() {
     super.initState();
-    // Audit V3 fix: tokens no longer ride in the URL.
-    _targetUrl = buildEmbeddedUrl(
-      baseUrl: widget.initialUrl,
-      route: widget.currentRoute,
-      hideSidebar: widget.hideSidebar,
-      hideTopbar: widget.hideTopbar,
-    );
+    _targetUrl = _buildFullUrl();
     _viewType = 'marketing-iframe-${DateTime.now().millisecondsSinceEpoch}';
 
     ui_web.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
@@ -73,9 +65,7 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
         ..style.height = '100%'
         ..style.display = 'block';
 
-      // Deliver auth via postMessage once the child app has loaded. The
-      // marketing app listens for {type:'BOMACH_AUTH_TOKEN', token,
-      // refreshToken} and persists them itself.
+      // Deliver auth via postMessage once the child app has loaded
       iframe.addEventListener(
         'load',
         ((web.Event _) => _postTokens(iframe)).toJS,
@@ -97,12 +87,7 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
         oldWidget.initialUrl != widget.initialUrl ||
         oldWidget.hideSidebar != widget.hideSidebar ||
         oldWidget.hideTopbar != widget.hideTopbar) {
-      final newUrl = buildEmbeddedUrl(
-        baseUrl: widget.initialUrl,
-        route: widget.currentRoute,
-        hideSidebar: widget.hideSidebar,
-        hideTopbar: widget.hideTopbar,
-      );
+      final newUrl = _buildFullUrl();
       final iframe = _activeIframes[_viewType];
       if (iframe != null) {
         iframe.src = newUrl;
@@ -110,6 +95,23 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
         _scheduleTokenRetries();
       }
     }
+  }
+
+  String _buildFullUrl() {
+    final cleanBase = widget.initialUrl.replaceAll(RegExp(r'/+$'), '');
+    final cleanRoute = widget.currentRoute.startsWith('/')
+        ? widget.currentRoute
+        : '/${widget.currentRoute}';
+    final uri = Uri.parse('$cleanBase$cleanRoute');
+
+    final queryParams = Map<String, String>.from(uri.queryParameters);
+    queryParams['embed'] = 'true';
+    if (widget.hideSidebar) queryParams['hideSidebar'] = 'true';
+    if (widget.hideTopbar) queryParams['hideTopbar'] = 'true';
+    if (widget.token.isNotEmpty) queryParams['token'] = widget.token;
+    if (widget.refreshToken.isNotEmpty) queryParams['refreshToken'] = widget.refreshToken;
+
+    return uri.replace(queryParameters: queryParams).toString();
   }
 
   void _scheduleTokenRetries() {
