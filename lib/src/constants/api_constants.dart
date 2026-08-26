@@ -53,6 +53,13 @@ class ApiConstants {
     );
   }
 
+  static String get financeBaseUrl {
+    return const String.fromEnvironment(
+      'FINANCE_URL',
+      defaultValue: 'https://finances-bomach.vercel.app',
+    );
+  }
+
   // Deprecated: migrate to authBaseUrl or operationsBaseUrl
   static String get baseUrl => authBaseUrl;
 

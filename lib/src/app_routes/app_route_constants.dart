@@ -174,6 +174,28 @@ class RouteConstants {
   static const String expense = '/finance/expense';
   static const String contractPayment = '/finance/contract-payment';
   static const String budget = '/finance/budget';
+  static const String financeDashboard = '/finance/dashboard';
+  static const String financeInvoices = '/finance/invoices';
+  static const String financePayments = '/finance/payments';
+  static const String financeReceivables = '/finance/receivables';
+  static const String financeWallets = '/finance/wallets';
+  static const String financeCashbook = '/finance/cashbook';
+  static const String financeExpenses = '/finance/expenses';
+  static const String financeVendors = '/finance/vendors';
+  static const String financePettyCash = '/finance/pettycash';
+  static const String financeApprovals = '/finance/approvals';
+  static const String financePayroll = '/finance/payroll';
+  static const String financeCommissions = '/finance/commissions';
+  static const String financeTax = '/finance/tax';
+  static const String financeJournals = '/finance/journals';
+  static const String financeCoa = '/finance/coa';
+  static const String financeAssets = '/finance/assets';
+  static const String financeCashflow = '/finance/cashflow';
+  static const String financeServiceOrders = '/finance/serviceorders';
+  static const String financeEstate = '/finance/estatefinance';
+  static const String financeReports = '/finance/reports';
+  static const String financeAudit = '/finance/audit';
+  static const String financeSettings = '/finance/settings';
 
   // workspace
   static const String workspace = '/workspace';

@@ -46,6 +46,7 @@ import 'package:bomach_os/pages/finance/expenses.dart';
 import 'package:bomach_os/pages/finance/finance.dart';
 import 'package:bomach_os/pages/finance/invoice.dart';
 import 'package:bomach_os/pages/finance/payments.dart';
+import 'package:bomach_os/pages/finance/widget/finance_webview.dart';
 import 'package:bomach_os/pages/hr/assets.dart';
 import 'package:bomach_os/pages/hr/associates.dart';
 import 'package:bomach_os/pages/hr/attendance.dart';
@@ -179,12 +180,34 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.workspaceApprovals: const WorkspaceApprovalsPage(),
   // RouteConstants.compliance: const CompliancePage(),
   RouteConstants.enugu: const BranchPage(),
-  RouteConstants.finance: const FinancePage(),
-  RouteConstants.invoice: const InvoicePage(),
-  RouteConstants.payment: const PaymentsPage(),
-  RouteConstants.expense: const ExpensesPage(),
-  RouteConstants.contractPayment: const ContractPaymentPage(),
-  RouteConstants.budget: const BudgetPage(),
+  RouteConstants.finance: const FinanceWebView(route: '/dashboard'),
+  RouteConstants.invoice: const FinanceWebView(route: '/invoices'),
+  RouteConstants.payment: const FinanceWebView(route: '/payments'),
+  RouteConstants.expense: const FinanceWebView(route: '/expenses'),
+  RouteConstants.contractPayment: const FinanceWebView(route: '/payments'),
+  RouteConstants.budget: const FinanceWebView(route: '/cashflow'),
+  RouteConstants.financeDashboard: const FinanceWebView(route: '/dashboard'),
+  RouteConstants.financeInvoices: const FinanceWebView(route: '/invoices'),
+  RouteConstants.financePayments: const FinanceWebView(route: '/payments'),
+  RouteConstants.financeReceivables: const FinanceWebView(route: '/receivables'),
+  RouteConstants.financeWallets: const FinanceWebView(route: '/wallets'),
+  RouteConstants.financeCashbook: const FinanceWebView(route: '/cashbook'),
+  RouteConstants.financeExpenses: const FinanceWebView(route: '/expenses'),
+  RouteConstants.financeVendors: const FinanceWebView(route: '/vendors'),
+  RouteConstants.financePettyCash: const FinanceWebView(route: '/pettycash'),
+  RouteConstants.financeApprovals: const FinanceWebView(route: '/approvals'),
+  RouteConstants.financePayroll: const FinanceWebView(route: '/payroll'),
+  RouteConstants.financeCommissions: const FinanceWebView(route: '/commissions'),
+  RouteConstants.financeTax: const FinanceWebView(route: '/tax'),
+  RouteConstants.financeJournals: const FinanceWebView(route: '/journals'),
+  RouteConstants.financeCoa: const FinanceWebView(route: '/coa'),
+  RouteConstants.financeAssets: const FinanceWebView(route: '/assets'),
+  RouteConstants.financeCashflow: const FinanceWebView(route: '/cashflow'),
+  RouteConstants.financeServiceOrders: const FinanceWebView(route: '/serviceorders'),
+  RouteConstants.financeEstate: const FinanceWebView(route: '/estatefinance'),
+  RouteConstants.financeReports: const FinanceWebView(route: '/reports'),
+  RouteConstants.financeAudit: const FinanceWebView(route: '/audit'),
+  RouteConstants.financeSettings: const FinanceWebView(route: '/settings'),
   RouteConstants.jobPost: const JobPostPage(),
   RouteConstants.attendance: const AttendancePage(),
   // RouteConstants.clockIn: const ClockInScreen(),
