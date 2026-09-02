@@ -49,7 +49,7 @@ class _ServicesIFrameView extends StatefulWidget {
 
 class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
   late final String _viewType;
-  late final String _targetUrl;
+  late String _targetUrl;
   Timer? _tokenRetryTimer;
   int _postAttempts = 0;
 
@@ -102,6 +102,7 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
       );
       final iframe = _activeServicesIframes[_viewType];
       if (iframe != null) {
+        _targetUrl = newUrl;
         iframe.src = newUrl;
         _postAttempts = 0;
         _scheduleTokenRetries();
@@ -114,7 +115,7 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
     _postAttempts = 0;
     _tokenRetryTimer = Timer.periodic(const Duration(milliseconds: 1500),
         (timer) {
-      if (_postAttempts >= 3) {
+      if (_postAttempts >= 12) {
         timer.cancel();
         return;
       }

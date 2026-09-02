@@ -28,6 +28,7 @@ class _ServicesWebViewState extends State<ServicesWebView> {
   String _token = '';
   String _refreshToken = '';
   bool _isLoading = true;
+  String? _loadError;
 
   @override
   void initState() {
@@ -37,19 +38,27 @@ class _ServicesWebViewState extends State<ServicesWebView> {
 
   Future<void> _loadAuthToken() async {
     try {
-      final token = await _storage.read(key: 'access_token');
-      final refreshToken = await _storage.read(key: 'refresh_token');
+      final credentials = await Future.wait([
+        _storage.read(key: 'access_token'),
+        _storage.read(key: 'refresh_token'),
+      ]).timeout(const Duration(seconds: 8));
+      final token = credentials[0];
+      final refreshToken = credentials[1];
       if (mounted) {
         setState(() {
           _token = token ?? '';
           _refreshToken = refreshToken ?? '';
           _isLoading = false;
+          _loadError = token == null || token.isEmpty
+              ? 'Your Bomach OS session is unavailable. Please sign in again.'
+              : null;
         });
       }
     } catch (_) {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _loadError = 'Services could not read your Bomach OS session. Try again.';
         });
       }
     }
@@ -60,6 +69,19 @@ class _ServicesWebViewState extends State<ServicesWebView> {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_loadError != null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_loadError!),
+            const SizedBox(height: 12),
+            FilledButton(onPressed: _loadAuthToken, child: const Text('Try again')),
+          ],
+        ),
       );
     }
 
