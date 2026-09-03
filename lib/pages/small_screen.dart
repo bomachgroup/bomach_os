@@ -11,7 +11,9 @@ class SmallScreenDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const Drawer(
-        child: SideMenu(),
+        child: SafeArea(
+          child: SideMenu(useAvailableHeight: true),
+        ),
       ),
       body: Column(
         children: [

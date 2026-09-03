@@ -29,10 +29,17 @@ class SideMenu extends StatefulWidget {
   /// on a collapsed rail — the rail expands first so the search field exists).
   final VoidCallback? onToggleCollapse;
 
+  /// Uses the parent's bounded height (the Drawer on small/medium layouts)
+  /// instead of the browser window height. This keeps the menu's ListView
+  /// inside the drawer so pointer/touch scrolling cannot fall through to the
+  /// page behind it.
+  final bool useAvailableHeight;
+
   const SideMenu({
     super.key,
     this.isCollapsed = false,
     this.onToggleCollapse,
+    this.useAvailableHeight = false,
   });
 
   static SideMenu of(BuildContext context) {
@@ -362,7 +369,7 @@ class _SideMenuState extends State<SideMenu> {
   }
 
   void _scrollToItem(MainMenuItem id) {
-    // Use a slight delay to allow the layout to settle after the previous 
+    // Use a slight delay to allow the layout to settle after the previous
     // module starts collapsing, ensuring we calculate the correct scroll target.
     Future.delayed(const Duration(milliseconds: 150), () {
       final key = _menuKeys[id];
@@ -556,7 +563,9 @@ class _SideMenuState extends State<SideMenu> {
       padding: widget.isCollapsed
           ? const EdgeInsets.symmetric(horizontal: 8)
           : const EdgeInsets.only(right: 8),
-      height: MediaQuery.sizeOf(context).height,
+      height: widget.useAvailableHeight
+          ? double.infinity
+          : MediaQuery.sizeOf(context).height,
       child: Obx(() {
         // Subscribe to permission changes so the menu rebuilds on role changes.
         // ignore: unused_local_variable
@@ -581,7 +590,8 @@ class _SideMenuState extends State<SideMenu> {
                   radius: const Radius.circular(8),
                   child: ListView(
                     controller: _scrollController,
-                    physics: const BouncingScrollPhysics(),
+                    primary: false,
+                    physics: const ClampingScrollPhysics(),
                     padding: const EdgeInsets.only(bottom: 20),
                     children: widget.isCollapsed
                         ? _buildRailItems(filtered)
