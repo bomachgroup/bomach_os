@@ -190,7 +190,7 @@ void main() {
   group('getDepartments', () {
     test('parses department list', () async {
       dioAdapter.onGet(
-        '/api/v1/employees/department',
+        '/api/v1/organization/department',
         (server) => server.reply(200, {
           'items': [
             {'id': 1, 'name': 'Engineering', 'description': 'Tech team'},

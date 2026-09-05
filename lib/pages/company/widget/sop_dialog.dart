@@ -14,12 +14,14 @@ import '../controllers/role_sop_controller.dart';
 class CreateEditSopDialog extends StatefulWidget {
   final RoleSopController ctrl;
   final int? presetRoleId;
+  final int? departmentId;
   final RoleSop? sop;
 
   const CreateEditSopDialog({
     super.key,
     required this.ctrl,
     this.presetRoleId,
+    this.departmentId,
     this.sop,
   });
 
@@ -44,7 +46,9 @@ class _CreateEditSopDialogState extends State<CreateEditSopDialog> {
         text: s?.sopId != null && s!.sopId > 0 ? s.sopId.toString() : '');
     _isActive = s?.isActive ?? true;
 
-    widget.ctrl.fetchAvailableSops();
+    if (widget.departmentId != null) {
+      widget.ctrl.fetchAvailableSops(deptId: widget.departmentId);
+    }
   }
 
   @override
@@ -66,7 +70,9 @@ class _CreateEditSopDialogState extends State<CreateEditSopDialog> {
   @override
   Widget build(BuildContext context) {
     return DialogScaffold(
-      title: isEditing ? 'Edit Role SOP Link' : 'Link Standard Operating Procedure',
+      title: isEditing
+          ? 'Edit Role SOP Link'
+          : 'Link Standard Operating Procedure',
       size: DialogSize.sm,
       body: Form(
         key: _formKey,
@@ -81,7 +87,8 @@ class _CreateEditSopDialogState extends State<CreateEditSopDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Select SOP',
-                          style: AppTextStyles.label.copyWith(color: AppColors.textPrimary)),
+                          style: AppTextStyles.label
+                              .copyWith(color: AppColors.textPrimary)),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<int>(
                         initialValue: _selectedSopId,
@@ -115,8 +122,10 @@ class _CreateEditSopDialogState extends State<CreateEditSopDialog> {
                 controller: _sopIdCtrl,
                 keyboardType: TextInputType.number,
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'SOP ID is required';
-                  if (int.tryParse(v.trim()) == null) return 'Must be a valid integer ID';
+                  if (v == null || v.trim().isEmpty)
+                    return 'SOP ID is required';
+                  if (int.tryParse(v.trim()) == null)
+                    return 'Must be a valid integer ID';
                   return null;
                 },
               ),

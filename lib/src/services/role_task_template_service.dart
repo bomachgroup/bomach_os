@@ -35,6 +35,7 @@ class RoleTaskTemplateService {
     String? frequency,
     String? priority,
     bool? isActive,
+    String? search,
     int limit = 100,
     int offset = 0,
   }) async {
@@ -43,9 +44,9 @@ class RoleTaskTemplateService {
         'limit': limit,
         'offset': offset,
       };
-      if (frequency != null) queryParams['frequency'] = frequency;
-      if (priority != null) queryParams['priority'] = priority;
+      if (priority != null) queryParams['default_priority'] = priority;
       if (isActive != null) queryParams['is_active'] = isActive;
+      if (search != null && search.isNotEmpty) queryParams['search'] = search;
 
       final response = await _dio.get(
         '/api/v1/roles/$roleId/task-templates',
@@ -93,7 +94,7 @@ class RoleTaskTemplateService {
     Map<String, dynamic> payload,
   ) async {
     try {
-      final response = await _dio.put(
+      final response = await _dio.patch(
         '/api/v1/roles/$roleId/task-templates/$templateId',
         data: payload,
         options: _authOptions(token),
@@ -104,7 +105,8 @@ class RoleTaskTemplateService {
     }
   }
 
-  Future<void> deleteTaskTemplate(String token, int roleId, int templateId) async {
+  Future<void> deleteTaskTemplate(
+      String token, int roleId, int templateId) async {
     try {
       await _dio.delete(
         '/api/v1/roles/$roleId/task-templates/$templateId',
@@ -118,7 +120,9 @@ class RoleTaskTemplateService {
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final body = error.response?.data;
-      final errorMessage = (body is Map) ? (body['message'] ?? body['detail'] ?? error.message) : error.message;
+      final errorMessage = (body is Map)
+          ? (body['message'] ?? body['detail'] ?? error.message)
+          : error.message;
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }

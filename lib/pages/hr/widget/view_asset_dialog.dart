@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
@@ -38,25 +37,13 @@ class ViewAssetDialog extends StatelessWidget {
     }
 
     List<Map<String, String>> uploadedFiles = [];
-    if (asset.documents != null && asset.documents!.isNotEmpty) {
-      try {
-        final List<dynamic> decoded = jsonDecode(asset.documents!);
-        uploadedFiles = decoded.map((item) => Map<String, String>.from(item)).toList();
-      } catch (_) {
-        if (asset.documents!.startsWith('http')) {
-          uploadedFiles = [
-            {
-              'name': 'Document',
-              'url': asset.documents!,
-              'type': asset.documents!.toLowerCase().endsWith('.jpg') ||
-                      asset.documents!.toLowerCase().endsWith('.png') ||
-                      asset.documents!.toLowerCase().endsWith('.jpeg')
-                  ? 'Image'
-                  : 'Document'
-            }
-          ];
-        }
-      }
+    if (asset.documents.isNotEmpty) {
+      uploadedFiles = asset.documents
+          .whereType<Map>()
+          .map((item) => item.map(
+                (key, value) => MapEntry(key.toString(), value.toString()),
+              ))
+          .toList();
     }
 
     return DialogScaffold(
@@ -92,13 +79,13 @@ class ViewAssetDialog extends StatelessWidget {
               _detailRow('Branch', asset.branch.isEmpty ? '—' : asset.branch),
               _detailRow(
                   'Assigned To',
-                  asset.assignedToId.isNotEmpty
-                      ? asset.assignedToId
+                  asset.assignedToId != null
+                      ? asset.assignedToId.toString()
                       : 'Unassigned'),
               _detailRow(
                   'Department',
-                  asset.departmentId.isNotEmpty
-                      ? asset.departmentId
+                  asset.departmentId != null
+                      ? asset.departmentId.toString()
                       : '—'),
             ],
           ),

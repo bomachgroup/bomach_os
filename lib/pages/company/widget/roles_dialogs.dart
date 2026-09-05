@@ -1,5 +1,6 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
+import 'package:bomach_os/components/backend_capability_unavailable.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/src/constants/colors.dart';
@@ -14,9 +15,7 @@ import 'package:iconsax/iconsax.dart';
 import '../controllers/roles_controller.dart';
 import '../controllers/authority_limit_controller.dart';
 import '../controllers/role_kpi_controller.dart';
-import '../controllers/role_okr_controller.dart';
 import 'kpi_dialogs.dart';
-import 'okr_dialogs.dart';
 
 class CreateEditRoleDialog extends StatefulWidget {
   final RolesController ctrl;
@@ -357,96 +356,12 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
               const SizedBox(height: 24),
               _buildSection(
                 title: 'OKRs',
-                child: GetBuilder<RoleOkrController>(
-                  tag: 'role_okr_${widget.role!.id}',
-                  init: RoleOkrController()
-                    ..scopedRoleId = widget.role!.id
-                    ..fetchOkrs(roleId: widget.role!.id),
-                  builder: (okrCtrl) {
-                    final roleOkrs = okrCtrl.okrs
-                        .where((o) => o.roleId == widget.role!.id)
-                        .toList();
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (roleOkrs.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              'No OKRs defined for this role.',
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                            ),
-                          )
-                        else
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: roleOkrs.length,
-                            separatorBuilder: (_, __) =>
-                                const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              final o = roleOkrs[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            o.objective,
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          Text(
-                                            'Q${o.quarter} ${o.year} · ${o.keyResults.length} KRs',
-                                            style: const TextStyle(
-                                                fontSize: 12,
-                                                color: AppColors.textSecondary),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '${o.overallProgress.toStringAsFixed(0)}%',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        color: o.overallProgress >= 80
-                                            ? Colors.green.shade600
-                                            : o.overallProgress >= 50
-                                                ? Colors.amber.shade700
-                                                : AppColors.danger,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        const SizedBox(height: 8),
-                        TextButton.icon(
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (_) => CreateEditOkrDialog(
-                              ctrl: okrCtrl,
-                              presetRoleId: widget.role!.id,
-                            ),
-                          ),
-                          icon: const Icon(Icons.add, size: 16),
-                          label: const Text('Add OKR'),
-                          style: TextButton.styleFrom(
-                              foregroundColor: AppColors.primary),
-                        ),
-                      ],
-                    );
-                  },
+                child: const BackendCapabilityUnavailable(
+                  featureName: 'Role OKRs',
+                  explanation:
+                      'Role OKRs are not available because the published API does not expose the required role OKR contract.',
+                  contractRequirement:
+                      'Backend contract needed: objectives, key results, owners, periods, progress, status, and approval/review actions.',
                 ),
               ),
               const SizedBox(height: 24),

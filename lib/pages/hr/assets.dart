@@ -9,16 +9,20 @@ import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/assets_controller.dart';
+import 'asset_action_permissions.dart';
 import 'models/assets_model.dart';
 import 'widget/add_asset_dialog.dart';
 import 'widget/view_asset_dialog.dart';
@@ -35,14 +39,17 @@ class AssetsPage extends StatelessWidget {
       header: PageHeader(
         title: 'Company Assets',
         subtitle: 'Manage company properties across all branches.',
-        trailing: MyElevatedButton(
-          height: 48,
-          icon: const Icon(Iconsax.add_circle,
-              color: AppColors.textOnPrimary, size: 18),
-          child: 'New Asset',
-          onTap: () => showDialog(
-            context: context,
-            builder: (_) => const AddAssetDialog(),
+        trailing: PermissionGate(
+          require: Perms.assetsCreate,
+          child: MyElevatedButton(
+            height: 48,
+            icon: const Icon(Iconsax.add_circle,
+                color: AppColors.textOnPrimary, size: 18),
+            child: 'New Asset',
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => const AddAssetDialog(),
+            ),
           ),
         ),
       ),
@@ -223,48 +230,54 @@ class _AssetsTableCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton.icon(
-                        onPressed: () => showDialog(
-                          context: context,
-                          builder: (_) => AddAssetDialog(asset: asset),
-                        ),
-                        icon: const Icon(Iconsax.edit, size: 16),
-                        label: const Text('Edit'),
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: const Size(60, 30),
+                      PermissionGate(
+                        require: Perms.assetsUpdate,
+                        child: TextButton.icon(
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (_) => AddAssetDialog(asset: asset),
+                          ),
+                          icon: const Icon(Iconsax.edit, size: 16),
+                          label: const Text('Edit'),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(60, 30),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
-                      TextButton.icon(
-                        onPressed: () async {
-                          final confirmed = await DialogScaffold.show<bool>(
-                            context,
-                            title: 'Delete asset',
-                            size: DialogSize.sm,
-                            body: Text(
-                                'Are you sure you want to delete "${asset.name}"?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancel'),
-                              ),
-                              FilledButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Delete'),
-                              ),
-                            ],
-                          );
-                          if (confirmed == true) {
-                            controller.deleteAsset(context, asset.id);
-                          }
-                        },
-                        icon: const Icon(Iconsax.trash, size: 16),
-                        label: const Text('Delete'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.danger,
-                          padding: EdgeInsets.zero,
-                          minimumSize: const Size(60, 30),
+                      PermissionGate(
+                        require: Perms.assetsDelete,
+                        child: TextButton.icon(
+                          onPressed: () async {
+                            final confirmed = await DialogScaffold.show<bool>(
+                              context,
+                              title: 'Delete asset',
+                              size: DialogSize.sm,
+                              body: Text(
+                                  'Are you sure you want to delete "${asset.name}"?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            );
+                            if (confirmed == true) {
+                              controller.deleteAsset(context, asset.id);
+                            }
+                          },
+                          icon: const Icon(Iconsax.trash, size: 16),
+                          label: const Text('Delete'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.danger,
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(60, 30),
+                          ),
                         ),
                       ),
                     ],
@@ -282,8 +295,36 @@ class _AssetsTableCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final loading = controller.isLoading.value && controller.assetList.isEmpty;
+      final hasError = controller.errorMessage.value.isNotEmpty;
       final isEmpty = !controller.isLoading.value && controller.assetList.isEmpty;
       final showMobile = context.isMobile;
+
+      if (hasError) {
+        return AppCard(
+          padding: const EdgeInsets.all(24),
+          elevation: AppCardElevation.md,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Iconsax.warning_2, size: 42, color: AppColors.warning),
+              const SizedBox(height: 12),
+              const Text('Error loading assets', style: AppTextStyles.h3),
+              const SizedBox(height: 8),
+              Text(
+                controller.errorMessage.value,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 12),
+              TextButton.icon(
+                onPressed: controller.fetchAssets,
+                icon: const Icon(Iconsax.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        );
+      }
 
       if (showMobile && !loading && !isEmpty) {
         return Column(
@@ -512,92 +553,108 @@ class _AssetsTableCard extends StatelessWidget {
   }
 
   Widget _buildActionMenu(BuildContext context, Asset asset) {
-    return Material(
-      color: Colors.transparent,
-      child: PopupMenuButton<String>(
-        icon: const Icon(Iconsax.more, size: 20, color: AppColors.textSecondary),
-        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
-        color: AppColors.surface,
-        elevation: 6,
-        onSelected: (value) async {
-          switch (value) {
-            case 'view':
-              showDialog(
-                context: context,
-                builder: (_) => ViewAssetDialog(asset: asset),
-              );
-              break;
-            case 'edit':
-              showDialog(
-                context: context,
-                builder: (_) => AddAssetDialog(asset: asset),
-              );
-              break;
-            case 'delete':
-              final confirmed = await DialogScaffold.show<bool>(
-                context,
-                title: 'Delete asset',
-                size: DialogSize.sm,
-                body: Text(
-                  'Are you sure you want to delete "${asset.name}"? This action cannot be undone.',
-                  style: AppTextStyles.bodyMd.copyWith(
-                    color: AppColors.textPrimary,
+    final permissions = Get.find<PermissionService>();
+    return Obx(() {
+      final _ = permissions.version;
+      final actions = visibleAssetActions(
+        canEdit: permissions.has(Perms.assetsUpdate),
+        canDelete: permissions.has(Perms.assetsDelete),
+      );
+
+      return Material(
+        color: Colors.transparent,
+        child: PopupMenuButton<String>(
+          icon: const Icon(Iconsax.more, size: 20, color: AppColors.textSecondary),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+          color: AppColors.surface,
+          elevation: 6,
+          onSelected: (value) async {
+            switch (value) {
+              case 'view':
+                showDialog(
+                  context: context,
+                  builder: (_) => ViewAssetDialog(asset: asset),
+                );
+                break;
+              case 'edit':
+                showDialog(
+                  context: context,
+                  builder: (_) => AddAssetDialog(asset: asset),
+                );
+                break;
+              case 'delete':
+                final confirmed = await DialogScaffold.show<bool>(
+                  context,
+                  title: 'Delete asset',
+                  size: DialogSize.sm,
+                  body: Text(
+                    'Are you sure you want to delete "${asset.name}"? This action cannot be undone.',
+                    style: AppTextStyles.bodyMd.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
-                actions: [
-                  MyOutlinedButton(
-                    child: 'Cancel',
-                    height: 44,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 12),
-                    textColor: AppColors.textSecondary,
-                    borderColor: AppColors.borderStrong,
-                    onTap: () => Navigator.pop(context, false),
-                  ),
-                  MyElevatedButton(
-                    child: 'Delete',
-                    height: 44,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 12),
-                    bgColor: AppColors.danger,
-                    onTap: () => Navigator.pop(context, true),
-                  ),
-                ],
-              );
-              if (confirmed == true && context.mounted) {
-                controller.deleteAsset(context, asset.id);
-              }
-              break;
-          }
-        },
-        itemBuilder: (_) => const [
-          PopupMenuItem(
-            value: 'view',
-            child: Row(children: [
-              Icon(Iconsax.eye, size: 18, color: AppColors.textSecondary),
-              SizedBox(width: 8),
-              Text('View Details'),
-            ]),
-          ),
-          PopupMenuItem(
-            value: 'edit',
-            child: Row(children: [
-              Icon(Iconsax.edit, size: 18, color: AppColors.textSecondary),
-              SizedBox(width: 8),
-              Text('Edit'),
-            ]),
-          ),
-          PopupMenuItem(
-            value: 'delete',
-            child: Row(children: [
-              Icon(Iconsax.trash, size: 18, color: AppColors.danger),
-              SizedBox(width: 8),
-              Text('Delete', style: TextStyle(color: AppColors.danger)),
-            ]),
-          ),
-        ],
-      ),
-    );
+                  actions: [
+                    MyOutlinedButton(
+                      child: 'Cancel',
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 12),
+                      textColor: AppColors.textSecondary,
+                      borderColor: AppColors.borderStrong,
+                      onTap: () => Navigator.pop(context, false),
+                    ),
+                    MyElevatedButton(
+                      child: 'Delete',
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 12),
+                      bgColor: AppColors.danger,
+                      onTap: () => Navigator.pop(context, true),
+                    ),
+                  ],
+                );
+                if (confirmed == true && context.mounted) {
+                  controller.deleteAsset(context, asset.id);
+                }
+                break;
+            }
+          },
+          itemBuilder: (_) => actions.map((action) {
+            switch (action) {
+              case 'view':
+                return const PopupMenuItem(
+                  value: 'view',
+                  child: Row(children: [
+                    Icon(Iconsax.eye, size: 18, color: AppColors.textSecondary),
+                    SizedBox(width: 8),
+                    Text('View Details'),
+                  ]),
+                );
+              case 'edit':
+                return const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(children: [
+                    Icon(Iconsax.edit, size: 18, color: AppColors.textSecondary),
+                    SizedBox(width: 8),
+                    Text('Edit'),
+                  ]),
+                );
+              case 'delete':
+                return const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(children: [
+                    Icon(Iconsax.trash, size: 18, color: AppColors.danger),
+                    SizedBox(width: 8),
+                    Text('Delete', style: TextStyle(color: AppColors.danger)),
+                  ]),
+                );
+              default:
+                return const PopupMenuItem<String>(enabled: false, child: SizedBox.shrink());
+            }
+          }).toList(),
+        ),
+      );
+    });
   }
 
   String _statusLabel(String status) {

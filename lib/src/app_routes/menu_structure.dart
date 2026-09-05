@@ -33,6 +33,7 @@ enum SubMenuItem {
   myProfile,
   myTasks,
   myReports,
+  myTargetReports,
   company,
   branch,
   board,
@@ -279,6 +280,13 @@ const List<SidebarSection> sidebarStructure = [
             label: 'My Work Reports',
             route: RouteConstants.employeeMyReports,
             resources: [PermissionConstants.resWorkReports],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.myTargetReports,
+            icon: Iconsax.chart_success,
+            label: 'My Target Reports',
+            route: RouteConstants.employeeMyTargetReports,
+            resources: [PermissionConstants.resEmployees],
           ),
         ],
       ),
@@ -645,7 +653,10 @@ const List<SidebarSection> sidebarStructure = [
             icon: Iconsax.clipboard_text,
             label: 'Service requests',
             route: RouteConstants.servicesRequests,
-            resources: [PermissionConstants.resServices, PermissionConstants.resClients],
+            resources: [
+              PermissionConstants.resServices,
+              PermissionConstants.resClients
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.servicesQuotations,
@@ -659,7 +670,10 @@ const List<SidebarSection> sidebarStructure = [
             icon: Iconsax.wallet_3,
             label: 'Invoices & payments',
             route: RouteConstants.servicesInvoicesPayments,
-            resources: [PermissionConstants.resServiceInvoices, PermissionConstants.resPayments],
+            resources: [
+              PermissionConstants.resServiceInvoices,
+              PermissionConstants.resPayments
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.servicesApprovals,
@@ -698,7 +712,10 @@ const List<SidebarSection> sidebarStructure = [
             icon: Iconsax.building_4,
             label: 'Real estate inventory',
             route: RouteConstants.servicesRealEstateInventory,
-            resources: [PermissionConstants.resProperties, PermissionConstants.resEstates],
+            resources: [
+              PermissionConstants.resProperties,
+              PermissionConstants.resEstates
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.servicesSurveyEngineeringOthers,
@@ -750,13 +767,6 @@ const List<SidebarSection> sidebarStructure = [
         ],
         children: [
           // ── Integrated Work ──
-          SubMenuItemData(
-            id: SubMenuItem.marketingWorkdesk,
-            icon: Iconsax.briefcase,
-            label: 'My work desk',
-            route: RouteConstants.marketingWorkdesk,
-            resources: [PermissionConstants.resEmployees],
-          ),
           SubMenuItemData(
             id: SubMenuItem.marketingLeadJournal,
             icon: Iconsax.note_21,
@@ -813,25 +823,11 @@ const List<SidebarSection> sidebarStructure = [
             resources: [PermissionConstants.resLeads],
           ),
           SubMenuItemData(
-            id: SubMenuItem.marketingFunnelAudit,
-            icon: Iconsax.filter,
-            label: 'Funnel leak audit',
-            route: RouteConstants.marketingFunnelAudit,
-            resources: [PermissionConstants.resStats],
-          ),
-          SubMenuItemData(
             id: SubMenuItem.marketingForecast,
             icon: Iconsax.trend_up,
             label: 'Forecast & coverage',
             route: RouteConstants.marketingForecast,
             resources: [PermissionConstants.resBudgets],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.marketingCompliance,
-            icon: Iconsax.shield_tick,
-            label: 'Compliance',
-            route: RouteConstants.marketingCompliance,
-            resources: [PermissionConstants.resAuditLogs],
           ),
 
           // ── Marketing ──
@@ -925,13 +921,6 @@ const List<SidebarSection> sidebarStructure = [
             route: RouteConstants.marketingContentStudio,
             resources: [PermissionConstants.resMarketingCampaigns],
           ),
-          SubMenuItemData(
-            id: SubMenuItem.marketingRetention,
-            icon: Iconsax.heart,
-            label: 'Retention & referrals',
-            route: RouteConstants.marketingRetention,
-            resources: [PermissionConstants.resClients],
-          ),
 
           // ── Commercial Operations ──
           SubMenuItemData(
@@ -972,25 +961,11 @@ const List<SidebarSection> sidebarStructure = [
 
           // ── Governance ──
           SubMenuItemData(
-            id: SubMenuItem.marketingRoleGovernance,
-            icon: Iconsax.security_user,
-            label: 'Role & permissions',
-            route: RouteConstants.marketingRoleGovernance,
-            resources: [PermissionConstants.resRoles],
-          ),
-          SubMenuItemData(
             id: SubMenuItem.marketingApprovals,
             icon: Iconsax.tick_circle,
             label: 'Approval center',
             route: RouteConstants.marketingApprovals,
             resources: [PermissionConstants.resApprovalFlows],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.marketingAuditLog,
-            icon: Iconsax.clipboard_text,
-            label: 'Audit log',
-            route: RouteConstants.marketingAuditLog,
-            resources: [PermissionConstants.resAuditLogs],
           ),
 
           // ── Campaign Operations ──

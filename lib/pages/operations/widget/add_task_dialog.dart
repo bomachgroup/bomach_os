@@ -415,7 +415,7 @@ class _AssignedToFieldState extends State<_AssignedToField> {
       if (token == null) return;
       final dio = Dio();
       final response = await dio.get(
-        '${ApiConstants.baseUrl}/api/v1/employees/department',
+        '${ApiConstants.baseUrl}/api/v1/organization/department',
         queryParameters: {'limit': 100},
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );

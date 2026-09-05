@@ -25,9 +25,6 @@ class RoleKnowledgeBaseService {
       final data = res.data; final List items = data is Map ? (data['items'] ?? data['data'] ?? []) : data;
       return items.map((j) => RoleKnowledgeEntry.fromJson(j as Map<String, dynamic>)).toList();
     } catch (e) {
-      if (e is DioException && e.response?.statusCode == 404) {
-        return [];
-      }
       throw _handleError(e);
     }
   }

@@ -1,22 +1,18 @@
-import 'package:bomach_os/components/coming_soon.dart';
-import 'package:bomach_os/components/section/page_header.dart';
-import 'package:bomach_os/components/section/page_scaffold.dart';
+import 'package:bomach_os/pages/company/compliance.dart';
+import 'package:bomach_os/pages/company/controllers/company_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+/// The API currently exposes a compliance register, not a separate aggregate
+/// dashboard. Reuse that supported screen until dashboard aggregates exist.
 class ComplianceDashboardPage extends StatelessWidget {
   const ComplianceDashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const PageScaffold(
-      maxContentWidth: 1200,
-      header: PageHeader(
-        title: 'Compliance Dashboard',
-        subtitle: 'Role compliance and risk obligations overview',
-      ),
-      children: [
-        ComingSoonTab(featureName: 'Compliance Dashboard'),
-      ],
-    );
+    if (!Get.isRegistered<CompanyController>()) {
+      Get.put(CompanyController());
+    }
+    return const CompliancePage();
   }
 }

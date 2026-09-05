@@ -1,10 +1,6 @@
-import 'package:bomach_os/pages/analytics/widgets/metrics_card.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/components/backend_capability_unavailable.dart';
 import 'package:flutter/material.dart';
 import '../../components/text/my_text.dart';
-import 'dialogs/generate_code.dart';
-import 'model.dart';
 import 'slides/alerts.dart';
 import 'slides/codes.dart';
 import 'slides/logs.dart';
@@ -39,15 +35,6 @@ class _SecurityPageState extends State<SecurityPage> {
     }
   }
 
-  void showSecurityCodeDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const GenerateSecurityCodeDialog();
-      },
-    );
-  }
-
   void _onPageChanged(int index) {
     setState(() {
       _currentIndex = index;
@@ -78,8 +65,8 @@ class _SecurityPageState extends State<SecurityPage> {
                 crossAxisAlignment: isMobile
                     ? CrossAxisAlignment.start
                     : CrossAxisAlignment.center,
-                children: [
-                  const Expanded(
+                children: const [
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -94,60 +81,28 @@ class _SecurityPageState extends State<SecurityPage> {
                       ],
                     ),
                   ),
-                  Row(
-                    spacing: 12,
-                    children: [
-                      _buildActionButton(
-                          icon: Iconsax.setting_2,
-                          label: 'Security Settings',
-                          onPressed: () {},
-                          isWide: !isMobile),
-                      if (_currentIndex == 0)
-                        _buildActionButton(
-                            icon: Iconsax.key,
-                            label: 'Generate code',
-                            onPressed: showSecurityCodeDialog,
-                            foregroundColor: Colors.white,
-                            backgroundColor: AppColors.primary,
-                            isWide: !isMobile)
-                    ],
-                  ),
+                  SizedBox.shrink(),
                 ],
               ),
               const SizedBox(height: 24),
-              Builder(
-                builder: (context) {
-                  int crossAxisCount;
-                  if (isMobile) {
-                    crossAxisCount = 1;
-                  } else if (isTablet) {
-                    crossAxisCount = 2;
-                  } else {
-                    crossAxisCount = 3;
-                  }
-                  return GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 2.5,
-                    ),
-                    itemCount: securityMetrics.length,
-                    itemBuilder: (context, i) {
-                      final metric = securityMetrics[i];
-                      return AnalyticsMetricCard(
-                        title: metric.title,
-                        icon: metric.icon,
-                        value: metric.value,
-                        subtitle: metric.subtitle,
-                        showtrend: false,
-                        color: metric.iconColor,
-                      );
-                    },
-                  );
-                },
+              if (_currentIndex == 0)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 24),
+                  child: BackendCapabilityUnavailable(
+                    featureName:
+                        'Employee Platforms Verification and Device Whitelisting',
+                    explanation:
+                        'The current backend does not publish platform verification or device registration APIs, so access cannot be safely enforced from this client.',
+                    contractRequirement:
+                        'Required contract: BOMACH OS shell, Mobile client, and Embedded BOMACH OS Services with allowed, pending, blocked, and unknown states; plus device registration, approval, revocation, replacement, and access-denial reasons.',
+                  ),
+                ),
+              const BackendCapabilityUnavailable(
+                featureName: 'Security Metrics and Access Codes',
+                explanation:
+                    'The published backend contract does not provide security-code or security-metric endpoints. The dashboard does not display invented counts.',
+                contractRequirement:
+                    'Required contract: security metrics and code lifecycle endpoints with permission-controlled access.',
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -171,87 +126,4 @@ class _SecurityPageState extends State<SecurityPage> {
       },
     );
   }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required bool isWide,
-    void Function()? onPressed,
-    Color? foregroundColor,
-    Color? backgroundColor,
-  }) {
-    if (isWide) {
-      return ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor ?? Colors.white,
-          foregroundColor: foregroundColor ?? Colors.black,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        ),
-        icon: Icon(icon, size: 18),
-        label: Text(label, style: const TextStyle(fontSize: 12)),
-        onPressed: onPressed,
-      );
-    } else {
-      return IconButton(
-        tooltip: label,
-        style: IconButton.styleFrom(
-          backgroundColor: backgroundColor ?? Colors.white,
-          foregroundColor: foregroundColor ?? Colors.black,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),
-        ),
-        onPressed: onPressed,
-        icon: Icon(icon, size: 20),
-      );
-    }
-  }
 }
-
-List<MetricCard> securityMetrics = [
-  MetricCard(
-    title: 'Active Codes',
-    icon: Iconsax.key,
-    iconColor: Colors.blue,
-    value: '1',
-    subtitle: 'Security codes',
-  ),
-  MetricCard(
-    title: 'Active Workflows',
-    icon: Iconsax.routing_2,
-    iconColor: Colors.green,
-    value: '1',
-    subtitle: 'Approval processes',
-  ),
-  MetricCard(
-    title: 'Open Alerts',
-    icon: Iconsax.warning_2,
-    iconColor: Colors.red,
-    value: '2',
-    subtitle: 'Require attention',
-  ),
-  MetricCard(
-    title: 'Successful Logins',
-    icon: Iconsax.tick_circle,
-    iconColor: Colors.green,
-    value: '1',
-    subtitle: 'This week',
-  ),
-  MetricCard(
-    title: 'Failed Attempts',
-    icon: Iconsax.close_circle,
-    iconColor: Colors.red,
-    value: '0',
-    subtitle: 'Security events',
-  ),
-  MetricCard(
-    title: 'Critical Alerts',
-    icon: Iconsax.shield_cross,
-    iconColor: Colors.red,
-    value: '0',
-    subtitle: 'High priority',
-  ),
-];

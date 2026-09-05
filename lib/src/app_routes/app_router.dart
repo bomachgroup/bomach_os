@@ -31,6 +31,7 @@ import 'package:bomach_os/pages/dashboad/dashboard.dart';
 import 'package:bomach_os/pages/dashboad/my_tasks.dart';
 import 'package:bomach_os/pages/dashboad/my_profile.dart';
 import 'package:bomach_os/pages/dashboad/my_work_reports.dart';
+import 'package:bomach_os/pages/hr/target_reports.dart';
 import 'package:bomach_os/pages/employee/employee.dart';
 import 'package:bomach_os/pages/employee/employee_attendance.dart';
 import 'package:bomach_os/pages/employee/employee_directory.dart';
@@ -40,12 +41,6 @@ import 'package:bomach_os/pages/hr/loans.dart';
 import 'package:bomach_os/pages/hr/disciplinary_process.dart';
 import 'package:bomach_os/pages/hr/employee_database.dart';
 import 'package:bomach_os/pages/hr/employee_profile.dart';
-import 'package:bomach_os/pages/finance/budget.dart';
-import 'package:bomach_os/pages/finance/contract_payment.dart';
-import 'package:bomach_os/pages/finance/expenses.dart';
-import 'package:bomach_os/pages/finance/finance.dart';
-import 'package:bomach_os/pages/finance/invoice.dart';
-import 'package:bomach_os/pages/finance/payments.dart';
 import 'package:bomach_os/pages/finance/widget/finance_webview.dart';
 import 'package:bomach_os/pages/hr/assets.dart';
 import 'package:bomach_os/pages/hr/associates.dart';
@@ -135,6 +130,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.home: const DashboardScreen(),
   RouteConstants.employeeMyTasks: const MyTasksPage(),
   RouteConstants.employeeMyReports: const MyWorkReportsPage(),
+  RouteConstants.employeeMyTargetReports: const TargetReportsPage(),
   RouteConstants.employeeMyProfile: const MyProfilePage(),
 
   // hr
@@ -189,7 +185,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.financeDashboard: const FinanceWebView(route: '/dashboard'),
   RouteConstants.financeInvoices: const FinanceWebView(route: '/invoices'),
   RouteConstants.financePayments: const FinanceWebView(route: '/payments'),
-  RouteConstants.financeReceivables: const FinanceWebView(route: '/receivables'),
+  RouteConstants.financeReceivables:
+      const FinanceWebView(route: '/receivables'),
   RouteConstants.financeWallets: const FinanceWebView(route: '/wallets'),
   RouteConstants.financeCashbook: const FinanceWebView(route: '/cashbook'),
   RouteConstants.financeExpenses: const FinanceWebView(route: '/expenses'),
@@ -197,13 +194,15 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.financePettyCash: const FinanceWebView(route: '/pettycash'),
   RouteConstants.financeApprovals: const FinanceWebView(route: '/approvals'),
   RouteConstants.financePayroll: const FinanceWebView(route: '/payroll'),
-  RouteConstants.financeCommissions: const FinanceWebView(route: '/commissions'),
+  RouteConstants.financeCommissions:
+      const FinanceWebView(route: '/commissions'),
   RouteConstants.financeTax: const FinanceWebView(route: '/tax'),
   RouteConstants.financeJournals: const FinanceWebView(route: '/journals'),
   RouteConstants.financeCoa: const FinanceWebView(route: '/coa'),
   RouteConstants.financeAssets: const FinanceWebView(route: '/assets'),
   RouteConstants.financeCashflow: const FinanceWebView(route: '/cashflow'),
-  RouteConstants.financeServiceOrders: const FinanceWebView(route: '/serviceorders'),
+  RouteConstants.financeServiceOrders:
+      const FinanceWebView(route: '/serviceorders'),
   RouteConstants.financeEstate: const FinanceWebView(route: '/estatefinance'),
   RouteConstants.financeReports: const FinanceWebView(route: '/reports'),
   RouteConstants.financeAudit: const FinanceWebView(route: '/audit'),
@@ -227,23 +226,40 @@ final Map<String, Widget> _dashboardRoutes = {
   // entry was missing, so the menu link rendered "Page not found".
   RouteConstants.disciplinaryProcess: const DisciplinaryProcessPage(),
   RouteConstants.services: const ServicesPage(),
-  RouteConstants.servicesDashboard: const ServicesWebView(route: '/app/dashboard'),
-  RouteConstants.servicesCatalogue: const ServicesWebView(route: '/app/service-catalogue'),
-  RouteConstants.servicesCalculators: const ServicesWebView(route: '/app/calculator-library'),
-  RouteConstants.servicesRequestFormBuilder: const ServicesWebView(route: '/app/request-form-builder'),
-  RouteConstants.servicesWorkflowDesigner: const ServicesWebView(route: '/app/workflow-designer'),
-  RouteConstants.servicesBranchActivation: const ServicesWebView(route: '/app/branch-activation'),
-  RouteConstants.servicesRequests: const ServicesWebView(route: '/app/service-requests'),
-  RouteConstants.servicesQuotations: const ServicesWebView(route: '/app/quotations'),
-  RouteConstants.servicesInvoicesPayments: const ServicesWebView(route: '/app/invoices-payments'),
-  RouteConstants.servicesApprovals: const ServicesWebView(route: '/app/approvals'),
-  RouteConstants.servicesOrders: const ServicesWebView(route: '/app/service-orders'),
-  RouteConstants.servicesExecutionTasks: const ServicesWebView(route: '/app/execution-tasks'),
-  RouteConstants.servicesDeliverables: const ServicesWebView(route: '/app/deliverables'),
-  RouteConstants.servicesRealEstateInventory: const ServicesWebView(route: '/app/real-estate-inventory'),
-  RouteConstants.servicesSurveyEngineeringOthers: const ServicesWebView(route: '/app/survey-engineering-others'),
-  RouteConstants.servicesFeedbackQuality: const ServicesWebView(route: '/app/feedback-quality'),
-  RouteConstants.servicesReportsAnalytics: const ServicesWebView(route: '/app/reports-analytics'),
+  RouteConstants.servicesDashboard:
+      const ServicesWebView(route: '/app/dashboard'),
+  RouteConstants.servicesCatalogue:
+      const ServicesWebView(route: '/app/service-catalogue'),
+  RouteConstants.servicesCalculators:
+      const ServicesWebView(route: '/app/calculator-library'),
+  RouteConstants.servicesRequestFormBuilder:
+      const ServicesWebView(route: '/app/request-form-builder'),
+  RouteConstants.servicesWorkflowDesigner:
+      const ServicesWebView(route: '/app/workflow-designer'),
+  RouteConstants.servicesBranchActivation:
+      const ServicesWebView(route: '/app/branch-activation'),
+  RouteConstants.servicesRequests:
+      const ServicesWebView(route: '/app/service-requests'),
+  RouteConstants.servicesQuotations:
+      const ServicesWebView(route: '/app/quotations'),
+  RouteConstants.servicesInvoicesPayments:
+      const ServicesWebView(route: '/app/invoices-payments'),
+  RouteConstants.servicesApprovals:
+      const ServicesWebView(route: '/app/approvals'),
+  RouteConstants.servicesOrders:
+      const ServicesWebView(route: '/app/service-orders'),
+  RouteConstants.servicesExecutionTasks:
+      const ServicesWebView(route: '/app/execution-tasks'),
+  RouteConstants.servicesDeliverables:
+      const ServicesWebView(route: '/app/deliverables'),
+  RouteConstants.servicesRealEstateInventory:
+      const ServicesWebView(route: '/app/real-estate-inventory'),
+  RouteConstants.servicesSurveyEngineeringOthers:
+      const ServicesWebView(route: '/app/survey-engineering-others'),
+  RouteConstants.servicesFeedbackQuality:
+      const ServicesWebView(route: '/app/feedback-quality'),
+  RouteConstants.servicesReportsAnalytics:
+      const ServicesWebView(route: '/app/reports-analytics'),
   RouteConstants.landSurveyCalculator: const LandSurveyCalculatorPage(),
   RouteConstants.servicesCalculator: const ServicesCalculatorPage(),
   // Property Management
@@ -266,55 +282,77 @@ final Map<String, Widget> _dashboardRoutes = {
   // operations
   RouteConstants.operations: const OperationsPage(),
   RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
-  // RouteConstants.operationsTaskDetail: const TaskDetailPage(),
+  RouteConstants.operationsTaskDetail: const TaskDetail(),
   RouteConstants.operationsWorksiteDetail: const WorksiteDetailPage(),
   RouteConstants.operationsContractDetail: const ContractDetailPage(),
   RouteConstants.operationsTimelineDetail: const TimelineDetailPage(),
   // marketing
   RouteConstants.marketing: const MarketingPage(),
-  RouteConstants.marketingDashboard: const MarketingWebView(route: '/dashboard'),
+  RouteConstants.marketingDashboard:
+      const MarketingWebView(route: '/dashboard'),
   RouteConstants.marketingPipeline: const MarketingWebView(route: '/pipeline'),
-  RouteConstants.marketingCampaigns: const MarketingWebView(route: '/campaigns'),
+  RouteConstants.marketingCampaigns:
+      const MarketingWebView(route: '/campaigns'),
   RouteConstants.marketingCalendar: const MarketingWebView(route: '/calendar'),
-  RouteConstants.marketingAnalytics: const MarketingWebView(route: '/analytics'),
+  RouteConstants.marketingAnalytics:
+      const MarketingWebView(route: '/analytics'),
   RouteConstants.marketingOkrs: const MarketingWebView(route: '/okrs'),
   RouteConstants.marketingReports: const MarketingWebView(route: '/audit-log'),
-  RouteConstants.marketingTeam: const MarketingWebView(route: '/team-directory'),
+  RouteConstants.marketingTeam:
+      const MarketingWebView(route: '/team-directory'),
   RouteConstants.marketingNewLead: const MarketingWebView(route: '/new-lead'),
   RouteConstants.marketingMedia: const MarketingWebView(route: '/media'),
 
   // revenue execution
-  RouteConstants.marketingRevenueCommand: const MarketingWebView(route: '/revenue-command'),
-  RouteConstants.marketingDailyExecution: const MarketingWebView(route: '/daily-execution'),
-  RouteConstants.marketingLeadControl: const MarketingWebView(route: '/lead-control'),
-  RouteConstants.marketingFunnelAudit: const MarketingWebView(route: '/funnel-audit'),
-  RouteConstants.marketingPlaybooks: const MarketingWebView(route: '/playbooks'),
-  RouteConstants.marketingContentStudio: const MarketingWebView(route: '/content-studio'),
+  RouteConstants.marketingRevenueCommand:
+      const MarketingWebView(route: '/revenue-command'),
+  RouteConstants.marketingDailyExecution:
+      const MarketingWebView(route: '/daily-execution'),
+  RouteConstants.marketingLeadControl:
+      const MarketingWebView(route: '/lead-control'),
+  RouteConstants.marketingFunnelAudit:
+      const MarketingWebView(route: '/funnel-audit'),
+  RouteConstants.marketingPlaybooks:
+      const MarketingWebView(route: '/playbooks'),
+  RouteConstants.marketingContentStudio:
+      const MarketingWebView(route: '/content-studio'),
   RouteConstants.marketingCoaching: const MarketingWebView(route: '/coaching'),
   RouteConstants.marketingForecast: const MarketingWebView(route: '/forecast'),
-  RouteConstants.marketingRetention: const MarketingWebView(route: '/retention'),
+  RouteConstants.marketingRetention:
+      const MarketingWebView(route: '/retention'),
 
   // integrations & workdesk
   RouteConstants.marketingWorkdesk: const MarketingWebView(route: '/workdesk'),
-  RouteConstants.marketingLeadJournal: const MarketingWebView(route: '/lead-journal'),
-  RouteConstants.marketingIntegrations: const MarketingWebView(route: '/integrations'),
+  RouteConstants.marketingLeadJournal:
+      const MarketingWebView(route: '/lead-journal'),
+  RouteConstants.marketingIntegrations:
+      const MarketingWebView(route: '/integrations'),
 
   // commercial operations
-  RouteConstants.marketingEmailCenter: const MarketingWebView(route: '/email-center'),
-  RouteConstants.marketingMediaRegister: const MarketingWebView(route: '/media-register'),
+  RouteConstants.marketingEmailCenter:
+      const MarketingWebView(route: '/email-center'),
+  RouteConstants.marketingMediaRegister:
+      const MarketingWebView(route: '/media-register'),
   RouteConstants.marketingHandoff: const MarketingWebView(route: '/handoff'),
-  RouteConstants.marketingRealtorPortal: const MarketingWebView(route: '/realtor-portal'),
-  RouteConstants.marketingPartnerPortal: const MarketingWebView(route: '/partner-portal'),
+  RouteConstants.marketingRealtorPortal:
+      const MarketingWebView(route: '/realtor-portal'),
+  RouteConstants.marketingPartnerPortal:
+      const MarketingWebView(route: '/partner-portal'),
 
   // governance
-  RouteConstants.marketingRoleGovernance: const MarketingWebView(route: '/role-governance'),
-  RouteConstants.marketingApprovals: const MarketingWebView(route: '/approvals'),
+  RouteConstants.marketingRoleGovernance:
+      const MarketingWebView(route: '/role-governance'),
+  RouteConstants.marketingApprovals:
+      const MarketingWebView(route: '/approvals'),
   RouteConstants.marketingAuditLog: const MarketingWebView(route: '/audit-log'),
 
   // campaign operations & additional tools
-  RouteConstants.marketingMeetings: const MarketingWebView(route: '/marketing-meetings'),
-  RouteConstants.marketingTurnaround: const MarketingWebView(route: '/turnaround'),
-  RouteConstants.marketingCompliance: const MarketingWebView(route: '/compliance'),
+  RouteConstants.marketingMeetings:
+      const MarketingWebView(route: '/marketing-meetings'),
+  RouteConstants.marketingTurnaround:
+      const MarketingWebView(route: '/turnaround'),
+  RouteConstants.marketingCompliance:
+      const MarketingWebView(route: '/compliance'),
   RouteConstants.marketingPartners: const MarketingWebView(route: '/partners'),
   RouteConstants.marketingSupport: const MarketingWebView(route: '/support'),
   RouteConstants.marketingDesign: const MarketingWebView(route: '/design'),
@@ -346,8 +384,8 @@ final Map<String, Widget> _dashboardRoutes = {
   // Security
   RouteConstants.securityAlerts: const SecurityPage(page: 3),
   RouteConstants.securityCodes: const SecurityPage(page: 1),
-  RouteConstants.securityLogs: const SecurityPage(page: 4),
-  RouteConstants.securityWorkflow: const SecurityPage(page: 2),
+  RouteConstants.securityLogs: const AuditLogPage(),
+  RouteConstants.securityWorkflow: const ApprovalWorkflowPage(),
   RouteConstants.securityOverview: const SecurityPage(page: 0),
   // Marketing & CRM (combined)
   RouteConstants.marketingCrm: const MarketingCrmDashboard(),
@@ -430,113 +468,112 @@ final AuthController authController = Get.find<AuthController>();
 final GoRouter goRouter = (() {
   _verifyRoutePathRegistry();
   return GoRouter(
-  initialLocation: RouteConstants.splash,
-  debugLogDiagnostics: true,
-  refreshListenable: GoRouterRefreshStream(authController.refreshStream),
-  redirect: (BuildContext context, GoRouterState state) {
-    final bool isLoggedIn = authController.currentUser.value != null;
-    final String location = state.matchedLocation;
-    log("DEBUG ROUTER: redirect check - location: $location, isLoggedIn: $isLoggedIn, isAuthInitializing: ${authController.isAuthInitializing.value}");
+    initialLocation: RouteConstants.splash,
+    debugLogDiagnostics: true,
+    refreshListenable: GoRouterRefreshStream(authController.refreshStream),
+    redirect: (BuildContext context, GoRouterState state) {
+      final bool isLoggedIn = authController.currentUser.value != null;
+      final String location = state.matchedLocation;
+      log("DEBUG ROUTER: redirect check - location: $location, isLoggedIn: $isLoggedIn, isAuthInitializing: ${authController.isAuthInitializing.value}");
 
-    // 0. Still checking auth state → splash screen
-    if (authController.isAuthInitializing.value) {
-      return RouteConstants.splash;
-    }
+      // 0. Still checking auth state → splash screen
+      if (authController.isAuthInitializing.value) {
+        return RouteConstants.splash;
+      }
 
-    if (location == RouteConstants.splash) {
-      if (isLoggedIn) {
-        final permissionService = Get.find<PermissionService>();
-        return permissionService.getFirstPermittedRoute();
-      } else {
+      if (location == RouteConstants.splash) {
+        if (isLoggedIn) {
+          final permissionService = Get.find<PermissionService>();
+          return permissionService.getFirstPermittedRoute();
+        } else {
+          return RouteConstants.login;
+        }
+      }
+
+      // 1. Define all routes that should be accessible WITHOUT logging in
+      final bool isPublicRoute = location == RouteConstants.login ||
+          location == RouteConstants.biometric ||
+          location == RouteConstants.forgotPassword ||
+          location == RouteConstants.resetPassword ||
+          location == RouteConstants.twoFactorVerify;
+
+      // 2. If NOT logged in and trying to access a PRIVATE route -> Redirect to Login
+      if (!isLoggedIn && !isPublicRoute) {
         return RouteConstants.login;
       }
-    }
 
-    // 1. Define all routes that should be accessible WITHOUT logging in
-    final bool isPublicRoute = location == RouteConstants.login ||
-        location == RouteConstants.biometric ||
-        location == RouteConstants.forgotPassword ||
-        location == RouteConstants.resetPassword ||
-        location == RouteConstants.twoFactorVerify;
+      // 3. If LOGGED IN and trying to access a PUBLIC AUTH route -> Redirect to first permitted page
+      if (isLoggedIn && isPublicRoute) {
+        final permissionService = Get.find<PermissionService>();
+        return permissionService.getFirstPermittedRoute();
+      }
 
-    // 2. If NOT logged in and trying to access a PRIVATE route -> Redirect to Login
-    if (!isLoggedIn && !isPublicRoute) {
-      return RouteConstants.login;
-    }
-
-    // 3. If LOGGED IN and trying to access a PUBLIC AUTH route -> Redirect to first permitted page
-    if (isLoggedIn && isPublicRoute) {
+      // 4. Permission Checking (typed, centralised in permissions.dart)
       final permissionService = Get.find<PermissionService>();
-      return permissionService.getFirstPermittedRoute();
-    }
 
-    // 4. Permission Checking (typed, centralised in permissions.dart)
-    final permissionService = Get.find<PermissionService>();
+      // Super-admin-only redirect: if this user is the super admin and the
+      // current route is in superAdminHiddenRoutes (e.g., the employee
+      // dashboard), send them to the company admin dashboard instead.
+      if (permissionService.isSuperAdmin &&
+          superAdminHiddenRoutes.contains(location)) {
+        return RouteConstants.company;
+      }
 
-    // Super-admin-only redirect: if this user is the super admin and the
-    // current route is in superAdminHiddenRoutes (e.g., the employee
-    // dashboard), send them to the company admin dashboard instead.
-    if (permissionService.isSuperAdmin &&
-        superAdminHiddenRoutes.contains(location)) {
-      return RouteConstants.company;
-    }
+      if (!permissionService.canAccessRouteTyped(location)) {
+        debugPrint('Access Denied to $location');
+        return permissionService.getFirstPermittedRoute();
+      }
 
-    if (!permissionService.canAccessRouteTyped(location)) {
-      debugPrint('Access Denied to $location');
-      return permissionService.getFirstPermittedRoute();
-    }
-
-    // 5. Otherwise, let them go where they want
-    return null;
-  },
-  routes: [
-    // Splash route (outside the dashboard shell)
-    GoRoute(
-      path: RouteConstants.splash,
-      builder: (context, state) => const SplashScreen(),
-    ),
-
-    // Login route (outside the dashboard shell)
-    GoRoute(
-      path: RouteConstants.login,
-      builder: (context, state) => const LoginScreen(),
-    ),
-
-    // Biometric login route (outside the dashboard shell)
-    GoRoute(
-      path: RouteConstants.forgotPassword,
-      builder: (context, state) => const ForgotPasswordScreen(),
-    ),
-    GoRoute(
-      path: RouteConstants.resetPassword,
-      builder: (context, state) => const ResetPasswordScreen(),
-    ),
-    GoRoute(
-      path: RouteConstants.biometric,
-      builder: (context, state) => const BiometricLoginScreen(),
-    ),
-    GoRoute(
-      path: RouteConstants.twoFactorVerify,
-      builder: (context, state) => const TwoFactorVerifyScreen(),
-    ),
-
-    // Dashboard with indexed stack navigation
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) => ResponsiveWidget(
-        smallScreen: SmallScreenDashboard(navigationShell: navigationShell),
-        mediumScreen: SmallScreenDashboard(navigationShell: navigationShell),
-        largeScreen: LargeScreenDashboard(navigationShell: navigationShell),
+      // 5. Otherwise, let them go where they want
+      return null;
+    },
+    routes: [
+      // Splash route (outside the dashboard shell)
+      GoRoute(
+        path: RouteConstants.splash,
+        builder: (context, state) => const SplashScreen(),
       ),
-      branches: _dashboardRoutes.entries
-          .map((entry) => _createBranch(entry.key, entry.value))
-          .toList(),
-    ),
-  ],
 
-  // Handle errors and redirects
-  errorBuilder: (context, state) => const Center(
-    child: MyText('Page not found'),
-  ),
+      // Login route (outside the dashboard shell)
+      GoRoute(
+        path: RouteConstants.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+
+      // Biometric login route (outside the dashboard shell)
+      GoRoute(
+        path: RouteConstants.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: RouteConstants.resetPassword,
+        builder: (context, state) => const ResetPasswordScreen(),
+      ),
+      GoRoute(
+        path: RouteConstants.biometric,
+        builder: (context, state) => const BiometricLoginScreen(),
+      ),
+      GoRoute(
+        path: RouteConstants.twoFactorVerify,
+        builder: (context, state) => const TwoFactorVerifyScreen(),
+      ),
+
+      // Dashboard with indexed stack navigation
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => ResponsiveWidget(
+          smallScreen: SmallScreenDashboard(navigationShell: navigationShell),
+          mediumScreen: SmallScreenDashboard(navigationShell: navigationShell),
+          largeScreen: LargeScreenDashboard(navigationShell: navigationShell),
+        ),
+        branches: _dashboardRoutes.entries
+            .map((entry) => _createBranch(entry.key, entry.value))
+            .toList(),
+      ),
+    ],
+
+    // Handle errors and redirects
+    errorBuilder: (context, state) => const Center(
+      child: MyText('Page not found'),
+    ),
   );
 }());
-

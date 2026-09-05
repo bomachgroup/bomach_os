@@ -116,8 +116,7 @@ class ApprovalWorkflowPage extends StatelessWidget {
           child: Text(
             label,
             style: AppTextStyles.bodyMd.copyWith(
-              color:
-                  isActive ? AppColors.textPrimary : AppColors.textSecondary,
+              color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -195,16 +194,12 @@ Widget _buildTableCard({
   );
 }
 
-
-
 Widget _tablePaginator(Widget child) {
   return Container(
     padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
     child: child,
   );
 }
-
-
 
 StatusTone _flowStatusTone(String status) {
   switch (status.toLowerCase()) {
@@ -256,10 +251,11 @@ class _WorkflowsTab extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Obx(() {
-          final loading = controller.isLoadingFlows.value &&
-              controller.flowList.isEmpty;
-          final isEmpty = !controller.isLoadingFlows.value &&
-              controller.flowList.isEmpty;
+          final loading =
+              controller.isLoadingFlows.value && controller.flowList.isEmpty;
+          final isEmpty =
+              !controller.isLoadingFlows.value && controller.flowList.isEmpty;
+          final hasError = controller.flowErrorMessage.value.isNotEmpty;
 
           return _buildTableCard(
             title: 'Workflows register',
@@ -276,26 +272,35 @@ class _WorkflowsTab extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     child: LoadingSkeleton.listRows(count: 5),
                   )
-                : isEmpty
+                : hasError
                     ? Padding(
                         padding: const EdgeInsets.all(24),
-                        child: EmptyState(
-                          icon: Iconsax.tick_square,
-                          title: 'No workflows yet',
-                          subtitle:
-                              'Create a new approval workflow to get started.',
-                          action: MyOutlinedButton(
-                            child: 'New Workflow',
-                            icon: const Icon(Iconsax.add_circle,
-                                size: 18, color: AppColors.primary),
-                            onTap: () => showDialog(
-                              context: context,
-                              builder: (_) => const CreateEditWorkflowDialog(),
-                            ),
-                          ),
+                        child: Text(
+                          'Error loading approval workflows: ${controller.flowErrorMessage.value}',
+                          style: const TextStyle(color: AppColors.danger),
                         ),
                       )
-                    : _buildFlowTable(context),
+                    : isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: EmptyState(
+                              icon: Iconsax.tick_square,
+                              title: 'No workflows yet',
+                              subtitle:
+                                  'Create a new approval workflow to get started.',
+                              action: MyOutlinedButton(
+                                child: 'New Workflow',
+                                icon: const Icon(Iconsax.add_circle,
+                                    size: 18, color: AppColors.primary),
+                                onTap: () => showDialog(
+                                  context: context,
+                                  builder: (_) =>
+                                      const CreateEditWorkflowDialog(),
+                                ),
+                              ),
+                            ),
+                          )
+                        : _buildFlowTable(context),
             footer: _tablePaginator(
               Obx(() => PaginatorFooter(
                     totalItems: controller.flowTotalItems.value,
@@ -315,7 +320,9 @@ class _WorkflowsTab extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        children: controller.flowList.map((flow) => _buildFlowMobileCard(context, flow)).toList(),
+        children: controller.flowList
+            .map((flow) => _buildFlowMobileCard(context, flow))
+            .toList(),
       ),
     );
   }
@@ -366,7 +373,8 @@ class _WorkflowsTab extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Action: ${flow.actionDisplay.isNotEmpty ? flow.actionDisplay : flow.action}',
-                  style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -382,7 +390,8 @@ class _WorkflowsTab extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Approvers',
-            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+            style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
           Wrap(
@@ -414,8 +423,8 @@ class _WorkflowsTab extends StatelessWidget {
                   side: const BorderSide(color: AppColors.borderStrong),
                   minimumSize: const Size(0, 42),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadii.brMd),
+                  shape:
+                      const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
                 ),
               ),
               const SizedBox(width: 8),
@@ -436,10 +445,6 @@ class _WorkflowsTab extends StatelessWidget {
       ),
     );
   }
-
-
-
-
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -465,6 +470,7 @@ class _RequestsTab extends StatelessWidget {
               controller.requestList.isEmpty;
           final isEmpty = !controller.isLoadingRequests.value &&
               controller.requestList.isEmpty;
+          final hasError = controller.requestErrorMessage.value.isNotEmpty;
 
           return _buildTableCard(
             title: 'Approval Requests',
@@ -481,17 +487,25 @@ class _RequestsTab extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     child: LoadingSkeleton.listRows(count: 5),
                   )
-                : isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.all(24),
-                        child: EmptyState(
-                          icon: Iconsax.task_square,
-                          title: 'No approval requests',
-                          subtitle:
-                              'Approval requests will appear here when submitted.',
+                : hasError
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          'Error loading approval requests: ${controller.requestErrorMessage.value}',
+                          style: const TextStyle(color: AppColors.danger),
                         ),
                       )
-                    : _buildRequestTable(context),
+                    : isEmpty
+                        ? const Padding(
+                            padding: EdgeInsets.all(24),
+                            child: EmptyState(
+                              icon: Iconsax.task_square,
+                              title: 'No approval requests',
+                              subtitle:
+                                  'Approval requests will appear here when submitted.',
+                            ),
+                          )
+                        : _buildRequestTable(context),
             footer: _tablePaginator(
               Obx(() => PaginatorFooter(
                     totalItems: controller.requestTotalItems.value,
@@ -511,7 +525,9 @@ class _RequestsTab extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        children: controller.requestList.map((req) => _buildRequestMobileCard(context, req)).toList(),
+        children: controller.requestList
+            .map((req) => _buildRequestMobileCard(context, req))
+            .toList(),
       ),
     );
   }
@@ -544,7 +560,9 @@ class _RequestsTab extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  req.flowName.isNotEmpty ? req.flowName : 'Flow #${req.flowId}',
+                  req.flowName.isNotEmpty
+                      ? req.flowName
+                      : 'Flow #${req.flowId}',
                   style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -562,7 +580,8 @@ class _RequestsTab extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Type: ${req.requestTypeDisplay.isNotEmpty ? req.requestTypeDisplay : req.requestType}',
-            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Row(
@@ -580,7 +599,8 @@ class _RequestsTab extends StatelessWidget {
               ),
               Text(
                 displayDate,
-                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -592,8 +612,7 @@ class _RequestsTab extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 OutlinedButton.icon(
-                  onPressed: () =>
-                      controller.approveRequest(context, req.id),
+                  onPressed: () => controller.approveRequest(context, req.id),
                   icon: const Icon(Iconsax.tick_circle,
                       size: 16, color: AppColors.success),
                   label: const Text('Approve'),
@@ -611,8 +630,7 @@ class _RequestsTab extends StatelessWidget {
                   onPressed: () async {
                     final reason = await _showRejectReasonDialog(context);
                     if (reason != null && context.mounted) {
-                      controller.rejectRequest(context, req.id,
-                          reason: reason);
+                      controller.rejectRequest(context, req.id, reason: reason);
                     }
                   },
                   icon: const Icon(Iconsax.close_circle,
@@ -634,8 +652,6 @@ class _RequestsTab extends StatelessWidget {
       ),
     );
   }
-
-
 
   Future<String?> _showRejectReasonDialog(BuildContext context) async {
     final TextEditingController reasonCtrl = TextEditingController();

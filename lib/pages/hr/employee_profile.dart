@@ -2,11 +2,13 @@ import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
@@ -17,6 +19,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../../src/model/employees_model.dart';
+import '../../src/services/permission_service.dart';
 import 'controller/employees_controller.dart';
 import 'widget/add_employee_appraisal.dart';
 import 'widget/add_employee_document.dart';
@@ -38,6 +41,19 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
   final EmployeeController controller = Get.isRegistered<EmployeeController>()
       ? Get.find<EmployeeController>()
       : Get.put(EmployeeController());
+
+  Widget _permissionGate({
+    Permission? require,
+    List<Permission>? anyOf,
+    required Widget child,
+  }) {
+    if (!Get.isRegistered<PermissionService>()) return child;
+    return PermissionGate(
+      require: require,
+      anyOf: anyOf,
+      child: child,
+    );
+  }
 
   @override
   void initState() {
@@ -109,35 +125,46 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
         spacing: 8,
         runSpacing: 8,
         children: [
-          MyOutlinedButton(
-            child: 'Edit',
-            height: 40,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-            textColor: AppColors.textPrimary,
-            borderColor: AppColors.borderStrong,
-            icon: const Icon(Iconsax.edit,
-                size: 16, color: AppColors.textPrimary),
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => AddEmployeeDialog(employee: employee),
+          _permissionGate(
+            require: Perms.employeesUpdate,
+            child: MyOutlinedButton(
+              child: 'Edit',
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              textColor: AppColors.textPrimary,
+              borderColor: AppColors.borderStrong,
+              icon: const Icon(Iconsax.edit,
+                  size: 16, color: AppColors.textPrimary),
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => AddEmployeeDialog(employee: employee),
+              ),
             ),
           ),
-          MyElevatedButton(
-            child: 'Review',
-            height: 40,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-            icon: const Icon(Iconsax.star1,
-                color: AppColors.textOnPrimary, size: 16),
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => EmployeeAppraisalDialog(userId: employee.id),
+          _permissionGate(
+            require: Perms.performanceReviewsCreate,
+            child: MyElevatedButton(
+              child: 'Review',
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              icon: const Icon(Iconsax.star1,
+                  color: AppColors.textOnPrimary, size: 16),
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => EmployeeAppraisalDialog(userId: employee.id),
+              ),
             ),
           ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, size: 20, color: AppColors.textSecondary),
-            shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
-            onSelected: (val) => _handleActionSelected(context, employee, val),
-            itemBuilder: (ctx) => _buildMenuItems(isActive),
+          _permissionGate(
+            anyOf: const [Perms.employeesUpdate, Perms.employeesExit],
+            child: PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert,
+                  size: 20, color: AppColors.textSecondary),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+              onSelected: (val) =>
+                  _handleActionSelected(context, employee, val),
+              itemBuilder: (ctx) => _buildMenuItems(isActive),
+            ),
           ),
         ],
       );
@@ -146,44 +173,54 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        MyOutlinedButton(
-          child: 'Edit Profile',
-          height: 44,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-          icon: const Icon(Iconsax.edit, size: 16, color: AppColors.primary),
-          onTap: () => showDialog(
-            context: context,
-            builder: (_) => AddEmployeeDialog(employee: employee),
+        _permissionGate(
+          require: Perms.employeesUpdate,
+          child: MyOutlinedButton(
+            child: 'Edit Profile',
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            icon: const Icon(Iconsax.edit, size: 16, color: AppColors.primary),
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => AddEmployeeDialog(employee: employee),
+            ),
           ),
         ),
         const SizedBox(width: 12),
-        MyElevatedButton(
-          child: 'Give Review',
-          height: 44,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-          icon: const Icon(Iconsax.star1,
-              color: AppColors.textOnPrimary, size: 16),
-          onTap: () => showDialog(
-            context: context,
-            builder: (_) => EmployeeAppraisalDialog(userId: employee.id),
+        _permissionGate(
+          require: Perms.performanceReviewsCreate,
+          child: MyElevatedButton(
+            child: 'Give Review',
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            icon: const Icon(Iconsax.star1,
+                color: AppColors.textOnPrimary, size: 16),
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => EmployeeAppraisalDialog(userId: employee.id),
+            ),
           ),
         ),
         const SizedBox(width: 8),
-        PopupMenuButton<String>(
-          icon: Container(
-            height: 44,
-            width: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.borderStrong),
-              borderRadius: AppRadii.brMd,
+        _permissionGate(
+          anyOf: const [Perms.employeesUpdate, Perms.employeesExit],
+          child: PopupMenuButton<String>(
+            icon: Container(
+              height: 44,
+              width: 44,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.borderStrong),
+                borderRadius: AppRadii.brMd,
+              ),
+              child: const Icon(Icons.more_vert,
+                  size: 20, color: AppColors.textPrimary),
             ),
-            child: const Icon(Icons.more_vert, size: 20, color: AppColors.textPrimary),
+            tooltip: 'More actions',
+            shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+            onSelected: (val) => _handleActionSelected(context, employee, val),
+            itemBuilder: (ctx) => _buildMenuItems(isActive),
           ),
-          tooltip: 'More actions',
-          shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
-          onSelected: (val) => _handleActionSelected(context, employee, val),
-          itemBuilder: (ctx) => _buildMenuItems(isActive),
         ),
       ],
     );
@@ -198,7 +235,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
             children: [
               Icon(Iconsax.user_minus, size: 16, color: AppColors.warning),
               SizedBox(width: 10),
-              Text('Suspend Employee', style: TextStyle(color: AppColors.warning)),
+              Text('Suspend Employee',
+                  style: TextStyle(color: AppColors.warning)),
             ],
           ),
         )
@@ -209,7 +247,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
             children: [
               Icon(Iconsax.user_tick, size: 16, color: AppColors.success),
               SizedBox(width: 10),
-              Text('Activate Employee', style: TextStyle(color: AppColors.success)),
+              Text('Activate Employee',
+                  style: TextStyle(color: AppColors.success)),
             ],
           ),
         ),
@@ -218,7 +257,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
           value: 'deactivate',
           child: Row(
             children: [
-              Icon(Iconsax.user_remove, size: 16, color: AppColors.textSecondary),
+              Icon(Iconsax.user_remove,
+                  size: 16, color: AppColors.textSecondary),
               SizedBox(width: 10),
               Text('Deactivate'),
             ],
@@ -238,7 +278,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
     ];
   }
 
-  void _handleActionSelected(BuildContext context, Employee employee, String action) {
+  void _handleActionSelected(
+      BuildContext context, Employee employee, String action) {
     switch (action) {
       case 'suspend':
         showDialog(
@@ -251,14 +292,16 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Activate Employee'),
-            content: Text('Are you sure you want to activate ${employee.fullName}?'),
+            content:
+                Text('Are you sure you want to activate ${employee.fullName}?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.success),
                 onPressed: () {
                   Navigator.pop(ctx);
                   controller.activateEmployee(context, employee.id);
@@ -274,14 +317,16 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Deactivate Employee'),
-            content: Text('Are you sure you want to deactivate ${employee.fullName}?'),
+            content: Text(
+                'Are you sure you want to deactivate ${employee.fullName}?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
                 onPressed: () {
                   Navigator.pop(ctx);
                   controller.deactivateEmployee(context, employee.id);
@@ -300,7 +345,6 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
         break;
     }
   }
-
 
   Widget _buildSummaryCard(BuildContext context, Employee employee) {
     final bool isActive = employee.isActive;
@@ -371,6 +415,13 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                         tone: _employmentTypeTone(employee.employmentType),
                         dense: true,
                       ),
+                    StatusChip(
+                      label: employee.isVerified ? 'Verified' : 'Unverified',
+                      tone: employee.isVerified
+                          ? StatusTone.success
+                          : StatusTone.warning,
+                      dense: true,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -721,7 +772,8 @@ class _DocumentsTabState extends State<_DocumentsTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Digital Personnel File', style: AppTextStyles.h3),
+                      const Text('Digital Personnel File',
+                          style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             '${widget.controller.documents.length} document${widget.controller.documents.length == 1 ? '' : 's'} on file',
@@ -854,7 +906,8 @@ class _DocumentsTabState extends State<_DocumentsTab> {
             flex: 3,
             child: Text(
               uploader.toString(),
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -919,7 +972,8 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Performance Reviews', style: AppTextStyles.h3),
+                      const Text('Performance Reviews',
+                          style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             '${widget.controller.reviews.length} review${widget.controller.reviews.length == 1 ? '' : 's'} recorded',
@@ -1040,7 +1094,8 @@ class _ReviewsTabState extends State<_ReviewsTab> {
             flex: 3,
             child: Text(
               formattedDate,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
@@ -1177,7 +1232,8 @@ class _BenefitsTab extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Text(
             'No allowances configured.',
-            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
           ),
         ),
       ];

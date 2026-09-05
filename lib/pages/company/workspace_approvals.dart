@@ -44,8 +44,7 @@ class WorkspaceApprovalsPage extends StatelessWidget {
       maxContentWidth: 1440,
       header: PageHeader(
         title: 'Workspace Approvals',
-        subtitle:
-            'Review employee-submitted work locations. Approve to enable '
+        subtitle: 'Review employee-submitted work locations. Approve to enable '
             'clock-in, or reject with a reason the employee will see.',
         trailing: Obx(() => MyOutlinedButton(
               height: 48,
@@ -68,6 +67,8 @@ class WorkspaceApprovalsPage extends StatelessWidget {
           return _buildTableCard(
             loading: loading,
             isEmpty: isEmpty,
+            hasError: ctrl.errorMessage.value.isNotEmpty,
+            errorMessage: ctrl.errorMessage.value,
             view: ctrl.view.value,
             rowCount: rows.length,
             body: _ApprovalsTable(rows: rows, ctrl: ctrl),
@@ -108,6 +109,8 @@ class WorkspaceApprovalsPage extends StatelessWidget {
   Widget _buildTableCard({
     required bool loading,
     required bool isEmpty,
+    required bool hasError,
+    required String errorMessage,
     required ApprovalsView view,
     required int rowCount,
     required Widget body,
@@ -150,6 +153,14 @@ class WorkspaceApprovalsPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(20),
               child: LoadingSkeleton.listRows(count: 5),
+            )
+          else if (hasError)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Error loading workspace approvals: $errorMessage',
+                style: const TextStyle(color: AppColors.danger),
+              ),
             )
           else if (isEmpty)
             Padding(
@@ -222,15 +233,13 @@ class WorkspaceApprovalsPage extends StatelessWidget {
         return const EmptyState(
           icon: Iconsax.tick_circle,
           title: 'No rejections',
-          subtitle:
-              'Nothing has been rejected — or employees have cleaned up.',
+          subtitle: 'Nothing has been rejected — or employees have cleaned up.',
         );
       case ApprovalsView.all:
         return const EmptyState(
           icon: Iconsax.location,
           title: 'No work locations yet',
-          subtitle:
-              'Once employees submit workspaces they will show up here.',
+          subtitle: 'Once employees submit workspaces they will show up here.',
         );
     }
   }
@@ -298,12 +307,11 @@ class _ViewTabs extends StatelessWidget {
               if (count != null) ...[
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: isActive
-                        ? AppColors.primarySubtle
-                        : AppColors.surface,
+                    color:
+                        isActive ? AppColors.primarySubtle : AppColors.surface,
                     borderRadius: AppRadii.brPill,
                     border: Border.all(
                       color: isActive
@@ -405,7 +413,8 @@ class _ApprovalsTable extends StatelessWidget {
               ),
               Text(
                 _formatDate(w.createdAt),
-                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -421,13 +430,15 @@ class _ApprovalsTable extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               w.branchName!,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(Iconsax.building, size: 14, color: AppColors.textMuted),
+              const Icon(Iconsax.building,
+                  size: 14, color: AppColors.textMuted),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -446,7 +457,8 @@ class _ApprovalsTable extends StatelessWidget {
               padding: const EdgeInsets.only(left: 20),
               child: Text(
                 w.notes,
-                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
               ),
             ),
           ],
@@ -460,12 +472,14 @@ class _ApprovalsTable extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     _prettyType(w.locationType),
-                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '•  ${w.radiusMeters}m',
-                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -486,8 +500,6 @@ class _ApprovalsTable extends StatelessWidget {
       ),
     );
   }
-
-
 
   /// Actions depend on status: pending gets approve/reject, approved gets
   /// edit + force-delete, rejected gets force-delete only.
@@ -666,7 +678,8 @@ class _ApprovalsTable extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 'Employees can only clock in when inside this radius.',
-                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                style:
+                    AppTextStyles.caption.copyWith(color: AppColors.textMuted),
               ),
             ],
           ),
@@ -764,8 +777,7 @@ class _ApprovalsTable extends StatelessWidget {
 
   /// Edit an already-approved location. Only fields the admin actually
   /// touches (initialValue ≠ submitted value) are sent on PATCH.
-  Future<void> _openEditDialog(
-      BuildContext context, WorkspaceConfig w) async {
+  Future<void> _openEditDialog(BuildContext context, WorkspaceConfig w) async {
     final nameCtrl = TextEditingController(text: w.workspaceName);
     final radiusCtrl = TextEditingController(text: '${w.radiusMeters}');
     final notesCtrl = TextEditingController(text: w.notes);
@@ -851,8 +863,7 @@ class _ApprovalsTable extends StatelessWidget {
                       IconButton(
                         tooltip: 'Clear expiry',
                         icon: const Icon(Iconsax.close_circle, size: 18),
-                        onPressed: () =>
-                            setState(() => expiryCtrl.text = ''),
+                        onPressed: () => setState(() => expiryCtrl.text = ''),
                       ),
                     ],
                   ],

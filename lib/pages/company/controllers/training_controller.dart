@@ -2,13 +2,16 @@ import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import '../../hr/models/training_program_model.dart';
-import '../../../src/services/hr/training_program_services.dart';
+import '../../../src/model/role_training_requirement_model.dart';
+import '../../../src/services/role_training_requirement_service.dart';
 
 class TrainingController extends GetxController {
-  final TrainingProgramService _service = TrainingProgramService();
+  final RoleTrainingRequirementService _service =
+      RoleTrainingRequirementService();
   final _storage = const FlutterSecureStorage();
 
   var programs = <TrainingProgram>[].obs;
+  var requirements = <RoleTrainingRequirement>[].obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
 
@@ -30,19 +33,14 @@ class TrainingController extends GetxController {
       final role = roleId ?? scopedRoleId;
       if (role == null) return;
 
-      final result = await _service.getTrainingPrograms(
+      final result = await _service.listRequirements(
         token,
+        roleId: role,
+        isActive: true,
         limit: 100,
       );
-
-      final rolePrograms = result.items.where((p) {
-        final audience = p.targetAudience.toLowerCase();
-        return audience.contains(role.toString()) ||
-            audience.contains('all') ||
-            audience.contains('role');
-      }).toList();
-
-      programs.assignAll(rolePrograms);
+      requirements.assignAll(result.items);
+      programs.assignAll(result.items.map((item) => item.toTrainingProgram()));
     } catch (e) {
       log('TrainingController.fetchPrograms error: $e');
       errorMessage.value = e.toString();

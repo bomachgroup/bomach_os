@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
-const int largeScreenSize = 1200;
+// Keep the responsive shell aligned with the app's canonical tablet/desktop
+// breakpoint. This also lets the embedded web app reach desktop mode at the
+// width users typically get from a maximized tablet-sized web view.
+const int largeScreenSize = 1100;
 const int mediumScreenSize = 700;
 const int smallScreenSize = 360;
 

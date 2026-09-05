@@ -68,9 +68,6 @@ class RoleOkrService {
         count: count,
       );
     } catch (e) {
-      if (e is DioException && e.response?.statusCode == 404) {
-        return (list: <RoleOkr>[], count: 0);
-      }
       throw _handleError(e);
     }
   }

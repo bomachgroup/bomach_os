@@ -5,6 +5,9 @@ class BiometricAttendanceRecord {
   final DateTime timestamp;
   final String verificationMethod;
   final String? notes;
+  final bool? locationVerified;
+  final String? locationUsedName;
+  final double? distanceMeters;
 
   BiometricAttendanceRecord({
     required this.id,
@@ -13,6 +16,9 @@ class BiometricAttendanceRecord {
     required this.timestamp,
     required this.verificationMethod,
     this.notes,
+    this.locationVerified,
+    this.locationUsedName,
+    this.distanceMeters,
   });
 
   factory BiometricAttendanceRecord.fromJson(Map<String, dynamic> json) {
@@ -23,6 +29,11 @@ class BiometricAttendanceRecord {
       timestamp: DateTime.tryParse(json['timestamp'] ?? '') ?? DateTime.now(),
       verificationMethod: json['verification_method'] ?? 'MANUAL',
       notes: json['notes'],
+      locationVerified: json['location_verified'] as bool?,
+      locationUsedName: json['location_used_name']?.toString(),
+      distanceMeters: json['distance_meters'] is num
+          ? (json['distance_meters'] as num).toDouble()
+          : double.tryParse(json['distance_meters']?.toString() ?? ''),
     );
   }
 
@@ -33,23 +44,22 @@ class BiometricAttendanceRecord {
       'timestamp': timestamp.toIso8601String(),
       'verification_method': verificationMethod,
       'notes': notes,
+      'location_verified': locationVerified,
+      'location_used_name': locationUsedName,
+      'distance_meters': distanceMeters,
     };
   }
 }
 
-// --- Helper Model for UI Table Row ---
+// --- Derived model for the user's attendance history table ---
 class DailyAttendance {
   final String date;
-  final String employeeName; // Placeholder, as API might only give ID
-  final String role; // Placeholder
   final String? clockInTime;
   final String? clockOutTime;
   final String hoursWorked;
 
   DailyAttendance({
     required this.date,
-    this.employeeName = 'Unknown',
-    this.role = 'Staff',
     this.clockInTime,
     this.clockOutTime,
     this.hoursWorked = '--:--',

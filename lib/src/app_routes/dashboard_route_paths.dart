@@ -11,6 +11,7 @@ const Set<String> dashboardRoutePaths = {
   '/dashboard',
   '/dashboard/my-tasks',
   '/dashboard/my-reports',
+  '/dashboard/my-target-reports',
   '/dashboard/my-profile',
   // hr + employee module
   '/hr', '/hr/employees', '/hr/employees/profile',

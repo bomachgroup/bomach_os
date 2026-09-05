@@ -10,7 +10,14 @@ class SplashScreen extends StatelessWidget {
     return const Scaffold(
       backgroundColor: AppColors.background,
       body: Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: AppColors.primary),
+            SizedBox(height: 20),
+            Text('Loading your workspace...'),
+          ],
+        ),
       ),
     );
   }

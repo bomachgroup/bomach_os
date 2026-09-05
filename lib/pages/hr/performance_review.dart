@@ -3,11 +3,13 @@ import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chart/star_5.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/nav/three_dot_pop.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/hr/widget/add_performance_review_dialog.dart';
 import 'package:bomach_os/pages/hr/widget/view_performance_review_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,20 +30,24 @@ class PerformanceReviewPage extends StatelessWidget {
       header: PageHeader(
         title: 'Performance Review',
         subtitle: 'Track and manage employee performance evaluations.',
-        trailing: MyElevatedButton(
-          height: 48,
-          icon: const Icon(Iconsax.add_circle, color: AppColors.white, size: 18),
-          child: "New Review",
-          onTap: () => showDialog(
-            context: context,
-            builder: (context) => const AddPerformanceReviewDialog(),
+        trailing: PermissionGate(
+          require: Perms.performanceReviewsCreate,
+          child: MyElevatedButton(
+            height: 48,
+            icon: const Icon(Iconsax.add_circle,
+                color: AppColors.white, size: 18),
+            child: "New Review",
+            onTap: () => showDialog(
+              context: context,
+              builder: (context) => const AddPerformanceReviewDialog(),
+            ),
           ),
         ),
       ),
       children: [
         // Search & Filter Bar
-        const AppCard(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        AppCard(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           elevation: AppCardElevation.sm,
           child: Row(
             children: [
@@ -49,8 +55,9 @@ class PerformanceReviewPage extends StatelessWidget {
                 child: MyTextFormField(
                   hintText: 'Search by name or ID...',
                   height: 44,
-                  leading: Icon(Iconsax.search_normal,
+                  leading: const Icon(Iconsax.search_normal,
                       size: 18, color: AppColors.textMuted),
+                  onChanged: controller.onSearchChanged,
                 ),
               ),
             ],
@@ -90,6 +97,18 @@ class PerformanceReviewPage extends StatelessWidget {
                   );
                 }
 
+                if (controller.errorMessage.value.isNotEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(40),
+                      child: Text(
+                        'Error loading performance reviews: ${controller.errorMessage.value}',
+                        style: const TextStyle(color: AppColors.danger),
+                      ),
+                    ),
+                  );
+                }
+
                 if (controller.performanceReviews.isEmpty) {
                   return const Center(
                     child: Padding(
@@ -102,7 +121,9 @@ class PerformanceReviewPage extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
-                    children: controller.performanceReviews.map((review) => _buildMobileCard(context, review)).toList(),
+                    children: controller.performanceReviews
+                        .map((review) => _buildMobileCard(context, review))
+                        .toList(),
                   ),
                 );
               }),
@@ -137,7 +158,8 @@ class PerformanceReviewPage extends StatelessWidget {
             children: [
               Text(
                 review.employeeId,
-                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                style:
+                    AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
               ),
               const Star5(),
             ],
@@ -145,7 +167,8 @@ class PerformanceReviewPage extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'ID: ${review.employeeId}',
-            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
           Row(
@@ -156,7 +179,8 @@ class PerformanceReviewPage extends StatelessWidget {
                 children: [
                   Text(
                     'Review Period',
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -170,7 +194,8 @@ class PerformanceReviewPage extends StatelessWidget {
                 children: [
                   Text(
                     'Review Date',
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -188,10 +213,12 @@ class PerformanceReviewPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(
-                icon: const Icon(Iconsax.eye, size: 18, color: AppColors.primary),
+                icon:
+                    const Icon(Iconsax.eye, size: 18, color: AppColors.primary),
                 onPressed: () => showDialog(
                   context: context,
-                  builder: (context) => ViewPerformanceReviewDialog(review: review),
+                  builder: (context) =>
+                      ViewPerformanceReviewDialog(review: review),
                 ),
               ),
               const ThreeDotPop(),
@@ -201,7 +228,4 @@ class PerformanceReviewPage extends StatelessWidget {
       ),
     );
   }
-
-
 }
-

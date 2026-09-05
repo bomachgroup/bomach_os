@@ -52,7 +52,8 @@ class WorkReportService {
           if (search != null) 'search': search,
           if (employeeId != null) 'employee_id': employeeId,
           if (status != null) 'status': status,
-          if (mood != null) 'mood': mood,
+          // `mood` is retained for source compatibility, but is not part of
+          // the published WorkReport filter contract.
           if (dateFrom != null) 'date_from': dateFrom,
           if (dateTo != null) 'date_to': dateTo,
           'limit': limit,

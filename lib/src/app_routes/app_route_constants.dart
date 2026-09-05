@@ -122,7 +122,8 @@ class RouteConstants {
   static const String servicesDashboard = '/services/dashboard';
   static const String servicesCatalogue = '/services/service-catalogue';
   static const String servicesCalculators = '/services/calculator-library';
-  static const String servicesRequestFormBuilder = '/services/request-form-builder';
+  static const String servicesRequestFormBuilder =
+      '/services/request-form-builder';
   static const String servicesWorkflowDesigner = '/services/workflow-designer';
   static const String servicesBranchActivation = '/services/branch-activation';
   static const String servicesRequests = '/services/service-requests';
@@ -132,8 +133,10 @@ class RouteConstants {
   static const String servicesOrders = '/services/service-orders';
   static const String servicesExecutionTasks = '/services/execution-tasks';
   static const String servicesDeliverables = '/services/deliverables';
-  static const String servicesRealEstateInventory = '/services/real-estate-inventory';
-  static const String servicesSurveyEngineeringOthers = '/services/survey-engineering-others';
+  static const String servicesRealEstateInventory =
+      '/services/real-estate-inventory';
+  static const String servicesSurveyEngineeringOthers =
+      '/services/survey-engineering-others';
   static const String servicesFeedbackQuality = '/services/feedback-quality';
   static const String servicesReportsAnalytics = '/services/reports-analytics';
 
@@ -250,5 +253,6 @@ class RouteConstants {
   // Employee Dashboard Flow
   static const String employeeMyTasks = '/dashboard/my-tasks';
   static const String employeeMyReports = '/dashboard/my-reports';
+  static const String employeeMyTargetReports = '/dashboard/my-target-reports';
   static const String employeeMyProfile = '/dashboard/my-profile';
 }
