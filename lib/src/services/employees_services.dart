@@ -44,6 +44,9 @@ class EmployeeService {
     String? departmentId,
     String? branchId,
     String? search,
+    bool? addShareholders,
+    bool? offboarded,
+    String? sortByDob,
     int limit = 100,
     int offset = 0,
   }) async {
@@ -56,6 +59,9 @@ class EmployeeService {
           if (departmentId != null) 'department_id': departmentId,
           if (branchId != null) 'branch_id': branchId,
           if (search != null) 'search': search,
+          if (addShareholders != null) 'add_shareholders': addShareholders,
+          if (offboarded != null) 'offboarded': offboarded,
+          if (sortByDob != null) 'sort_by_dob': sortByDob,
           'limit': limit,
           'offset': offset,
         },
@@ -181,7 +187,7 @@ class EmployeeService {
   }) async {
     try {
       final response = await _dio.get(
-        '/api/v1/employees/department',
+        '/api/v1/organization/department',
         queryParameters: {
           if (search != null) 'search': search,
           'limit': limit,
@@ -204,7 +210,7 @@ class EmployeeService {
       String token, String name, String description) async {
     try {
       final response = await _dio.post(
-        '/api/v1/employees/department',
+        '/api/v1/organization/department',
         data: {
           'name': name,
           'description': description,
@@ -221,7 +227,7 @@ class EmployeeService {
       String name, String description) async {
     try {
       final response = await _dio.put(
-        '/api/v1/employees/department/$departmentId',
+        '/api/v1/organization/department/$departmentId',
         data: {
           'name': name,
           'description': description,
@@ -244,7 +250,7 @@ class EmployeeService {
   }) async {
     try {
       final response = await _dio.get(
-        '/api/v1/employees/unit',
+        '/api/v1/organization/unit',
         queryParameters: {
           if (departmentId != null) 'department_id': departmentId,
           'limit': limit,
@@ -267,7 +273,7 @@ class EmployeeService {
       String token, DepartmentUnit unit) async {
     try {
       final response = await _dio.post(
-        '/api/v1/employees/unit',
+        '/api/v1/organization/unit',
         data: unit.toJson(),
         options: _authOptions(token),
       );
@@ -281,7 +287,7 @@ class EmployeeService {
       String token, String unitId, DepartmentUnit unit) async {
     try {
       final response = await _dio.put(
-        '/api/v1/employees/unit/$unitId',
+        '/api/v1/organization/unit/$unitId',
         data: unit.toJson(),
         options: _authOptions(token),
       );

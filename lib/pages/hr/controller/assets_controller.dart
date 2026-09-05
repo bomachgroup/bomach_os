@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../src/model/employees_model.dart';
+import '../../../src/services/branch_service.dart';
 import '../../../src/services/hr/asset_services.dart';
 import '../../../src/services/employees_services.dart';
 import '../models/assets_model.dart';
@@ -13,11 +14,13 @@ import '../models/assets_model.dart';
 class AssetController extends GetxController {
   final AssetService _service = AssetService();
   final EmployeeService _employeeService = EmployeeService();
+  final BranchService _branchService = BranchService();
   final _storage = const FlutterSecureStorage();
 
   // ─── Loading state ────────────────────────────────────────────────
   var isLoading = true.obs;
   var isSaving = false.obs;
+  var errorMessage = ''.obs;
 
   // ─── Asset list ───────────────────────────────────────────────────
   var assetList = <Asset>[].obs;
@@ -31,7 +34,7 @@ class AssetController extends GetxController {
     {'id': 'All', 'name': 'All Departments'}
   ].obs;
   var allEmployees = <Employee>[].obs;
-  final branches = ['All', 'Enugu Branch', 'Lagos Branch', 'Abuja Branch'];
+  var branches = <String>['All'].obs;
   final statuses = ['All', 'active', 'in-use', 'maintenance', 'retired'];
   var assetTypes = <String>[
     'Laptop',
@@ -59,9 +62,27 @@ class AssetController extends GetxController {
       await Future.wait([
         fetchDepartments(token),
         _fetchAllEmployees(token),
+        _fetchBranches(token),
       ]);
     }
     await fetchAssets();
+  }
+
+  Future<void> _fetchBranches(String token) async {
+    try {
+      final result = await _branchService.getBranches(
+        accessToken: token,
+        limit: 200,
+      );
+      branches.assignAll([
+        'All',
+        ...result.items
+            .map((branch) => branch.branchName)
+            .where((name) => name.isNotEmpty),
+      ]);
+    } catch (e) {
+      log('Error fetching branches for asset filters: $e');
+    }
   }
 
   Future<void> _fetchAllEmployees(String token) async {
@@ -78,6 +99,7 @@ class AssetController extends GetxController {
   Future<void> fetchAssets({bool refresh = false}) async {
     try {
       if (!refresh) isLoading.value = true;
+      errorMessage.value = '';
 
       final token = await _getToken();
       if (token == null) return;
@@ -105,6 +127,7 @@ class AssetController extends GetxController {
       }
     } catch (e) {
       log("Error fetching assets: $e");
+      errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
     }

@@ -35,7 +35,7 @@ class DepartmentController extends GetxController {
       if (token == null) return;
 
       final response = await _dio.get(
-        '/api/v1/employees/department',
+        '/api/v1/organization/department',
         queryParameters: {
           'limit': 100,
           'offset': 0,
@@ -113,7 +113,7 @@ class DepartmentController extends GetxController {
       if (token == null) return;
 
       await _dio.post(
-        '/api/v1/employees/department',
+        '/api/v1/organization/department',
         data: {
           'name': name,
           'description': description,

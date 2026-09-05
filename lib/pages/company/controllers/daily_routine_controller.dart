@@ -1,67 +1,169 @@
 import 'dart:developer';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
-import '../../hr/models/work_report_model.dart';
-import '../../../src/model/employees_model.dart';
-import '../../../src/services/employees_services.dart';
-import '../../../src/services/hr/work_report_service.dart';
+
+import '../../../src/model/role_daily_routine_model.dart';
+import '../../../src/services/role_daily_routine_service.dart';
 
 class DailyRoutineController extends GetxController {
-  final WorkReportService _wrService = WorkReportService();
-  final EmployeeService _empService = EmployeeService();
-  final _storage = const FlutterSecureStorage();
+  final RoleDailyRoutineService _service;
+  final Future<String?> Function() _tokenReader;
 
-  var employees = <Employee>[].obs;
-  var workReports = <WorkReport>[].obs;
-  var isLoading = false.obs;
-  var errorMessage = ''.obs;
+  DailyRoutineController({
+    RoleDailyRoutineService? service,
+    Future<String?> Function()? tokenReader,
+  })  : _service = service ?? RoleDailyRoutineService(),
+        _tokenReader = tokenReader ?? _readStoredToken;
 
-  int? scopedRoleId;
-
-  Future<String?> _getToken() async {
-    String? token = await _storage.read(key: 'access_token');
+  static Future<String?> _readStoredToken() async {
+    var token = await const FlutterSecureStorage().read(key: 'access_token');
     if (token == null) return null;
     if (token.startsWith('Bearer ')) token = token.substring(7);
     return token.replaceAll('"', '').trim();
   }
 
-  Future<void> fetchData({int? roleId}) async {
+  final items = <RoleDailyRoutineItem>[].obs;
+  final count = 0.obs;
+  final isLoading = false.obs;
+  final isSaving = false.obs;
+  final errorMessage = ''.obs;
+
+  int? scopedRoleId;
+
+  Future<void> fetchData({int? roleId, String? search}) async {
+    final resolvedRoleId = roleId ?? scopedRoleId;
+    if (resolvedRoleId == null) return;
+
+    scopedRoleId = resolvedRoleId;
     isLoading.value = true;
+    errorMessage.value = '';
     try {
-      final token = await _getToken();
-      if (token == null) return;
-
-      final role = roleId ?? scopedRoleId;
-      if (role == null) return;
-
-      final empResult = await _empService.getEmployees(token, limit: 500);
-      final roleEmployees =
-          empResult.list.where((e) => e.roleId == role).toList();
-      employees.assignAll(roleEmployees);
-
-      final reports = <WorkReport>[];
-      for (final emp in roleEmployees) {
-        try {
-          final result = await _wrService.getWorkReports(
-            token,
-            employeeId: emp.id,
-            limit: 50,
-          );
-          reports.addAll(result);
-        } catch (_) {}
+      final token = await _tokenReader();
+      if (token == null || token.isEmpty) {
+        throw Exception(
+            'Authentication is required to load the daily routine.');
       }
-      reports.sort((a, b) {
-        if (a.day == null && b.day == null) return 0;
-        if (a.day == null) return 1;
-        if (b.day == null) return -1;
-        return b.day!.compareTo(a.day!);
-      });
-      workReports.assignAll(reports);
-    } catch (e) {
-      log('DailyRoutineController.fetchData error: $e');
-      errorMessage.value = e.toString();
+      final result = await _service.listRoutine(
+        token,
+        roleId: resolvedRoleId,
+        search: search,
+        limit: 100,
+      );
+      items.assignAll(result.list);
+      count.value = result.count;
+    } catch (error) {
+      log('DailyRoutineController.fetchData error: $error');
+      items.clear();
+      count.value = 0;
+      errorMessage.value = error.toString();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<bool> createRoutine(
+    BuildContext context, {
+    required int roleId,
+    required String title,
+    String description = '',
+    int? sequence,
+    String? timeOfDay,
+    int? estimatedMinutes,
+    bool isActive = true,
+  }) async {
+    return _save(
+      context,
+      action: () async {
+        final token = await _tokenReader();
+        if (token == null || token.isEmpty) return false;
+        await _service.createRoutine(token, roleId, {
+          'title': title,
+          'description': description,
+          if (sequence != null) 'sequence': sequence,
+          if (timeOfDay != null && timeOfDay.isNotEmpty)
+            'time_of_day': timeOfDay,
+          if (estimatedMinutes != null) 'estimated_minutes': estimatedMinutes,
+          'is_active': isActive,
+        });
+        await fetchData(roleId: roleId);
+        return true;
+      },
+      successMessage: 'Daily routine item created',
+    );
+  }
+
+  Future<bool> updateRoutine(
+    BuildContext context, {
+    required int id,
+    String? title,
+    String? description,
+    int? sequence,
+    String? timeOfDay,
+    int? estimatedMinutes,
+    bool? isActive,
+  }) async {
+    final roleId = scopedRoleId;
+    if (roleId == null) return false;
+    return _save(
+      context,
+      action: () async {
+        final token = await _tokenReader();
+        if (token == null || token.isEmpty) return false;
+        await _service.updateRoutine(token, roleId, id, {
+          if (title != null) 'title': title,
+          if (description != null) 'description': description,
+          if (sequence != null) 'sequence': sequence,
+          if (timeOfDay != null) 'time_of_day': timeOfDay,
+          if (estimatedMinutes != null) 'estimated_minutes': estimatedMinutes,
+          if (isActive != null) 'is_active': isActive,
+        });
+        await fetchData(roleId: roleId);
+        return true;
+      },
+      successMessage: 'Daily routine item updated',
+    );
+  }
+
+  Future<bool> deleteRoutine(BuildContext context, int id) async {
+    final roleId = scopedRoleId;
+    if (roleId == null) return false;
+    return _save(
+      context,
+      action: () async {
+        final token = await _tokenReader();
+        if (token == null || token.isEmpty) return false;
+        await _service.deleteRoutine(token, roleId, id);
+        await fetchData(roleId: roleId);
+        return true;
+      },
+      successMessage: 'Daily routine item deleted',
+    );
+  }
+
+  Future<bool> _save(
+    BuildContext context, {
+    required Future<bool> Function() action,
+    required String successMessage,
+  }) async {
+    isSaving.value = true;
+    try {
+      final succeeded = await action();
+      if (succeeded && context.mounted) {
+        Get.snackbar('Success', successMessage,
+            snackPosition: SnackPosition.BOTTOM);
+      }
+      return succeeded;
+    } catch (error) {
+      errorMessage.value = error.toString();
+      if (context.mounted) {
+        Get.snackbar('Error', 'Failed to save daily routine item: $error',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+      return false;
+    } finally {
+      isSaving.value = false;
     }
   }
 }

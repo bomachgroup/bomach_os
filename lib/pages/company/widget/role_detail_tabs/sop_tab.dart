@@ -10,8 +10,9 @@ import '../sop_dialog.dart';
 
 class SopTab extends StatelessWidget {
   final int roleId;
+  final int? departmentId;
 
-  const SopTab({super.key, required this.roleId});
+  const SopTab({super.key, required this.roleId, this.departmentId});
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +31,19 @@ class SopTab extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (ctrl.errorMessage.value.isNotEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Text(
+                  'Error loading SOPs: ${ctrl.errorMessage.value}',
+                  style: const TextStyle(color: AppColors.danger),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
+
           if (ctrl.sops.isEmpty) {
             return Center(
               child: Padding(
@@ -37,18 +51,25 @@ class SopTab extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Iconsax.document_text, size: 48, color: AppColors.textMuted),
+                    const Icon(Iconsax.document_text,
+                        size: 48, color: AppColors.textMuted),
                     const SizedBox(height: 16),
-                    Text('No standard operating procedures linked to this role.',
-                        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted)),
+                    Text(
+                        'No standard operating procedures linked to this role.',
+                        style: AppTextStyles.bodyMd
+                            .copyWith(color: AppColors.textMuted)),
                     const SizedBox(height: 16),
                     MyElevatedButton(
                       height: 40,
                       child: 'Link SOP',
-                      icon: const Icon(Iconsax.add, size: 16, color: AppColors.textOnPrimary),
+                      icon: const Icon(Iconsax.add,
+                          size: 16, color: AppColors.textOnPrimary),
                       onTap: () => showDialog(
                         context: context,
-                        builder: (_) => CreateEditSopDialog(ctrl: ctrl, presetRoleId: roleId),
+                        builder: (_) => CreateEditSopDialog(
+                            ctrl: ctrl,
+                            presetRoleId: roleId,
+                            departmentId: departmentId),
                       ),
                     ),
                   ],
@@ -69,7 +90,10 @@ class SopTab extends StatelessWidget {
                   child: TextButton.icon(
                     onPressed: () => showDialog(
                       context: context,
-                      builder: (_) => CreateEditSopDialog(ctrl: ctrl, presetRoleId: roleId),
+                      builder: (_) => CreateEditSopDialog(
+                          ctrl: ctrl,
+                          presetRoleId: roleId,
+                          departmentId: departmentId),
                     ),
                     icon: const Icon(Icons.add, size: 16),
                     label: const Text('Link SOP'),
@@ -96,7 +120,8 @@ class SopTab extends StatelessWidget {
                             color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(Iconsax.document_text, color: AppColors.primary, size: 20),
+                          child: const Icon(Iconsax.document_text,
+                              color: AppColors.primary, size: 20),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -107,21 +132,29 @@ class SopTab extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      s.title.isNotEmpty ? s.title : 'SOP #${s.sopId}',
-                                      style: AppTextStyles.bodyMd
-                                          .copyWith(fontWeight: FontWeight.w600),
+                                      s.title.isNotEmpty
+                                          ? s.title
+                                          : 'SOP #${s.sopId}',
+                                      style: AppTextStyles.bodyMd.copyWith(
+                                          fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: (s.isActive ? AppColors.success : AppColors.textMuted)
+                                      color: (s.isActive
+                                              ? AppColors.success
+                                              : AppColors.textMuted)
                                           .withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
-                                    child: Text(s.isActive ? 'Active' : 'Inactive',
+                                    child: Text(
+                                        s.isActive ? 'Active' : 'Inactive',
                                         style: AppTextStyles.caption.copyWith(
-                                            color: s.isActive ? AppColors.success : AppColors.textMuted,
+                                            color: s.isActive
+                                                ? AppColors.success
+                                                : AppColors.textMuted,
                                             fontWeight: FontWeight.w600)),
                                   ),
                                 ],
@@ -130,8 +163,8 @@ class SopTab extends StatelessWidget {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
                                   child: Text(s.description,
-                                      style: AppTextStyles.bodySm
-                                          .copyWith(color: AppColors.textSecondary)),
+                                      style: AppTextStyles.bodySm.copyWith(
+                                          color: AppColors.textSecondary)),
                                 ),
                             ],
                           ),
@@ -141,14 +174,16 @@ class SopTab extends StatelessWidget {
                             if (action == 'edit') {
                               showDialog(
                                 context: context,
-                                builder: (_) => CreateEditSopDialog(ctrl: ctrl, sop: s),
+                                builder: (_) =>
+                                    CreateEditSopDialog(ctrl: ctrl, sop: s),
                               );
                             } else if (action == 'delete') {
                               ctrl.deleteSop(context, s.id);
                             }
                           },
                           itemBuilder: (_) => [
-                            const PopupMenuItem(value: 'edit', child: Text('Edit Link')),
+                            const PopupMenuItem(
+                                value: 'edit', child: Text('Edit Link')),
                             const PopupMenuItem(
                                 value: 'delete',
                                 child: Text('Remove Link',
@@ -162,8 +197,10 @@ class SopTab extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 4,
                       children: [
-                        _chip(Iconsax.info_circle, 'Version: ${s.version}', AppColors.info),
-                        _chip(Iconsax.flag, 'Priority: ${s.priority}', AppColors.warning),
+                        _chip(Iconsax.info_circle, 'Version: ${s.version}',
+                            AppColors.info),
+                        _chip(Iconsax.flag, 'Priority: ${s.priority}',
+                            AppColors.warning),
                       ],
                     ),
                   ],
@@ -189,7 +226,8 @@ class SopTab extends StatelessWidget {
           Icon(icon, size: 12, color: color),
           const SizedBox(width: 5),
           Text(label,
-              style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+              style: TextStyle(
+                  fontSize: 11, color: color, fontWeight: FontWeight.w600)),
         ],
       ),
     );

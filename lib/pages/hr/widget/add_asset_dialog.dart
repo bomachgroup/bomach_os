@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
@@ -80,8 +79,8 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     _imeiCtrl = TextEditingController(text: a?.imei ?? '');
 
     _manufacturerCtrl = TextEditingController(text: a?.manufacturer ?? '');
-    if (a != null && a.assignedToId.isNotEmpty) {
-      _selectedAssignedTo = a.assignedToId;
+    if (a?.assignedToId != null) {
+      _selectedAssignedTo = a!.assignedToId.toString();
     }
     _purchaseDateCtrl = TextEditingController(
         text: a != null ? DateFormat('yyyy-MM-dd').format(a.purchaseDate) : '');
@@ -104,30 +103,17 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     }
 
     _selectedBranch = a?.branch.isNotEmpty == true ? a!.branch : null;
-    _selectedDepartmentId =
-        a?.departmentId.isNotEmpty == true ? a!.departmentId : null;
+    _selectedDepartmentId = a?.departmentId?.toString();
     _selectedStatus = a?.status.isNotEmpty == true ? a!.status : 'available';
 
     // Load existing uploaded files
-    if (a != null && a.documents != null && a.documents!.isNotEmpty) {
-      try {
-        final List<dynamic> decoded = jsonDecode(a.documents!);
-        _uploadedFiles = decoded.map((item) => Map<String, String>.from(item)).toList();
-      } catch (_) {
-        if (a.documents!.startsWith('http')) {
-          _uploadedFiles = [
-            {
-              'name': 'Document',
-              'url': a.documents!,
-              'type': a.documents!.toLowerCase().endsWith('.jpg') ||
-                      a.documents!.toLowerCase().endsWith('.png') ||
-                      a.documents!.toLowerCase().endsWith('.jpeg')
-                  ? 'Image'
-                  : 'Document'
-            }
-          ];
-        }
-      }
+    if (a != null && a.documents.isNotEmpty) {
+      _uploadedFiles = a.documents
+          .whereType<Map>()
+          .map((item) => item.map(
+                (key, value) => MapEntry(key.toString(), value.toString()),
+              ))
+          .toList();
     }
   }
 
@@ -226,7 +212,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
       'warranty_expiry_date': _warrantyDateCtrl.text.trim().isNotEmpty ? _warrantyDateCtrl.text.trim() : null,
       'status': _selectedStatus ?? 'available',
       'notes': _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
-      'documents': _uploadedFiles.isEmpty ? null : jsonEncode(_uploadedFiles),
+      'documents': _uploadedFiles,
     };
 
     if (isEdit) {

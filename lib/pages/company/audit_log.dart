@@ -30,6 +30,11 @@ class _AuditLogPageState extends State<AuditLogPage> {
   final CompanyController controller = Get.put(CompanyController());
   final _searchController = TextEditingController();
   String _searchQuery = '';
+  String _userId = '';
+  String? _auditType;
+  String? _auditStatus;
+  String? _startDate;
+  String? _endDate;
 
   @override
   void initState() {
@@ -103,8 +108,8 @@ class _AuditLogPageState extends State<AuditLogPage> {
       children: [
         _buildToolbar(),
         Obx(() {
-          final loading = controller.isAuditLoading.value &&
-              controller.auditLogs.isEmpty;
+          final loading =
+              controller.isAuditLoading.value && controller.auditLogs.isEmpty;
           final filtered = _filtered(controller.auditLogs);
           final isEmpty = !controller.isAuditLoading.value && filtered.isEmpty;
 
@@ -133,13 +138,39 @@ class _AuditLogPageState extends State<AuditLogPage> {
     return AppCard(
       padding: const EdgeInsets.all(16),
       elevation: AppCardElevation.sm,
-      child: MyTextFormField(
-        controller: _searchController,
-        hintText: 'Search by user, activity, type or IP address',
-        height: 48,
-        leading: const Icon(Iconsax.search_normal,
-            size: 18, color: AppColors.textMuted),
-        onChanged: (v) => setState(() => _searchQuery = v),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          MyTextFormField(
+            controller: _searchController,
+            hintText: 'Search by user, activity, type or IP address',
+            height: 48,
+            leading: const Icon(Iconsax.search_normal,
+                size: 18, color: AppColors.textMuted),
+            onChanged: (v) => setState(() => _searchQuery = v),
+          ),
+          const SizedBox(height: 12),
+          AuditLogFilterBar(
+            onChanged: (userId, auditType, auditStatus, startDate, endDate) {
+              _userId = userId;
+              _auditType = auditType;
+              _auditStatus = auditStatus;
+              _startDate = startDate;
+              _endDate = endDate;
+            },
+            onApply: () {
+              controller.fetchAuditLogs(
+                page: 0,
+                search: _searchQuery,
+                userId: _userId,
+                auditType: _auditType,
+                auditStatus: _auditStatus,
+                startDate: _startDate,
+                endDate: _endDate,
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -293,7 +324,8 @@ class _AuditLogPageState extends State<AuditLogPage> {
               log.activity,
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
@@ -345,6 +377,154 @@ class _AuditLogPageState extends State<AuditLogPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+typedef AuditLogFiltersChanged = void Function(
+  String userId,
+  String? auditType,
+  String? auditStatus,
+  String? startDate,
+  String? endDate,
+);
+
+/// Server-side filters supported by GET /api/v1/audit-logs/.
+class AuditLogFilterBar extends StatefulWidget {
+  final AuditLogFiltersChanged onChanged;
+  final VoidCallback onApply;
+
+  const AuditLogFilterBar({
+    super.key,
+    required this.onChanged,
+    required this.onApply,
+  });
+
+  @override
+  State<AuditLogFilterBar> createState() => _AuditLogFilterBarState();
+}
+
+class _AuditLogFilterBarState extends State<AuditLogFilterBar> {
+  final _userIdController = TextEditingController();
+  String? _auditType;
+  String? _auditStatus;
+  String? _startDate;
+  String? _endDate;
+
+  @override
+  void dispose() {
+    _userIdController.dispose();
+    super.dispose();
+  }
+
+  void _notify() {
+    widget.onChanged(
+      _userIdController.text.trim(),
+      _auditType,
+      _auditStatus,
+      _startDate,
+      _endDate,
+    );
+  }
+
+  Future<void> _pickDate({required bool start}) async {
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+      initialDate: DateTime.now(),
+    );
+    if (picked == null) return;
+    final value = DateFormat('yyyy-MM-dd').format(picked);
+    setState(() {
+      if (start) {
+        _startDate = value;
+      } else {
+        _endDate = value;
+      }
+    });
+    _notify();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        SizedBox(
+          width: 150,
+          child: TextField(
+            controller: _userIdController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'User ID',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            onChanged: (_) => _notify(),
+          ),
+        ),
+        SizedBox(
+          width: 160,
+          child: DropdownButtonFormField<String>(
+            initialValue: _auditType,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Audit type',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: const [
+              DropdownMenuItem(value: 'auth', child: Text('Authentication')),
+              DropdownMenuItem(value: 'create', child: Text('Create')),
+              DropdownMenuItem(value: 'update', child: Text('Update')),
+              DropdownMenuItem(value: 'delete', child: Text('Delete')),
+              DropdownMenuItem(value: 'logout', child: Text('Logout')),
+            ],
+            onChanged: (value) {
+              setState(() => _auditType = value);
+              _notify();
+            },
+          ),
+        ),
+        SizedBox(
+          width: 160,
+          child: DropdownButtonFormField<String>(
+            initialValue: _auditStatus,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Audit status',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: const [
+              DropdownMenuItem(value: 'success', child: Text('Success')),
+              DropdownMenuItem(value: 'failure', child: Text('Failure')),
+            ],
+            onChanged: (value) {
+              setState(() => _auditStatus = value);
+              _notify();
+            },
+          ),
+        ),
+        OutlinedButton.icon(
+          onPressed: () => _pickDate(start: true),
+          icon: const Icon(Iconsax.calendar_1, size: 16),
+          label: Text(_startDate ?? 'Start date'),
+        ),
+        OutlinedButton.icon(
+          onPressed: () => _pickDate(start: false),
+          icon: const Icon(Iconsax.calendar_1, size: 16),
+          label: Text(_endDate ?? 'End date'),
+        ),
+        FilledButton.icon(
+          onPressed: widget.onApply,
+          icon: const Icon(Iconsax.filter, size: 16),
+          label: const Text('Apply filters'),
+        ),
+      ],
     );
   }
 }

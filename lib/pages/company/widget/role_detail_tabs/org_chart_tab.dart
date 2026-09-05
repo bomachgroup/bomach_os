@@ -1,117 +1,168 @@
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
-import 'package:bomach_os/src/model/role_model.dart';
+import 'package:bomach_os/src/model/role_reporting_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
-class OrgChartTab extends StatelessWidget {
-  final Role role;
-  final List<Role> allRoles;
+import '../../controllers/role_reporting_controller.dart';
 
-  const OrgChartTab({super.key, required this.role, required this.allRoles});
+class OrgChartTab extends StatelessWidget {
+  final int roleId;
+
+  const OrgChartTab({super.key, required this.roleId});
 
   @override
   Widget build(BuildContext context) {
-    final reportsTo = allRoles.where((r) => r.id == role.reportsToRoleId).firstOrNull;
-    final directReports = allRoles
-        .where((r) => role.directReportRoleIds.contains(r.id))
-        .toList();
+    final tag = 'role_reporting_$roleId';
+    if (!Get.isRegistered<RoleReportingController>(tag: tag)) {
+      Get.put(RoleReportingController(), tag: tag).fetch(roleId);
+    }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (reportsTo != null) ...[
-            const Text('Reports To', style: AppTextStyles.label),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceMuted,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.borderSubtle),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.warning.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Iconsax.arrow_up, color: AppColors.warning, size: 20),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(reportsTo.name,
-                            style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
-                        Text('Superior role',
-                            style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+    return GetX<RoleReportingController>(
+      tag: tag,
+      builder: (ctrl) {
+        if (ctrl.isLoading.value && ctrl.tree.value == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (ctrl.errorMessage.value.isNotEmpty) {
+          return _message(
+            icon: Iconsax.warning_2,
+            title: 'Error loading reporting relationships',
+            body: ctrl.errorMessage.value,
+            action: TextButton.icon(
+              onPressed: () => ctrl.fetch(roleId),
+              icon: const Icon(Iconsax.refresh),
+              label: const Text('Retry'),
             ),
-            const SizedBox(height: 16),
-          ],
-          if (directReports.isNotEmpty) ...[
-            Text('Direct Reports (${directReports.length})', style: AppTextStyles.label),
-            const SizedBox(height: 8),
-            ...directReports.map((r) => Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceMuted,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.borderSubtle),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.info.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Iconsax.arrow_down, color: AppColors.info, size: 20),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(r.name,
-                                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
-                            Text('Reports to this role',
-                                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-          ],
-          if (reportsTo == null && directReports.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(40),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Iconsax.hierarchy, size: 48, color: AppColors.textMuted),
-                    const SizedBox(height: 16),
-                    Text('No reporting relationships defined.',
-                        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted)),
-                  ],
+          );
+        }
+
+        final tree = ctrl.tree.value;
+        if (tree == null ||
+            (tree.reportsTo == null && tree.directReports.isEmpty)) {
+          return _message(
+            icon: Iconsax.hierarchy,
+            title: 'No reporting relationships defined.',
+          );
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (tree.reportsTo != null) ...[
+                const Text('Reports To', style: AppTextStyles.label),
+                const SizedBox(height: 8),
+                _roleCard(
+                  node: tree.reportsTo!,
+                  icon: Iconsax.arrow_up,
+                  color: AppColors.warning,
+                  subtitle: 'Superior role',
                 ),
-              ),
+                const SizedBox(height: 16),
+              ],
+              if (tree.directReports.isNotEmpty) ...[
+                Text(
+                  'Direct Reports (${tree.directReports.length})',
+                  style: AppTextStyles.label,
+                ),
+                const SizedBox(height: 8),
+                ...tree.directReports.map(
+                  (node) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _roleCard(
+                      node: node,
+                      icon: Iconsax.arrow_down,
+                      color: AppColors.info,
+                      subtitle: 'Reports to this role',
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _roleCard({
+    required RoleReportingNode node,
+    required IconData icon,
+    required Color color,
+    required String subtitle,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  node.name,
+                  style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  subtitle,
+                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _message({
+    required IconData icon,
+    required String title,
+    String? body,
+    Widget? action,
+  }) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 48, color: AppColors.textMuted),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),
+            ),
+            if (body != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                body,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+            if (action != null) ...[const SizedBox(height: 12), action],
+          ],
+        ),
       ),
     );
   }

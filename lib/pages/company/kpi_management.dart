@@ -1,11 +1,13 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -16,32 +18,47 @@ import 'controllers/role_kpi_controller.dart';
 import 'controllers/roles_controller.dart';
 import 'widget/kpi_dialogs.dart';
 
-class KpiManagementPage extends StatelessWidget {
+class KpiManagementPage extends StatefulWidget {
   const KpiManagementPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<KpiManagementPage> createState() => _KpiManagementPageState();
+}
+
+class _KpiManagementPageState extends State<KpiManagementPage> {
+  late final RoleKpiController ctrl;
+
+  @override
+  void initState() {
+    super.initState();
     if (!Get.isRegistered<RoleKpiController>(tag: 'kpi_management')) {
       Get.put(RoleKpiController(), tag: 'kpi_management');
     }
-    final ctrl = Get.find<RoleKpiController>(tag: 'kpi_management');
+    ctrl = Get.find<RoleKpiController>(tag: 'kpi_management');
     if (!Get.isRegistered<RolesController>()) {
       Get.put(RolesController());
     }
     ctrl.fetchAllKpis();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return PageScaffold(
       header: PageHeader(
         title: 'KPI Management',
         subtitle: 'Define and manage role-level Key Performance Indicators.',
-        trailing: MyElevatedButton(
-          height: 48,
-          icon: const Icon(Iconsax.add_circle, color: AppColors.white, size: 18),
-          child: 'Add KPI',
-          onTap: () => showDialog(
-            context: context,
-            builder: (_) => CreateEditKpiDialog(ctrl: ctrl),
-          ).then((_) => ctrl.fetchAllKpis(refresh: true)),
+        trailing: PermissionGate(
+          require: Perms.rolesUpdate,
+          child: MyElevatedButton(
+            height: 48,
+            icon: const Icon(Iconsax.add_circle,
+                color: AppColors.white, size: 18),
+            child: 'Add KPI',
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => CreateEditKpiDialog(ctrl: ctrl),
+            ).then((_) => ctrl.fetchAllKpis(refresh: true)),
+          ),
         ),
       ),
       children: [
@@ -53,7 +70,8 @@ class KpiManagementPage extends StatelessWidget {
             height: 44,
             leading: const Icon(Iconsax.search_normal,
                 size: 18, color: AppColors.textMuted),
-            onChanged: (_) => ctrl.fetchAllKpis(refresh: true),
+            onChanged: (value) =>
+                ctrl.fetchAllKpis(search: value, refresh: true),
           ),
         ),
         Obx(() {
@@ -61,6 +79,15 @@ class KpiManagementPage extends StatelessWidget {
             return AppCard(
               padding: const EdgeInsets.all(24),
               child: LoadingSkeleton.listRows(count: 5),
+            );
+          }
+          if (ctrl.errorMessage.value.isNotEmpty) {
+            return AppCard(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Error loading KPIs: ${ctrl.errorMessage.value}',
+                style: const TextStyle(color: AppColors.danger),
+              ),
             );
           }
           if (ctrl.kpis.isEmpty) {
@@ -122,7 +149,8 @@ class _KpiCard extends StatelessWidget {
     final target = kpi.targetValue != null
         ? '${kpi.targetValue!.toStringAsFixed(kpi.targetValue! % 1 == 0 ? 0 : 1)} $unit'
         : '—';
-    final weight = kpi.weight?.toStringAsFixed(kpi.weight! % 1 == 0 ? 0 : 1) ?? '—';
+    final weight =
+        kpi.weight?.toStringAsFixed(kpi.weight! % 1 == 0 ? 0 : 1) ?? '—';
 
     return AppCard(
       padding: const EdgeInsets.all(16),
@@ -178,17 +206,25 @@ class _KpiCard extends StatelessWidget {
               const SizedBox(width: 6),
               _Badge(kpi.trackingMode, _trackingColors),
               const Spacer(),
-              IconButton(
-                icon: const Icon(Iconsax.edit_2, size: 18, color: AppColors.primary),
-                onPressed: () => _editKpi(context, kpi),
-                tooltip: 'Edit KPI',
-                visualDensity: VisualDensity.compact,
+              PermissionGate(
+                require: Perms.rolesUpdate,
+                child: IconButton(
+                  icon: const Icon(Iconsax.edit_2,
+                      size: 18, color: AppColors.primary),
+                  onPressed: () => _editKpi(context, kpi),
+                  tooltip: 'Edit KPI',
+                  visualDensity: VisualDensity.compact,
+                ),
               ),
-              IconButton(
-                icon: const Icon(Iconsax.trash, size: 18, color: AppColors.danger),
-                onPressed: () => _confirmDelete(context, kpi.id!),
-                tooltip: 'Delete KPI',
-                visualDensity: VisualDensity.compact,
+              PermissionGate(
+                require: Perms.rolesUpdate,
+                child: IconButton(
+                  icon: const Icon(Iconsax.trash,
+                      size: 18, color: AppColors.danger),
+                  onPressed: () => _confirmDelete(context, kpi.id!),
+                  tooltip: 'Delete KPI',
+                  visualDensity: VisualDensity.compact,
+                ),
               ),
             ],
           ),
@@ -201,8 +237,8 @@ class _KpiCard extends StatelessWidget {
     final ctrl = Get.find<RoleKpiController>(tag: 'kpi_management');
     showDialog(
       context: context,
-      builder: (_) => CreateEditKpiDialog(
-          ctrl: ctrl, kpi: kpi, presetRoleId: kpi.roleId),
+      builder: (_) =>
+          CreateEditKpiDialog(ctrl: ctrl, kpi: kpi, presetRoleId: kpi.roleId),
     ).then((_) => ctrl.fetchAllKpis(refresh: true));
   }
 
@@ -256,8 +292,8 @@ class _InfoChip extends StatelessWidget {
                   .copyWith(color: AppColors.textSecondary, fontSize: 10)),
           const SizedBox(height: 2),
           Text(value,
-              style: AppTextStyles.bodySm
-                  .copyWith(fontWeight: FontWeight.w500)),
+              style:
+                  AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500)),
         ],
       ),
     );

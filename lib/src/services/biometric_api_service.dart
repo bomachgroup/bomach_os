@@ -152,6 +152,31 @@ class BiometricApiService {
     }
   }
 
+  /// GET /biometric/location/verify
+  ///
+  /// Verifies the supplied coordinates against the caller's approved work
+  /// locations. The backend response (`is_valid`, distance, and nearest
+  /// location) is intentionally returned without reinterpretation.
+  Future<Map<String, dynamic>> verifyLocation(
+    String token, {
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/biometric/location/verify',
+        queryParameters: {
+          'latitude': latitude,
+          'longitude': longitude,
+        },
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// GET /biometric/location/whitelisted
   ///
   /// Returns `WorkLocationListResponse` ({ "locations": [...], "total": N }).
@@ -177,9 +202,6 @@ class BiometricApiService {
             .toList();
       }
       return [];
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 404) return [];
-      throw _handleError(e);
     } catch (e) {
       throw _handleError(e);
     }
@@ -224,9 +246,6 @@ class BiometricApiService {
             .toList();
       }
       return [];
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 404) return [];
-      throw _handleError(e);
     } catch (e) {
       throw _handleError(e);
     }

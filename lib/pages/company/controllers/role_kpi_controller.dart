@@ -44,9 +44,11 @@ class RoleKpiController extends GetxController {
     if (msg.contains('422')) return 'Invalid data. Please check your inputs.';
     if (msg.contains('404')) return 'Resource not found.';
     if (msg.contains('500')) return 'Server error. Please try again later.';
-    if (msg.contains('DioException')) return 'Network error. Check your connection.';
+    if (msg.contains('DioException'))
+      return 'Network error. Check your connection.';
     // Strip "Exception: API Error: 4xx - " prefix for cleaner display
-    final cleaned = msg.replaceFirst(RegExp(r'^Exception:\s*API Error:\s*\d+\s*-\s*'), '');
+    final cleaned =
+        msg.replaceFirst(RegExp(r'^Exception:\s*API Error:\s*\d+\s*-\s*'), '');
     return cleaned.length > 120 ? '${cleaned.substring(0, 120)}...' : cleaned;
   }
 
@@ -89,7 +91,8 @@ class RoleKpiController extends GetxController {
       if (token == null) return;
       final rId = roleId ?? scopedRoleId;
       if (rId == null) return;
-      final result = await _service.listRoleKpis(token, roleId: rId, limit: limit, offset: offset);
+      final result = await _service.listRoleKpis(token,
+          roleId: rId, limit: limit, offset: offset);
       if (refresh || offset == 0) {
         kpis.assignAll(result.list);
       } else {
@@ -195,7 +198,7 @@ class RoleKpiController extends GetxController {
   }
 
   /// Fetch KPIs from ALL roles for the management page.
-  Future<void> fetchAllKpis({bool refresh = false}) async {
+  Future<void> fetchAllKpis({bool refresh = false, String? search}) async {
     if (!refresh) isLoading.value = true;
     try {
       final token = await _getToken();
@@ -203,16 +206,31 @@ class RoleKpiController extends GetxController {
 
       // Get all roles first
       final rolesService = RoleService();
-      final rolesResult = await rolesService.listRoles(token, limit: 100);
+      final rolesResult = await rolesService.listRoles(
+        token,
+        search: search == null || search.trim().isEmpty ? null : search.trim(),
+        limit: 100,
+      );
       final allKpis = <RoleKpi>[];
       for (final role in rolesResult.list) {
         try {
-          final result = await _service.listRoleKpis(token, roleId: role.id, limit: 100, offset: 0);
+          final result = await _service.listRoleKpis(token,
+              roleId: role.id, limit: 100, offset: 0);
           allKpis.addAll(result.list);
         } catch (_) {}
       }
-      kpis.assignAll(allKpis);
-      totalCount = allKpis.length;
+      final normalizedSearch = search?.trim().toLowerCase() ?? '';
+      final visibleKpis = normalizedSearch.isEmpty
+          ? allKpis
+          : allKpis.where((kpi) {
+              final metricName = kpi.metric?.name.toLowerCase() ?? '';
+              final metricDescription =
+                  kpi.metric?.description.toLowerCase() ?? '';
+              return metricName.contains(normalizedSearch) ||
+                  metricDescription.contains(normalizedSearch);
+            }).toList();
+      kpis.assignAll(visibleKpis);
+      totalCount = visibleKpis.length;
     } catch (e) {
       log('RoleKpiController.fetchAllKpis error: $e');
       errorMessage.value = e.toString();

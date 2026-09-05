@@ -31,6 +31,7 @@ import 'package:bomach_os/pages/dashboad/dashboard.dart';
 import 'package:bomach_os/pages/dashboad/my_tasks.dart';
 import 'package:bomach_os/pages/dashboad/my_profile.dart';
 import 'package:bomach_os/pages/dashboad/my_work_reports.dart';
+import 'package:bomach_os/pages/hr/target_reports.dart';
 import 'package:bomach_os/pages/employee/employee.dart';
 import 'package:bomach_os/pages/employee/employee_attendance.dart';
 import 'package:bomach_os/pages/employee/employee_directory.dart';
@@ -129,6 +130,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.home: const DashboardScreen(),
   RouteConstants.employeeMyTasks: const MyTasksPage(),
   RouteConstants.employeeMyReports: const MyWorkReportsPage(),
+  RouteConstants.employeeMyTargetReports: const TargetReportsPage(),
   RouteConstants.employeeMyProfile: const MyProfilePage(),
 
   // hr
@@ -280,7 +282,7 @@ final Map<String, Widget> _dashboardRoutes = {
   // operations
   RouteConstants.operations: const OperationsPage(),
   RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
-  // RouteConstants.operationsTaskDetail: const TaskDetailPage(),
+  RouteConstants.operationsTaskDetail: const TaskDetail(),
   RouteConstants.operationsWorksiteDetail: const WorksiteDetailPage(),
   RouteConstants.operationsContractDetail: const ContractDetailPage(),
   RouteConstants.operationsTimelineDetail: const TimelineDetailPage(),
@@ -382,8 +384,8 @@ final Map<String, Widget> _dashboardRoutes = {
   // Security
   RouteConstants.securityAlerts: const SecurityPage(page: 3),
   RouteConstants.securityCodes: const SecurityPage(page: 1),
-  RouteConstants.securityLogs: const SecurityPage(page: 4),
-  RouteConstants.securityWorkflow: const SecurityPage(page: 2),
+  RouteConstants.securityLogs: const AuditLogPage(),
+  RouteConstants.securityWorkflow: const ApprovalWorkflowPage(),
   RouteConstants.securityOverview: const SecurityPage(page: 0),
   // Marketing & CRM (combined)
   RouteConstants.marketingCrm: const MarketingCrmDashboard(),

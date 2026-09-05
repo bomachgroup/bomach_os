@@ -3,6 +3,7 @@ import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/nav/three_dot_pop.dart';
 import 'package:bomach_os/components/paginate/my_paginator.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/section/responsive_stat_row.dart';
@@ -10,6 +11,7 @@ import 'package:bomach_os/pages/hr/widget/add_program_dialog.dart';
 import 'package:bomach_os/pages/hr/widget/view_program_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
@@ -65,29 +67,27 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
               onTap: () {},
             ),
             const SizedBox(width: 12),
-            Obx(() => MyElevatedButton(
-                  icon: const Icon(Iconsax.add_circle,
-                      color: AppColors.white, size: 20),
-                  child: _ctrl.activeTab.value == 'Training Programs'
-                      ? "Create Program"
-                      : "Log Assessment",
-                  onTap: () async {
-                    if (_ctrl.activeTab.value == 'Training Programs') {
-                      final token = await _storage.read(key: 'access_token');
-                      if (token != null && context.mounted) {
-                        String cleanToken = token
-                            .replaceAll('"', '')
-                            .replaceAll('Bearer ', '')
-                            .trim();
-                        showDialog(
-                          context: context,
-                          builder: (context) =>
-                              AddProgramDialog(token: cleanToken),
-                        );
-                      }
-                    }
-                  },
-                )),
+            PermissionGate(
+              require: Perms.trainingProgramsCreate,
+              child: MyElevatedButton(
+                icon: const Icon(Iconsax.add_circle,
+                    color: AppColors.white, size: 20),
+                child: "Create Program",
+                onTap: () async {
+                  final token = await _storage.read(key: 'access_token');
+                  if (token != null && context.mounted) {
+                    String cleanToken = token
+                        .replaceAll('"', '')
+                        .replaceAll('Bearer ', '')
+                        .trim();
+                    showDialog(
+                      context: context,
+                      builder: (context) => AddProgramDialog(token: cleanToken),
+                    );
+                  }
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -102,9 +102,9 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                   accent: AppColors.primary,
                 ),
                 _StatCard(
-                  title: 'Total Enrolled',
-                  count: _ctrl.stats['totalEnrolled'].toString(),
-                  icon: Iconsax.user_tick,
+                  title: 'Programs on this page',
+                  count: _ctrl.programList.length.toString(),
+                  icon: Iconsax.teacher,
                   accent: AppColors.success,
                 ),
               ],
@@ -112,13 +112,9 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
         const SizedBox(height: 32),
 
         // --- 3. Tabs ---
-        Obx(() => Row(
+        Obx(() => const Row(
               children: [
-                _buildTabButton('Training Programs',
-                    _ctrl.activeTab.value == 'Training Programs'),
-                const SizedBox(width: 12),
-                _buildTabButton('Skill Assessments',
-                    _ctrl.activeTab.value == 'Skill Assessments'),
+                Text('Training Programs', style: AppTextStyles.h3),
               ],
             )),
         const SizedBox(height: 24),
@@ -163,17 +159,45 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                       child: Center(child: CircularProgressIndicator()));
                 }
 
+                if (_ctrl.errorMessage.value.isNotEmpty) {
+                  return SizedBox(
+                    height: 220,
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Unable to load training programs',
+                            style: AppTextStyles.h4,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _ctrl.errorMessage.value,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: AppColors.danger),
+                          ),
+                          const SizedBox(height: 16),
+                          MyOutlinedButton(
+                            child: 'Retry',
+                            onTap: _ctrl.fetchData,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
                 if (_ctrl.totalCount.value == 0) {
                   return const SizedBox(
                       height: 200,
-                      child: Center(child: Text("No records found.", style: AppTextStyles.bodyMd)));
+                      child: Center(
+                          child: Text("No records found.",
+                              style: AppTextStyles.bodyMd)));
                 }
 
                 return Padding(
                   padding: const EdgeInsets.all(16),
-                  child: _ctrl.activeTab.value == 'Training Programs'
-                      ? _buildProgramsMobileCards()
-                      : _buildAssessmentsMobileCards(),
+                  child: _buildProgramsMobileCards(),
                 );
               }),
 
@@ -200,8 +224,6 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
 
   // --- UI Components ---
 
-
-
   Widget _buildProgramsMobileCards() {
     return Column(
       children: _ctrl.programList.map((program) {
@@ -221,17 +243,17 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   StatusChip.fromStatus(program.status),
-                  _buildModeBadge("Online"),
                 ],
               ),
               const SizedBox(height: 12),
               Text(
                 program.programName,
-                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                style:
+                    AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 2),
               Text(
-                "3 Weeks  •  Management",
+                '${program.durationDays} days  •  ${program.targetAudience}',
                 style: AppTextStyles.caption.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppColors.textSecondary,
@@ -246,11 +268,13 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                     children: [
                       Text(
                         'Start Date',
-                        style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textMuted),
                       ),
                       Text(
                         program.startDate != null
-                            ? DateFormat('dd MMM yyyy').format(program.startDate!)
+                            ? DateFormat('dd MMM yyyy')
+                                .format(program.startDate!)
                             : '-',
                         style: AppTextStyles.bodySm,
                       ),
@@ -261,7 +285,8 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                     children: [
                       Text(
                         'End Date',
-                        style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textMuted),
                       ),
                       Text(
                         program.endDate != null
@@ -278,8 +303,11 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Applicants: 5',
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                    program.provider.isEmpty
+                        ? 'Provider not specified'
+                        : program.provider,
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                   ThreeDotPop(
                     onTapView: () async {
@@ -308,130 +336,6 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
     );
   }
 
-  Widget _buildAssessmentsMobileCards() {
-    return Column(
-      children: _ctrl.assessmentList.map((item) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: AppRadii.brLg,
-            border: Border.all(color: AppColors.borderSubtle),
-            boxShadow: AppShadows.sm,
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildPriorityBadge(item.priority),
-                  StatusChip.fromStatus(item.status),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Identified Gap: ${item.gap}',
-                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundColor: AppColors.infoSubtle,
-                    child: Text(
-                      item.employeeName.isNotEmpty ? item.employeeName[0] : 'U',
-                      style: AppTextStyles.caption.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Employee: ${item.employeeName}',
-                          style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500),
-                        ),
-                        Text(
-                          item.employeeRole,
-                          style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundColor: AppColors.infoSubtle,
-                    child: Text(
-                      item.requestedByName.isNotEmpty ? item.requestedByName[0] : 'U',
-                      style: AppTextStyles.caption.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Requested By: ${item.requestedByName}',
-                          style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Divider(height: 1, color: AppColors.borderSubtle),
-              const SizedBox(height: 8),
-              const Align(
-                alignment: Alignment.centerRight,
-                child: ThreeDotPop(),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildTabButton(String text, bool isActive) {
-    return InkWell(
-      onTap: () => _ctrl.setActiveTab(text),
-      borderRadius: AppRadii.brPill,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.primary : AppColors.surface,
-          borderRadius: AppRadii.brPill,
-          border: Border.all(
-              color: isActive ? AppColors.primary : AppColors.borderSubtle),
-        ),
-        child: Text(
-          text,
-          style: AppTextStyles.bodySm.copyWith(
-            color: isActive ? AppColors.textOnPrimary : AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildStatusFilter() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -445,7 +349,8 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
               icon: const Icon(Iconsax.arrow_down_1,
                   size: 18, color: AppColors.textSecondary),
               elevation: 4,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
               onChanged: (val) => _ctrl.updateStatusFilter(val),
               items: _ctrl.statusOptions
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -465,48 +370,13 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
       child: Row(
         children: [
           Text(text,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary)),
           const SizedBox(width: 8),
-          const Icon(Iconsax.arrow_down_1, size: 18, color: AppColors.textSecondary)
+          const Icon(Iconsax.arrow_down_1,
+              size: 18, color: AppColors.textSecondary)
         ],
       ),
-    );
-  }
-
-  Widget _buildModeBadge(String mode) {
-    bool isOnline = mode.toLowerCase() == 'online';
-    Color bg = isOnline ? AppColors.successSubtle : AppColors.surfaceMuted;
-    Color txt = isOnline ? AppColors.success : AppColors.textSecondary;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: AppRadii.brSm),
-      child: Text(mode,
-          style:
-              AppTextStyles.caption.copyWith(color: txt, fontWeight: FontWeight.bold)),
-    );
-  }
-
-  Widget _buildPriorityBadge(String priority) {
-    Color bg;
-    Color txt;
-    if (priority == 'High') {
-      bg = AppColors.dangerSubtle;
-      txt = AppColors.danger;
-    } else if (priority == 'Medium') {
-      bg = AppColors.warningSubtle;
-      txt = AppColors.warning;
-    } else {
-      bg = AppColors.infoSubtle;
-      txt = AppColors.info;
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: AppRadii.brSm),
-      child: Text(priority,
-          style:
-              AppTextStyles.caption.copyWith(color: txt, fontWeight: FontWeight.bold)),
     );
   }
 }

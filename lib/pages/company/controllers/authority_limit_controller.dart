@@ -65,6 +65,7 @@ class AuthorityLimitController extends GetxController {
     if (!refresh) {
       isLoading.value = true;
     }
+    errorMessage.value = '';
 
     try {
       final token = await _getToken();
@@ -86,6 +87,7 @@ class AuthorityLimitController extends GetxController {
       }
       totalCount = result.count;
     } catch (e) {
+      errorMessage.value = 'Failed to load authority limits: $e';
       log('Error fetching authority limits: $e');
     } finally {
       isLoading.value = false;

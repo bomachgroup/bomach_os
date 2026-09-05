@@ -137,6 +137,41 @@ class RoleService {
     }
   }
 
+  /// Returns the reporting relationships for a role from the dedicated
+  /// reporting endpoint. The response is intentionally kept as a map because
+  /// the API exposes nested role objects whose shape may evolve independently
+  /// from the role list response.
+  Future<Map<String, dynamic>> getReportingTree(String token, int roleId) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/roles/$roleId/reporting-tree',
+        options: _authOptions(token),
+      );
+      if (response.data is! Map) {
+        throw const FormatException('Reporting tree response is not an object');
+      }
+      return Map<String, dynamic>.from(response.data as Map);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Returns the reporting lines for a role from the dedicated API endpoint.
+  Future<Map<String, dynamic>> getReportingLines(String token, int roleId) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/roles/$roleId/reporting-lines',
+        options: _authOptions(token),
+      );
+      if (response.data is! Map) {
+        throw const FormatException('Reporting lines response is not an object');
+      }
+      return Map<String, dynamic>.from(response.data as Map);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─── ERROR HANDLER ─────────────────────────────────────────────────
 
   Exception _handleError(dynamic error) {

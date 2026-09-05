@@ -14,6 +14,8 @@ class PerformanceReviewController extends GetxController {
   var isLoading = false.obs;
   var isSaving = false.obs;
   var performanceReviews = <PerformanceReview>[].obs;
+  var errorMessage = ''.obs;
+  var searchQuery = ''.obs;
 
   var limit = 100;
   var offset = 0;
@@ -31,9 +33,10 @@ class PerformanceReviewController extends GetxController {
     fetchPerformanceReviews();
   }
 
-  Future<void> fetchPerformanceReviews() async {
+  Future<void> fetchPerformanceReviews({String? search}) async {
     try {
       isLoading(true);
+      errorMessage('');
       final context = Get.context;
       if (context == null) return;
       final token = await _getToken(context);
@@ -41,10 +44,14 @@ class PerformanceReviewController extends GetxController {
         _showSnackBar(context, 'Error', 'Authentication token not found');
         return;
       }
+      final query = (search ?? searchQuery.value).trim();
       final reviews = await _service.getPerformanceReviews(token,
-          limit: limit, offset: offset);
+          employeeId: query.isEmpty ? null : query,
+          limit: limit,
+          offset: offset);
       performanceReviews.assignAll(reviews);
     } catch (e) {
+      errorMessage('Failed to load performance reviews: $e');
       final context = Get.context;
       if (context != null) {
         _showSnackBar(context, 'Error', 'Failed to fetch reviews: $e');
@@ -52,6 +59,11 @@ class PerformanceReviewController extends GetxController {
     } finally {
       isLoading(false);
     }
+  }
+
+  void onSearchChanged(String query) {
+    searchQuery.value = query;
+    fetchPerformanceReviews(search: query);
   }
 
   Future<bool> createReview(PerformanceReview review) async {

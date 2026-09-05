@@ -14,6 +14,8 @@ import '../widget/face_liveness_dialog.dart';
 
 import '../models/attendance_models.dart';
 import '../models/workspace_model.dart';
+import '../models/clock_in_location_policy.dart';
+import '../models/location_verification_result.dart';
 
 class BiometricsController extends GetxController {
   final BiometricApiService _api = BiometricApiService();
@@ -125,12 +127,14 @@ class BiometricsController extends GetxController {
   Future<void> fetchWorkspaces(String token) async {
     try {
       isFetchingWorkspace(true);
+      errorMessage('');
       final list = await _api.getWorkspaces(token);
       workspaces.assignAll(
         list.map((e) => WorkspaceConfig.fromJson(e)).toList(),
       );
     } catch (e) {
       log('Fetch workspaces error: $e');
+      errorMessage.value = e.toString().replaceFirst('Exception: ', '');
       workspaces.clear();
     } finally {
       isFetchingWorkspace(false);
@@ -244,8 +248,6 @@ class BiometricsController extends GetxController {
 
       result.add(DailyAttendance(
         date: date,
-        employeeName: "Current User",
-        role: "Employee",
         clockInTime: inTime,
         clockOutTime: outTime,
         hoursWorked: duration,
@@ -311,6 +313,24 @@ class BiometricsController extends GetxController {
         errorMessage.value =
             'You are ${distance.toInt()}m away from your workspace "${ws.workspaceName}". '
             'Get within range to clock ${isClockIn ? 'in' : 'out'}.';
+        return false;
+      }
+
+      // The backend remains authoritative even after the local geofence
+      // check. This prevents clock-in when the server has revoked or cannot
+      // use the location.
+      final verification = LocationVerificationResult.fromJson(
+        await _api.verifyLocation(
+          token,
+          latitude: position.latitude,
+          longitude: position.longitude,
+        ),
+      );
+      if (!ClockInLocationPolicy.canProceed(verification)) {
+        final distance = verification.distanceMeters;
+        errorMessage.value = distance == null
+            ? 'Your current location is not approved for this workspace.'
+            : 'You are ${distance.toInt()}m away from an approved workspace.';
         return false;
       }
 

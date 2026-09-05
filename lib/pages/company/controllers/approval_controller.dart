@@ -20,6 +20,7 @@ class ApprovalController extends GetxController {
   var isLoadingFlows = true.obs;
   var isSavingFlow = false.obs;
   var flowList = <ApprovalFlow>[].obs;
+  var flowErrorMessage = ''.obs;
   var flowSearchQuery = ''.obs;
   var flowCurrentPage = 1.obs;
   var flowLimit = 10.obs;
@@ -29,6 +30,7 @@ class ApprovalController extends GetxController {
   var isLoadingRequests = true.obs;
   var isSavingRequest = false.obs;
   var requestList = <ApprovalRequest>[].obs;
+  var requestErrorMessage = ''.obs;
   var requestSearchQuery = ''.obs;
   var requestCurrentPage = 1.obs;
   var requestLimit = 10.obs;
@@ -50,6 +52,7 @@ class ApprovalController extends GetxController {
   Future<void> fetchFlows({bool refresh = false}) async {
     try {
       if (!refresh) isLoadingFlows.value = true;
+      flowErrorMessage.value = '';
 
       final token = await _getToken();
       if (token == null) return;
@@ -67,6 +70,7 @@ class ApprovalController extends GetxController {
       flowTotalItems.value = result.total;
     } catch (e) {
       log("Error fetching approval flows: $e");
+      flowErrorMessage.value = e.toString().replaceFirst('Exception: ', '');
     } finally {
       isLoadingFlows.value = false;
     }
@@ -137,7 +141,8 @@ class ApprovalController extends GetxController {
     } catch (e) {
       log("Delete Flow Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to deactivate workflow: ${e.toString()}");
+        _showErrorDialog(
+            context, "Failed to deactivate workflow: ${e.toString()}");
       }
     }
   }
@@ -147,6 +152,7 @@ class ApprovalController extends GetxController {
   Future<void> fetchRequests({bool refresh = false}) async {
     try {
       if (!refresh) isLoadingRequests.value = true;
+      requestErrorMessage.value = '';
 
       final token = await _getToken();
       if (token == null) return;
@@ -166,6 +172,7 @@ class ApprovalController extends GetxController {
       requestTotalItems.value = result.total;
     } catch (e) {
       log("Error fetching approval requests: $e");
+      requestErrorMessage.value = e.toString().replaceFirst('Exception: ', '');
     } finally {
       isLoadingRequests.value = false;
     }
@@ -245,12 +252,21 @@ class ApprovalController extends GetxController {
         return;
       }
 
-      final serverChoices = await _approvalService.getFlowChoices(accessToken: token);
+      final serverChoices =
+          await _approvalService.getFlowChoices(accessToken: token);
 
-      final actions = serverChoices.actions.isNotEmpty ? serverChoices.actions : _fallbackActions;
-      final approverTypes = serverChoices.approverTypes.isNotEmpty ? serverChoices.approverTypes : _fallbackApprovers;
-      final statuses = serverChoices.statuses.isNotEmpty ? serverChoices.statuses : _fallbackStatuses;
-      final levels = serverChoices.levels.isNotEmpty ? serverChoices.levels : _fallbackLevels;
+      final actions = serverChoices.actions.isNotEmpty
+          ? serverChoices.actions
+          : _fallbackActions;
+      final approverTypes = serverChoices.approverTypes.isNotEmpty
+          ? serverChoices.approverTypes
+          : _fallbackApprovers;
+      final statuses = serverChoices.statuses.isNotEmpty
+          ? serverChoices.statuses
+          : _fallbackStatuses;
+      final levels = serverChoices.levels.isNotEmpty
+          ? serverChoices.levels
+          : _fallbackLevels;
 
       flowChoices.value = ApprovalFlowChoices(
         actions: actions,
@@ -361,8 +377,10 @@ class ApprovalController extends GetxController {
       title: "Error",
       size: DialogSize.sm,
       body: Text(message),
-      actions: [TextButton(
-              onPressed: () => Navigator.pop(context), child: const Text("OK")),],
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context), child: const Text("OK")),
+      ],
     );
   }
 }

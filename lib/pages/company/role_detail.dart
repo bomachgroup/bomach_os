@@ -1,8 +1,10 @@
 import 'package:bomach_os/components/button/my_outlined_button.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/src/app_routes/app_route_constants.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/model/role_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -83,9 +85,12 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Iconsax.security_user, size: 64, color: AppColors.textMuted),
+                  Icon(Iconsax.security_user,
+                      size: 64, color: AppColors.textMuted),
                   SizedBox(height: 16),
-                  Text('Role not found', style: TextStyle(fontSize: 18, color: AppColors.textMuted)),
+                  Text('Role not found',
+                      style:
+                          TextStyle(fontSize: 18, color: AppColors.textMuted)),
                 ],
               ),
             ),
@@ -99,10 +104,18 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
         title: 'Core & Structure',
         icon: Iconsax.hierarchy,
         items: [
-          RoleTabItem(label: 'Overview', builder: (role, id) => OverviewTab(role: role)),
-          RoleTabItem(label: 'Authority Limits', builder: (role, id) => AuthorityLimitsTab(roleId: id)),
-          RoleTabItem(label: 'Org Chart', builder: (role, id) => _OrgChartWrapper(role: role, allRoles: ctrl.roles)),
-          RoleTabItem(label: 'Career Path', builder: (role, id) => CareerPathTab(role: role)),
+          RoleTabItem(
+              label: 'Overview',
+              builder: (role, id) => OverviewTab(role: role)),
+          RoleTabItem(
+              label: 'Authority Limits',
+              builder: (role, id) => AuthorityLimitsTab(roleId: id)),
+          RoleTabItem(
+              label: 'Org Chart',
+              builder: (role, id) => _OrgChartWrapper(roleId: id)),
+          RoleTabItem(
+              label: 'Career Path',
+              builder: (role, id) => CareerPathTab(role: role)),
           // RoleTabItem(
           //   label: 'Succession Plan',
           //   builder: (role, id) => const ComingSoonTab(
@@ -126,8 +139,11 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
           //     icon: Iconsax.ranking,
           //   ),
           // ),
-          RoleTabItem(label: 'Targets', builder: (role, id) => TargetsTab(roleId: id)),
-          RoleTabItem(label: 'Performance Analytics', builder: (role, id) => PerformanceAnalyticsTab(roleId: id)),
+          RoleTabItem(
+              label: 'Targets', builder: (role, id) => TargetsTab(roleId: id)),
+          RoleTabItem(
+              label: 'Performance Analytics',
+              builder: (role, id) => PerformanceAnalyticsTab(roleId: id)),
           // RoleTabItem(
           //   label: 'Reports',
           //   builder: (role, id) => const ComingSoonTab(
@@ -142,9 +158,16 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
         title: 'Workflows & Tasks',
         icon: Iconsax.task_square,
         items: [
-          RoleTabItem(label: 'Task Templates', builder: (role, id) => TaskTemplateTab(roleId: id)),
-          RoleTabItem(label: 'SOPs', builder: (role, id) => SopTab(roleId: id)),
-          RoleTabItem(label: 'Daily Work Routine', builder: (role, id) => DailyRoutineTab(roleId: id)),
+          RoleTabItem(
+              label: 'Task Templates',
+              builder: (role, id) => TaskTemplateTab(roleId: id)),
+          RoleTabItem(
+              label: 'SOPs',
+              builder: (role, id) =>
+                  SopTab(roleId: id, departmentId: role.departmentId)),
+          RoleTabItem(
+              label: 'Daily Work Routine',
+              builder: (role, id) => DailyRoutineTab(roleId: id)),
           // RoleTabItem(
           //   label: 'Decision Matrix',
           //   builder: (role, id) => const ComingSoonTab(
@@ -159,9 +182,15 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
         title: 'Learning & Resources',
         icon: Iconsax.teacher,
         items: [
-          RoleTabItem(label: 'Training', builder: (role, id) => TrainingTab(roleId: id)),
-          RoleTabItem(label: 'Success Playbook', builder: (role, id) => SuccessPlaybookTab(roleId: id)),
-          RoleTabItem(label: 'Resources', builder: (role, id) => ResourcesTab(roleId: id)),
+          RoleTabItem(
+              label: 'Training',
+              builder: (role, id) => TrainingTab(roleId: id)),
+          RoleTabItem(
+              label: 'Success Playbook',
+              builder: (role, id) => SuccessPlaybookTab(roleId: id)),
+          RoleTabItem(
+              label: 'Resources',
+              builder: (role, id) => ResourcesTab(roleId: id)),
           // RoleTabItem(
           //   label: 'Knowledge Base',
           //   builder: (role, id) => const ComingSoonTab(
@@ -213,20 +242,25 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            MyOutlinedButton(
-              height: 44,
-              child: 'Edit Role',
-              icon: const Icon(Iconsax.edit, size: 16, color: AppColors.textPrimary),
-              onTap: () => showDialog(
-                context: context,
-                builder: (_) => CreateEditRoleDialog(ctrl: ctrl, role: role),
+            PermissionGate(
+              require: Perms.rolesUpdate,
+              child: MyOutlinedButton(
+                height: 44,
+                child: 'Edit Role',
+                icon: const Icon(Iconsax.edit,
+                    size: 16, color: AppColors.textPrimary),
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (_) => CreateEditRoleDialog(ctrl: ctrl, role: role),
+                ),
               ),
             ),
             const SizedBox(width: 12),
             MyOutlinedButton(
               height: 44,
               child: 'Back',
-              icon: const Icon(Iconsax.arrow_left, size: 16, color: AppColors.textPrimary),
+              icon: const Icon(Iconsax.arrow_left,
+                  size: 16, color: AppColors.textPrimary),
               onTap: () => GoRouter.of(context).go(RouteConstants.roles),
             ),
           ],
@@ -264,14 +298,17 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
                           },
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 10),
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? AppColors.primary.withValues(alpha: 0.1)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isSelected ? AppColors.primary : AppColors.border,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : AppColors.border,
                               ),
                             ),
                             child: Row(
@@ -279,15 +316,21 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
                                 Icon(
                                   cat.icon,
                                   size: 18,
-                                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : AppColors.textSecondary,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   cat.title,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                    color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : AppColors.textPrimary,
                                   ),
                                 ),
                               ],
@@ -307,7 +350,8 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: List.generate(activeCategory.items.length, (subIndex) {
+                    children:
+                        List.generate(activeCategory.items.length, (subIndex) {
                       final item = activeCategory.items[subIndex];
                       final isSubSelected = _selectedSubTabIndex == subIndex;
 
@@ -325,12 +369,18 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
                           },
                           selectedColor: AppColors.primary,
                           labelStyle: TextStyle(
-                            color: isSubSelected ? Colors.white : AppColors.textPrimary,
-                            fontWeight: isSubSelected ? FontWeight.w600 : FontWeight.w400,
+                            color: isSubSelected
+                                ? Colors.white
+                                : AppColors.textPrimary,
+                            fontWeight: isSubSelected
+                                ? FontWeight.w600
+                                : FontWeight.w400,
                           ),
                           backgroundColor: AppColors.surface,
                           side: BorderSide(
-                            color: isSubSelected ? AppColors.primary : AppColors.border,
+                            color: isSubSelected
+                                ? AppColors.primary
+                                : AppColors.border,
                           ),
                         ),
                       );
@@ -352,16 +402,15 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
 }
 
 class _OrgChartWrapper extends StatelessWidget {
-  final Role role;
-  final List<Role> allRoles;
+  final int roleId;
 
-  const _OrgChartWrapper({required this.role, required this.allRoles});
+  const _OrgChartWrapper({required this.roleId});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 600,
-      child: OrgChartTab(role: role, allRoles: allRoles),
+      child: OrgChartTab(roleId: roleId),
     );
   }
 }

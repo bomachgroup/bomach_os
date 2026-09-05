@@ -57,7 +57,7 @@ class WorkspaceConfig {
   final String? expiresAt;
   final bool isActive;
   final bool isExpired;
-  final bool canBeUsed; // backend's authoritative clock-in gate
+  final bool? canBeUsed; // backend's authoritative clock-in gate
   final String notes;
   final int? employeeId; // admin-view: who submitted it
   final String? employeeName;
@@ -79,7 +79,7 @@ class WorkspaceConfig {
     this.expiresAt,
     this.isActive = true,
     this.isExpired = false,
-    this.canBeUsed = false,
+    this.canBeUsed,
     this.notes = '',
     this.employeeId,
     this.employeeName,
@@ -91,7 +91,7 @@ class WorkspaceConfig {
   /// Prefers backend's `can_be_used`; falls back to a conservative
   /// client-side derivation if the field is missing.
   bool get canClockIn {
-    if (canBeUsed) return true;
+    if (canBeUsed != null) return canBeUsed!;
     // Defensive fallback for older responses that don't include can_be_used:
     // only grant eligibility when we have a positive approval signal.
     return status == WorkspaceStatus.approved && isActive && !isExpired;
@@ -146,7 +146,9 @@ class WorkspaceConfig {
           json['expiry_date']?.toString(),
       isActive: json['is_active'] != false, // default true
       isExpired: json['is_expired'] == true,
-      canBeUsed: json['can_be_used'] == true,
+      canBeUsed: json.containsKey('can_be_used')
+          ? json['can_be_used'] == true
+          : null,
       notes: json['notes']?.toString() ?? '',
       employeeId: json['employee_id'] is int
           ? json['employee_id']

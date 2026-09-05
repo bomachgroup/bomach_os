@@ -315,6 +315,7 @@ class DashboardStats {
 
 class AuditLog {
   final int id;
+  final int? userId;
   final String activity;
   final String auditType;
   final String auditTypeDisplay;
@@ -324,9 +325,11 @@ class AuditLog {
   final String userEmail;
   final String userFullName;
   final String createdAt;
+  final Map<String, dynamic>? metadata;
 
   AuditLog({
     required this.id,
+    this.userId,
     required this.activity,
     required this.auditType,
     required this.auditTypeDisplay,
@@ -336,12 +339,14 @@ class AuditLog {
     required this.userEmail,
     required this.userFullName,
     required this.createdAt,
+    this.metadata,
   });
 
   factory AuditLog.fromJson(Map<String, dynamic> json) {
     final user = json['user'] as Map<String, dynamic>? ?? {};
     return AuditLog(
       id: json['id'] ?? 0,
+      userId: user['id'] is int ? user['id'] as int : null,
       activity: json['activity'] ?? '',
       auditType: json['audit_type'] ?? '',
       auditTypeDisplay: json['audit_type_display'] ?? '',
@@ -351,6 +356,9 @@ class AuditLog {
       userEmail: user['email'] ?? '',
       userFullName: user['full_name'] ?? '',
       createdAt: json['created_at'] ?? '',
+      metadata: json['metadata'] is Map
+          ? Map<String, dynamic>.from(json['metadata'] as Map)
+          : null,
     );
   }
 }

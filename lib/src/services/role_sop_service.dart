@@ -48,14 +48,17 @@ class RoleSopService {
       );
 
       final data = response.data;
-      final List<dynamic> items =
-          (data is Map && data.containsKey('items')) ? data['items'] : (data is List ? data : []);
+      final List<dynamic> items = (data is Map && data.containsKey('items'))
+          ? data['items']
+          : (data is List ? data : []);
       final int count = (data is Map && data.containsKey('count'))
           ? data['count']
           : items.length;
 
       return (
-        list: items.map((json) => RoleSop.fromJson(json as Map<String, dynamic>)).toList(),
+        list: items
+            .map((json) => RoleSop.fromJson(json as Map<String, dynamic>))
+            .toList(),
         count: count,
       );
     } catch (e) {
@@ -119,11 +122,13 @@ class RoleSopService {
   }
 
   /// Fetches global/department SOP list for user selection when linking to a role
-  Future<List<Map<String, dynamic>>> fetchAvailableSops(String token, {int? deptId}) async {
+  Future<List<Map<String, dynamic>>> fetchAvailableSops(String token,
+      {int? deptId}) async {
+    if (deptId == null) {
+      throw ArgumentError('deptId is required to load available SOPs');
+    }
     try {
-      final endpoint = deptId != null
-          ? '/api/v1/sop/departments/$deptId/sops'
-          : '/api/v1/sop/departments/1/sops'; // fallback default dept
+      final endpoint = '/api/v1/sop/departments/$deptId/sops';
       final response = await _dio.get(
         endpoint,
         options: _authOptions(token),
@@ -133,15 +138,17 @@ class RoleSopService {
           ? data['items']
           : (data is List ? data : []);
       return items.cast<Map<String, dynamic>>();
-    } catch (_) {
-      return [];
+    } catch (e) {
+      throw _handleError(e);
     }
   }
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final body = error.response?.data;
-      final errorMessage = (body is Map) ? (body['message'] ?? body['detail'] ?? error.message) : error.message;
+      final errorMessage = (body is Map)
+          ? (body['message'] ?? body['detail'] ?? error.message)
+          : error.message;
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }

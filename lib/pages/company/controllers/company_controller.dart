@@ -80,6 +80,7 @@ class CompanyController extends GetxController {
   var isAuditLoading = false.obs;
   var auditLogsTotal = 0.obs;
   var auditPage = 0.obs;
+  var auditErrorMessage = ''.obs;
   static const auditPageSize = 10;
 
   // Dashboard Stats
@@ -213,14 +214,29 @@ class CompanyController extends GetxController {
   }
 
   // --- AUDIT OPERATIONS ---
-  Future<void> fetchAuditLogs({int page = 0}) async {
+  Future<void> fetchAuditLogs({
+    int page = 0,
+    String? search,
+    String? userId,
+    String? auditType,
+    String? auditStatus,
+    String? startDate,
+    String? endDate,
+  }) async {
     try {
       isAuditLoading.value = true;
+      auditErrorMessage.value = '';
       auditPage.value = page;
       final token = await _getToken();
       if (token != null) {
         final result = await _companyService.getAuditLogs(
           token,
+          search: search,
+          userId: userId,
+          auditType: auditType,
+          auditStatus: auditStatus,
+          startDate: startDate,
+          endDate: endDate,
           limit: auditPageSize,
           offset: page * auditPageSize,
         );
@@ -228,6 +244,7 @@ class CompanyController extends GetxController {
         auditLogsTotal.value = result.count;
       }
     } catch (e) {
+      auditErrorMessage.value = 'Failed to load audit logs: $e';
       log("Error loading audit logs: $e");
     } finally {
       isAuditLoading.value = false;
@@ -460,7 +477,8 @@ class CompanyController extends GetxController {
         final token = await _getToken();
         if (token != null) {
           final bytes = await logoFile.readAsBytes();
-          finalLogoUrl = await _authService.uploadFile(token, bytes, logoFile.name);
+          finalLogoUrl =
+              await _authService.uploadFile(token, bytes, logoFile.name);
         }
       } catch (e) {
         log("Logo upload failed: $e");

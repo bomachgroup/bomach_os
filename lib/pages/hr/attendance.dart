@@ -768,6 +768,40 @@ class AttendancePageState extends State<AttendancePage> {
                 child: Center(child: CircularProgressIndicator()),
               );
             }
+            if (controller.errorMessage.value.isNotEmpty &&
+                controller.workspaces.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Error loading workspaces',
+                      style: TextStyle(
+                        color: AppColors.danger,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      controller.errorMessage.value,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: AppColors.neutral500),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: () async {
+                        final token = await _getToken(context);
+                        if (token != null && mounted) {
+                          await controller.fetchWorkspaces(token);
+                        }
+                      },
+                      icon: const Icon(Iconsax.refresh),
+                      label: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
             if (controller.workspaces.isEmpty) {
               return _buildEmptyWorkspaces();
             }

@@ -64,9 +64,6 @@ class RoleReportService {
         count: count,
       );
     } catch (e) {
-      if (e is DioException && e.response?.statusCode == 404) {
-        return (list: <RoleReport>[], count: 0);
-      }
       throw _handleError(e);
     }
   }

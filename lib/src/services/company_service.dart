@@ -220,8 +220,8 @@ class CompanyService {
   Future<EquityInfo> getEquityInfo(String token) async {
     try {
       final shareholders = await getShareholders(token, limit: 200);
-      final issuedShares = shareholders.fold<int>(
-          0, (sum, s) => sum + s.shareCount);
+      final issuedShares =
+          shareholders.fold<int>(0, (sum, s) => sum + s.shareCount);
       final saved = await _storage.read(key: 'authorized_shares');
       final authorizedShares = int.tryParse(saved ?? '') ?? 0;
       return EquityInfo(
@@ -239,8 +239,8 @@ class CompanyService {
     await _storage.write(
         key: 'authorized_shares', value: authorizedShares.toString());
     final shareholders = await getShareholders(token, limit: 200);
-    final issuedShares = shareholders.fold<int>(
-        0, (sum, s) => sum + s.shareCount);
+    final issuedShares =
+        shareholders.fold<int>(0, (sum, s) => sum + s.shareCount);
     return EquityInfo(
       authorizedShares: authorizedShares,
       issuedShares: issuedShares,
@@ -275,12 +275,33 @@ class CompanyService {
   }
 
   // --- AUDIT LOGS ---
-  Future<({List<AuditLog> items, int count})> getAuditLogs(String token,
-      {int limit = 10, int offset = 0}) async {
+  Future<({List<AuditLog> items, int count})> getAuditLogs(
+    String token, {
+    String? search,
+    String? userId,
+    String? auditType,
+    String? auditStatus,
+    String? startDate,
+    String? endDate,
+    int limit = 10,
+    int offset = 0,
+  }) async {
     try {
       final response = await _dio.get(
         '/api/v1/audit-logs/',
-        queryParameters: {'limit': limit, 'offset': offset},
+        queryParameters: {
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (userId != null && userId.isNotEmpty) 'user_id': userId,
+          if (auditType != null && auditType.isNotEmpty)
+            'audit_type': auditType,
+          if (auditStatus != null && auditStatus.isNotEmpty)
+            'audit_status': auditStatus,
+          if (startDate != null && startDate.isNotEmpty)
+            'start_date': startDate,
+          if (endDate != null && endDate.isNotEmpty) 'end_date': endDate,
+          'limit': limit,
+          'offset': offset,
+        },
         options: _authOptions(token),
       );
       final List data = response.data['items'] ?? [];

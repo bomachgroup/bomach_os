@@ -3,9 +3,8 @@ class Asset {
   final String name;
   final String assetType;
   final String branch;
-  final String
-      assignedToId; // Changed to non-nullable based on "must be filled up"
-  final String departmentId; // Changed to non-nullable
+  final int? assignedToId;
+  final int? departmentId;
   final String status;
   final DateTime purchaseDate; // Changed to non-nullable
   final double value;
@@ -16,7 +15,7 @@ class Asset {
   final String imei; // Added dedicated field
   final String manufacturer; // Changed to non-nullable
   final String notes; // Changed to non-nullable
-  final String? documents; // Added field
+  final List<dynamic> documents;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -25,8 +24,8 @@ class Asset {
     required this.name,
     required this.assetType,
     required this.branch,
-    required this.assignedToId,
-    required this.departmentId,
+    this.assignedToId,
+    this.departmentId,
     required this.status,
     required this.purchaseDate,
     required this.value,
@@ -37,7 +36,7 @@ class Asset {
     required this.imei,
     required this.manufacturer,
     required this.notes,
-    this.documents,
+    this.documents = const [],
     this.createdAt,
     this.updatedAt,
   });
@@ -54,8 +53,8 @@ class Asset {
       name: json['name'] ?? '',
       assetType: json['asset_type'] ?? '',
       branch: json['branch'] ?? '',
-      assignedToId: json['assigned_to_id']?.toString() ?? '',
-      departmentId: json['department_id']?.toString() ?? '',
+      assignedToId: _parseInt(json['assigned_to_id']),
+      departmentId: _parseInt(json['department_id']),
       status: json['status'] ?? 'available',
       purchaseDate: json['purchase_date'] != null
           ? DateTime.tryParse(json['purchase_date']) ?? DateTime.now()
@@ -70,7 +69,9 @@ class Asset {
       imei: json['imei']?.toString() ?? '',
       manufacturer: json['manufacturer'] ?? '',
       notes: json['notes'] ?? '',
-      documents: json['documents'],
+      documents: json['documents'] is List
+          ? List<dynamic>.from(json['documents'] as List)
+          : const [],
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
           : null,
@@ -98,7 +99,13 @@ class Asset {
       'imei': imei,
       'manufacturer': manufacturer,
       'notes': notes,
-      if (documents != null) 'documents': documents,
+      'documents': documents,
     };
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    return int.tryParse(value.toString());
   }
 }
