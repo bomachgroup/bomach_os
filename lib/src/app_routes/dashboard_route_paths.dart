@@ -21,6 +21,7 @@ const Set<String> dashboardRoutePaths = {
   '/works/projects', '/works/projects/detail', '/works/worksite',
   '/works/tasks', '/works/contracts', '/hr/meetings',
   '/services/service-order', '/services/land-survey',
+  '/services/land-survey/detail',
   '/services/real-estate', '/services/real-estate/detail',
   '/services/task/detail', '/company/assets',
   '/services-property', '/services/detail',
@@ -34,6 +35,13 @@ const Set<String> dashboardRoutePaths = {
   // finance
   '/finance', '/finance/invoice', '/finance/payment', '/finance/expense',
   '/finance/contract-payment', '/finance/budget',
+  '/finance/dashboard', '/finance/invoices', '/finance/payments',
+  '/finance/receivables', '/finance/wallets', '/finance/cashbook',
+  '/finance/expenses', '/finance/vendors', '/finance/pettycash',
+  '/finance/approvals', '/finance/payroll', '/finance/commissions',
+  '/finance/tax', '/finance/journals', '/finance/coa', '/finance/assets',
+  '/finance/cashflow', '/finance/serviceorders', '/finance/estatefinance',
+  '/finance/reports', '/finance/audit', '/finance/settings',
   // hr admin pages
   '/hr/job-post', '/hr/attendance', '/hr/leave-request', '/hr/benefits',
   '/hr/training-program', '/hr/loans', '/hr/performance-review',
@@ -79,6 +87,7 @@ const Set<String> dashboardRoutePaths = {
   '/marketing/turnaround', '/marketing/compliance', '/marketing/partners',
   '/marketing/support', '/marketing/design', '/marketing/whatsapp',
   '/marketing/lead/detail', '/marketing/campaign/detail',
+  '/marketing/site/detail',
   // workspace
   '/workspace', '/workspace-dashboard',
   // analytics

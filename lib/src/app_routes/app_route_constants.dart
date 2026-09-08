@@ -76,7 +76,7 @@ class RouteConstants {
 
   static const String marketingLeadDetail = '/marketing/lead/detail';
   static const String marketingCampaignDetail = '/marketing/campaign/detail';
-  static const String marketingSiteDetail = '/marketin/site/detail';
+  static const String marketingSiteDetail = '/marketing/site/detail';
 
   // work
   static const String operations = '/operations';

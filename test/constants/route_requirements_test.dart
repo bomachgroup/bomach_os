@@ -189,6 +189,47 @@ void main() {
 
   group('T9: sidebar routes all resolve to registered dashboard routes',
       () {
+    test('land survey detail route is registered', () {
+      expect(
+        dashboardRoutePaths,
+        contains(RouteConstants.landSurveyDetail),
+      );
+    });
+
+    test('all finance webview routes are registered', () {
+      for (final route in <String>{
+        RouteConstants.financeDashboard,
+        RouteConstants.financeInvoices,
+        RouteConstants.financePayments,
+        RouteConstants.financeReceivables,
+        RouteConstants.financeWallets,
+        RouteConstants.financeCashbook,
+        RouteConstants.financeExpenses,
+        RouteConstants.financeVendors,
+        RouteConstants.financePettyCash,
+        RouteConstants.financeApprovals,
+        RouteConstants.financePayroll,
+        RouteConstants.financeCommissions,
+        RouteConstants.financeTax,
+        RouteConstants.financeJournals,
+        RouteConstants.financeCoa,
+        RouteConstants.financeAssets,
+        RouteConstants.financeCashflow,
+        RouteConstants.financeServiceOrders,
+        RouteConstants.financeEstate,
+        RouteConstants.financeReports,
+        RouteConstants.financeAudit,
+        RouteConstants.financeSettings,
+      }) {
+        expect(dashboardRoutePaths, contains(route));
+      }
+    });
+
+    test('marketing site detail route uses the marketing namespace', () {
+      expect(RouteConstants.marketingSiteDetail, '/marketing/site/detail');
+      expect(dashboardRoutePaths, contains(RouteConstants.marketingSiteDetail));
+    });
+
     test('Disciplinary Process is registered (the audited 404)', () {
       expect(
           dashboardRoutePaths.contains(RouteConstants.disciplinaryProcess),
