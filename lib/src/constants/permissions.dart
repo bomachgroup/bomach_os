@@ -99,6 +99,7 @@ class PermissionConstants {
   static const String resEmployeeEvaluations = 'employee_evaluations';
   static const String resKpis = 'kpis';
   static const String resWorkLocations = 'work_locations';
+  static const String resWorkLocationApprovals = 'work_location_approvals';
 
   // Actions
   static const String actCreate = 'create';
@@ -474,10 +475,16 @@ class Perms {
   // Work Locations (employee-submitted workspaces, admin-approved)
   static const workLocationsList = Permission('work_locations', 'list');
   static const workLocationsListOwn = Permission('work_locations', 'list_own');
-  static const workLocationsApprove = Permission('work_locations', 'approve');
-  static const workLocationsReject = Permission('work_locations', 'reject');
-  static const workLocationsUpdate = Permission('work_locations', 'update');
-  static const workLocationsDelete = Permission('work_locations', 'delete');
+  // Administrative approval actions are exposed by the backend under their
+  // dedicated resource, separate from employee-owned work locations.
+  static const workLocationsApprove =
+      Permission('work_location_approvals', 'approve');
+  static const workLocationsReject =
+      Permission('work_location_approvals', 'reject');
+  static const workLocationsUpdate =
+      Permission('work_location_approvals', 'update');
+  static const workLocationsDelete =
+      Permission('work_location_approvals', 'delete');
 
   // Misc useful actions
   static const clientInventoryList = Permission('client_inventory', 'list');
