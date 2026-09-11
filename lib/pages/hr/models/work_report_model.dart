@@ -22,6 +22,9 @@ class WorkReport {
   final String status;
   final String? feedback;
   final int? rating;
+  final int? reviewedById;
+  final String? reviewedBy;
+  final DateTime? reviewedAt;
   final List<WorkReportAttachment> attachments;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -38,6 +41,9 @@ class WorkReport {
     required this.status,
     this.feedback,
     this.rating,
+    this.reviewedById,
+    this.reviewedBy,
+    this.reviewedAt,
     this.attachments = const [],
     this.createdAt,
     this.updatedAt,
@@ -74,6 +80,13 @@ class WorkReport {
       rating: json['rating'] is int
           ? json['rating']
           : int.tryParse(json['rating']?.toString() ?? '0'),
+      reviewedById: json['reviewed_by_id'] is int
+          ? json['reviewed_by_id']
+          : int.tryParse(json['reviewed_by_id']?.toString() ?? ''),
+      reviewedBy: json['reviewed_by']?.toString(),
+      reviewedAt: json['reviewed_at'] != null
+          ? DateTime.tryParse(json['reviewed_at'].toString())
+          : null,
       attachments: attachmentsList,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])

@@ -513,7 +513,7 @@ class _ApprovalsTable extends StatelessWidget {
             child: Obx(() => MyElevatedButton(
                   height: 42,
                   padding: const EdgeInsets.symmetric(horizontal: 14),
-                  bgColor: AppColors.success,
+                  bgColor: AppColors.primary,
                   icon: const Icon(Iconsax.tick_circle,
                       size: 16, color: AppColors.textOnPrimary),
                   child: 'Approve',
@@ -694,7 +694,7 @@ class _ApprovalsTable extends StatelessWidget {
           ),
           MyElevatedButton(
             height: 44,
-            bgColor: AppColors.success,
+            bgColor: AppColors.primary,
             child: 'Approve',
             onTap: () {
               if (formKey.currentState?.validate() ?? false) {

@@ -260,21 +260,21 @@ class AttendancePageState extends State<AttendancePage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: AppColors.primarySubtle,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+        border: Border.all(color: AppColors.primarySoft),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: Colors.white),
+          Icon(icon, size: 14, color: AppColors.textPrimary),
           const SizedBox(width: 8),
           Text(
             label,
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: AppColors.textPrimary,
             ),
           ),
         ],

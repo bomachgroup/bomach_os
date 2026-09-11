@@ -64,14 +64,24 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Obx(() => _buildContent(context));
+  }
+
+  Widget _buildContent(BuildContext context) {
     final ctrl = Get.find<RolesController>();
-    final role = ctrl.roles.firstWhereOrNull((r) => r.id == widget.roleId);
+    final role = ctrl.roles.firstWhereOrNull((r) => r.id == widget.roleId) ??
+        ctrl.selectedRole.value;
 
     if (role == null) {
+      ctrl.requestRoleDetails(widget.roleId);
       return PageScaffold(
         header: PageHeader(
-          title: 'Role Not Found',
-          subtitle: 'The requested role could not be found.',
+          title: ctrl.isDetailLoading.value ? 'Loading role' : 'Role Not Found',
+          subtitle: ctrl.isDetailLoading.value
+              ? 'Loading the latest role details...'
+              : ctrl.detailErrorMessage.value.isNotEmpty
+                  ? ctrl.detailErrorMessage.value
+                  : 'The requested role could not be found.',
           trailing: MyOutlinedButton(
             height: 44,
             child: 'Back to Roles',

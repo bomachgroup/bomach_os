@@ -1,6 +1,7 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
@@ -64,6 +65,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
     final q = _searchQuery.toLowerCase();
     return reports.where((r) {
       return r.employeeId.toString().toLowerCase().contains(q) ||
+          controller.employeeDisplayName(r.employeeId).toLowerCase().contains(q) ||
           (r.operationalBase ?? '').toLowerCase().contains(q) ||
           (r.workActivities ?? '').toLowerCase().contains(q) ||
           r.status.toLowerCase().contains(q);
@@ -241,7 +243,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
           color: AppColors.surfaceMuted,
           child: Row(
             children: [
-              _buildHeaderCell('Employee ID', flex: 2),
+              _buildHeaderCell('Employee', flex: 2),
               _buildHeaderCell('Date', flex: 2),
               _buildHeaderCell('Hours', flex: 1),
               _buildHeaderCell('Submitted', flex: 2),
@@ -280,13 +282,29 @@ class _WorkReportPageState extends State<WorkReportPage> {
         children: [
           Expanded(
             flex: 2,
-            child: Text(
-              report.employeeId.toString(),
-              style: AppTextStyles.bodyMd.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  controller.employeeDisplayName(report.employeeId),
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  (report.workActivities?.trim().isNotEmpty ?? false)
+                      ? report.workActivities!.trim()
+                      : 'No activity summary',
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -366,12 +384,19 @@ class _WorkReportPageState extends State<WorkReportPage> {
             if (mounted) {
               showDialog(
                 context: context,
-                builder: (context) =>
-                    WorkReportReviewDialog(report: fullReport, token: token),
+                builder: (context) => WorkReportReviewDialog(
+                      report: fullReport,
+                      token: token,
+                      employeeName:
+                          controller.employeeDisplayName(fullReport.employeeId),
+                    ),
               );
             }
           } catch (e) {
             debugPrint("View Error: $e");
+            if (mounted) {
+              AppToast.error(context, 'View report failed. Please try again.');
+            }
           }
         } else if (result == 'edit') {
           showDialog(

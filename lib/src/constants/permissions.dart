@@ -532,7 +532,7 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.orgChart: [Perms.rolesList],
   RouteConstants.kpiManagement: [Perms.rolesList],
   RouteConstants.okrBoard: [Perms.rolesList],
-  RouteConstants.complianceDashboard: [Perms.rolesList],
+  RouteConstants.complianceDashboard: [Perms.complianceRecordsList],
   RouteConstants.knowledgeBase: [Perms.rolesList],
   RouteConstants.enugu: [Perms.branchesList, Perms.branchesView],
   RouteConstants.auditLog: [Perms.auditLogsList],

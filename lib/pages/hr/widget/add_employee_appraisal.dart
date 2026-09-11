@@ -26,25 +26,26 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
   final EmployeeController controller = Get.find<EmployeeController>();
 
   // Ratings State
-  int jobKnowledge = 0;
-  int communication = 0;
-  int problemSolving = 0;
-  int teamwork = 0;
-  int initiative = 0;
-  int qualityOfWork = 0;
+  int? jobKnowledge;
+  int? communication;
+  int? problemSolving;
+  int? teamwork;
+  int? initiative;
+  int? qualityOfWork;
 
   final _achievementsCtrl = TextEditingController();
   final _improvementsCtrl = TextEditingController();
   final _developmentCtrl = TextEditingController();
-  String _selectedPeriod = 'Q4 2025';
+  late int _quarter;
+  late int _year;
 
-  static const _periodOptions = [
-    'Q1 2025',
-    'Q2 2025',
-    'Q3 2025',
-    'Q4 2025',
-    'Q1 2026',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _quarter = ((now.month - 1) ~/ 3) + 1;
+    _year = now.year;
+  }
 
   @override
   void dispose() {
@@ -55,25 +56,15 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
   }
 
   void _onSubmit() {
-    final overallRating = ((jobKnowledge +
-                communication +
-                problemSolving +
-                teamwork +
-                initiative +
-                qualityOfWork) /
-            6)
-        .round();
-
     final data = {
-      'review_period': _selectedPeriod,
-      'job_knowledge': jobKnowledge,
-      'communication': communication,
-      'problem_solving': problemSolving,
-      'teamwork': teamwork,
-      'initiative': initiative,
-      'quality_of_work': qualityOfWork,
-      'overall_rating': overallRating,
-      'rating': overallRating,
+      'quarter': _quarter,
+      'year': _year,
+      if (jobKnowledge != null) 'job_knowledge': jobKnowledge,
+      if (communication != null) 'communication': communication,
+      if (problemSolving != null) 'problem_solving': problemSolving,
+      if (teamwork != null) 'teamwork': teamwork,
+      if (initiative != null) 'initiative': initiative,
+      if (qualityOfWork != null) 'quality_of_work': qualityOfWork,
       'key_achievements': _achievementsCtrl.text,
       'areas_for_improvement': _improvementsCtrl.text,
       'development_plan': _developmentCtrl.text,
@@ -93,13 +84,30 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
         children: [
           _buildSection(
             title: 'Review Period',
-            child: MyDropdown(
-              hintText: 'Select review period',
-              items: _periodOptions,
-              initialSelection: _selectedPeriod,
-              onChanged: (v) {
-                if (v != null) setState(() => _selectedPeriod = v);
-              },
+            child: Row(
+              children: [
+                Expanded(
+                  child: MyDropdown(
+                    hintText: 'Quarter',
+                    items: const ['1', '2', '3', '4'],
+                    initialSelection: _quarter.toString(),
+                    onChanged: (v) {
+                      if (v != null) setState(() => _quarter = int.parse(v));
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: MyDropdown(
+                    hintText: 'Year',
+                    items: List.generate(5, (index) => '${DateTime.now().year - 2 + index}'),
+                    initialSelection: _year.toString(),
+                    onChanged: (v) {
+                      if (v != null) setState(() => _year = int.parse(v));
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 20),
@@ -203,7 +211,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
   }
 
   Widget _buildRatingRow(
-      String label, int currentRating, Function(int) onRate) {
+      String label, int? currentRating, Function(int) onRate) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -221,8 +229,8 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: Icon(
-                      index < currentRating ? Iconsax.star1 : Iconsax.star,
-                      color: index < currentRating
+                      index < (currentRating ?? 0) ? Iconsax.star1 : Iconsax.star,
+                      color: index < (currentRating ?? 0)
                           ? AppColors.warning
                           : AppColors.neutral300,
                       size: 22,

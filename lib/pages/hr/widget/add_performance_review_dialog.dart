@@ -41,11 +41,15 @@ class _AddPerformanceReviewDialogState
   void initState() {
     super.initState();
     final r = widget.reviewToEdit;
+    final now = DateTime.now();
+    final currentQuarter = ((now.month - 1) ~/ 3) + 1;
     employeeIdCtrl = TextEditingController(text: r?.employeeId ?? '');
     reviewerIdCtrl = TextEditingController(text: r?.reviewerId ?? '');
     reviewDateCtrl = TextEditingController(
-        text: r?.reviewDate?.toIso8601String().split('T').first ?? '');
-    reviewPeriodCtrl = TextEditingController(text: r?.reviewPeriod ?? '');
+        text: r?.reviewDate?.toIso8601String().split('T').first ??
+            now.toIso8601String().split('T').first);
+    reviewPeriodCtrl = TextEditingController(
+        text: r?.reviewPeriod ?? 'Q$currentQuarter ${now.year}');
     ratingCtrl = TextEditingController(text: r?.overallRating.toString() ?? '');
     strengthsCtrl = TextEditingController(text: r?.strengths ?? '');
     areasCtrl = TextEditingController(text: r?.areasForImprovement ?? '');
@@ -79,14 +83,20 @@ class _AddPerformanceReviewDialogState
     }
 
     final reviewDate = DateTime.tryParse(reviewDateCtrl.text);
-    if (reviewDateCtrl.text.isNotEmpty && reviewDate == null) {
-      _showError('Invalid review date format');
+    if (reviewDateCtrl.text.isEmpty || reviewDate == null) {
+      _showError('Review date is required');
       return;
     }
-
+    if (reviewPeriodCtrl.text.trim().isEmpty) {
+      _showError('Review period is required');
+      return;
+    }
     final rating = int.tryParse(ratingCtrl.text);
-    if (ratingCtrl.text.isNotEmpty &&
-        (rating == null || rating < 1 || rating > 5)) {
+    if (rating == null) {
+      _showError('Overall rating is required');
+      return;
+    }
+    if (rating < 1 || rating > 5) {
       _showError('Rating must be between 1 and 5');
       return;
     }
@@ -114,6 +124,19 @@ class _AddPerformanceReviewDialogState
 
     if (success && mounted) {
       Navigator.pop(context);
+    }
+  }
+
+  Future<void> _pickReviewDate() async {
+    final current = DateTime.tryParse(reviewDateCtrl.text) ?? DateTime.now();
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: current,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (selected != null) {
+      reviewDateCtrl.text = selected.toIso8601String().split('T').first;
     }
   }
 
@@ -162,6 +185,7 @@ class _AddPerformanceReviewDialogState
                         title: 'Review Date',
                         controller: reviewDateCtrl,
                         hintText: 'YYYY-MM-DD',
+                        onTap: _pickReviewDate,
                       ),
                     ),
                     const SizedBox(width: 16),

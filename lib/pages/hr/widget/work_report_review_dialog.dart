@@ -4,8 +4,10 @@ import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/pages/auth/controller.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -19,11 +21,13 @@ import '../models/work_report_model.dart';
 class WorkReportReviewDialog extends StatefulWidget {
   final WorkReport report;
   final String token;
+  final String? employeeName;
 
   const WorkReportReviewDialog({
     super.key,
     required this.report,
     required this.token,
+    this.employeeName,
   });
 
   @override
@@ -38,14 +42,15 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
   int _rating = 0;
   late bool _isSubmitter;
 
-  // Report is "reviewed" if it has both feedback and a rating (set by manager during review)
-  // Status is always 'submitted' due to backend constraints
   bool get isReviewed =>
-      (widget.report.feedback?.isNotEmpty ?? false) &&
-      (widget.report.rating ?? 0) > 0;
+      {'approved', 'rejected'}.contains(widget.report.status.toLowerCase()) ||
+      widget.report.reviewedById != null ||
+      widget.report.reviewedAt != null;
 
   // Reviewer can review if: not submitter AND not yet reviewed
-  bool get canReview => !_isSubmitter && !isReviewed;
+  bool get canReview => !_isSubmitter &&
+      !isReviewed &&
+      {'submitted', 'pending_review'}.contains(widget.report.status.toLowerCase());
 
   // Submitter can edit if not yet reviewed
   bool get canEdit => _isSubmitter && !isReviewed;
@@ -69,32 +74,22 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
   }
 
   void _handleReview(String newStatus) async {
-    // Backend only accepts 'draft' or 'submitted' status on PUT endpoint
-    // Use feedback to indicate approval/rejection while keeping status as 'submitted'
     final isApproving = newStatus == 'approved';
-    final updatedReport = WorkReport(
-      id: widget.report.id,
-      employeeId: widget.report.employeeId,
-      day: widget.report.day,
-      hoursWorked: widget.report.hoursWorked,
-      operationalBase: widget.report.operationalBase,
-      workActivities: widget.report.workActivities,
-      taskDetails: widget.report.taskDetails,
-      planNextDay: widget.report.planNextDay,
-      status: 'submitted', // Backend only accepts 'draft' or 'submitted' on update
-      rating: isApproving ? (_rating > 0 ? _rating : 5) : (_rating > 0 ? _rating : 0),
-      feedback: isApproving
-          ? (_feedbackController.text.isNotEmpty
-              ? _feedbackController.text
-              : 'Approved')
-          : (_feedbackController.text.isNotEmpty
-              ? _feedbackController.text
-              : 'Rejected'),
-      attachments: widget.report.attachments,
-    );
+    final feedback = _feedbackController.text.trim();
+    if (!isApproving && feedback.isEmpty) {
+      AppToast.error(context, 'A rejection reason is required');
+      return;
+    }
 
-    final success = await controller.updateReport(
-        widget.token, widget.report.id, updatedReport);
+    final success = isApproving
+        ? await controller.approveReport(
+            widget.token,
+            widget.report.id,
+            rating: _rating > 0 ? _rating : null,
+            feedback: feedback.isEmpty ? null : feedback,
+          )
+        : await controller.rejectReport(
+            widget.token, widget.report.id, feedback);
 
     if (success && mounted) {
       Navigator.of(context).pop();
@@ -124,6 +119,8 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
               _buildDetail('Work Activities', widget.report.workActivities),
               _buildDetail('Task Details', widget.report.taskDetails),
               _buildDetail('Plan for Next Day', widget.report.planNextDay),
+              _buildDetail('Reviewed by', _reviewerLabel()),
+              _buildAttachments(),
             ],
           ),
           const SizedBox(height: 20),
@@ -174,8 +171,13 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                 onTap: () => Navigator.of(context).pop(),
               ),
             ]
-          : canReview
+              : canReview
               ? [
+                  PermissionGate(
+                    require: Perms.workReportsUpdate,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                   MyOutlinedButton(
                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                     textColor: AppColors.danger,
@@ -192,6 +194,9 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                             ? () {}
                             : () => _handleReview('approved'),
                       )),
+                      ],
+                    ),
+                  ),
                 ]
               : [
                   MyOutlinedButton(
@@ -233,8 +238,17 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Employee #${widget.report.employeeId}',
-                    style: AppTextStyles.h3),
+                Text(
+                  widget.employeeName ?? 'Employee name unavailable',
+                  style: AppTextStyles.h3,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Employee ID: ${widget.report.employeeId}',
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -330,6 +344,50 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
         ],
       ),
     );
+  }
+
+  Widget _buildAttachments() {
+    final attachments = widget.report.attachments;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Attachments',
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 4),
+          if (attachments.isEmpty)
+            Text(
+              'No attachments',
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+            )
+          else
+            ...attachments.map(
+              (attachment) => Text(
+                attachment.fileUrl,
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String? _reviewerLabel() {
+    final name = widget.report.reviewedBy?.trim();
+    if (name != null && name.isNotEmpty) return name;
+    if (widget.report.reviewedById != null) {
+      return 'Reviewer ID: ${widget.report.reviewedById}';
+    }
+    if (widget.report.reviewedAt != null) {
+      return DateFormat('MMM d, yyyy HH:mm').format(widget.report.reviewedAt!);
+    }
+    return null;
   }
 
   String _statusLabel(String status) {

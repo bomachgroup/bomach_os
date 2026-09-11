@@ -25,7 +25,8 @@ class BiometricAttendanceRecord {
     return BiometricAttendanceRecord(
       id: json['id'] ?? 0,
       employeeId: json['employee_id']?.toString(),
-      attendanceType: json['attendance_type'] ?? 'UNKNOWN',
+      attendanceType:
+          (json['attendance_type']?.toString() ?? 'UNKNOWN').toUpperCase(),
       timestamp: DateTime.tryParse(json['timestamp'] ?? '') ?? DateTime.now(),
       verificationMethod: json['verification_method'] ?? 'MANUAL',
       notes: json['notes'],

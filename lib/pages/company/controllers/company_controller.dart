@@ -73,6 +73,7 @@ class CompanyController extends GetxController {
 // Compliance
   var complianceList = <Compliance>[].obs;
   var isComplianceLoading = false.obs;
+  var complianceErrorMessage = ''.obs;
   var complianceSearchQuery = ''.obs;
 
   // Audit
@@ -125,13 +126,14 @@ class CompanyController extends GetxController {
   Future<void> fetchComplianceRecords() async {
     try {
       isComplianceLoading.value = true;
+      complianceErrorMessage.value = '';
       final token = await _getToken();
-      if (token != null) {
-        final records = await _companyService.getComplianceRecords(token);
-        complianceList.assignAll(records);
-      }
+      if (token == null) throw Exception('Authentication required');
+      final records = await _companyService.getComplianceRecords(token);
+      complianceList.assignAll(records);
     } catch (e) {
       log("Error loading compliance: $e");
+      complianceErrorMessage.value = _readableError(e);
     } finally {
       isComplianceLoading.value = false;
     }
@@ -564,7 +566,12 @@ class CompanyController extends GetxController {
   // --- UTILS ---
   void _showSnackBar(BuildContext context, String message,
       {bool isError = false}) {
-    AppToast.info(context, message);
+    isError ? AppToast.error(context, message) : AppToast.info(context, message);
+  }
+
+  String _readableError(Object error) {
+    final message = error.toString().replaceFirst('Exception: ', '').trim();
+    return message.isEmpty ? 'Unable to load compliance records.' : message;
   }
 
   void _showDialog(BuildContext context, String title, String message) {

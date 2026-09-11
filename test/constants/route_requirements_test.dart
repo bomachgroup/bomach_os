@@ -170,20 +170,12 @@ void main() {
       }
     });
 
-    test('CRM section exists with all four children', () {
+    test('CRM section retains only Client Relationship Management', () {
       final crmItem = _findMain(MainMenuItem.crm);
       expect(crmItem, isNotNull,
           reason: 'MainMenuItem.crm has no sidebar section');
       final childIds = crmItem!.children.map((c) => c.id).toSet();
-      for (final expected in [
-        SubMenuItem.crmClients,
-        SubMenuItem.crmLeads,
-        SubMenuItem.crmInteractions,
-        SubMenuItem.crmAnalytics,
-      ]) {
-        expect(childIds.contains(expected), isTrue,
-            reason: '$expected missing from CRM section');
-      }
+      expect(childIds, {SubMenuItem.crmClients});
     });
   });
 

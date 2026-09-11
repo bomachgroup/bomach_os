@@ -74,7 +74,7 @@ class RealEstateScreen extends StatelessWidget {
                       '${estate.location}\n${estate.estateTypeDisplay}',
                   buttonText: "View Estate",
                   onTap: () {
-                    context.go(RouteConstants.estateDetail, extra: estate);
+                    context.go(RouteConstants.estateDetailPath(estate.id));
                   },
                 );
               }).toList(),

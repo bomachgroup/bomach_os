@@ -122,6 +122,47 @@ class WorkReportService {
     }
   }
 
+  Future<WorkReport> approveWorkReport(
+    String token,
+    String reportId, {
+    int? rating,
+    String? feedback,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/work-reports/$reportId/approve',
+        data: {
+          if (rating != null) 'rating': rating,
+          if (feedback != null && feedback.isNotEmpty) 'feedback': feedback,
+        },
+        options: _authOptions(token),
+      );
+      return WorkReport.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<WorkReport> rejectWorkReport(
+    String token,
+    String reportId, {
+    required String feedback,
+  }) async {
+    if (feedback.trim().isEmpty) {
+      throw Exception('Rejection reason is required');
+    }
+    try {
+      final response = await _dio.post(
+        '/work-reports/$reportId/reject',
+        data: {'feedback': feedback.trim()},
+        options: _authOptions(token),
+      );
+      return WorkReport.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       String? errorMessage;

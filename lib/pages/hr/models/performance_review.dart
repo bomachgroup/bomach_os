@@ -42,7 +42,7 @@ class PerformanceReview {
       strengths: json['strengths'],
       areasForImprovement: json['areas_for_improvement'],
       feedback: json['feedback'],
-      employeeComments: json['employee_comments'],
+      employeeComments: json['employee_comment'] ?? json['employee_comments'],
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
           : null,
@@ -52,18 +52,34 @@ class PerformanceReview {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toCreateJson() {
     return {
-      'employee_id': employeeId,
-      'reviewer_id': reviewerId,
+      'employee_id': int.tryParse(employeeId) ?? 0,
+      'reviewer_id': int.tryParse(reviewerId) ?? 0,
       'review_date':
           reviewDate?.toIso8601String().split('T').first, // Format YYYY-MM-DD
       'review_period': reviewPeriod,
       'overall_rating': overallRating,
-      'strengths': strengths,
-      'areas_for_improvement': areasForImprovement,
-      'feedback': feedback,
-      'employee_comments': employeeComments,
+      'strengths': strengths ?? '',
+      'areas_for_improvement': areasForImprovement ?? '',
+      if (feedback != null) 'feedback': feedback,
+      if (employeeComments != null) 'employee_comment': employeeComments,
     };
   }
+
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      if (reviewDate != null)
+        'review_date': reviewDate!.toIso8601String().split('T').first,
+      'review_period': reviewPeriod,
+      'overall_rating': overallRating,
+      'strengths': strengths ?? '',
+      'areas_for_improvement': areasForImprovement ?? '',
+      if (feedback != null) 'feedback': feedback,
+      if (employeeComments != null) 'employee_comment': employeeComments,
+    };
+  }
+
+  /// Backwards-compatible alias for callers that create a review.
+  Map<String, dynamic> toJson() => toCreateJson();
 }

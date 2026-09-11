@@ -110,6 +110,136 @@ class RoleService {
     }
   }
 
+  Future<Role> getRoleById(String token, int roleId) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/roles/$roleId',
+        options: _authOptions(token),
+      );
+      if (response.data is! Map) {
+        throw const FormatException('Role response is not an object');
+      }
+      return Role.fromJson(Map<String, dynamic>.from(response.data as Map));
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> getRoleDescription(
+      String token, int roleId) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/roles/$roleId/description',
+        options: _authOptions(token),
+      );
+      if (response.data is! Map) {
+        throw const FormatException('Role description response is not an object');
+      }
+      return Map<String, dynamic>.from(response.data as Map);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> createRoleDescription(
+    String token,
+    int roleId, {
+    required String purpose,
+    required String jobDescription,
+    required String responsibilities,
+  }) async {
+    return _saveRoleDescription(
+      token,
+      roleId,
+      method: 'post',
+      purpose: purpose,
+      jobDescription: jobDescription,
+      responsibilities: responsibilities,
+    );
+  }
+
+  Future<Map<String, dynamic>> updateRoleDescription(
+    String token,
+    int roleId, {
+    required String purpose,
+    required String jobDescription,
+    required String responsibilities,
+  }) async {
+    return _saveRoleDescription(
+      token,
+      roleId,
+      method: 'patch',
+      purpose: purpose,
+      jobDescription: jobDescription,
+      responsibilities: responsibilities,
+    );
+  }
+
+  /// Updates an existing description and creates it when the role has no
+  /// description record yet. A missing description is the only GET failure
+  /// treated as a create; all other failures remain visible to the caller.
+  Future<Map<String, dynamic>> saveRoleDescription(
+    String token,
+    int roleId, {
+    required String purpose,
+    required String jobDescription,
+    required String responsibilities,
+  }) async {
+    try {
+      await _dio.get(
+        '/api/v1/roles/$roleId/description',
+        options: _authOptions(token),
+      );
+    } on DioException catch (error) {
+      if (error.response?.statusCode != 404) {
+        throw _handleError(error);
+      }
+      return createRoleDescription(
+        token,
+        roleId,
+        purpose: purpose,
+        jobDescription: jobDescription,
+        responsibilities: responsibilities,
+      );
+    }
+
+    return updateRoleDescription(
+      token,
+      roleId,
+      purpose: purpose,
+      jobDescription: jobDescription,
+      responsibilities: responsibilities,
+    );
+  }
+
+  Future<Map<String, dynamic>> _saveRoleDescription(
+    String token,
+    int roleId, {
+    required String method,
+    required String purpose,
+    required String jobDescription,
+    required String responsibilities,
+  }) async {
+    try {
+      final payload = {
+        'purpose': purpose,
+        'job_description': jobDescription,
+        'responsibilities': responsibilities,
+      };
+      final response = method == 'post'
+          ? await _dio.post('/api/v1/roles/$roleId/description',
+              data: payload, options: _authOptions(token))
+          : await _dio.patch('/api/v1/roles/$roleId/description',
+              data: payload, options: _authOptions(token));
+      if (response.data is! Map) {
+        throw const FormatException('Role description response is not an object');
+      }
+      return Map<String, dynamic>.from(response.data as Map);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─── PERMISSIONS MAP ───────────────────────────────────────────────
 
   Future<Map<String, List<String>>> getPermissionsMap(String token) async {

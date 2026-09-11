@@ -78,7 +78,7 @@ class PerformanceReviewService {
     try {
       final response = await _dio.post(
         '/performance-reviews/',
-        data: review.toJson(),
+        data: review.toCreateJson(),
         options: _authOptions(token),
       );
       return PerformanceReview.fromJson(response.data);
@@ -105,7 +105,7 @@ class PerformanceReviewService {
     try {
       final response = await _dio.put(
         '/performance-reviews/$reviewId',
-        data: review.toJson(),
+        data: review.toUpdateJson(),
         options: _authOptions(token),
       );
       return PerformanceReview.fromJson(response.data);

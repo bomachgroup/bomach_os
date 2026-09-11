@@ -281,7 +281,7 @@ class EstateManagementPage extends StatelessWidget {
 
     return AppCard(
       padding: const EdgeInsets.all(16),
-      onTap: () => context.go(RouteConstants.estateDetail, extra: estate),
+      onTap: () => context.go(RouteConstants.estateDetailPath(estate.id)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

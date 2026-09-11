@@ -757,7 +757,7 @@ const List<SidebarSection> sidebarStructure = [
     items: [
       MenuItem(
         id: MainMenuItem.marketingCrm,
-        label: 'Marketing & CRM',
+        label: 'Marketing & Sales',
         icon: AppIcons.marketingCrm,
         isExpandable: true,
         resources: [
@@ -993,30 +993,9 @@ const List<SidebarSection> sidebarStructure = [
           SubMenuItemData(
             id: SubMenuItem.crmClients,
             icon: Iconsax.profile_2user,
-            label: 'Clients',
+            label: 'Client Relationship Management',
             route: RouteConstants.crmClients,
             resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmLeads,
-            icon: Iconsax.user_tag,
-            label: 'Leads',
-            route: RouteConstants.crmLeads,
-            resources: [PermissionConstants.resLeads],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmInteractions,
-            icon: Iconsax.messages_2,
-            label: 'Interactions',
-            route: RouteConstants.crmInteractions,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmAnalytics,
-            icon: Iconsax.chart_2,
-            label: 'Analytics',
-            route: RouteConstants.crmAnalytics,
-            resources: [PermissionConstants.resStats],
           ),
         ],
       ),
@@ -1140,49 +1119,6 @@ const List<SidebarSection> sidebarStructure = [
             label: 'Audits',
             route: RouteConstants.legalAudits,
             resources: [PermissionConstants.resComplianceAudits],
-          ),
-        ],
-      ),
-      MenuItem(
-        id: MainMenuItem.clientPortal,
-        label: 'Client Portal',
-        icon: AppIcons.clientsPortal,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resClients,
-          PermissionConstants.resDocuments,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.clientAccess,
-            icon: Iconsax.key,
-            label: 'Client Access',
-            route: RouteConstants.clientAccess,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.documentSharing,
-            icon: Iconsax.document_upload,
-            label: 'Document Sharing',
-            route: RouteConstants.documentSharing,
-            resources: [PermissionConstants.resDocuments],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.communications,
-            icon: Iconsax.messages_2,
-            label: 'Communications',
-            route: RouteConstants.communications,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.portalAnalytics,
-            icon: Iconsax.chart_square,
-            label: 'Portal Analytics',
-            route: RouteConstants.portalAnalytics,
-            resources: [
-              PermissionConstants.resStats,
-              PermissionConstants.resClients,
-            ],
           ),
         ],
       ),

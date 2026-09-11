@@ -43,17 +43,17 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
 
   Worker? _defaultsWorker;
 
-  int? _reportsToRoleId;
-
   @override
   void initState() {
     super.initState();
     final role = widget.role;
     _nameCtrl = TextEditingController(text: role?.name ?? '');
     _missionCtrl = TextEditingController(text: role?.mission ?? '');
-    _jobDescriptionCtrl = TextEditingController(text: role?.jobDescription ?? '');
-    _responsibilitiesCtrl = TextEditingController(text: role?.responsibilities?.join('\n') ?? '');
-    _reportsToRoleId = role?.reportsToRoleId;
+    _jobDescriptionCtrl =
+        TextEditingController(text: role?.jobDescription ?? '');
+    _responsibilitiesCtrl =
+        TextEditingController(text: role?.responsibilities?.join('\n') ?? '');
+    if (role != null) _loadRoleDescription(role.id);
 
     _selectedBranchIds = {};
     if (role != null) {
@@ -82,13 +82,36 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
     }
   }
 
+  Future<void> _loadRoleDescription(int roleId) async {
+    final description = await widget.ctrl.fetchRoleDescription(roleId);
+    if (!mounted || description == null) return;
+    _missionCtrl.text = description['purpose']?.toString() ?? _missionCtrl.text;
+    _jobDescriptionCtrl.text =
+        description['job_description']?.toString() ?? _jobDescriptionCtrl.text;
+    _responsibilitiesCtrl.text =
+        _displayResponsibilities(description['responsibilities']) ??
+            _responsibilitiesCtrl.text;
+  }
+
+  String? _displayResponsibilities(dynamic value) {
+    if (value == null) return null;
+    if (value is Iterable) {
+      return value.map((item) => item.toString()).join('\n');
+    }
+    final text = value.toString();
+    return text.isEmpty ? null : text;
+  }
+
   void _seedDefaultPermissions() {
     final available = widget.ctrl.permissionsMap;
     PermissionService.defaultEmployeePermissions.forEach((resource, actions) {
       final advertised = available[resource];
       if (advertised == null) return;
       final allowed = actions.where(advertised.contains).toSet();
-      if (allowed.isNotEmpty) _selectedPermissions[resource] = allowed;
+      if (allowed.isNotEmpty) {
+        _selectedPermissions.putIfAbsent(resource, () => <String>{});
+        _selectedPermissions[resource]!.addAll(allowed);
+      }
     });
   }
 
@@ -144,7 +167,6 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         responsibilities: _responsibilitiesCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
-        reportsToRoleId: _reportsToRoleId,
       );
     } else {
       success = await widget.ctrl.createRole(
@@ -155,7 +177,6 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         responsibilities: _responsibilitiesCtrl.text.trim(),
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
-        reportsToRoleId: _reportsToRoleId,
       );
     }
 
@@ -202,34 +223,12 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                     height: 48,
                   ),
                   const SizedBox(height: 20),
-                  const Text('Reports To', style: AppTextStyles.label),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<int>(
-                    decoration: const InputDecoration(
-                      hintText: 'Select superior role template',
-                      border: OutlineInputBorder(borderRadius: AppRadii.brMd),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    ),
-                    initialValue: _reportsToRoleId,
-                    items: widget.ctrl.roles
-                        .where((r) => widget.role == null || r.id != widget.role!.id)
-                        .map((r) => DropdownMenuItem<int>(
-                              value: r.id,
-                              child: Text(r.name),
-                            ))
-                        .toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _reportsToRoleId = val;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
                   const Text('Mission / Purpose', style: AppTextStyles.label),
                   const SizedBox(height: 8),
                   MyTextFormField(
                     controller: _missionCtrl,
-                    hintText: 'e.g. Lead branch operations and drive revenue growth',
+                    hintText:
+                        'e.g. Lead branch operations and drive revenue growth',
                     height: 72,
                     maxLines: 3,
                   ),
@@ -238,7 +237,8 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                   const SizedBox(height: 8),
                   MyTextFormField(
                     controller: _jobDescriptionCtrl,
-                    hintText: 'e.g. Daily operations management, team leadership, client relations...',
+                    hintText:
+                        'e.g. Daily operations management, team leadership, client relations...',
                     height: 72,
                     maxLines: 3,
                   ),
@@ -247,7 +247,8 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                   const SizedBox(height: 8),
                   MyTextFormField(
                     controller: _responsibilitiesCtrl,
-                    hintText: 'e.g. Manage daily operations\nLead team of 10\nPrepare monthly reports\nClient relationship management',
+                    hintText:
+                        'e.g. Manage daily operations\nLead team of 10\nPrepare monthly reports\nClient relationship management',
                     height: 100,
                     maxLines: 5,
                   ),
@@ -302,7 +303,8 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                             itemBuilder: (context, index) {
                               final k = roleKpis[index];
                               return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -317,7 +319,10 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                                               fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          k.period.isNotEmpty ? k.period[0].toUpperCase() + k.period.substring(1) : '—',
+                                          k.period.isNotEmpty
+                                              ? k.period[0].toUpperCase() +
+                                                  k.period.substring(1)
+                                              : '—',
                                           style: const TextStyle(
                                               fontSize: 12,
                                               color: AppColors.textSecondary),
@@ -370,11 +375,15 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                 child: GetBuilder<AuthorityLimitController>(
                   init: Get.put(AuthorityLimitController()),
                   builder: (limitCtrl) {
-                    final roleLimits = limitCtrl.authorityLimits.where((l) => l.roleId == widget.role!.id.toString()).toList();
+                    final roleLimits = limitCtrl.authorityLimits
+                        .where((l) => l.roleId == widget.role!.id.toString())
+                        .toList();
                     if (roleLimits.isEmpty) {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('No authority limits defined for this role.', style: TextStyle(fontStyle: FontStyle.italic)),
+                        child: Text(
+                            'No authority limits defined for this role.',
+                            style: TextStyle(fontStyle: FontStyle.italic)),
                       );
                     }
                     return ListView.separated(
@@ -384,7 +393,9 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                       separatorBuilder: (_, __) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final limit = roleLimits[index];
-                        final amountText = limit.maxAmount != null ? '${limit.currency ?? 'NGN'} ${limit.maxAmount}' : 'No Limit';
+                        final amountText = limit.maxAmount != null
+                            ? '${limit.currency ?? 'NGN'} ${limit.maxAmount}'
+                            : 'No Limit';
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
@@ -395,13 +406,19 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                                 children: [
                                   Text(
                                     '${limit.resource.toUpperCase()} : ${limit.action.toUpperCase()}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   if (limit.approvalLevel != null)
-                                    Text('Level: ${limit.approvalLevel}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                    Text('Level: ${limit.approvalLevel}',
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textSecondary)),
                                 ],
                               ),
-                              Text(amountText, style: const TextStyle(fontWeight: FontWeight.w600)),
+                              Text(amountText,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600)),
                             ],
                           ),
                         );
@@ -432,7 +449,20 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                           }),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 4,
+                    children: [
+                      TextButton.icon(
+                        onPressed: () => setState(_seedDefaultPermissions),
+                        icon: const Icon(Iconsax.magic_star, size: 18),
+                        label: const Text('Apply Default Permissions'),
+                        style: TextButton.styleFrom(
+                            foregroundColor: AppColors.primary),
+                      ),
                       _totalSelectedCount > 0
                           ? TextButton.icon(
                               onPressed: () =>
@@ -490,6 +520,21 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         );
       }),
       actions: [
+        Obx(() {
+          final isCurrentRole = widget.role == null ||
+              widget.ctrl.pendingDescriptionRoleId == widget.role!.id;
+          if (!widget.ctrl.hasPendingDescriptionSave || !isCurrentRole) {
+            return const SizedBox.shrink();
+          }
+          return MyOutlinedButton(
+            textColor: AppColors.warning,
+            borderColor: AppColors.warning,
+            child: 'Retry description save',
+            onTap: () {
+              widget.ctrl.retryPendingRoleDescription(context);
+            },
+          );
+        }),
         MyOutlinedButton(
           child: 'Cancel',
           height: 44,
@@ -634,7 +679,8 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                 const SizedBox(width: 10),
                 Text(
                   label,
-                  style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w700),
+                  style: AppTextStyles.bodyMd
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),

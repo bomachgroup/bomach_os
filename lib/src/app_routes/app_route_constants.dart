@@ -18,6 +18,7 @@ class RouteConstants {
   static const String kpiManagement = '/company/kpi-management';
   static const String okrBoard = '/company/okr-board';
   static const String roleDetail = '/company/roles/detail';
+  static String roleDetailPath(int roleId) => '/company/roles/$roleId';
   static const String complianceDashboard = '/company/compliance';
   static const String knowledgeBase = '/company/knowledge-base';
   static const String approvalWorkflow = '/company/approval-workflow';
@@ -167,7 +168,10 @@ class RouteConstants {
   // Estate Management
   static const String estateManagement = '/services/estate-management';
   static const String estateDetail = '/services/estate/detail';
+  static String estateDetailPath(int estateId) => '/services/estate/$estateId';
   static const String estatePerformance = '/services/estate-performance';
+  static String estatePerformancePath(int estateId) =>
+      '/services/estate-performance/$estateId';
 
   // Payment Approval
   static const String paymentApproval = '/services/payment-approval';

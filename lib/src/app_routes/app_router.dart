@@ -102,6 +102,7 @@ import 'package:bomach_os/pages/workspace/workspace.dart';
 import 'package:bomach_os/pages/workspace/workspace_dashboard.dart';
 import 'package:bomach_os/src/app_routes/app_route_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
@@ -121,6 +122,7 @@ import '../../pages/hr/benefits.dart';
 import '../../pages/operations/work_site.dart';
 import '../../pages/security/security.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
+import 'package:bomach_os/src/services/estate_service.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
 import 'dashboard_route_paths.dart';
 import 'detail_fallbacks.dart';
@@ -429,46 +431,132 @@ void _verifyRoutePathRegistry() {
 
 /// Creates a branch for StatefulShellRoute with a single route
 StatefulShellBranch _createBranch(String path, Widget screen) {
-  return StatefulShellBranch(
-    routes: [
-      GoRoute(
-        path: path,
-        builder: (context, state) {
-          // Detail routes carry their object via in-memory `extra`; a
-          // missing or wrong-typed extra (refresh, deep link) now shows a
-          // helpful empty-state instead of a blank pane (audit B12).
-          if (path == RouteConstants.estateDetail ||
-              path == RouteConstants.estatePerformance) {
-            final extra = state.extra;
-            if (extra is Estate) {
-              return path == RouteConstants.estateDetail
-                  ? EstateDetailPage(estate: extra)
-                  : EstatePerformancePage(estate: extra);
+  GoRoute buildRoute(String routePath,
+      {bool durableRolePath = false, bool durableEstatePath = false}) {
+    return GoRoute(
+      path: routePath,
+      builder: (context, state) {
+        // Detail routes carry their object via in-memory `extra` for legacy
+        // callers, but durable links use the identifier in the URL.
+        if (path == RouteConstants.estateDetail ||
+            path == RouteConstants.estatePerformance) {
+          if (durableEstatePath) {
+            final estateId = int.tryParse(state.pathParameters['estateId'] ?? '');
+            if (estateId != null) {
+              return _EstateByIdRoute(
+                estateId: estateId,
+                performance: path == RouteConstants.estatePerformance,
+              );
             }
             return const EstateDetailUnavailable();
           }
-          if (path == RouteConstants.roleDetail) {
-            final extra = state.extra;
-            if (extra is int) {
-              return RoleDetailPage(roleId: extra);
-            }
-            return const RoleDetailUnavailable();
+          final extra = state.extra;
+          if (extra is Estate) {
+            return path == RouteConstants.estateDetail
+                ? EstateDetailPage(estate: extra)
+                : EstatePerformancePage(estate: extra);
           }
-          return screen;
-        },
-      ),
-    ],
+          return const EstateDetailUnavailable();
+        }
+        if (path == RouteConstants.roleDetail) {
+          final extra = state.extra;
+          final roleId = durableRolePath
+              ? int.tryParse(state.pathParameters['roleId'] ?? '')
+              : extra is int ? extra : null;
+          if (roleId != null) return RoleDetailPage(roleId: roleId);
+          return const RoleDetailUnavailable();
+        }
+        return screen;
+      },
+    );
+  }
+
+  if (path == RouteConstants.roleDetail) {
+    return StatefulShellBranch(
+      routes: [
+        buildRoute(path),
+        buildRoute('/company/roles/:roleId', durableRolePath: true),
+      ],
+    );
+  }
+
+  if (path == RouteConstants.estateDetail ||
+      path == RouteConstants.estatePerformance) {
+    final durablePath = path == RouteConstants.estateDetail
+        ? '/services/estate/:estateId'
+        : '/services/estate-performance/:estateId';
+    return StatefulShellBranch(
+      routes: [
+        buildRoute(path),
+        buildRoute(durablePath, durableEstatePath: true),
+      ],
+    );
+  }
+
+  return StatefulShellBranch(
+    routes: [buildRoute(path)],
   );
+}
+
+class _EstateByIdRoute extends StatefulWidget {
+  final int estateId;
+  final bool performance;
+
+  const _EstateByIdRoute({required this.estateId, required this.performance});
+
+  @override
+  State<_EstateByIdRoute> createState() => _EstateByIdRouteState();
+}
+
+class _EstateByIdRouteState extends State<_EstateByIdRoute> {
+  final _storage = const FlutterSecureStorage();
+  late final Future<Estate> _estateFuture = _loadEstate();
+
+  Future<Estate> _loadEstate() async {
+    final token = await _storage.read(key: 'access_token');
+    if (token == null || token.trim().isEmpty) {
+      throw Exception('Authentication required');
+    }
+    return EstateService().getEstate(token.replaceAll('"', '').trim(), widget.estateId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Estate>(
+      future: _estateFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final estate = snapshot.data;
+        if (estate == null) return const EstateDetailUnavailable();
+        return widget.performance
+            ? EstatePerformancePage(estate: estate)
+            : EstateDetailPage(estate: estate);
+      },
+    );
+  }
 }
 
 /// Main router configuration
 final AuthController authController = Get.find<AuthController>();
+String? _pendingReturnUri;
+const Set<String> retiredRoutes = {
+  RouteConstants.clientAccess,
+  RouteConstants.communications,
+  RouteConstants.documentSharing,
+  RouteConstants.portalAnalytics,
+  RouteConstants.crmLeads,
+  RouteConstants.crmInteractions,
+  RouteConstants.crmAnalytics,
+};
 
 /// Router construction runs the registry check once, up front.
 final GoRouter goRouter = (() {
   _verifyRoutePathRegistry();
   return GoRouter(
     initialLocation: RouteConstants.splash,
+    overridePlatformDefaultLocation: false,
     debugLogDiagnostics: true,
     refreshListenable: GoRouterRefreshStream(authController.refreshStream),
     redirect: (BuildContext context, GoRouterState state) {
@@ -478,16 +566,29 @@ final GoRouter goRouter = (() {
 
       // 0. Still checking auth state → splash screen
       if (authController.isAuthInitializing.value) {
+        if (state.uri.path != RouteConstants.splash &&
+            state.uri.path.startsWith('/')) {
+          _pendingReturnUri = state.uri.toString();
+        }
         return RouteConstants.splash;
       }
 
       if (location == RouteConstants.splash) {
         if (isLoggedIn) {
+          final requestedUri = _pendingReturnUri;
+          _pendingReturnUri = null;
+          if (requestedUri != null && requestedUri.startsWith('/')) {
+            return requestedUri;
+          }
           final permissionService = Get.find<PermissionService>();
           return permissionService.getFirstPermittedRoute();
         } else {
           return RouteConstants.login;
         }
+      }
+
+      if (!isLoggedIn && location == RouteConstants.login) {
+        _pendingReturnUri = null;
       }
 
       // 1. Define all routes that should be accessible WITHOUT logging in
@@ -506,6 +607,10 @@ final GoRouter goRouter = (() {
       if (isLoggedIn && isPublicRoute) {
         final permissionService = Get.find<PermissionService>();
         return permissionService.getFirstPermittedRoute();
+      }
+
+      if (retiredRoutes.contains(location)) {
+        return state.uri.replace(path: RouteConstants.crmClients).toString();
       }
 
       // 4. Permission Checking (typed, centralised in permissions.dart)

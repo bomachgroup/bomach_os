@@ -9,7 +9,9 @@ import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/constants/shadows.dart';
@@ -54,15 +56,18 @@ class _CompliancePageState extends State<CompliancePage> {
       header: PageHeader(
         title: 'Compliance register',
         subtitle: 'Track and manage your regulatory documents and licenses.',
-        trailing: MyElevatedButton(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          icon: const Icon(Iconsax.add_circle,
-              color: AppColors.textOnPrimary, size: 20),
-          child: 'New Compliance',
-          onTap: () => showDialog(
-            context: context,
-            builder: (c) => const AddComplianceDialog(),
+        trailing: PermissionGate(
+          require: Perms.complianceRecordsCreate,
+          child: MyElevatedButton(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            icon: const Icon(Iconsax.add_circle,
+                color: AppColors.textOnPrimary, size: 20),
+            child: 'New Compliance',
+            onTap: () => showDialog(
+              context: context,
+              builder: (c) => const AddComplianceDialog(),
+            ),
           ),
         ),
       ),
@@ -77,6 +82,14 @@ class _CompliancePageState extends State<CompliancePage> {
               return AppCard(
                 padding: const EdgeInsets.all(24),
                 child: LoadingSkeleton.listRows(count: 6),
+              );
+            }
+
+            if (controller.complianceErrorMessage.value.isNotEmpty &&
+                filtered.isEmpty) {
+              return _ComplianceErrorState(
+                message: controller.complianceErrorMessage.value,
+                onRetry: controller.fetchComplianceRecords,
               );
             }
 
@@ -101,29 +114,38 @@ class _CompliancePageState extends State<CompliancePage> {
               );
             }
 
-            return AppCard(
-              padding: EdgeInsets.zero,
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  _buildComplianceList(filtered),
-                  const Divider(height: 1, color: AppColors.borderSubtle),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-                    child: PaginatorFooter(
-                      totalItems: filtered.length,
-                      limit: _pageSize,
-                      currentPage: _currentPage,
-                      onPageChanged: (page) =>
-                          setState(() => _currentPage = page),
-                      onLimitChanged: (newLimit) => setState(() {
-                        _pageSize = newLimit;
-                        _currentPage = 1;
-                      }),
-                    ),
+            return Column(
+              children: [
+                if (controller.complianceErrorMessage.value.isNotEmpty)
+                  _ComplianceInlineError(
+                    message: controller.complianceErrorMessage.value,
+                    onRetry: controller.fetchComplianceRecords,
                   ),
-                ],
-              ),
+                AppCard(
+                  padding: EdgeInsets.zero,
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      _buildComplianceList(filtered),
+                      const Divider(height: 1, color: AppColors.borderSubtle),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                        child: PaginatorFooter(
+                          totalItems: filtered.length,
+                          limit: _pageSize,
+                          currentPage: _currentPage,
+                          onPageChanged: (page) =>
+                              setState(() => _currentPage = page),
+                          onLimitChanged: (newLimit) => setState(() {
+                            _pageSize = newLimit;
+                            _currentPage = 1;
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             );
         }),
       ],
@@ -253,20 +275,26 @@ class _CompliancePageState extends State<CompliancePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              IconButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (c) => AddComplianceDialog(compliance: item),
+              PermissionGate(
+                require: Perms.complianceRecordsUpdate,
+                child: IconButton(
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (c) => AddComplianceDialog(compliance: item),
+                  ),
+                  icon: const Icon(Iconsax.edit,
+                      size: 20, color: AppColors.textSecondary),
+                  tooltip: 'Edit record',
                 ),
-                icon: const Icon(Iconsax.edit,
-                    size: 20, color: AppColors.textSecondary),
-                tooltip: 'Edit record',
               ),
-              IconButton(
-                onPressed: () => _confirmDelete(item),
-                icon: const Icon(Iconsax.trash,
-                    size: 20, color: AppColors.danger),
-                tooltip: 'Delete record',
+              PermissionGate(
+                require: Perms.complianceRecordsUpdate,
+                child: IconButton(
+                  onPressed: () => _confirmDelete(item),
+                  icon: const Icon(Iconsax.trash,
+                      size: 20, color: AppColors.danger),
+                  tooltip: 'Delete record',
+                ),
               ),
             ],
           ),
@@ -363,4 +391,47 @@ class _CompliancePageState extends State<CompliancePage> {
         return type.length > 4 ? type.substring(0, 4) : type;
     }
   }
+}
+
+class _ComplianceErrorState extends StatelessWidget {
+  const _ComplianceErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const Icon(Iconsax.warning_2, color: AppColors.danger, size: 32),
+            const SizedBox(height: 12),
+            const Text('Compliance records could not be loaded'),
+            const SizedBox(height: 6),
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            MyOutlinedButton(child: 'Retry', onTap: onRetry),
+          ],
+        ),
+      );
+}
+
+class _ComplianceInlineError extends StatelessWidget {
+  const _ComplianceInlineError({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          children: [
+            const Icon(Iconsax.warning_2, color: AppColors.danger, size: 18),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+            TextButton(onPressed: onRetry, child: const Text('Retry')),
+          ],
+        ),
+      );
 }

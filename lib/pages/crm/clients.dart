@@ -80,8 +80,8 @@ class CrmClientsPage extends StatelessWidget {
 
     return PageScaffold(
       header: PageHeader(
-        title: 'CRM',
-        subtitle: 'Manage clients, leads, and customer interactions',
+        title: 'Client Relationship Management',
+        subtitle: 'Manage clients and customer relationships',
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           spacing: 8,
@@ -165,7 +165,7 @@ class CrmClientsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Clients', style: AppTextStyles.h2),
+              const Text('Client Relationship Management', style: AppTextStyles.h2),
               const SizedBox(height: 4),
               Text(
                 'Manage your client relationships',

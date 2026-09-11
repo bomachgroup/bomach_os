@@ -1,12 +1,15 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:collection/collection.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/services/auth_service.dart';
+import 'package:bomach_os/src/services/biometric_api_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:bomach_os/src/helper/date_picker_helper.dart';
@@ -16,6 +19,7 @@ import 'package:intl/intl.dart';
 
 import '../controller/work_report_controller.dart';
 import '../models/work_report_model.dart';
+import '../models/workspace_model.dart';
 
 class DailyWorkReportDialog extends StatefulWidget {
   final WorkReport? existingReport;
@@ -35,7 +39,6 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   final WorkReportController controller = Get.find();
 
   late TextEditingController _hoursWorkedController;
-  late TextEditingController _operationalBaseController;
   late TextEditingController _workActivitiesController;
   late TextEditingController _taskDetailsController;
   late TextEditingController _nextDayPlanController;
@@ -43,6 +46,10 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   bool _isUploading = false;
 
   DateTime _reportDate = DateTime.now();
+  String? _selectedOperationalBase;
+  List<WorkspaceConfig> _eligibleWorkspaces = [];
+  bool _isLoadingWorkspaces = false;
+  String? _workspaceError;
 
   @override
   void initState() {
@@ -50,8 +57,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
     final r = widget.existingReport;
     _hoursWorkedController =
         TextEditingController(text: r?.hoursWorked.toString() ?? '');
-    _operationalBaseController =
-        TextEditingController(text: r?.operationalBase ?? '');
+    _selectedOperationalBase = r?.operationalBase;
     _workActivitiesController =
         TextEditingController(text: r?.workActivities ?? '');
     _taskDetailsController = TextEditingController(text: r?.taskDetails ?? '');
@@ -61,16 +67,39 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
     if (r?.attachments != null) {
       _attachments.addAll(r!.attachments);
     }
+    _loadWorkspaces();
   }
 
   @override
   void dispose() {
     _hoursWorkedController.dispose();
-    _operationalBaseController.dispose();
     _workActivitiesController.dispose();
     _taskDetailsController.dispose();
     _nextDayPlanController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadWorkspaces() async {
+    setState(() {
+      _isLoadingWorkspaces = true;
+      _workspaceError = null;
+    });
+    try {
+      final api = BiometricApiService();
+      final raw = await api.getWorkspaces(widget.token);
+      if (!mounted) return;
+      setState(() {
+        _eligibleWorkspaces = raw
+            .map(WorkspaceConfig.fromJson)
+            .where((workspace) => workspace.canClockIn)
+            .toList();
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _workspaceError = e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _isLoadingWorkspaces = false);
+    }
   }
 
   Future<void> _pickAndUploadFile() async {
@@ -120,8 +149,8 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
       employeeId: widget.existingReport?.employeeId ?? 0,
       day: _reportDate,
       hoursWorked: double.tryParse(_hoursWorkedController.text) ?? 0.0,
-      operationalBase: _operationalBaseController.text.isNotEmpty
-          ? _operationalBaseController.text
+      operationalBase: _selectedOperationalBase?.isNotEmpty == true
+          ? _selectedOperationalBase
           : null,
       workActivities: _workActivitiesController.text.isNotEmpty
           ? _workActivitiesController.text
@@ -193,11 +222,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                MyTextFormField(
-                  title: 'Operational Base',
-                  controller: _operationalBaseController,
-                  hintText: 'e.g. Head Office, Site A',
-                ),
+                _buildOperationalBaseField(),
               ],
             ),
           ),
@@ -345,6 +370,73 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
         ],
       ),
     );
+  }
+
+  Widget _buildOperationalBaseField() {
+    if (_isLoadingWorkspaces) {
+      return const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Operational Base'),
+          SizedBox(height: 8),
+          LinearProgressIndicator(),
+        ],
+      );
+    }
+    if (_workspaceError != null) {
+      return Row(
+        children: [
+          Expanded(child: Text('Unable to load workspaces: $_workspaceError')),
+          TextButton(onPressed: _loadWorkspaces, child: const Text('Retry')),
+        ],
+      );
+    }
+
+    final labels = <String, String>{};
+    final duplicateNames = <String>{};
+    for (final workspace in _eligibleWorkspaces) {
+      if (labels.containsValue(workspace.workspaceName)) {
+        duplicateNames.add(workspace.workspaceName);
+      }
+      labels[_workspaceLabel(workspace, duplicateNames)] = workspace.workspaceName;
+    }
+    // Rebuild duplicate labels after the complete list is known.
+    labels
+      ..clear()
+      ..addEntries(_eligibleWorkspaces.map((workspace) => MapEntry(
+            _workspaceLabel(workspace, duplicateNames), workspace.workspaceName)));
+
+    final options = labels.keys.toList();
+    String? initialSelection;
+    if (_selectedOperationalBase != null &&
+        !labels.values.contains(_selectedOperationalBase)) {
+      initialSelection = 'Previous: ${_selectedOperationalBase!}';
+      options.insert(0, initialSelection);
+    } else {
+      initialSelection = labels.entries
+          .firstWhereOrNull((entry) => entry.value == _selectedOperationalBase)
+          ?.key;
+    }
+
+    if (options.isEmpty) {
+      return const Text('No approved, active workspaces are available.');
+    }
+    return MyDropdown(
+      title: 'Operational Base',
+      hintText: 'Select an approved workspace',
+      items: options,
+      initialSelection: initialSelection,
+      onChanged: (value) {
+        if (value == null) return;
+        setState(() => _selectedOperationalBase =
+            value.startsWith('Previous: ') ? value.substring(10) : labels[value]);
+      },
+    );
+  }
+
+  String _workspaceLabel(WorkspaceConfig workspace, Set<String> duplicates) {
+    if (!duplicates.contains(workspace.workspaceName)) return workspace.workspaceName;
+    return '${workspace.workspaceName} (${workspace.latitude.toStringAsFixed(4)}, ${workspace.longitude.toStringAsFixed(4)})';
   }
 
   Widget _buildDateField({
