@@ -1,5 +1,7 @@
 import 'package:bomach_os/src/app_routes/app_route_constants.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/app_routes/menu_structure.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'dart:io';
 
@@ -42,5 +44,24 @@ void main() {
     expect(source, contains('retiredRoutes'));
     expect(source, contains('RouteConstants.crmClients'));
     expect(source, contains('RouteConstants.clientAccess'));
+  });
+
+  test('Company navigation is available from any authorized Company child', () {
+    final source = File('lib/components/nav/side_menu.dart').readAsStringSync();
+    final company = sidebarStructure
+        .expand((section) => section.items)
+        .firstWhere((item) => item.id == MainMenuItem.company);
+    final permissions = PermissionService()
+      ..testInjectPermissions({
+        PermissionConstants.resBranches: {'list'},
+      });
+
+    final visibleChildren = company.children
+        .where((child) =>
+            permissions.canAccessRoute(child.route, child.resources))
+        .toList();
+
+    expect(visibleChildren.map((child) => child.id), contains(SubMenuItem.branch));
+    expect(source, isNot(contains('menuItem.id == MainMenuItem.company &&')));
   });
 }

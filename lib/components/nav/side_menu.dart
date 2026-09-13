@@ -396,14 +396,6 @@ class _SideMenuState extends State<SideMenu> {
       return const SizedBox.shrink();
     }
 
-    // Restrict Company menu to super admins or users with company_settings permission.
-    if (menuItem.id == MainMenuItem.company &&
-        !(permissionService.isSuperAdmin ||
-            permissionService.hasAnyPermissionForResource(
-                PermissionConstants.resCompanySettings))) {
-      return const SizedBox.shrink();
-    }
-
     // Filter sub-items via typed route permissions.
     final authorizedSubItems = menuItem.children
         .where((subItem) =>
@@ -617,14 +609,6 @@ class _SideMenuState extends State<SideMenu> {
     for (final menuItem in filtered) {
       if (menuItem.id == MainMenuItem.dashboard &&
           (permissionService.isSuperAdmin ||
-              permissionService.hasAnyPermissionForResource(
-                  PermissionConstants.resCompanySettings))) {
-        continue;
-      }
-
-      // Restrict Company menu to super admins or users with company_settings permission.
-      if (menuItem.id == MainMenuItem.company &&
-          !(permissionService.isSuperAdmin ||
               permissionService.hasAnyPermissionForResource(
                   PermissionConstants.resCompanySettings))) {
         continue;
