@@ -93,17 +93,22 @@ class BiometricApiService {
     required String attendanceType,
     required double latitude,
     required double longitude,
+    double? accuracyMeters,
   }) async {
     try {
+      final data = <String, dynamic>{
+        'biometric_data': biometricData,
+        'biometric_type': biometricType,
+        'attendance_type': attendanceType,
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+      // Debug/audit only — backend fence is max(admin, 25m), accuracy never
+      // expands it. Sent so 403 hints can echo the fix quality.
+      if (accuracyMeters != null) data['accuracy_meters'] = accuracyMeters;
       final response = await _dio.post(
         '/biometric/clockin',
-        data: {
-          'biometric_data': biometricData,
-          'biometric_type': biometricType,
-          'attendance_type': attendanceType,
-          'latitude': latitude,
-          'longitude': longitude,
-        },
+        data: data,
         options: _authOptions(token),
       );
       return Map<String, dynamic>.from(response.data);
@@ -131,6 +136,7 @@ class BiometricApiService {
     required double longitude,
     String locationType = 'branch',
     String? notes,
+    double? accuracyMeters,
   }) async {
     try {
       final data = <String, dynamic>{
@@ -140,6 +146,8 @@ class BiometricApiService {
         'longitude': longitude,
       };
       if (notes != null && notes.isNotEmpty) data['notes'] = notes;
+      // Backend safety net rejects >30m; frontend must gate first.
+      if (accuracyMeters != null) data['accuracy_meters'] = accuracyMeters;
 
       final response = await _dio.post(
         '/biometric/location/whitelisted',
@@ -161,14 +169,17 @@ class BiometricApiService {
     String token, {
     required double latitude,
     required double longitude,
+    double? accuracyMeters,
   }) async {
     try {
+      final query = <String, dynamic>{
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+      if (accuracyMeters != null) query['accuracy_meters'] = accuracyMeters;
       final response = await _dio.get(
         '/biometric/location/verify',
-        queryParameters: {
-          'latitude': latitude,
-          'longitude': longitude,
-        },
+        queryParameters: query,
         options: _authOptions(token),
       );
       return Map<String, dynamic>.from(response.data);

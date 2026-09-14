@@ -13,6 +13,26 @@ class LocationService {
 
   LocationService._internal();
 
+  /// Mirrors backend `MIN_EFFECTIVE_RADIUS_METERS`. Single source of truth
+  /// for the client-side soft check so both sides agree.
+  static const int minEffectiveRadiusMeters = 25;
+
+  /// Client hard-blocks before backend only when clearly far (saves the
+  /// face-capture step). Anything closer goes to backend as authoritative.
+  static const double farBlockThresholdMeters = 200;
+
+  /// Frontend accuracy gates (frontend owns accuracy, backend is floor-only).
+  static const double clockInTargetAccuracy = 25;
+  static const double clockInMaxAccuracy = 50;
+  static const double setupTargetAccuracy = 20;
+  static const double setupMaxAccuracy = 30;
+
+  /// Effective fence used by the client soft check: max(admin, 25m floor).
+  int effectiveRadius(int adminRadiusMeters) =>
+      adminRadiusMeters < minEffectiveRadiusMeters
+          ? minEffectiveRadiusMeters
+          : adminRadiusMeters;
+
   Future<bool> ensurePermission() async {
     if (kIsWeb) {
       try {
@@ -74,7 +94,91 @@ class LocationService {
             "Geolocation is not supported by this browser. Error: $e");
       }
     }
-    return await Geolocator.getCurrentPosition();
+    return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.best,
+    );
+  }
+
+  /// Settled fix: samples until accuracy converges instead of trusting the
+  /// first (often network/cached) fix. Returns the best fix seen.
+  ///
+  /// - Completes early once `best.accuracy <= targetAccuracy`.
+  /// - Otherwise returns best-effort at [timeout] (caller gates on accuracy).
+  /// - [onUpdate] fires on every new best so UI can show live `±Xm`.
+  Future<Position> getSettledPosition({
+    double targetAccuracy = clockInTargetAccuracy,
+    Duration timeout = const Duration(seconds: 12),
+    void Function(Position best)? onUpdate,
+  }) async {
+    final deadline = DateTime.now().add(timeout);
+    Position? best;
+
+    void consider(Position p) {
+      if (best == null || p.accuracy < best!.accuracy) {
+        best = p;
+        onUpdate?.call(p);
+      }
+    }
+
+    if (kIsWeb) {
+      // Web: poll single-shot fixes (watchPosition interop is brittle).
+      // Each poll is a fresh fix; accuracy typically drops over 5-10s.
+      while (DateTime.now().isBefore(deadline)) {
+        try {
+          final p = await getCurrentPosition().timeout(
+            const Duration(seconds: 6),
+          );
+          consider(p);
+          if (p.accuracy <= targetAccuracy) break;
+        } catch (_) {
+          // Ignore single poll failures, keep sampling until deadline.
+        }
+        if (DateTime.now().isBefore(deadline)) {
+          await Future.delayed(const Duration(milliseconds: 1200));
+        }
+      }
+    } else {
+      // Mobile: stream high-accuracy fixes until converged or timeout.
+      final completer = Completer<Position?>();
+      StreamSubscription<Position>? sub;
+      try {
+        sub = Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.best,
+            distanceFilter: 0,
+          ),
+        ).listen(
+          (p) {
+            consider(p);
+            if (p.accuracy <= targetAccuracy && !completer.isCompleted) {
+              completer.complete(p);
+            }
+          },
+          onError: (_) {},
+        );
+        await Future.any([
+          completer.future,
+          Future.delayed(timeout, () => null),
+        ]);
+        await sub.cancel();
+      } catch (_) {
+        try {
+          await sub?.cancel();
+        } catch (_) {}
+      }
+      // Fallback to single-shot if stream yielded nothing (e.g. emulator).
+      if (best == null) {
+        try {
+          best = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.best,
+          ).timeout(const Duration(seconds: 8));
+        } catch (_) {}
+      }
+    }
+
+    final result = best;
+    if (result == null) throw Exception('Unable to get your location.');
+    return result;
   }
 
   double _calculateDistance(

@@ -142,7 +142,8 @@ class BiometricsController extends GetxController {
   }
 
   /// Submit a new workspace for approval. Radius is admin-controlled at
-  /// approval time, not sent by the employee.
+  /// approval time, not sent by the employee. [accuracyMeters] is the settled
+  /// fix quality — frontend gates on it, backend keeps it as safety net.
   Future<bool> submitWorkspace(
     String token, {
     required double latitude,
@@ -150,6 +151,7 @@ class BiometricsController extends GetxController {
     required String workspaceName,
     String locationType = 'branch',
     String? notes,
+    double? accuracyMeters,
   }) async {
     try {
       isSettingUpWorkspace(true);
@@ -162,6 +164,7 @@ class BiometricsController extends GetxController {
         longitude: longitude,
         locationType: locationType,
         notes: notes,
+        accuracyMeters: accuracyMeters,
       );
 
       // Prepend the newly submitted workspace so the user immediately sees
@@ -281,8 +284,9 @@ class BiometricsController extends GetxController {
         return false;
       }
 
-      // 2. Get location
-      clockStepMessage.value = 'Getting your location...';
+      // 2. Settled location — frontend owns accuracy. Sample until the fix
+      // converges; show live ±Xm so a tap never dead-ends on one bad fix.
+      clockStepMessage.value = 'Acquiring GPS...';
 
       final hasPermission = await _location.ensurePermission();
       if (!hasPermission) {
@@ -293,44 +297,54 @@ class BiometricsController extends GetxController {
 
       late Position position;
       try {
-        position = await _location.getCurrentPosition();
+        position = await _location.getSettledPosition(
+          targetAccuracy: LocationService.clockInTargetAccuracy,
+          onUpdate: (best) {
+            clockStepMessage.value =
+                'Acquiring GPS ±${best.accuracy.toStringAsFixed(0)}m...';
+          },
+        );
       } catch (e) {
         errorMessage.value = 'Unable to get your location. Please try again.';
         return false;
       }
 
-      // 3. Client-side geofence check — uses the radius the admin approved.
-      final withinRange = _location.isWithinRadius(
-        position,
-        ws.latitude,
-        ws.longitude,
-        ws.radiusMeters,
-      );
-
-      if (!withinRange) {
-        final distance =
-            _location.getDistance(position, ws.latitude, ws.longitude);
+      // Frontend accuracy gate (backend never expands the fence).
+      if (position.accuracy > LocationService.clockInMaxAccuracy) {
         errorMessage.value =
-            'You are ${distance.toInt()}m away from your workspace "${ws.workspaceName}". '
+            'GPS fix too weak (±${position.accuracy.toStringAsFixed(0)}m). '
+            'Step outside / near a window and tap Retry — waiting a few seconds '
+            'lets accuracy drop below ±${LocationService.clockInMaxAccuracy.toInt()}m.';
+        return false;
+      }
+
+      // 3. Soft client pre-check — hard-block only when clearly far (saves
+      // the face-capture step). Backend is authoritative for the real fence
+      // max(admin_radius, 25m) and handles pending/expired/global cases.
+      final effective = _location.effectiveRadius(ws.radiusMeters);
+      final distanceToWs =
+          _location.getDistance(position, ws.latitude, ws.longitude);
+      final farBlockAt = effective >
+              LocationService.farBlockThresholdMeters
+          ? effective.toDouble()
+          : LocationService.farBlockThresholdMeters;
+      if (distanceToWs > farBlockAt) {
+        errorMessage.value =
+            'You are ${distanceToWs.toInt()}m away from your workspace "${ws.workspaceName}". '
             'Get within range to clock ${isClockIn ? 'in' : 'out'}.';
         return false;
       }
 
-      // The backend remains authoritative even after the local geofence
-      // check. This prevents clock-in when the server has revoked or cannot
-      // use the location.
       final verification = LocationVerificationResult.fromJson(
         await _api.verifyLocation(
           token,
           latitude: position.latitude,
           longitude: position.longitude,
+          accuracyMeters: position.accuracy,
         ),
       );
       if (!ClockInLocationPolicy.canProceed(verification)) {
-        final distance = verification.distanceMeters;
-        errorMessage.value = distance == null
-            ? 'Your current location is not approved for this workspace.'
-            : 'You are ${distance.toInt()}m away from an approved workspace.';
+        errorMessage.value = _verifyFailMessage(verification);
         return false;
       }
 
@@ -363,6 +377,7 @@ class BiometricsController extends GetxController {
         attendanceType: type,
         latitude: position.latitude,
         longitude: position.longitude,
+        accuracyMeters: position.accuracy,
       );
 
       successMessage.value =
@@ -377,6 +392,32 @@ class BiometricsController extends GetxController {
       authActionType('');
       clockStepMessage('');
     }
+  }
+
+  /// Surfaces the backend hint (effective radius / poor_gps / no location)
+  /// so the error is actionable and retryable instead of a bare "Xm away".
+  String _verifyFailMessage(LocationVerificationResult verification) {
+    final hint = verification.hint;
+    if (hint != null && hint.isNotEmpty) {
+      if (hint.startsWith('poor_gps')) return hint.substring('poor_gps:'.length).trim();
+      if (hint.startsWith('no_usable_location')) {
+        return 'No approved workspace found. Your submission may still be pending approval, expired, or inactive.';
+      }
+      if (hint.startsWith('out_of_range:')) {
+        return hint.substring('out_of_range:'.length).trim();
+      }
+      return hint;
+    }
+    final distance = verification.distanceMeters;
+    final name = verification.locationName;
+    if (distance == null) {
+      return 'Your current location is not approved for this workspace.';
+    }
+    final radius = verification.effectiveRadiusMeters;
+    if (name != null && radius != null) {
+      return 'You are ${distance.toInt()}m from "$name" (allowed ~${radius.toInt()}m). Move closer and tap Retry.';
+    }
+    return 'You are ${distance.toInt()}m away from an approved workspace.';
   }
 
   /// Tailored error when the user doesn't have an approved workspace.
