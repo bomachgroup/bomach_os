@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for geolocator: clock-in + workspace pin capture. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Required for API calls in release/profile builds. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="Bomach OS"
         android:name="${applicationName}"

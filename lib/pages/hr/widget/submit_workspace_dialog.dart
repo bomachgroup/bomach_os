@@ -54,6 +54,11 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
   bool _fetchingLocation = false;
   String? _locationError;
   double? _liveAccuracy;
+  // Determinate capture progress 0→1 + seconds left, driven by the capture
+  // timer so the user sees the scan finishing. Null when idle.
+  double? _captureProgress;
+  int? _secondsLeft;
+  static const _captureTimeout = Duration(seconds: 15);
 
   @override
   void dispose() {
@@ -69,6 +74,8 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
       _fetchingLocation = true;
       _locationError = null;
       _liveAccuracy = null;
+      _captureProgress = 0;
+      _secondsLeft = _captureTimeout.inSeconds;
     });
 
     try {
@@ -81,19 +88,37 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
 
       final pos = await _location.getSettledPosition(
         targetAccuracy: LocationService.setupTargetAccuracy,
-        timeout: const Duration(seconds: 15),
+        timeout: _captureTimeout,
         onUpdate: (best) {
           if (mounted) setState(() => _liveAccuracy = best.accuracy);
         },
+        onProgress: (p) {
+          if (mounted) {
+            setState(() {
+              _captureProgress = p;
+              _secondsLeft =
+                  (_captureTimeout.inSeconds * (1 - p)).ceil();
+            });
+          }
+        },
       );
       if (!mounted) return;
+      _captureProgress = null;
+      _secondsLeft = null;
+      // Hard gate: discard weak fixes entirely so submit is impossible —
+      // the only path forward is tapping capture again for a fresh fix.
+      if (pos.accuracy > LocationService.setupMaxAccuracy) {
+        setState(() {
+          _position = null;
+          _liveAccuracy = null;
+          _locationError =
+              'Fix too weak (±${pos.accuracy.toStringAsFixed(0)}m, need ≤${LocationService.setupMaxAccuracy.toInt()}m). Discarded — step outside / near a window and capture again.';
+        });
+        return;
+      }
       setState(() {
         _position = pos;
         _liveAccuracy = null;
-        if (pos.accuracy > LocationService.setupMaxAccuracy) {
-          _locationError =
-              'Fix too weak (±${pos.accuracy.toStringAsFixed(0)}m, need ≤${LocationService.setupMaxAccuracy.toInt()}m). Step outside / near a window and Re-fetch — do not submit a weak pin.';
-        }
       });
     } catch (e) {
       log('Fetch location error: $e');
@@ -101,7 +126,13 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
         setState(() => _locationError = 'Failed to get location. Try again.');
       }
     } finally {
-      if (mounted) setState(() => _fetchingLocation = false);
+      if (mounted) {
+        setState(() {
+          _fetchingLocation = false;
+          _captureProgress = null;
+          _secondsLeft = null;
+        });
+      }
     }
   }
 
@@ -286,8 +317,39 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
     );
   }
 
+  /// Shared determinate capture loader (bar + countdown), used by both the
+  /// initial capture and every Re-fetch so both feel identical.
+  Widget _buildCaptureProgress() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: _captureProgress ?? 0,
+            minHeight: 4,
+            backgroundColor: AppColors.borderSubtle,
+            valueColor:
+                const AlwaysStoppedAnimation<Color>(AppColors.primary),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _liveAccuracy != null
+              ? 'Scanning GPS ±${_liveAccuracy!.toStringAsFixed(0)}m · ${_secondsLeft ?? _captureTimeout.inSeconds}s left — stay still'
+              : 'Scanning GPS · ${_secondsLeft ?? _captureTimeout.inSeconds}s left — stay still',
+          style: AppTextStyles.bodySm
+              .copyWith(color: AppColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
   Widget _buildLocationSection() {
-    // Weak pin state: show fix but block submit until re-fetch converges.
+    // Captured pin. Weak fixes are discarded at capture (hard gate), so a
+    // stored position is always submittable; the `weak` styling below is a
+    // defensive fallback only.
     if (_position != null) {
       final weak =
           _position!.accuracy > LocationService.setupMaxAccuracy;
@@ -336,6 +398,10 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                 style: AppTextStyles.bodySm.copyWith(color: AppColors.danger),
               ),
             ],
+            if (_fetchingLocation) ...[
+              const SizedBox(height: 8),
+              _buildCaptureProgress(),
+            ],
             const SizedBox(height: 8),
             TextButton.icon(
               onPressed: _fetchingLocation ? null : _fetchLocation,
@@ -369,16 +435,10 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
             ),
             const SizedBox(height: 8),
           ],
-          if (_fetchingLocation && _liveAccuracy != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                'Acquiring GPS ±${_liveAccuracy!.toStringAsFixed(0)}m... stay still',
-                style: AppTextStyles.bodySm
-                    .copyWith(color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ),
+          if (_fetchingLocation) ...[
+            _buildCaptureProgress(),
+            const SizedBox(height: 8),
+          ],
           SizedBox(
             width: double.infinity,
             child: MyElevatedButton(

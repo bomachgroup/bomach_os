@@ -27,6 +27,10 @@ class LocationService {
   static const double setupTargetAccuracy = 20;
   static const double setupMaxAccuracy = 30;
 
+  /// Extra sampling after the target is first hit, to build the median
+  /// cluster instead of trusting one lucky fix.
+  static const Duration settleGrace = Duration(milliseconds: 2500);
+
   /// Effective fence used by the client soft check: max(admin, 25m floor).
   int effectiveRadius(int adminRadiusMeters) =>
       adminRadiusMeters < minEffectiveRadiusMeters
@@ -87,6 +91,13 @@ class LocationService {
               Exception("Geolocation error: ${err.message}"),
             );
           }.toJS,
+          // Force the GPS radio (not cached/network fixes) and never serve
+          // a stale fix — critical indoors where the first fix is the worst.
+          web.PositionOptions(
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          ),
         );
         return await completer.future;
       } catch (e) {
@@ -100,85 +111,159 @@ class LocationService {
   }
 
   /// Settled fix: samples until accuracy converges instead of trusting the
-  /// first (often network/cached) fix. Returns the best fix seen.
+  /// first (often network/cached) fix. Returns the median of the good-fix
+  /// cluster, which kills single-sample jitter indoors.
   ///
-  /// - Completes early once `best.accuracy <= targetAccuracy`.
-  /// - Otherwise returns best-effort at [timeout] (caller gates on accuracy).
+  /// - Samples until [timeout]; once a fix hits [targetAccuracy] it keeps
+  ///   sampling for [settleGrace] to build the median cluster, then returns.
+  /// - Otherwise returns the median of whatever was collected (caller gates
+  ///   on its accuracy).
   /// - [onUpdate] fires on every new best so UI can show live `±Xm`.
+  /// - [onProgress] ticks 0→1 over [timeout] so UI can show a determinate
+  ///   loader (ring/bar) that finishes when capture finishes.
+  ///
+  /// Accuracy note: no setting beats physics indoors — the phone fuses
+  /// GPS + Wi-Fi + sensors, so keep device Wi-Fi ON (even unconnected) and
+  /// capture where staff actually stand. Anything the radio can't resolve
+  /// is absorbed by the backend's 25m fence floor, not by sampling longer.
   Future<Position> getSettledPosition({
     double targetAccuracy = clockInTargetAccuracy,
     Duration timeout = const Duration(seconds: 12),
     void Function(Position best)? onUpdate,
+    void Function(double progress)? onProgress,
   }) async {
-    final deadline = DateTime.now().add(timeout);
+    final start = DateTime.now();
+    final deadline = start.add(timeout);
+    final totalMs = timeout.inMilliseconds;
+    final samples = <Position>[];
     Position? best;
+    DateTime? targetHitAt;
 
-    void consider(Position p) {
-      if (best == null || p.accuracy < best!.accuracy) {
-        best = p;
-        onUpdate?.call(p);
-      }
+    double currentProgress() {
+      final elapsed = DateTime.now().difference(start).inMilliseconds;
+      return (elapsed / totalMs).clamp(0.0, 1.0);
     }
 
-    if (kIsWeb) {
-      // Web: poll single-shot fixes (watchPosition interop is brittle).
-      // Each poll is a fresh fix; accuracy typically drops over 5-10s.
-      while (DateTime.now().isBefore(deadline)) {
-        try {
-          final p = await getCurrentPosition().timeout(
-            const Duration(seconds: 6),
-          );
-          consider(p);
-          if (p.accuracy <= targetAccuracy) break;
-        } catch (_) {
-          // Ignore single poll failures, keep sampling until deadline.
+    final ticker = Timer.periodic(
+      const Duration(milliseconds: 200),
+      (_) => onProgress?.call(currentProgress()),
+    );
+    try {
+      void consider(Position p) {
+        samples.add(p);
+        if (best == null || p.accuracy < best!.accuracy) {
+          best = p;
+          onUpdate?.call(p);
         }
-        if (DateTime.now().isBefore(deadline)) {
-          await Future.delayed(const Duration(milliseconds: 1200));
-        }
+        targetHitAt ??= p.accuracy <= targetAccuracy ? DateTime.now() : null;
       }
-    } else {
-      // Mobile: stream high-accuracy fixes until converged or timeout.
-      final completer = Completer<Position?>();
-      StreamSubscription<Position>? sub;
-      try {
-        sub = Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.best,
-            distanceFilter: 0,
-          ),
-        ).listen(
-          (p) {
+
+      // Grace sampling after the target is hit — a couple of extra fixes
+      // turn one lucky sample into a trustworthy median cluster.
+      bool settled() {
+        if (DateTime.now().isAfter(deadline)) return true;
+        final hit = targetHitAt;
+        return hit != null &&
+            DateTime.now().difference(hit) >= settleGrace;
+      }
+
+      if (kIsWeb) {
+        // Web: poll single-shot fixes (watchPosition interop is brittle).
+        // Each poll is high-accuracy + fresh; accuracy drops over 5-10s.
+        while (!settled()) {
+          try {
+            final p = await getCurrentPosition().timeout(
+              const Duration(seconds: 6),
+            );
             consider(p);
-            if (p.accuracy <= targetAccuracy && !completer.isCompleted) {
-              completer.complete(p);
-            }
-          },
-          onError: (_) {},
-        );
-        await Future.any([
-          completer.future,
-          Future.delayed(timeout, () => null),
-        ]);
-        await sub.cancel();
-      } catch (_) {
+          } catch (_) {
+            // Ignore single poll failures, keep sampling until deadline.
+          }
+          if (!settled()) {
+            await Future.delayed(const Duration(milliseconds: 1200));
+          }
+        }
+      } else {
+        // Mobile: nav-grade stream until the cluster settles or timeout.
+        final completer = Completer<Position?>();
+        StreamSubscription<Position>? sub;
         try {
-          await sub?.cancel();
-        } catch (_) {}
+          sub = Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.bestForNavigation,
+              distanceFilter: 0,
+            ),
+          ).listen(
+            (p) {
+              consider(p);
+              if (settled() && !completer.isCompleted) {
+                completer.complete(p);
+              }
+            },
+            onError: (_) {},
+          );
+          await Future.any([
+            completer.future,
+            Future.delayed(timeout, () => null),
+          ]);
+          await sub.cancel();
+        } catch (_) {
+          try {
+            await sub?.cancel();
+          } catch (_) {}
+        }
+        // Fallback to single-shot if stream yielded nothing (e.g. emulator).
+        if (best == null) {
+          try {
+            final p = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.best,
+            ).timeout(const Duration(seconds: 8));
+            consider(p);
+          } catch (_) {}
+        }
       }
-      // Fallback to single-shot if stream yielded nothing (e.g. emulator).
-      if (best == null) {
-        try {
-          best = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.best,
-          ).timeout(const Duration(seconds: 8));
-        } catch (_) {}
-      }
+
+      if (best == null) throw Exception('Unable to get your location.');
+      return _medianFix(samples);
+    } finally {
+      ticker.cancel();
+      // Settle the loader at full so the UI never sticks mid-way.
+      onProgress?.call(1.0);
+    }
+  }
+
+  /// Median of the good-fix cluster: samples within 1.5x of the best
+  /// accuracy (capped at 40m) so one flyer can't drag the pin. Falls back
+  /// to all samples when nothing qualifies. Position is immutable, so the
+  /// merged fix reuses the most accurate sample's metadata.
+  Position _medianFix(List<Position> samples) {
+    final bestAcc =
+        samples.map((s) => s.accuracy).reduce((a, b) => a < b ? a : b);
+    final cutoff = bestAcc * 1.5 < 40.0 ? bestAcc * 1.5 : 40.0;
+    final good = samples.where((s) => s.accuracy <= cutoff).toList();
+    final pool = good.isNotEmpty ? good : samples;
+
+    double median(Iterable<double> values) {
+      final sorted = values.toList()..sort();
+      final mid = sorted.length ~/ 2;
+      return sorted.length.isOdd
+          ? sorted[mid]
+          : (sorted[mid - 1] + sorted[mid]) / 2;
     }
 
-    final result = best;
-    if (result == null) throw Exception('Unable to get your location.');
-    return result;
+    final base = pool.reduce((a, b) => a.accuracy <= b.accuracy ? a : b);
+    return Position(
+      latitude: median(pool.map((s) => s.latitude)),
+      longitude: median(pool.map((s) => s.longitude)),
+      timestamp: base.timestamp,
+      accuracy: median(pool.map((s) => s.accuracy)),
+      altitude: base.altitude,
+      altitudeAccuracy: base.altitudeAccuracy,
+      heading: base.heading,
+      headingAccuracy: base.headingAccuracy,
+      speed: base.speed,
+      speedAccuracy: base.speedAccuracy,
+    );
   }
 
   double _calculateDistance(

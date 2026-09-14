@@ -74,6 +74,8 @@ class BiometricsController extends GetxController {
 
   // Clock-in step feedback
   var clockStepMessage = ''.obs;
+  // GPS capture progress 0→1; -1 = not capturing (indeterminate/other phase).
+  var clockStepProgress = (-1.0).obs;
 
   // Time synchronization
   var serverTimeOffset = Duration.zero.obs;
@@ -287,7 +289,7 @@ class BiometricsController extends GetxController {
     errorMessage('');
     successMessage('');
     clockStepMessage('');
-
+    clockStepProgress(-1);
     final type = isClockIn ? 'clock_in' : 'clock_out';
     authActionType(type);
 
@@ -332,8 +334,11 @@ class BiometricsController extends GetxController {
             clockStepMessage.value =
                 'Acquiring GPS ±${best.accuracy.toStringAsFixed(0)}m...';
           },
+          onProgress: (p) => clockStepProgress.value = p,
         );
+        clockStepProgress(-1);
       } catch (e) {
+        clockStepProgress(-1);
         errorMessage.value = 'Unable to get your location. Please try again.';
         return false;
       }
@@ -420,6 +425,7 @@ class BiometricsController extends GetxController {
       isAuthenticating(false);
       authActionType('');
       clockStepMessage('');
+      clockStepProgress(-1);
     }
   }
 

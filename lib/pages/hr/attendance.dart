@@ -737,14 +737,19 @@ class AttendancePageState extends State<AttendancePage> {
           if (controller.isAuthenticating.value &&
               controller.authActionType.value == expectedType) {
             final step = controller.clockStepMessage.value;
+            // Determinate while GPS capture runs (fills as capture finishes),
+            // indeterminate for face capture / verifying phases.
+            final progress = controller.clockStepProgress.value;
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(
+                SizedBox(
                   height: 16,
                   width: 16,
                   child: CircularProgressIndicator(
-                      color: Colors.white, strokeWidth: 2),
+                      value: progress >= 0 ? progress : null,
+                      color: Colors.white,
+                      strokeWidth: 2),
                 ),
                 if (step.isNotEmpty) ...[
                   const SizedBox(width: 12),
