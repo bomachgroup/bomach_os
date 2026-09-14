@@ -10,4 +10,11 @@ void main() {
     expect(source, contains('border: Border.all(color: AppColors.primarySoft)'));
     expect(source, contains('color: AppColors.textPrimary'));
   });
+
+  test('attendance clock displays hours and minutes without seconds', () {
+    final source = File('lib/pages/hr/attendance.dart').readAsStringSync();
+
+    expect(source, contains("DateFormat('hh:mm a')"));
+    expect(source, isNot(contains("DateFormat('hh:mm:ss a')")));
+  });
 }

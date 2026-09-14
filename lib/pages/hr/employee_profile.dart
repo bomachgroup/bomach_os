@@ -21,6 +21,10 @@ import 'package:intl/intl.dart';
 import '../../src/model/employees_model.dart';
 import '../../src/services/permission_service.dart';
 import 'controller/employees_controller.dart';
+import 'employee_profile_data.dart';
+import '../../src/services/audit_log_service.dart';
+import '../operations/models/models.dart';
+import 'models/work_report_model.dart';
 import 'widget/add_employee_appraisal.dart';
 import 'widget/add_employee_document.dart';
 import 'widget/add_new_employee.dart';
@@ -75,6 +79,41 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
       if (employee == null) {
         return const Scaffold(
           body: Center(child: Text('Employee not found')),
+        );
+      }
+
+      if (context.breakpoint.isDesktop) {
+        return EmployeeDesktopProfileLayout(
+          employee: employee,
+          controller: controller,
+          editAction: _permissionGate(
+            require: Perms.employeesUpdate,
+            child: MyElevatedButton(
+              child: 'Edit Profile',
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              icon: const Icon(Iconsax.edit,
+                  size: 16, color: AppColors.textOnPrimary),
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => AddEmployeeDialog(employee: employee),
+              ),
+            ),
+          ),
+          secondaryAction: _permissionGate(
+            require: Perms.performanceReviewsCreate,
+            child: MyOutlinedButton(
+              child: 'Give Review',
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              icon:
+                  const Icon(Iconsax.star1, size: 16, color: AppColors.primary),
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => EmployeeAppraisalDialog(userId: employee.id),
+              ),
+            ),
+          ),
         );
       }
 
@@ -509,6 +548,642 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
       default:
         return _ProfileTab(employee: employee);
     }
+  }
+}
+
+/// Desktop employee detail shell adapted from the Figma `Desktop - 133`
+/// employee database design. Values remain API-backed through [Employee].
+class EmployeeDesktopProfileLayout extends StatefulWidget {
+  final Employee employee;
+  final EmployeeController? controller;
+  final EmployeeProfileDataSource? dataSource;
+  final Widget? editAction;
+  final Widget? secondaryAction;
+
+  const EmployeeDesktopProfileLayout({
+    super.key,
+    required this.employee,
+    this.controller,
+    this.dataSource,
+    this.editAction,
+    this.secondaryAction,
+  });
+
+  @override
+  State<EmployeeDesktopProfileLayout> createState() =>
+      _EmployeeDesktopProfileLayoutState();
+}
+
+class _EmployeeDesktopProfileLayoutState
+    extends State<EmployeeDesktopProfileLayout> {
+  String _selectedSection = 'Profile';
+  String _selectedInfoTab = 'Personal Information';
+  late final EmployeeProfileDataSource _dataSource;
+  Future<List<AuditLogResponse>>? _activityFuture;
+  Future<List<Task>>? _tasksFuture;
+  Future<List<WorkReport>>? _workReportsFuture;
+
+  static const _sections = [
+    ('Profile', Iconsax.user),
+    ('Activity', Iconsax.activity),
+    ('Tasks', Iconsax.task_square),
+    ('Work Reports', Iconsax.note_2),
+  ];
+
+  static const _infoTabs = [
+    'Personal Information',
+    'Professional Information',
+    'Documents',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _dataSource = widget.dataSource ?? ApiEmployeeProfileDataSource();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final employee = widget.employee;
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: "Employee's Database",
+        subtitle: "Employee's Database  >  ${employee.fullName}",
+      ),
+      children: [
+        AppCard(
+          padding: const EdgeInsets.all(20),
+          elevation: AppCardElevation.sm,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildEmployeeHeader(employee),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Divider(height: 1, color: AppColors.borderSubtle),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(width: 242, child: _buildSectionNavigation()),
+                  const SizedBox(width: 40),
+                  Expanded(child: _buildInformationArea(employee)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmployeeHeader(Employee employee) {
+    final hasPicture = employee.profilePicture != null &&
+        employee.profilePicture!.isNotEmpty &&
+        employee.profilePicture != 'string';
+    return Row(
+      children: [
+        Container(
+          width: 96,
+          height: 96,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceMuted,
+            borderRadius: AppRadii.brLg,
+            border: Border.all(color: AppColors.borderSubtle),
+            image: hasPicture
+                ? DecorationImage(
+                    image: NetworkImage(employee.profilePicture!),
+                    fit: BoxFit.cover,
+                  )
+                : null,
+          ),
+          child: hasPicture
+              ? null
+              : Center(
+                  child: Text(
+                    employee.firstName.isEmpty
+                        ? '?'
+                        : employee.firstName[0].toUpperCase(),
+                    style: AppTextStyles.h1.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(employee.fullName, style: AppTextStyles.h2),
+              const SizedBox(height: 8),
+              _headerDetail(
+                  Iconsax.briefcase, employee.designation ?? employee.role),
+              const SizedBox(height: 6),
+              _headerDetail(Iconsax.sms, employee.email),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [
+                  StatusChip(
+                    label: employee.isActive ? 'Active' : 'Inactive',
+                    tone: employee.isActive
+                        ? StatusTone.success
+                        : StatusTone.neutral,
+                    dense: true,
+                  ),
+                  StatusChip(
+                    label: employee.isVerified ? 'Verified' : 'Unverified',
+                    tone: employee.isVerified
+                        ? StatusTone.success
+                        : StatusTone.warning,
+                    dense: true,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        if (widget.secondaryAction != null) ...[
+          widget.secondaryAction!,
+          const SizedBox(width: 12),
+        ],
+        widget.editAction ??
+            MyElevatedButton(
+              child: 'Edit Profile',
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              icon: const Icon(Iconsax.edit,
+                  size: 16, color: AppColors.textOnPrimary),
+              onTap: () {},
+            ),
+      ],
+    );
+  }
+
+  Widget _headerDetail(IconData icon, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: AppColors.textSecondary),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            value,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionNavigation() {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.borderSubtle),
+        borderRadius: AppRadii.brLg,
+      ),
+      child: Column(
+        children: _sections.map((section) {
+          final label = section.$1;
+          final selected = label == _selectedSection;
+          return Material(
+            color: selected ? AppColors.primary : Colors.transparent,
+            borderRadius: label == _sections.first.$1
+                ? const BorderRadius.vertical(top: Radius.circular(16))
+                : label == _sections.last.$1
+                    ? const BorderRadius.vertical(bottom: Radius.circular(16))
+                    : BorderRadius.zero,
+            child: InkWell(
+              onTap: () => _selectSection(label),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  children: [
+                    Icon(
+                      section.$2,
+                      size: 20,
+                      color: selected
+                          ? AppColors.textOnPrimary
+                          : AppColors.textPrimary,
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        label,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: selected
+                              ? AppColors.textOnPrimary
+                              : AppColors.textPrimary,
+                          fontWeight:
+                              selected ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildInformationArea(Employee employee) {
+    switch (_selectedSection) {
+      case 'Activity':
+        return _buildActivity(employee);
+      case 'Tasks':
+        return _buildTasks(employee);
+      case 'Work Reports':
+        return _buildWorkReports(employee);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildInfoTabs(),
+        const SizedBox(height: 24),
+        if (_selectedInfoTab == 'Personal Information')
+          _buildPersonalInformation(employee)
+        else if (_selectedInfoTab == 'Professional Information')
+          _buildProfessionalInformation(employee)
+        else if (widget.controller != null)
+          _DocumentsTab(controller: widget.controller!, userId: employee.id)
+        else
+          const EmptyState(
+            icon: Iconsax.document,
+            title: 'Documents unavailable',
+            subtitle: 'No document service is connected to this view.',
+          ),
+      ],
+    );
+  }
+
+  void _selectSection(String section) {
+    if (section == 'Activity' && _activityFuture == null) {
+      _activityFuture = _dataSource.loadActivity(widget.employee);
+    } else if (section == 'Tasks' && _tasksFuture == null) {
+      _tasksFuture = _dataSource.loadTasks(widget.employee);
+    } else if (section == 'Work Reports' && _workReportsFuture == null) {
+      _workReportsFuture = _dataSource.loadWorkReports(widget.employee);
+    }
+    setState(() => _selectedSection = section);
+  }
+
+  Widget _buildActivity(Employee employee) {
+    return _profileDataFuture<AuditLogResponse>(
+      future: _activityFuture,
+      emptyTitle: 'No activity found',
+      emptySubtitle: 'There is no recorded activity for this employee.',
+      onRetry: () => setState(() {
+        _activityFuture = _dataSource.loadActivity(employee);
+      }),
+      itemBuilder: (item) => ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const CircleAvatar(
+          backgroundColor: AppColors.surfaceMuted,
+          child: Icon(Iconsax.activity, color: AppColors.primary, size: 18),
+        ),
+        title: Text(item.activity.isEmpty ? 'Employee activity' : item.activity),
+        subtitle: Text(
+          [item.auditTypeDisplay, item.auditStatusDisplay, item.createdAt]
+              .where((part) => part.trim().isNotEmpty)
+              .join(' • '),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTasks(Employee employee) {
+    return _profileDataFuture<Task>(
+      future: _tasksFuture,
+      emptyTitle: 'No tasks found',
+      emptySubtitle: 'No tasks are assigned to this employee.',
+      onRetry: () => setState(() {
+        _tasksFuture = _dataSource.loadTasks(employee);
+      }),
+      itemBuilder: (task) => ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const CircleAvatar(
+          backgroundColor: AppColors.surfaceMuted,
+          child: Icon(Iconsax.task_square, color: AppColors.primary, size: 18),
+        ),
+        title: Text(task.name),
+        subtitle: Text(
+          [task.status, task.priority, task.dueDate]
+              .where((part) => part.trim().isNotEmpty)
+              .join(' • '),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWorkReports(Employee employee) {
+    return _profileDataFuture<WorkReport>(
+      future: _workReportsFuture,
+      emptyTitle: 'No work reports found',
+      emptySubtitle: 'This employee has no work reports available.',
+      onRetry: () => setState(() {
+        _workReportsFuture = _dataSource.loadWorkReports(employee);
+      }),
+      itemBuilder: (report) => ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const CircleAvatar(
+          backgroundColor: AppColors.surfaceMuted,
+          child: Icon(Iconsax.note_2, color: AppColors.primary, size: 18),
+        ),
+        title: Text(
+          report.day == null
+              ? 'Work report'
+              : DateFormat('MMM dd, yyyy').format(report.day!),
+        ),
+        subtitle: Text(
+          [
+            '${report.hoursWorked} hours',
+            report.status,
+            if (report.workActivities?.trim().isNotEmpty == true)
+              report.workActivities!,
+          ].join(' • '),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: const Icon(Iconsax.arrow_right_3, size: 18),
+        onTap: () => _showWorkReportDetail(report.id),
+      ),
+    );
+  }
+
+  Widget _profileDataFuture<T>({
+    required Future<List<T>>? future,
+    required String emptyTitle,
+    required String emptySubtitle,
+    required VoidCallback onRetry,
+    required Widget Function(T item) itemBuilder,
+  }) {
+    if (future == null) {
+      return const SizedBox(
+        height: 160,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return FutureBuilder<List<T>>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 160,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError) {
+          return Column(
+            children: [
+              EmptyState(
+                icon: Iconsax.info_circle,
+                title: 'Unable to load data',
+                subtitle: snapshot.error.toString(),
+              ),
+              TextButton(onPressed: onRetry, child: const Text('Retry')),
+            ],
+          );
+        }
+        final items = snapshot.data ?? <T>[];
+        if (items.isEmpty) {
+          return EmptyState(
+            icon: Iconsax.receipt,
+            title: emptyTitle,
+            subtitle: emptySubtitle,
+          );
+        }
+        return Column(
+          children: items
+              .map((item) => Column(
+                    children: [
+                      Material(
+                        color: Colors.transparent,
+                        child: itemBuilder(item),
+                      ),
+                      const Divider(height: 1, color: AppColors.borderSubtle),
+                    ],
+                  ))
+              .toList(),
+        );
+      },
+    );
+  }
+
+  Future<void> _showWorkReportDetail(String reportId) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => FutureBuilder<WorkReport>(
+        future: _dataSource.loadWorkReport(reportId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const AlertDialog(
+              content: SizedBox(
+                height: 100,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          }
+          if (snapshot.hasError || !snapshot.hasData) {
+            return AlertDialog(
+              title: const Text('Work report unavailable'),
+              content: Text(snapshot.error?.toString() ??
+                  'The full work report could not be loaded.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
+              ],
+            );
+          }
+          final report = snapshot.data!;
+          return AlertDialog(
+            title: const Text('Work report'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _reportDetail('Date', report.day == null
+                      ? '—'
+                      : DateFormat('MMM dd, yyyy').format(report.day!)),
+                  _reportDetail('Hours', '${report.hoursWorked}'),
+                  _reportDetail('Operational base', report.operationalBase),
+                  _reportDetail('Activities', report.workActivities),
+                  _reportDetail('Task details', report.taskDetails),
+                  _reportDetail('Next-day plan', report.planNextDay),
+                  _reportDetail('Status', report.status),
+                  _reportDetail('Feedback', report.feedback),
+                  _reportDetail(
+                    'Attachments',
+                    report.attachments.isEmpty
+                        ? 'None'
+                        : report.attachments
+                            .map((attachment) => attachment.fileUrl)
+                            .join('\n'),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _reportDetail(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text('$label: ${value?.trim().isNotEmpty == true ? value : '—'}'),
+    );
+  }
+
+  Widget _buildInfoTabs() {
+    return Row(
+      children: _infoTabs.map((tab) {
+        final selected = tab == _selectedInfoTab;
+        return Expanded(
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => setState(() => _selectedInfoTab = tab),
+              child: Container(
+                padding: const EdgeInsets.only(bottom: 14),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color:
+                          selected ? AppColors.primary : AppColors.borderSubtle,
+                      width: selected ? 2 : 1,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  tab,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color:
+                        selected ? AppColors.primary : AppColors.textSecondary,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildPersonalInformation(Employee employee) {
+    return _DesktopInfoGrid(fields: [
+      _DesktopInfoField('First Name', employee.firstName),
+      _DesktopInfoField('Last Name', employee.lastName),
+      _DesktopInfoField('Employee ID', employee.employeeId ?? employee.id),
+      _DesktopInfoField('Gender', employee.gender),
+      _DesktopInfoField(
+        'Date of Birth',
+        employee.dateOfBirth == null
+            ? null
+            : DateFormat('MMM dd, yyyy').format(employee.dateOfBirth!),
+      ),
+      _DesktopInfoField('Marital Status', employee.maritalStatus),
+      _DesktopInfoField('Email', employee.email),
+      _DesktopInfoField('Phone', employee.phoneNumber),
+      _DesktopInfoField('Address', employee.streetAddress ?? employee.address),
+      _DesktopInfoField('City', employee.city),
+      _DesktopInfoField('State', employee.state),
+      _DesktopInfoField('Nationality', employee.nationality),
+    ]);
+  }
+
+  Widget _buildProfessionalInformation(Employee employee) {
+    return _DesktopInfoGrid(fields: [
+      _DesktopInfoField('Designation', employee.designation ?? employee.role),
+      _DesktopInfoField('Department', employee.departmentName),
+      _DesktopInfoField('Branch', employee.branchName),
+      _DesktopInfoField('Unit', employee.departmentUnitName),
+      _DesktopInfoField('Employment Type', employee.employmentType),
+      _DesktopInfoField('Status', employee.isActive ? 'Active' : 'Inactive'),
+      _DesktopInfoField('Reporting To', employee.reportingToName),
+      _DesktopInfoField('Location', employee.location),
+      _DesktopInfoField(
+        'Joining Date',
+        employee.startDate == null
+            ? null
+            : DateFormat('MMM dd, yyyy').format(employee.startDate!),
+      ),
+      _DesktopInfoField('Work Schedule', employee.workSchedule),
+    ]);
+  }
+
+}
+
+class _DesktopInfoField {
+  final String label;
+  final String? value;
+
+  const _DesktopInfoField(this.label, this.value);
+}
+
+class _DesktopInfoGrid extends StatelessWidget {
+  final List<_DesktopInfoField> fields;
+
+  const _DesktopInfoGrid({required this.fields});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: fields.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 28,
+        mainAxisSpacing: 22,
+        mainAxisExtent: 58,
+      ),
+      itemBuilder: (context, index) {
+        final field = fields[index];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(field.label,
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.textSecondary,
+                )),
+            const SizedBox(height: 6),
+            Text(
+              field.value?.trim().isNotEmpty == true ? field.value! : '—',
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+          ],
+        );
+      },
+    );
   }
 }
 

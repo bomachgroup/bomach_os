@@ -41,7 +41,7 @@ class AttendancePageState extends State<AttendancePage> {
 
   Stream<String> get _timeStream => Stream.periodic(
         const Duration(seconds: 1),
-        (_) => DateFormat('hh:mm:ss a').format(controller.trustedTime),
+        (_) => DateFormat('hh:mm a').format(controller.trustedTime),
       );
 
   @override
@@ -482,7 +482,7 @@ class AttendancePageState extends State<AttendancePage> {
             builder: (context, snapshot) {
               return Text(
                 snapshot.data ??
-                    DateFormat('hh:mm:ss a').format(controller.trustedTime),
+                    DateFormat('hh:mm a').format(controller.trustedTime),
                 style: const TextStyle(
                     fontSize: 52,
                     fontWeight: FontWeight.bold,
