@@ -22,12 +22,26 @@ class BiometricAttendanceRecord {
   });
 
   factory BiometricAttendanceRecord.fromJson(Map<String, dynamic> json) {
+    final rawType = json['attendance_type']
+            ?.toString()
+            .trim()
+            .toUpperCase()
+            .replaceAll('-', '_')
+            .replaceAll(' ', '_') ??
+        'UNKNOWN';
+    final normalizedType = (rawType == 'IN' || rawType == 'CLOCKIN')
+        ? 'CLOCK_IN'
+        : (rawType == 'OUT' || rawType == 'CLOCKOUT')
+            ? 'CLOCK_OUT'
+            : rawType;
+
+    final parsedTimestamp = parseTimestamp(json['timestamp']);
+
     return BiometricAttendanceRecord(
       id: json['id'] ?? 0,
       employeeId: json['employee_id']?.toString(),
-      attendanceType:
-          (json['attendance_type']?.toString() ?? 'UNKNOWN').toUpperCase(),
-      timestamp: DateTime.tryParse(json['timestamp'] ?? '') ?? DateTime.now(),
+      attendanceType: normalizedType,
+      timestamp: parsedTimestamp,
       verificationMethod: json['verification_method'] ?? 'MANUAL',
       notes: json['notes'],
       locationVerified: json['location_verified'] as bool?,
@@ -50,6 +64,30 @@ class BiometricAttendanceRecord {
       'distance_meters': distanceMeters,
     };
   }
+
+  /// Parses timestamps from the backend, treating naive ISO strings as UTC
+  /// before converting to the client's local timezone.
+  static DateTime parseTimestamp(dynamic raw) {
+    if (raw == null) return DateTime.now();
+    if (raw is DateTime) return raw.toLocal();
+    final str = raw.toString().trim();
+    if (str.isEmpty) return DateTime.now();
+
+    String normalizedStr = str.replaceFirst(' ', 'T');
+    final hasTimezone = normalizedStr.endsWith('Z') ||
+        normalizedStr.endsWith('z') ||
+        (normalizedStr.contains(':') &&
+            RegExp(r'[+-]\d{2}(:?\d{2})?$').hasMatch(normalizedStr));
+
+    if (!hasTimezone) {
+      normalizedStr = '${normalizedStr}Z';
+    }
+
+    final parsed = DateTime.tryParse(normalizedStr) ??
+        DateTime.tryParse(str) ??
+        DateTime.now();
+    return parsed.toLocal();
+  }
 }
 
 // --- Derived model for the user's attendance history table ---
@@ -65,4 +103,16 @@ class DailyAttendance {
     this.clockOutTime,
     this.hoursWorked = '--:--',
   });
+
+  bool get hasClockedIn =>
+      clockInTime != null &&
+      clockInTime != '--:--' &&
+      clockInTime!.trim().isNotEmpty;
+
+  bool get hasClockedOut =>
+      clockOutTime != null &&
+      clockOutTime != '--:--' &&
+      clockOutTime!.trim().isNotEmpty;
+
+  bool get isCompleted => hasClockedIn && hasClockedOut;
 }
