@@ -470,6 +470,8 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                 children: [
                   _buildHeaderCell('Name & ID', flex: 4),
                   const SizedBox(width: 16),
+                  _buildHeaderCell('Role', flex: 3),
+                  const SizedBox(width: 16),
                   _buildHeaderCell('Designation', flex: 3),
                   const SizedBox(width: 16),
                   _buildHeaderCell('Department', flex: 3),
@@ -523,9 +525,24 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
           Expanded(
             flex: 3,
             child: Text(
-              emp.designation ?? emp.role,
-              style:
-                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              controller.getRoleNameForEmployee(emp),
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 3,
+            child: Text(
+              emp.designation?.trim().isNotEmpty == true
+                  ? emp.designation!
+                  : '—',
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textSecondary,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -603,7 +620,16 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                   runSpacing: 10,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    _buildInfoLine('Designation', emp.designation ?? emp.role),
+                    _buildInfoLine(
+                      'Role',
+                      controller.getRoleNameForEmployee(emp),
+                    ),
+                    _buildInfoLine(
+                      'Designation',
+                      emp.designation?.trim().isNotEmpty == true
+                          ? emp.designation!
+                          : '—',
+                    ),
                     _buildInfoLine(
                       'Department',
                       emp.departmentName ?? emp.departmentId?.toString() ?? '-',

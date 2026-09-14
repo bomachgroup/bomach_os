@@ -7,6 +7,7 @@ import 'package:bomach_os/components/section/responsive_stat_row.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -394,35 +395,53 @@ class AttendancePageState extends State<AttendancePage> {
     final weekStart = DateTime(now.year, now.month, now.day)
         .subtract(Duration(days: now.weekday - 1));
     final monthStart = DateTime(now.year, now.month, 1);
+    final nextMonth = DateTime(now.year, now.month + 1, 1);
+    final todayKey = DateFormat('yyyy-MM-dd').format(now);
 
     // Group records by day (yyyy-MM-dd) so we count unique days, not events.
     final Map<String, List<BiometricAttendanceRecord>> byDay = {};
     for (final r in records) {
-      final key = DateFormat('yyyy-MM-dd').format(r.timestamp);
+      final key = DateFormat('yyyy-MM-dd').format(r.timestamp.toLocal());
       byDay.putIfAbsent(key, () => []).add(r);
     }
 
     int thisWeek = 0;
     int thisMonth = 0;
     Duration monthTotal = Duration.zero;
-    int monthDaysWithPair = 0;
+    int monthDaysWithHours = 0;
     BiometricAttendanceRecord? lastClockIn;
 
     byDay.forEach((dateKey, events) {
       events.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-      final dayDate = DateTime.parse(dateKey);
+      final dayDate = DateTime.tryParse(dateKey) ?? DateTime.now();
       final hasClockIn = events.any((e) => e.attendanceType == 'CLOCK_IN');
       if (!hasClockIn) return;
 
-      if (!dayDate.isBefore(weekStart)) thisWeek++;
-      if (!dayDate.isBefore(monthStart)) {
+      final isThisWeek = !dayDate.isBefore(weekStart) &&
+          dayDate.isBefore(weekStart.add(const Duration(days: 7)));
+      final isThisMonth =
+          !dayDate.isBefore(monthStart) && dayDate.isBefore(nextMonth);
+
+      if (isThisWeek) thisWeek++;
+      if (isThisMonth) {
         thisMonth++;
         final ci = events.firstWhere((e) => e.attendanceType == 'CLOCK_IN');
-        final co = events.lastWhere((e) => e.attendanceType == 'CLOCK_OUT',
-            orElse: () => ci);
-        if (co != ci) {
-          monthTotal += co.timestamp.difference(ci.timestamp);
-          monthDaysWithPair++;
+        final co =
+            events.lastWhereOrNull((e) => e.attendanceType == 'CLOCK_OUT');
+
+        if (co != null && co.timestamp.isAfter(ci.timestamp)) {
+          final diff = co.timestamp.difference(ci.timestamp);
+          if (!diff.isNegative) {
+            monthTotal += diff;
+            monthDaysWithHours++;
+          }
+        } else if (dateKey == todayKey && now.isAfter(ci.timestamp)) {
+          // Today's shift is currently in progress — count active time worked so far
+          final ongoing = now.difference(ci.timestamp);
+          if (!ongoing.isNegative && ongoing.inMinutes > 0) {
+            monthTotal += ongoing;
+            monthDaysWithHours++;
+          }
         }
       }
     });
@@ -435,11 +454,17 @@ class AttendancePageState extends State<AttendancePage> {
     }
 
     String avgLabel = '0h';
-    if (monthDaysWithPair > 0) {
-      final avgMinutes = monthTotal.inMinutes ~/ monthDaysWithPair;
+    if (monthDaysWithHours > 0) {
+      final avgMinutes = monthTotal.inMinutes ~/ monthDaysWithHours;
       final h = avgMinutes ~/ 60;
       final m = avgMinutes % 60;
-      avgLabel = '${h}h ${m}m';
+      if (h == 0 && m > 0) {
+        avgLabel = '${m}m';
+      } else if (m == 0) {
+        avgLabel = '${h}h';
+      } else {
+        avgLabel = '${h}h ${m}m';
+      }
     }
 
     return _AttendanceStats(
@@ -499,15 +524,9 @@ class AttendancePageState extends State<AttendancePage> {
           const Divider(),
           const SizedBox(height: 20),
           Obx(() {
-            final todayDateStr =
-                DateFormat('yyyy-MM-dd').format(controller.trustedTime);
-            final todayRecord = controller.dailyAttendanceList.firstWhere(
-              (r) => r.date == todayDateStr,
-              orElse: () => DailyAttendance(date: todayDateStr),
-            );
-
-            final timeIn = todayRecord.clockInTime ?? '--:--';
-            final timeOut = todayRecord.clockOutTime ?? '--:--';
+            final today = controller.todayAttendance;
+            final timeIn = today.clockInTime ?? '--:--';
+            final timeOut = today.clockOutTime ?? '--:--';
 
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -522,8 +541,21 @@ class AttendancePageState extends State<AttendancePage> {
           }),
           const SizedBox(height: 24),
           Obx(() {
-            final disabledReason = _disabledReason();
-            final enabled = disabledReason == null;
+            final blockerReason = _disabledReason();
+            final hasBlocker = blockerReason != null;
+            final isAuthenticating = controller.isAuthenticating.value;
+
+            final today = controller.todayAttendance;
+            final hasClockedIn = today.hasClockedIn;
+            final hasClockedOut = today.hasClockedOut;
+
+            // Smart button enable/disable rules:
+            // 1. Can only clock in if not blocked, not authenticating, and hasn't clocked in today yet.
+            final canClockIn = !hasBlocker && !isAuthenticating && !hasClockedIn;
+
+            // 2. Can only clock out after clocking in, and hasn't clocked out today yet.
+            final canClockOut = !hasBlocker && !isAuthenticating && hasClockedIn && !hasClockedOut;
+
             return Column(
               children: [
                 Row(
@@ -532,7 +564,7 @@ class AttendancePageState extends State<AttendancePage> {
                       child: _buildActionButton(
                         buttonText: "Clock In",
                         buttonColor: AppColors.success,
-                        onTap: enabled ? () => _handleClockAction(true) : null,
+                        onTap: canClockIn ? () => _handleClockAction(true) : null,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -540,12 +572,12 @@ class AttendancePageState extends State<AttendancePage> {
                       child: _buildActionButton(
                         buttonText: "Clock Out",
                         buttonColor: AppColors.primary,
-                        onTap: enabled ? () => _handleClockAction(false) : null,
+                        onTap: canClockOut ? () => _handleClockAction(false) : null,
                       ),
                     ),
                   ],
                 ),
-                if (disabledReason != null) ...[
+                if (hasBlocker) ...[
                   const SizedBox(height: 12),
                   Container(
                     width: double.infinity,
@@ -565,10 +597,41 @@ class AttendancePageState extends State<AttendancePage> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            disabledReason,
+                            blockerReason,
                             style: const TextStyle(
                               fontSize: 12,
                               color: Color(0xFF92400E),
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else if (hasClockedIn && hasClockedOut) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                          color: AppColors.success.withValues(alpha: 0.3)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Iconsax.tick_circle,
+                            color: AppColors.success, size: 16),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "You've completed your attendance for today. See you tomorrow!",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF166534),
+                              fontWeight: FontWeight.w500,
                               height: 1.4,
                             ),
                           ),
@@ -588,7 +651,8 @@ class AttendancePageState extends State<AttendancePage> {
   /// Returns null when clock-in is allowed, else a human-readable reason.
   String? _disabledReason() {
     if (controller.isFetchingWorkspace.value ||
-        controller.isFetchingStatus.value) {
+        controller.isFetchingStatus.value ||
+        (controller.isLoading.value && controller.dailyAttendanceList.isEmpty)) {
       return 'Loading your status…';
     }
     if (!controller.hasFace.value) {
@@ -655,6 +719,7 @@ class AttendancePageState extends State<AttendancePage> {
       {required String buttonText,
       required Color buttonColor,
       required VoidCallback? onTap}) {
+    final isEnabled = onTap != null;
     return SizedBox(
       height: 54,
       child: ElevatedButton(
@@ -662,6 +727,7 @@ class AttendancePageState extends State<AttendancePage> {
         style: ElevatedButton.styleFrom(
           backgroundColor: buttonColor,
           disabledBackgroundColor: AppColors.neutral300,
+          disabledForegroundColor: AppColors.neutral500,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -695,8 +761,8 @@ class AttendancePageState extends State<AttendancePage> {
             );
           }
           return Text(buttonText,
-              style: const TextStyle(
-                  color: Colors.white,
+              style: TextStyle(
+                  color: isEnabled ? Colors.white : AppColors.neutral500,
                   fontWeight: FontWeight.bold,
                   fontSize: 15));
         }),

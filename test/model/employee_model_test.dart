@@ -225,7 +225,17 @@ void main() {
       expect(e.fullName, 'Ada Lovelace');
     });
 
-    test('role returns employeeLevel first, then designation, then Staff', () {
+    test('role returns roleName first, then employeeLevel, then designation, then Staff', () {
+      final withRoleName = Employee(
+          id: '1',
+          email: 'e@e.com',
+          firstName: 'A',
+          lastName: 'B',
+          roleName: 'Lead Engineer',
+          employeeLevel: 'CEO',
+          designation: 'Manager');
+      expect(withRoleName.role, 'Lead Engineer');
+
       final withLevel = Employee(
           id: '1',
           email: 'e@e.com',
@@ -245,6 +255,38 @@ void main() {
       final noRole =
           Employee(id: '1', email: 'e@e.com', firstName: 'A', lastName: 'B');
       expect(noRole.role, 'Staff');
+    });
+
+    test('fromJson parses roleName from role_name, role string, or role map', () {
+      final fromRoleName = Employee.fromJson({
+        'user_id': 1,
+        'email': 'e@e.com',
+        'first_name': 'A',
+        'last_name': 'B',
+        'role_name': 'Project Manager',
+      });
+      expect(fromRoleName.roleName, 'Project Manager');
+      expect(fromRoleName.role, 'Project Manager');
+
+      final fromRoleString = Employee.fromJson({
+        'user_id': 2,
+        'email': 'e@e.com',
+        'first_name': 'A',
+        'last_name': 'B',
+        'role': 'Product Owner',
+      });
+      expect(fromRoleString.roleName, 'Product Owner');
+      expect(fromRoleString.role, 'Product Owner');
+
+      final fromRoleMap = Employee.fromJson({
+        'user_id': 3,
+        'email': 'e@e.com',
+        'first_name': 'A',
+        'last_name': 'B',
+        'role': {'id': 5, 'name': 'DevOps Engineer'},
+      });
+      expect(fromRoleMap.roleName, 'DevOps Engineer');
+      expect(fromRoleMap.role, 'DevOps Engineer');
     });
   });
 }

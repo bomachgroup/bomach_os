@@ -596,6 +596,27 @@ class _EmployeeDesktopProfileLayoutState
     'Documents',
   ];
 
+  EmployeeController get _controller =>
+      widget.controller ??
+      (Get.isRegistered<EmployeeController>()
+          ? Get.find<EmployeeController>()
+          : Get.put(EmployeeController()));
+
+  String _getRoleOrDesignation(Employee employee) {
+    final role = _controller.getRoleNameForEmployee(employee);
+    final designation = employee.designation?.trim();
+    if (role.isNotEmpty && role != '—' && role != 'Staff') {
+      if (designation != null && designation.isNotEmpty && designation != role) {
+        return '$role • $designation';
+      }
+      return role;
+    }
+    if (designation != null && designation.isNotEmpty) {
+      return designation;
+    }
+    return role.isNotEmpty ? role : 'Staff';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -680,7 +701,7 @@ class _EmployeeDesktopProfileLayoutState
               Text(employee.fullName, style: AppTextStyles.h2),
               const SizedBox(height: 8),
               _headerDetail(
-                  Iconsax.briefcase, employee.designation ?? employee.role),
+                  Iconsax.briefcase, _getRoleOrDesignation(employee)),
               const SizedBox(height: 6),
               _headerDetail(Iconsax.sms, employee.email),
               const SizedBox(height: 8),
@@ -724,6 +745,7 @@ class _EmployeeDesktopProfileLayoutState
   }
 
   Widget _headerDetail(IconData icon, String value) {
+    if (value.trim().isEmpty) return const SizedBox.shrink();
     return Row(
       children: [
         Icon(icon, size: 18, color: AppColors.textSecondary),
@@ -1116,7 +1138,13 @@ class _EmployeeDesktopProfileLayoutState
 
   Widget _buildProfessionalInformation(Employee employee) {
     return _DesktopInfoGrid(fields: [
-      _DesktopInfoField('Designation', employee.designation ?? employee.role),
+      _DesktopInfoField('Role', _controller.getRoleNameForEmployee(employee)),
+      _DesktopInfoField(
+        'Designation',
+        employee.designation?.trim().isNotEmpty == true
+            ? employee.designation!
+            : '—',
+      ),
       _DesktopInfoField('Department', employee.departmentName),
       _DesktopInfoField('Branch', employee.branchName),
       _DesktopInfoField('Unit', employee.departmentUnitName),
@@ -1336,8 +1364,18 @@ class _ProfileTab extends StatelessWidget {
               isGrid: true,
               children: [
                 _DataField(
-                    label: 'Designation',
-                    value: employee.designation ?? employee.role),
+                  label: 'Role',
+                  value: Get.isRegistered<EmployeeController>()
+                      ? Get.find<EmployeeController>()
+                          .getRoleNameForEmployee(employee)
+                      : employee.role,
+                ),
+                _DataField(
+                  label: 'Designation',
+                  value: employee.designation?.trim().isNotEmpty == true
+                      ? employee.designation!
+                      : '—',
+                ),
                 _DataField(
                     label: 'Department',
                     value: employee.departmentName ??

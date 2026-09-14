@@ -82,6 +82,7 @@ class Employee {
   final int? levelId;
   final String? employeeLevel; // From API (e.g., "head", "ceo")
   final int? roleId;
+  final String? roleName;
   final String? location;
   final int? reportingToId;
   final String? reportingToName;
@@ -109,7 +110,15 @@ class Employee {
   final DateTime? updatedAt;
 
   // Helper: Role Display Priority
-  String get role => employeeLevel ?? designation ?? 'Staff';
+  String get role {
+    if (roleName != null && roleName!.trim().isNotEmpty) {
+      return roleName!.trim();
+    }
+    if (employeeLevel != null && employeeLevel!.trim().isNotEmpty) {
+      return employeeLevel!.trim();
+    }
+    return designation ?? 'Staff';
+  }
   String get fullName => '$firstName $lastName';
 
   Employee({
@@ -152,6 +161,7 @@ class Employee {
     this.levelId,
     this.employeeLevel,
     this.roleId,
+    this.roleName,
     this.location,
     this.reportingToId,
     this.reportingToName,
@@ -244,6 +254,13 @@ class Employee {
       roleId: json['role_id'] is String
           ? int.tryParse(json['role_id'])
           : json['role_id'],
+      roleName: json['role_name']?.toString() ??
+          (json['role'] is String
+              ? json['role']?.toString()
+              : (json['role'] is Map
+                  ? json['role']['name']?.toString()
+                  : null)) ??
+          json['role_title']?.toString(),
 
       location: json['location'],
       reportingToId: json['reporting_to_id'] is String

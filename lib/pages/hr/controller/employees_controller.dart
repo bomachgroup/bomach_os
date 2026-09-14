@@ -50,6 +50,31 @@ class EmployeeController extends GetxController {
   var allEmployees = <Employee>[].obs; // For "Reporting To" dropdown
   var roles = <Role>[].obs; // For "Role" dropdown
 
+  /// Resolves the human-readable role name for an employee.
+  /// Checks roleName, then roleId in the fetched roles list, then employeeLevel,
+  /// then fallback role getter.
+  String getRoleNameForEmployee(Employee emp) {
+    if (emp.roleName != null && emp.roleName!.trim().isNotEmpty) {
+      return emp.roleName!.trim();
+    }
+    if (emp.roleId != null && roles.isNotEmpty) {
+      final match = roles.firstWhereOrNull((r) => r.id == emp.roleId);
+      if (match != null && match.name.trim().isNotEmpty) {
+        return match.name.trim();
+      }
+    }
+    if (emp.employeeLevel != null && emp.employeeLevel!.trim().isNotEmpty) {
+      return emp.employeeLevel!.trim();
+    }
+    if (emp.role.isNotEmpty && emp.role != 'Staff') {
+      return emp.role;
+    }
+    if (emp.roleId != null) {
+      return 'Role #${emp.roleId}';
+    }
+    return emp.role.isNotEmpty ? emp.role : '—';
+  }
+
   // ─── Selected Employee (for profile page) ──────────────────────────
   var selectedEmployee = Rxn<Employee>();
 

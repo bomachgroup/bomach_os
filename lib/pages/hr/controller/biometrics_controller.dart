@@ -51,6 +51,21 @@ class BiometricsController extends GetxController {
   /// True if the clock-in/out buttons should be enabled.
   bool get canClockIn => approvedWorkspace != null;
 
+  /// Returns today's attendance record, or a default empty record if none exists yet.
+  DailyAttendance get todayAttendance {
+    final todayDateStr = DateFormat('yyyy-MM-dd').format(trustedTime);
+    return dailyAttendanceList.firstWhere(
+      (r) => r.date == todayDateStr,
+      orElse: () => DailyAttendance(date: todayDateStr),
+    );
+  }
+
+  /// True if the user has already clocked in today.
+  bool get hasClockedInToday => todayAttendance.hasClockedIn;
+
+  /// True if the user has already clocked out today.
+  bool get hasClockedOutToday => todayAttendance.hasClockedOut;
+
   // Biometric enrollment status (from GET /biometric/status)
   var hasFace = false.obs;
   var hasFingerprint = false.obs;
@@ -274,6 +289,20 @@ class BiometricsController extends GetxController {
     authActionType(type);
 
     try {
+      // 0. State validation guards
+      if (isClockIn && hasClockedInToday) {
+        errorMessage.value = 'You have already clocked in for today.';
+        return false;
+      }
+      if (!isClockIn && !hasClockedInToday) {
+        errorMessage.value = 'You must clock in before you can clock out.';
+        return false;
+      }
+      if (!isClockIn && hasClockedOutToday) {
+        errorMessage.value = 'You have already clocked out for today.';
+        return false;
+      }
+
       // 1. Must have at least one APPROVED + active workspace.
       final ws = approvedWorkspace;
       if (ws == null) {
