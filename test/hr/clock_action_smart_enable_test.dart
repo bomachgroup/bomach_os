@@ -211,7 +211,87 @@ void main() {
       expect(avgMinutes ~/ 60, 8);
     });
 
-    test('counts active ongoing shift time so average is not 0 for working shift', () {
+    test('option C: does not dilute completed days average when shift is in progress today', () {
+      final now = DateTime(2026, 9, 15, 7, 47);
+      final records = [
+        // Day 1 (yesterday): Completed 7h 30m shift
+        BiometricAttendanceRecord(
+          id: 1,
+          attendanceType: 'CLOCK_IN',
+          timestamp: DateTime(2026, 9, 14, 8, 30),
+          verificationMethod: 'FACE',
+        ),
+        BiometricAttendanceRecord(
+          id: 2,
+          attendanceType: 'CLOCK_OUT',
+          timestamp: DateTime(2026, 9, 14, 16, 0),
+          verificationMethod: 'FACE',
+        ),
+        // Day 2 (today): Clocked in 7 minutes ago
+        BiometricAttendanceRecord(
+          id: 3,
+          attendanceType: 'CLOCK_IN',
+          timestamp: DateTime(2026, 9, 15, 7, 40),
+          verificationMethod: 'FACE',
+        ),
+      ];
+
+      final monthStart = DateTime(now.year, now.month, 1);
+      final nextMonth = DateTime(now.year, now.month + 1, 1);
+      final todayKey = DateFormat('yyyy-MM-dd').format(now);
+
+      final Map<String, List<BiometricAttendanceRecord>> byDay = {};
+      for (final r in records) {
+        final key = DateFormat('yyyy-MM-dd').format(r.timestamp.toLocal());
+        byDay.putIfAbsent(key, () => []).add(r);
+      }
+
+      Duration completedMonthTotal = Duration.zero;
+      int completedMonthDays = 0;
+      Duration ongoingTodayShift = Duration.zero;
+      bool hasOngoingTodayShift = false;
+
+      byDay.forEach((dateKey, events) {
+        events.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+        final dayDate = DateTime.tryParse(dateKey) ?? DateTime.now();
+        final hasClockIn = events.any((e) => e.attendanceType == 'CLOCK_IN');
+        if (!hasClockIn) return;
+
+        final isThisMonth =
+            !dayDate.isBefore(monthStart) && dayDate.isBefore(nextMonth);
+        if (isThisMonth) {
+          final ci = events.firstWhere((e) => e.attendanceType == 'CLOCK_IN');
+          final co = events.lastWhereOrNull((e) => e.attendanceType == 'CLOCK_OUT');
+
+          if (co != null && co.timestamp.isAfter(ci.timestamp)) {
+            final diff = co.timestamp.difference(ci.timestamp);
+            if (!diff.isNegative) {
+              completedMonthTotal += diff;
+              completedMonthDays++;
+            }
+          } else if (dateKey == todayKey && now.isAfter(ci.timestamp)) {
+            final ongoing = now.difference(ci.timestamp);
+            if (!ongoing.isNegative && ongoing.inMinutes > 0) {
+              ongoingTodayShift = ongoing;
+              hasOngoingTodayShift = true;
+            }
+          }
+        }
+      });
+
+      expect(completedMonthDays, 1);
+      expect(completedMonthTotal.inMinutes, 450); // 7h 30m
+      expect(hasOngoingTodayShift, isTrue);
+      expect(ongoingTodayShift.inMinutes, 7);
+
+      final avgMinutes = completedMonthTotal.inMinutes ~/ completedMonthDays;
+      final h = avgMinutes ~/ 60;
+      final m = avgMinutes % 60;
+      expect('${h}h ${m}m', '7h 30m',
+          reason: 'Average must stay at 7h 30m instead of dropping to 3h 48m');
+    });
+
+    test('option C: counts active ongoing shift time when 0 completed shifts exist yet', () {
       final shiftStart = DateTime(2026, 9, 14, 8, 35);
       final now = DateTime(2026, 9, 14, 10, 55); // 2h 20m elapsed
 
@@ -234,8 +314,10 @@ void main() {
         byDay.putIfAbsent(key, () => []).add(r);
       }
 
-      Duration monthTotal = Duration.zero;
-      int monthDaysWithHours = 0;
+      Duration completedMonthTotal = Duration.zero;
+      int completedMonthDays = 0;
+      Duration ongoingTodayShift = Duration.zero;
+      bool hasOngoingTodayShift = false;
 
       byDay.forEach((dateKey, events) {
         events.sort((a, b) => a.timestamp.compareTo(b.timestamp));
@@ -252,29 +334,34 @@ void main() {
           if (co != null && co.timestamp.isAfter(ci.timestamp)) {
             final diff = co.timestamp.difference(ci.timestamp);
             if (!diff.isNegative) {
-              monthTotal += diff;
-              monthDaysWithHours++;
+              completedMonthTotal += diff;
+              completedMonthDays++;
             }
           } else if (dateKey == todayKey && now.isAfter(ci.timestamp)) {
             final ongoing = now.difference(ci.timestamp);
             if (!ongoing.isNegative && ongoing.inMinutes > 0) {
-              monthTotal += ongoing;
-              monthDaysWithHours++;
+              ongoingTodayShift = ongoing;
+              hasOngoingTodayShift = true;
             }
           }
         }
       });
 
-      expect(monthDaysWithHours, 1,
-          reason: 'Ongoing shift today should count toward active hours');
-      expect(monthTotal.inMinutes, 140,
+      expect(completedMonthDays, 0);
+      expect(hasOngoingTodayShift, isTrue);
+      expect(ongoingTodayShift.inMinutes, 140,
           reason: '8:35 to 10:55 is exactly 140 minutes (2h 20m)');
 
-      final avgMinutes = monthTotal.inMinutes ~/ monthDaysWithHours;
-      final h = avgMinutes ~/ 60;
-      final m = avgMinutes % 60;
-      expect('${h}h ${m}m', '2h 20m',
-          reason: 'Avg Hours must reflect current shift instead of being 0h');
+      String avgLabel = '0h';
+      if (completedMonthDays > 0) {
+        final avgMinutes = completedMonthTotal.inMinutes ~/ completedMonthDays;
+        avgLabel = '${avgMinutes ~/ 60}h ${avgMinutes % 60}m';
+      } else if (hasOngoingTodayShift) {
+        avgLabel = '${ongoingTodayShift.inHours}h ${ongoingTodayShift.inMinutes.remainder(60)}m';
+      }
+
+      expect(avgLabel, '2h 20m',
+          reason: 'Avg Hours must reflect current shift when 0 completed days exist');
     });
   });
 }

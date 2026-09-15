@@ -319,7 +319,7 @@ class AttendancePageState extends State<AttendancePage> {
       _StatCardData(
         title: 'Avg Hours / Day',
         value: stats.avgHoursLabel,
-        subtitle: 'based on this month',
+        subtitle: stats.avgHoursSubtitle,
         icon: Iconsax.timer_1,
         color: AppColors.warning,
       ),
@@ -407,8 +407,10 @@ class AttendancePageState extends State<AttendancePage> {
 
     int thisWeek = 0;
     int thisMonth = 0;
-    Duration monthTotal = Duration.zero;
-    int monthDaysWithHours = 0;
+    Duration completedMonthTotal = Duration.zero;
+    int completedMonthDays = 0;
+    Duration ongoingTodayShift = Duration.zero;
+    bool hasOngoingTodayShift = false;
     BiometricAttendanceRecord? lastClockIn;
 
     byDay.forEach((dateKey, events) {
@@ -432,15 +434,15 @@ class AttendancePageState extends State<AttendancePage> {
         if (co != null && co.timestamp.isAfter(ci.timestamp)) {
           final diff = co.timestamp.difference(ci.timestamp);
           if (!diff.isNegative) {
-            monthTotal += diff;
-            monthDaysWithHours++;
+            completedMonthTotal += diff;
+            completedMonthDays++;
           }
         } else if (dateKey == todayKey && now.isAfter(ci.timestamp)) {
-          // Today's shift is currently in progress — count active time worked so far
+          // Today's shift is currently in progress
           final ongoing = now.difference(ci.timestamp);
           if (!ongoing.isNegative && ongoing.inMinutes > 0) {
-            monthTotal += ongoing;
-            monthDaysWithHours++;
+            ongoingTodayShift = ongoing;
+            hasOngoingTodayShift = true;
           }
         }
       }
@@ -453,24 +455,37 @@ class AttendancePageState extends State<AttendancePage> {
       }
     }
 
+    String formatDuration(Duration d) {
+      final h = d.inHours;
+      final m = d.inMinutes.remainder(60);
+      if (h == 0 && m > 0) return '${m}m';
+      if (m == 0) return '${h}h';
+      return '${h}h ${m}m';
+    }
+
     String avgLabel = '0h';
-    if (monthDaysWithHours > 0) {
-      final avgMinutes = monthTotal.inMinutes ~/ monthDaysWithHours;
-      final h = avgMinutes ~/ 60;
-      final m = avgMinutes % 60;
-      if (h == 0 && m > 0) {
-        avgLabel = '${m}m';
-      } else if (m == 0) {
-        avgLabel = '${h}h';
-      } else {
-        avgLabel = '${h}h ${m}m';
-      }
+    String avgSubtitle = 'based on this month';
+
+    if (completedMonthDays > 0) {
+      final avgMinutes = completedMonthTotal.inMinutes ~/ completedMonthDays;
+      avgLabel = formatDuration(Duration(minutes: avgMinutes));
+      avgSubtitle = completedMonthDays == 1
+          ? 'based on 1 completed day'
+          : 'based on $completedMonthDays completed days';
+    } else if (hasOngoingTodayShift) {
+      // Option C: When 0 completed days yet (e.g. Day 1), show current active shift
+      avgLabel = formatDuration(ongoingTodayShift);
+      avgSubtitle = 'today in progress';
+    } else {
+      avgLabel = '0h';
+      avgSubtitle = 'no completed shifts yet';
     }
 
     return _AttendanceStats(
       thisWeekDays: thisWeek,
       thisMonthDays: thisMonth,
       avgHoursLabel: avgLabel,
+      avgHoursSubtitle: avgSubtitle,
       lastClockInRelative:
           lastClockIn == null ? '—' : _relativeTime(lastClockIn.timestamp, now),
       lastClockInExact: lastClockIn == null
@@ -1236,12 +1251,14 @@ class _AttendanceStats {
   final int thisWeekDays;
   final int thisMonthDays;
   final String avgHoursLabel;
+  final String avgHoursSubtitle;
   final String lastClockInRelative;
   final String lastClockInExact;
   _AttendanceStats({
     required this.thisWeekDays,
     required this.thisMonthDays,
     required this.avgHoursLabel,
+    required this.avgHoursSubtitle,
     required this.lastClockInRelative,
     required this.lastClockInExact,
   });
