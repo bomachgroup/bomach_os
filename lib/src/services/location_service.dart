@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:web/web.dart' as web;
+import '../utils/distance_utils.dart';
 
 class LocationService {
   static final LocationService _instance = LocationService._internal();
@@ -234,7 +235,9 @@ class LocationService {
         if (best == null) {
           try {
             final p = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.best,
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.best,
+              ),
             ).timeout(const Duration(seconds: 8));
             consider(p);
           } catch (_) {}
@@ -331,4 +334,16 @@ class LocationService {
       targetLng,
     );
   }
+
+  /// Formats a distance in meters into human-readable text:
+  /// - Distances >= 1,000 meters are displayed in kilometers (e.g. "7.1 kilometers", "1 kilometer").
+  /// - Distances < 1,000 meters are displayed with "meters" in full (e.g. "250 meters", "1 meter").
+  static String formatDistance(num meters, {bool useAbbreviation = false}) =>
+      DistanceUtils.format(meters, useAbbreviation: useAbbreviation);
+
+  /// Replaces distance substrings like "7115m" or "25m" in a message with
+  /// human-readable distance representations (e.g. "7.1 kilometers", "25 meters").
+  static String formatDistancesInText(String text, {bool useAbbreviation = false}) =>
+      DistanceUtils.formatInText(text, useAbbreviation: useAbbreviation);
 }
+

@@ -366,7 +366,7 @@ class BiometricsController extends GetxController {
           : LocationService.farBlockThresholdMeters;
       if (distanceToWs > farBlockAt) {
         errorMessage.value =
-            'You are ${distanceToWs.toInt()}m away from your workspace "${ws.workspaceName}". '
+            'You are ${LocationService.formatDistance(distanceToWs)} away from your workspace "${ws.workspaceName}". '
             'Get within range to clock ${isClockIn ? 'in' : 'out'}.';
         return false;
       }
@@ -441,9 +441,11 @@ class BiometricsController extends GetxController {
         return 'No approved workspace found. Your submission may still be pending approval, expired, or inactive.';
       }
       if (hint.startsWith('out_of_range:')) {
-        return hint.substring('out_of_range:'.length).trim();
+        return LocationService.formatDistancesInText(
+          hint.substring('out_of_range:'.length).trim(),
+        );
       }
-      return hint;
+      return LocationService.formatDistancesInText(hint);
     }
     final distance = verification.distanceMeters;
     final name = verification.locationName;
@@ -452,9 +454,10 @@ class BiometricsController extends GetxController {
     }
     final radius = verification.effectiveRadiusMeters;
     if (name != null && radius != null) {
-      return 'You are ${distance.toInt()}m from "$name" (allowed ~${radius.toInt()}m). Move closer and tap Retry.';
+      return 'You are ${LocationService.formatDistance(distance)} from "$name" '
+          '(allowed ~${LocationService.formatDistance(radius)}). Move closer and tap Retry.';
     }
-    return 'You are ${distance.toInt()}m away from an approved workspace.';
+    return 'You are ${LocationService.formatDistance(distance)} away from an approved workspace.';
   }
 
   /// Tailored error when the user doesn't have an approved workspace.
