@@ -1,11 +1,13 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:js_interop';
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:web/web.dart' as web;
+import 'finance_webview_contract.dart';
 
 final Map<String, web.HTMLIFrameElement> _activeIframes = {};
+final Map<String, JSFunction> _activeMessageHandlers = {};
 
 Widget buildFinancePlatformView({
   required String initialUrl,
@@ -80,6 +82,21 @@ class _FinanceIFrameViewState extends State<_FinanceIFrameView> {
         ((web.Event _) => _postTokens(iframe)).toJS,
       );
 
+      final messageHandler = ((web.MessageEvent event) {
+        final targetOrigin = _originForTarget();
+        final trusted = isTrustedFinanceMessage(
+          eventOrigin: event.origin,
+          targetOrigin: targetOrigin,
+          sourceMatches: event.source == iframe.contentWindow,
+        );
+        if (!trusted) return;
+        _postAttempts = 0;
+        _postTokens(iframe);
+        _scheduleTokenRetries();
+      }).toJS;
+      _activeMessageHandlers[_viewType] = messageHandler;
+      web.window.addEventListener('message', messageHandler);
+
       _activeIframes[_viewType] = iframe;
       return iframe;
     });
@@ -112,30 +129,19 @@ class _FinanceIFrameViewState extends State<_FinanceIFrameView> {
   }
 
   String _buildFullUrl() {
-    final cleanBase = widget.initialUrl.replaceAll(RegExp(r'/+$'), '');
-    final cleanRoute = widget.currentRoute.startsWith('/')
-        ? widget.currentRoute
-        : '/${widget.currentRoute}';
-    final uri = Uri.parse('$cleanBase$cleanRoute');
-
-    final queryParams = Map<String, String>.from(uri.queryParameters);
-    queryParams['embed'] = 'true';
-    if (widget.hideSidebar) queryParams['hideSidebar'] = 'true';
-    if (widget.hideTopbar) queryParams['hideTopbar'] = 'true';
-    if (widget.token.isNotEmpty) queryParams['token'] = widget.token;
-    if (widget.refreshToken.isNotEmpty) queryParams['refreshToken'] = widget.refreshToken;
-    if (widget.fullName.isNotEmpty) {
-      queryParams['name'] = widget.fullName;
-      queryParams['fullName'] = widget.fullName;
-    }
-    if (widget.email.isNotEmpty) {
-      queryParams['email'] = widget.email;
-    }
     final effectiveApiBase = ApiConstants.authBaseUrl;
-    queryParams['apiBaseUrl'] = effectiveApiBase;
-    queryParams['backendUrl'] = effectiveApiBase;
-
-    return uri.replace(queryParameters: queryParams).toString();
+    return buildFinanceIframeUrl(
+      baseUrl: widget.initialUrl,
+      route: widget.currentRoute,
+      token: widget.token,
+      refreshToken: widget.refreshToken,
+      fullName: widget.fullName,
+      email: widget.email,
+      apiBaseUrl: effectiveApiBase,
+      backendUrl: effectiveApiBase,
+      hideSidebar: widget.hideSidebar,
+      hideTopbar: widget.hideTopbar,
+    );
   }
 
   void _scheduleTokenRetries() {
@@ -155,27 +161,27 @@ class _FinanceIFrameViewState extends State<_FinanceIFrameView> {
     });
   }
 
+  String _originForTarget() {
+    final parsed = Uri.tryParse(_targetUrl);
+    if (parsed == null || !parsed.hasScheme || parsed.host.isEmpty) return '';
+    return '${parsed.scheme}://${parsed.host}${parsed.hasPort ? ':${parsed.port}' : ''}';
+  }
+
+  /// Posts the token pair to the iframe with an EXPLICIT target origin —
+  /// never '*', so a malicious nested page can't capture credentials.
   void _postTokens(web.HTMLIFrameElement iframe) {
     if (widget.token.isEmpty) return;
     final win = iframe.contentWindow;
     if (win == null) return;
 
-    final Uri parsed;
-    try {
-      parsed = Uri.parse(_targetUrl);
-    } on FormatException {
-      return;
-    }
-    if (!parsed.hasScheme || parsed.host.isEmpty) return;
-    final targetOrigin =
-        '${parsed.scheme}://${parsed.host}${parsed.hasPort ? ':${parsed.port}' : ''}';
+    final targetOrigin = _originForTarget();
+    if (targetOrigin.isEmpty) return;
 
     final payload = <String, String>{
       'type': 'BOMACH_AUTH_TOKEN',
       'token': widget.token,
       if (widget.refreshToken.isNotEmpty) 'refreshToken': widget.refreshToken,
       if (widget.fullName.isNotEmpty) 'fullName': widget.fullName,
-      if (widget.fullName.isNotEmpty) 'name': widget.fullName,
       if (widget.email.isNotEmpty) 'email': widget.email,
       'apiBaseUrl': ApiConstants.authBaseUrl,
       'backendUrl': ApiConstants.authBaseUrl,
@@ -187,6 +193,10 @@ class _FinanceIFrameViewState extends State<_FinanceIFrameView> {
   @override
   void dispose() {
     _tokenRetryTimer?.cancel();
+    final messageHandler = _activeMessageHandlers.remove(_viewType);
+    if (messageHandler != null) {
+      web.window.removeEventListener('message', messageHandler);
+    }
     _activeIframes.remove(_viewType);
     super.dispose();
   }

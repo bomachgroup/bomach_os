@@ -81,6 +81,37 @@ void main() {
     RouteConstants.servicesReportsAnalytics,
   ];
 
+  const financeWebviewRoutes = [
+    RouteConstants.finance,
+    RouteConstants.financeDashboard,
+    RouteConstants.budget,
+    RouteConstants.expense,
+    RouteConstants.invoice,
+    RouteConstants.payment,
+    RouteConstants.contractPayment,
+    RouteConstants.financeInvoices,
+    RouteConstants.financePayments,
+    RouteConstants.financeReceivables,
+    RouteConstants.financeWallets,
+    RouteConstants.financeCashbook,
+    RouteConstants.financeExpenses,
+    RouteConstants.financeVendors,
+    RouteConstants.financePettyCash,
+    RouteConstants.financeApprovals,
+    RouteConstants.financePayroll,
+    RouteConstants.financeCommissions,
+    RouteConstants.financeTax,
+    RouteConstants.financeJournals,
+    RouteConstants.financeCoa,
+    RouteConstants.financeAssets,
+    RouteConstants.financeCashflow,
+    RouteConstants.financeServiceOrders,
+    RouteConstants.financeEstate,
+    RouteConstants.financeReports,
+    RouteConstants.financeAudit,
+    RouteConstants.financeSettings,
+  ];
+
   // Audited gap routes: hidden in the sidebar by resources but previously
   // unmapped in routeRequirements (fail-open).
   const companyGapRoutes = [
@@ -149,6 +180,48 @@ void main() {
       });
       expect(marketingUser.canAccessRouteTyped(RouteConstants.marketingDashboard),
           isTrue);
+    });
+
+    test('every finance webview route is explicitly mapped', () {
+      for (final route in financeWebviewRoutes) {
+        final required = routeRequirements[route];
+        expect(required, isNotNull,
+            reason: 'route $route is unmapped (fail-open)');
+        expect(required, isNotEmpty,
+            reason: 'route $route must not be explicitly public');
+      }
+    });
+
+    test(
+        'default employee cannot access finance routes or see finance in sidebar',
+        () {
+      final service = PermissionService();
+      service.loadDefaultPermissions();
+
+      // Ensure employee cannot access finance routes
+      for (final route in [
+        RouteConstants.finance,
+        RouteConstants.financeDashboard,
+        RouteConstants.expense,
+        RouteConstants.invoice,
+        RouteConstants.payment,
+        RouteConstants.budget,
+        RouteConstants.roles,
+        RouteConstants.assets,
+      ]) {
+        expect(service.canAccessRouteTyped(route), isFalse,
+            reason: 'default employee should not be able to access $route');
+      }
+
+      // Ensure sidebar hides Finance & Accounting completely for default employee
+      final financeItem = _findMain(MainMenuItem.financeAccounting);
+      expect(financeItem, isNotNull);
+      final authorizedSubItems = financeItem!.children
+          .where((sub) => service.canAccessRoute(sub.route, sub.resources))
+          .toList();
+      expect(authorizedSubItems, isEmpty,
+          reason:
+              'default employee should have no authorized finance sub-items on sidebar');
     });
   });
 

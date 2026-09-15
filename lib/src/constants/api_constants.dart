@@ -72,7 +72,7 @@ class ApiConstants {
   static String get financeBaseUrl {
     return const String.fromEnvironment(
       'FINANCE_URL',
-      defaultValue: 'https://finances-bomach.vercel.app',
+      defaultValue: 'https://finance-six-murex.vercel.app',
     );
   }
 

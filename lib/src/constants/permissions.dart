@@ -518,7 +518,7 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.branch: [Perms.branchesList, Perms.branchesView],
   RouteConstants.board: [Perms.boardResolutionsList],
   RouteConstants.broadcast: [Perms.announcementsList],
-  RouteConstants.roles: [Perms.rolesList, Perms.rolesViewOwn],
+  RouteConstants.roles: [Perms.rolesList],
   RouteConstants.approvalWorkflow: [Perms.approvalFlowsList],
   RouteConstants.workspaceApprovals: [
     Perms.workLocationsApprove,
@@ -537,7 +537,7 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.enugu: [Perms.branchesList, Perms.branchesView],
   RouteConstants.auditLog: [Perms.auditLogsList],
   RouteConstants.department: [Perms.departmentsList],
-  RouteConstants.assets: [Perms.assetsList, Perms.assetsListOwn],
+  RouteConstants.assets: [Perms.assetsList],
 
   // HR
   RouteConstants.hr: [
@@ -596,20 +596,57 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.operationsContractDetail: [Perms.contractsList],
   RouteConstants.operationsTimelineDetail: [Perms.projectsList],
 
-  // Finance
+  // Finance (Company accounting and finance command center)
   RouteConstants.finance: [
     Perms.budgetsList,
     Perms.expensesList,
-    Perms.expensesListOwn,
     Perms.paymentsList,
     Perms.estateInvoicesList,
-    Perms.estateInvoicesListOwn,
+    Perms.serviceInvoicesList,
+  ],
+  RouteConstants.financeDashboard: [
+    Perms.budgetsList,
+    Perms.expensesList,
+    Perms.paymentsList,
+    Perms.estateInvoicesList,
+    Perms.serviceInvoicesList,
   ],
   RouteConstants.budget: [Perms.budgetsList],
-  RouteConstants.expense: [Perms.expensesList, Perms.expensesListOwn],
-  RouteConstants.invoice: [Perms.estateInvoicesList, Perms.estateInvoicesListOwn],
+  RouteConstants.expense: [Perms.expensesList],
+  RouteConstants.invoice: [
+    Perms.estateInvoicesList,
+    Perms.serviceInvoicesList,
+  ],
   RouteConstants.payment: [Perms.paymentsList],
   RouteConstants.contractPayment: [Perms.paymentsList, Perms.contractsList],
+  RouteConstants.financeInvoices: [
+    Perms.estateInvoicesList,
+    Perms.serviceInvoicesList,
+  ],
+  RouteConstants.financePayments: [Perms.paymentsList],
+  RouteConstants.financeReceivables: [
+    Perms.estateInvoicesList,
+    Perms.serviceInvoicesList,
+    Perms.paymentsList,
+  ],
+  RouteConstants.financeWallets: [Perms.paymentsList],
+  RouteConstants.financeCashbook: [Perms.paymentsList, Perms.expensesList],
+  RouteConstants.financeExpenses: [Perms.expensesList],
+  RouteConstants.financeVendors: [Perms.expensesList],
+  RouteConstants.financePettyCash: [Perms.expensesList],
+  RouteConstants.financeApprovals: [Perms.expensesList, Perms.budgetsList],
+  RouteConstants.financePayroll: [Perms.payrollList],
+  RouteConstants.financeCommissions: [Perms.paymentsList],
+  RouteConstants.financeTax: [Perms.expensesList, Perms.budgetsList],
+  RouteConstants.financeJournals: [Perms.budgetsList],
+  RouteConstants.financeCoa: [Perms.budgetsList],
+  RouteConstants.financeAssets: [Perms.assetsList],
+  RouteConstants.financeCashflow: [Perms.budgetsList],
+  RouteConstants.financeServiceOrders: [Perms.ordersList],
+  RouteConstants.financeEstate: [Perms.estatesList],
+  RouteConstants.financeReports: [Perms.statsView, Perms.budgetsList],
+  RouteConstants.financeAudit: [Perms.complianceAuditsList],
+  RouteConstants.financeSettings: [Perms.companySettingsUpdate],
 
   // Services
   RouteConstants.services: [
@@ -748,7 +785,7 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.marketingSupport: [Perms.clientsList],
 
   // Governance family
-  RouteConstants.marketingRoleGovernance: [Perms.rolesList, Perms.rolesViewOwn],
+  RouteConstants.marketingRoleGovernance: [Perms.rolesList],
   RouteConstants.marketingApprovals: [Perms.approvalFlowsList],
   RouteConstants.marketingAuditLog: [Perms.auditLogsList],
   RouteConstants.marketingCompliance: [Perms.auditLogsList],

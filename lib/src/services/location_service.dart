@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:js_interop';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
@@ -91,12 +92,11 @@ class LocationService {
               Exception("Geolocation error: ${err.message}"),
             );
           }.toJS,
-          // Force the GPS radio (not cached/network fixes) and never serve
-          // a stale fix — critical indoors where the first fix is the worst.
+          // Request GPS hardware; reject cached positions; allow 15 s for GPS lock.
           web.PositionOptions(
             enableHighAccuracy: true,
-            timeout: 10000,
             maximumAge: 0,
+            timeout: 15000,
           ),
         );
         return await completer.future;
@@ -105,8 +105,26 @@ class LocationService {
             "Geolocation is not supported by this browser. Error: $e");
       }
     }
+    // Native (Android / iOS / Windows): request maximum GPS precision.
+    final LocationSettings locationSettings;
+    if (!kIsWeb && Platform.isAndroid) {
+      locationSettings = AndroidSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        // Use Google Fused Location Provider (higher accuracy than legacy LocationManager).
+        forceLocationManager: false,
+      );
+    } else if ((!kIsWeb && Platform.isIOS) || Platform.isMacOS) {
+      locationSettings = AppleSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        activityType: ActivityType.other,
+      );
+    } else {
+      locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+      );
+    }
     return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
+      locationSettings: locationSettings,
     );
   }
 

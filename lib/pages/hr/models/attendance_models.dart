@@ -1,3 +1,5 @@
+import 'package:bomach_os/src/utils/wat_time.dart';
+
 class BiometricAttendanceRecord {
   final int id;
   final String? employeeId;
@@ -66,28 +68,8 @@ class BiometricAttendanceRecord {
   }
 
   /// Parses timestamps from the backend, treating naive ISO strings as UTC
-  /// before converting to the client's local timezone.
-  static DateTime parseTimestamp(dynamic raw) {
-    if (raw == null) return DateTime.now();
-    if (raw is DateTime) return raw.toLocal();
-    final str = raw.toString().trim();
-    if (str.isEmpty) return DateTime.now();
-
-    String normalizedStr = str.replaceFirst(' ', 'T');
-    final hasTimezone = normalizedStr.endsWith('Z') ||
-        normalizedStr.endsWith('z') ||
-        (normalizedStr.contains(':') &&
-            RegExp(r'[+-]\d{2}(:?\d{2})?$').hasMatch(normalizedStr));
-
-    if (!hasTimezone) {
-      normalizedStr = '${normalizedStr}Z';
-    }
-
-    final parsed = DateTime.tryParse(normalizedStr) ??
-        DateTime.tryParse(str) ??
-        DateTime.now();
-    return parsed.toLocal();
-  }
+  /// before converting to West Africa Time (Africa/Lagos, UTC+1).
+  static DateTime parseTimestamp(dynamic raw) => WatTime.parse(raw);
 }
 
 // --- Derived model for the user's attendance history table ---

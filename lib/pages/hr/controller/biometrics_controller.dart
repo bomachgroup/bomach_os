@@ -13,6 +13,7 @@ import 'dart:io';
 import '../widget/face_liveness_dialog.dart';
 
 import '../models/attendance_models.dart';
+import 'package:bomach_os/src/utils/wat_time.dart';
 import '../models/workspace_model.dart';
 import '../models/clock_in_location_policy.dart';
 import '../models/location_verification_result.dart';
@@ -80,7 +81,9 @@ class BiometricsController extends GetxController {
   // Time synchronization
   var serverTimeOffset = Duration.zero.obs;
 
-  DateTime get trustedTime => DateTime.now().add(serverTimeOffset.value);
+  /// Current trusted time in West Africa Time (Africa/Lagos, UTC+1),
+  /// anchored to verified server UTC time and resilient against local clock skew.
+  DateTime get trustedTime => WatTime.now(serverTimeOffset.value);
 
   @override
   void onInit() {
@@ -92,13 +95,12 @@ class BiometricsController extends GetxController {
 
   Future<void> syncTimeWithServer() async {
     try {
-      // We can fetch the server time from any reliable source.
-      // Easiest is to check the 'date' header from your own backend.
+      // Fetch server time from backend 'date' header (always in UTC/GMT).
       final response = await _api.getRawStatusResponse();
       final dateStr = response.headers.value('date');
       if (dateStr != null) {
-        final serverTime = HttpDate.parse(dateStr).toLocal();
-        serverTimeOffset.value = serverTime.difference(DateTime.now());
+        final serverUtc = HttpDate.parse(dateStr);
+        serverTimeOffset.value = serverUtc.difference(DateTime.now().toUtc());
       }
     } catch (e) {
       log('Time synchronization failed: $e');

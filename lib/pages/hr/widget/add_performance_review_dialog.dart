@@ -107,7 +107,7 @@ class _AddPerformanceReviewDialogState
       reviewerId: reviewerIdCtrl.text,
       reviewDate: reviewDate,
       reviewPeriod: reviewPeriodCtrl.text.isEmpty ? '' : reviewPeriodCtrl.text,
-      overallRating: rating ?? 0,
+      overallRating: rating,
       strengths: strengthsCtrl.text.isEmpty ? null : strengthsCtrl.text,
       areasForImprovement: areasCtrl.text.isEmpty ? null : areasCtrl.text,
       feedback: feedbackCtrl.text.isEmpty ? null : feedbackCtrl.text,

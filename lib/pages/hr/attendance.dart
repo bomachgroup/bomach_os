@@ -401,7 +401,7 @@ class AttendancePageState extends State<AttendancePage> {
     // Group records by day (yyyy-MM-dd) so we count unique days, not events.
     final Map<String, List<BiometricAttendanceRecord>> byDay = {};
     for (final r in records) {
-      final key = DateFormat('yyyy-MM-dd').format(r.timestamp.toLocal());
+      final key = DateFormat('yyyy-MM-dd').format(r.timestamp);
       byDay.putIfAbsent(key, () => []).add(r);
     }
 
