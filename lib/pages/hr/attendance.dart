@@ -17,6 +17,7 @@ import 'package:intl/intl.dart';
 import 'controller/biometrics_controller.dart';
 import 'models/attendance_models.dart';
 import 'models/workspace_model.dart';
+import 'widget/clock_confirm_dialog.dart';
 import 'widget/submit_workspace_dialog.dart';
 import 'widget/workspace_details_dialog.dart';
 
@@ -82,6 +83,14 @@ class AttendancePageState extends State<AttendancePage> {
   }
 
   Future<void> _handleClockAction(bool isClockIn) async {
+    final confirmed = await ClockConfirmDialog.show(
+      context,
+      isClockIn: isClockIn,
+      workspaceName: controller.approvedWorkspace?.workspaceName,
+      currentTime: controller.trustedTime,
+    );
+    if (confirmed != true || !mounted) return;
+
     final token = await _getToken(context);
     if (token == null || !mounted) return;
     await controller.performClockAction(
