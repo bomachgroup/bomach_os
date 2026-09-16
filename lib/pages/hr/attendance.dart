@@ -644,15 +644,17 @@ class AttendancePageState extends State<AttendancePage> {
                       border: Border.all(
                           color: AppColors.success.withValues(alpha: 0.3)),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Iconsax.tick_circle,
+                        const Icon(Iconsax.tick_circle,
                             color: AppColors.success, size: 16),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            "You've completed your attendance for today. See you tomorrow!",
-                            style: TextStyle(
+                            controller.trustedTime.weekday == DateTime.friday
+                                ? "You've completed your attendance for today. See you next week!"
+                                : "You've completed your attendance for today. See you tomorrow!",
+                            style: const TextStyle(
                               fontSize: 12,
                               color: Color(0xFF166534),
                               fontWeight: FontWeight.w500,
