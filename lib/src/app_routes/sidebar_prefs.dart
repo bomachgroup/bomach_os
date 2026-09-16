@@ -75,15 +75,6 @@ bool shouldShowMenuItem(
   required bool hasCompanySettings,
   required bool Function(String? route, List<String>? resources) canAccess,
 }) {
-  final privileged = isSuperAdmin || hasCompanySettings;
-
-  if (menuItem.id == MainMenuItem.dashboard && privileged) {
-    return false;
-  }
-  if (menuItem.id == MainMenuItem.company && !privileged) {
-    return false;
-  }
-
   if (menuItem.isExpandable) {
     return menuItem.children
         .any((child) => canAccess(child.route, child.resources));

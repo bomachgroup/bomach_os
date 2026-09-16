@@ -387,15 +387,6 @@ class _SideMenuState extends State<SideMenu> {
   Widget _buildMenuItem(MenuItem menuItem) {
     final permissionService = Get.find<PermissionService>();
 
-    // Super admin / CEO sees the company dashboard instead of the employee
-    // dashboard. Hide the employee Dashboard menu for them.
-    if (menuItem.id == MainMenuItem.dashboard &&
-        (permissionService.isSuperAdmin ||
-            permissionService.hasAnyPermissionForResource(
-                PermissionConstants.resCompanySettings))) {
-      return const SizedBox.shrink();
-    }
-
     // Filter sub-items via typed route permissions.
     final authorizedSubItems = menuItem.children
         .where((subItem) =>
@@ -406,7 +397,7 @@ class _SideMenuState extends State<SideMenu> {
       return const SizedBox.shrink();
     }
     if (!menuItem.isExpandable &&
-        !permissionService.canAccessResources(menuItem.resources)) {
+        !permissionService.canAccessRoute(menuItem.route, menuItem.resources)) {
       return const SizedBox.shrink();
     }
 
@@ -607,20 +598,14 @@ class _SideMenuState extends State<SideMenu> {
     final items = <Widget>[];
 
     for (final menuItem in filtered) {
-      if (menuItem.id == MainMenuItem.dashboard &&
-          (permissionService.isSuperAdmin ||
-              permissionService.hasAnyPermissionForResource(
-                  PermissionConstants.resCompanySettings))) {
-        continue;
-      }
-
       if (menuItem.isExpandable) {
         final authorizedSubItems = menuItem.children
             .where(
                 (s) => permissionService.canAccessRoute(s.route, s.resources))
             .toList();
         if (authorizedSubItems.isEmpty) continue;
-      } else if (!permissionService.canAccessResources(menuItem.resources)) {
+      } else if (!permissionService.canAccessRoute(
+          menuItem.route, menuItem.resources)) {
         continue;
       }
 

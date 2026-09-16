@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../app_routes/app_route_constants.dart';
+import '../app_routes/menu_structure.dart';
 import '../constants/permissions.dart';
 import '../model/role_model.dart';
 
@@ -259,13 +260,28 @@ class PermissionService extends GetxService {
   /// always lands on the Company dashboard; regular employees land on the
   /// employee dashboard. Falls back by walking the main menu order.
   String getFirstPermittedRoute() {
-    // Super admin → company profile
-    if (_isSuperAdmin ||
-        hasAnyPermissionForResource(PermissionConstants.resCompanySettings)) {
+    if (canAccessRoute(RouteConstants.home, [PermissionConstants.resDashboard])) {
+      return RouteConstants.home;
+    }
+    if (canAccessRoute(RouteConstants.company, [PermissionConstants.resCompanySettings])) {
       return RouteConstants.company;
     }
 
-    // Regular employee → dashboard (always accessible for non-admins)
+    for (final section in sidebarStructure) {
+      for (final item in section.items) {
+        if (item.isExpandable) {
+          for (final sub in item.children) {
+            if (canAccessRoute(sub.route, sub.resources) && sub.route != null) {
+              return sub.route!;
+            }
+          }
+        } else if (canAccessRoute(item.route, item.resources) &&
+            item.route != null) {
+          return item.route!;
+        }
+      }
+    }
+
     return RouteConstants.home;
   }
 
