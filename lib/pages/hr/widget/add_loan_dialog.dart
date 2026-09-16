@@ -95,7 +95,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
     }
 
     // Populate controller form fields and call createLoan
-    controller.loanAmountController.text = amountCtrl.text.trim();
+    controller.loanAmountController.text = amountCtrl.text.replaceAll(',', '').trim();
     controller.repaymentDateController.text = repaymentDateCtrl.text.trim();
     controller.reasonController.text = reasonCtrl.text.trim();
     controller.emergencyContactNameController.text =
@@ -147,6 +147,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                   title: 'Loan Amount',
                   controller: amountCtrl,
                   hintText: 'NGN 100,000',
+                  isFormattedNumber: true,
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),

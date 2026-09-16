@@ -104,6 +104,7 @@ class _AddContractPaymentDialogState extends State<AddContractPaymentDialog> {
                                       spaceBetweenText: 10,
                                       hintText: "-----",
                                       title: 'Amount Due',
+                                      isFormattedNumber: true,
                                     ),
                                   ],
                                 ),

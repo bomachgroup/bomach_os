@@ -184,6 +184,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                                   spaceBetweenText: 10,
                                   hintText: "-----",
                                   title: 'Total Amount',
+                                  isFormattedNumber: true,
                                 ),
                               ),
                             ],

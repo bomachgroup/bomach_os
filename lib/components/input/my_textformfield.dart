@@ -1,6 +1,7 @@
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -31,10 +32,16 @@ class MyTextFormField extends StatelessWidget {
   final bool? readOnly;
   final List<TextInputFormatter>? inputFormatters;
   final ValueChanged<String>? onFieldSubmitted;
+  final bool isFormattedNumber;
+  final bool allowDecimals;
+  final int decimalRange;
 
   const MyTextFormField({
     super.key,
     this.obscureText = false,
+    this.isFormattedNumber = false,
+    this.allowDecimals = true,
+    this.decimalRange = 2,
     this.controller,
     this.initialValue,
     this.validator,
@@ -67,6 +74,22 @@ class MyTextFormField extends StatelessWidget {
     final Color defaultFillColor = fillColor ?? AppColors.surface;
     final BorderRadius effectiveRadius = borderRadius ?? AppRadii.brMd;
 
+    final effectiveKeyboardType = isFormattedNumber
+        ? (allowDecimals
+            ? const TextInputType.numberWithOptions(decimal: true)
+            : TextInputType.number)
+        : keyboardType;
+
+    final effectiveFormatters = isFormattedNumber
+        ? [
+            ThousandsSeparatorInputFormatter(
+              allowDecimals: allowDecimals,
+              decimalRange: decimalRange,
+            ),
+            ...?inputFormatters,
+          ]
+        : inputFormatters;
+
     return Container(
       constraints: BoxConstraints(
         minHeight: height ?? 50,
@@ -93,14 +116,14 @@ class MyTextFormField extends StatelessWidget {
             height: height,
             child: TextFormField(
               obscureText: obscureText,
-              inputFormatters: inputFormatters,
+              inputFormatters: effectiveFormatters,
               initialValue: controller != null ? null : initialValue,
               controller: controller,
               maxLines: maxLines,
               readOnly: readOnly ?? onTap != null,
               onTap: onTap,
               maxLength: maxLength,
-              keyboardType: keyboardType,
+              keyboardType: effectiveKeyboardType,
               focusNode: focusNode,
               validator: validator,
               onChanged: onChanged,

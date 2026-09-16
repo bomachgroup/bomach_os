@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 final NumberFormat _intFormatter = NumberFormat('#,##0');
@@ -83,4 +84,103 @@ extension NumberFormattingStringExt on String? {
   String toCount() => formatCount(this);
   String toNaira({int decimals = 2, bool compact = false}) =>
       formatCurrency(this, symbol: '₦', decimals: decimals, compact: compact);
+}
+
+/// Parses a formatted string with commas (e.g. "1,250,000.50") into a raw [num].
+num? parseFormattedNumber(String? text) {
+  if (text == null || text.trim().isEmpty) return null;
+  return num.tryParse(text.replaceAll(',', '').replaceAll('₦', '').trim());
+}
+
+/// A [TextInputFormatter] that formats numeric inputs with thousand-separator commas
+/// in real time while typing, preserving cursor position.
+class ThousandsSeparatorInputFormatter extends TextInputFormatter {
+  final bool allowDecimals;
+  final int decimalRange;
+
+  ThousandsSeparatorInputFormatter({
+    this.allowDecimals = true,
+    this.decimalRange = 2,
+  });
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+
+    // Strip non-digits and non-decimal characters
+    String cleanText = newValue.text.replaceAll(',', '');
+    if (allowDecimals) {
+      cleanText = cleanText.replaceAll(RegExp(r'[^0-9.]'), '');
+    } else {
+      cleanText = cleanText.replaceAll(RegExp(r'[^0-9]'), '');
+    }
+
+    if (cleanText.isEmpty) {
+      return const TextEditingValue(
+        text: '',
+        selection: TextSelection.collapsed(offset: 0),
+      );
+    }
+
+    // Limit to single decimal point
+    List<String> parts = cleanText.split('.');
+    if (parts.length > 2) {
+      cleanText = '${parts[0]}.${parts.sublist(1).join('')}';
+      parts = cleanText.split('.');
+    }
+
+    String wholeStr = parts[0];
+    String? fractionStr = parts.length > 1 ? parts[1] : null;
+
+    if (fractionStr != null && fractionStr.length > decimalRange) {
+      fractionStr = fractionStr.substring(0, decimalRange);
+    }
+
+    String formattedWhole = '';
+    if (wholeStr.isNotEmpty) {
+      final wholeNum = int.tryParse(wholeStr);
+      if (wholeNum != null) {
+        formattedWhole = _intFormatter.format(wholeNum);
+      } else {
+        formattedWhole = wholeStr;
+      }
+    }
+
+    String formatted = formattedWhole;
+    if (fractionStr != null) {
+      formatted = '$formatted.$fractionStr';
+    } else if (cleanText.endsWith('.')) {
+      formatted = '$formatted.';
+    }
+
+    // Calculate cursor position: count non-comma characters before cursor in newValue
+    int nonCommasBeforeCursor = 0;
+    for (int i = 0; i < newValue.selection.end && i < newValue.text.length; i++) {
+      if (newValue.text[i] != ',') {
+        nonCommasBeforeCursor++;
+      }
+    }
+
+    // Find equivalent cursor position in formatted text
+    int newCursorOffset = 0;
+    int countedNonCommas = 0;
+    while (newCursorOffset < formatted.length && countedNonCommas < nonCommasBeforeCursor) {
+      if (formatted[newCursorOffset] != ',') {
+        countedNonCommas++;
+      }
+      newCursorOffset++;
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(
+        offset: newCursorOffset.clamp(0, formatted.length),
+      ),
+    );
+  }
 }

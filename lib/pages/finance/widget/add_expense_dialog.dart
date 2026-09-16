@@ -71,6 +71,7 @@ class _AddExpenseDialogState extends State<AddExpenseDialog> {
                                       hintText: '---',
                                       spaceBetweenText: 10,
                                       title: 'Amount',
+                                      isFormattedNumber: true,
                                     ),
                                   ],
                                 ),

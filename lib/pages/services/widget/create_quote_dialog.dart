@@ -168,7 +168,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
         'client_id': _selectedClient!.id.toString(),
         'service_id': _selectedService!.id,
         'description': _descriptionController.text.trim(),
-        'amount': double.parse(_amountController.text.trim()),
+        'amount': double.parse(_amountController.text.replaceAll(',', '').trim()),
         'valid_until': DateFormat('yyyy-MM-dd').format(_validUntil!),
         'status': _selectedStatus,
         'created_by': userId,
@@ -303,14 +303,15 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                     Expanded(
                       child: MyTextFormField(
                         controller: _amountController,
-                        hintText: 'e.g., 50000',
+                        hintText: 'e.g., 50,000',
                         title: 'Amount (NGN)*',
+                        isFormattedNumber: true,
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Amount is required';
                           }
-                          if (double.tryParse(value) == null) {
+                          if (double.tryParse(value.replaceAll(',', '')) == null) {
                             return 'Enter a valid number';
                           }
                           return null;

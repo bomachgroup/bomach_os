@@ -63,10 +63,10 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
         estateId: widget.estate.id.toString(),
         estateName: widget.estate.name,
         plotNumber: _plotNumberController.text,
-        size: double.tryParse(_sizeController.text) ?? 0,
+        size: double.tryParse(_sizeController.text.replaceAll(',', '')) ?? 0,
         plotType: _selectedPlotType,
         status: _selectedStatus,
-        price: double.tryParse(_priceController.text) ?? 0,
+        price: double.tryParse(_priceController.text.replaceAll(',', '')) ?? 0,
         description: _descriptionController.text.isEmpty
             ? null
             : _descriptionController.text,
@@ -232,11 +232,13 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                                     hintText: 'Enter plot size',
                                     spaceBetweenText: 10,
                                     title: 'Size (sqm)*',
+                                    isFormattedNumber: true,
+                                    keyboardType: TextInputType.number,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter plot size';
                                       }
-                                      if (double.tryParse(value) == null) {
+                                      if (double.tryParse(value.replaceAll(',', '')) == null) {
                                         return 'Enter a valid number';
                                       }
                                       return null;
@@ -250,11 +252,13 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                                     spaceBetweenText: 10,
                                     hintText: 'Enter price',
                                     title: 'Price (₦)*',
+                                    isFormattedNumber: true,
+                                    keyboardType: TextInputType.number,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter price';
                                       }
-                                      if (double.tryParse(value) == null) {
+                                      if (double.tryParse(value.replaceAll(',', '')) == null) {
                                         return 'Enter a valid number';
                                       }
                                       return null;

@@ -209,7 +209,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
         'client_id': _selectedClient!.id.toString(),
         'service_id': _selectedService!.id,
         'description': _descriptionController.text.trim(),
-        'amount': double.parse(_amountController.text.trim()),
+        'amount': double.parse(_amountController.text.replaceAll(',', '').trim()),
         'order_status': _selectedOrderStatus,
         // 'payment_status': _selectedPaymentStatus,
         'valid_until': DateFormat('yyyy-MM-dd').format(_validUntil!),
@@ -352,14 +352,15 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     Expanded(
                       child: MyTextFormField(
                         controller: _amountController,
-                        hintText: 'e.g., 50000',
+                        hintText: 'e.g., 50,000',
                         title: 'Amount (NGN)*',
+                        isFormattedNumber: true,
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Amount is required';
                           }
-                          if (double.tryParse(value) == null) {
+                          if (double.tryParse(value.replaceAll(',', '')) == null) {
                             return 'Enter a valid number';
                           }
                           return null;
