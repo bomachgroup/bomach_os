@@ -2,6 +2,7 @@ import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/pages/finance/models/service_invoice_model_api.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -79,11 +80,11 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                       const Text('Financial Summary',
                           style: AppTextStyles.h4),
                       const SizedBox(height: 12),
-                      _row('Subtotal', '₦${inv.subtotal}'),
-                      _row('Tax (${inv.taxRate}%)', '₦${inv.taxAmount}'),
-                      _row('Total', '₦${inv.totalAmount}', isBold: true),
-                      _row('Amount Paid', '₦${inv.amountPaid}'),
-                      _row('Balance', '₦${inv.balance}',
+                      _row('Subtotal', inv.subtotal.toNaira()),
+                      _row('Tax (${inv.taxRate.toCommas()}%)', inv.taxAmount.toNaira()),
+                      _row('Total', inv.totalAmount.toNaira(), isBold: true),
+                      _row('Amount Paid', inv.amountPaid.toNaira()),
+                      _row('Balance', inv.balance.toNaira(),
                           isBold: true, isDanger: true),
                       if (inv.notes.isNotEmpty) ...[
                         const Divider(height: 24),
@@ -107,11 +108,11 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                     Expanded(
                                         child: Text(item.description,
                                             style: AppTextStyles.bodyMd)),
-                                    Text('${item.quantity} × ₦${item.unitPrice}',
+                                    Text('${item.quantity.toCount()} × ${item.unitPrice.toNaira()}',
                                         style: AppTextStyles.bodySm
                                             .copyWith(color: AppColors.textSecondary)),
                                     const SizedBox(width: 12),
-                                    Text('₦${item.total}',
+                                    Text(item.total.toNaira(),
                                         style: AppTextStyles.bodyMd.copyWith(
                                             fontWeight: FontWeight.w600)),
                                   ],

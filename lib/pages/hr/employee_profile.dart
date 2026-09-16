@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 
 import '../../src/model/employees_model.dart';
 import '../../src/services/permission_service.dart';
@@ -1427,7 +1428,7 @@ class _ProfileTab extends StatelessWidget {
                 _DataField(
                     label: 'Basic Salary',
                     value: employee.grossSalary != null
-                        ? '₦${employee.grossSalary}'
+                        ? employee.grossSalary!.toNaira()
                         : '₦0.00'),
                 _DataField(
                     label: 'Payment Frequency',

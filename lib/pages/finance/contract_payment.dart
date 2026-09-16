@@ -11,6 +11,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:flutter/material.dart';
@@ -107,7 +108,7 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
                           ),
                           const SizedBox(height: 4),
                           MyText(
-                            '₦${vendor.$2}',
+                            vendor.$2.toNaira(),
                             size: 14,
                             weight: 600,
                           ),
@@ -306,7 +307,7 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
           ),
         ),
         DataCell(
-          MyText(vendor.$2),
+          MyText(vendor.$2.toNaira()),
         ),
         DataCell(
           MyText(vendor.$3),

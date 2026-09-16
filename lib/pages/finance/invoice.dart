@@ -14,6 +14,7 @@ import 'package:bomach_os/pages/finance/widget/view_invoice_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -139,7 +140,7 @@ class InvoicePage extends StatelessWidget {
               ),
               DataCell(
                 Text(
-                  '₦${invoice.totalAmount}',
+                  invoice.totalAmount.toNaira(),
                   style: AppTextStyles.bodyMd.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -184,7 +185,7 @@ class InvoicePage extends StatelessWidget {
                         child: MyText(invoice.service.name,
                             weight: 600, size: 14, color: AppColors.textPrimary),
                       ),
-                      MyText('₦${invoice.totalAmount}',
+                      MyText(invoice.totalAmount.toNaira(),
                           weight: 700, size: 14, color: AppColors.primary),
                     ],
                   ),

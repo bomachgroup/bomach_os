@@ -9,6 +9,7 @@ import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -146,7 +147,7 @@ class ContractDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '₦${contract.value.toStringAsFixed(2)}',
+                contract.value.toNaira(),
                 style: AppTextStyles.h3.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,
@@ -188,7 +189,7 @@ class ContractDetailPage extends StatelessWidget {
                         ? '—'
                         : contract.contractType),
                 _detailRow('Value',
-                    '₦${contract.value.toStringAsFixed(2)}'),
+                    contract.value.toNaira()),
                 _detailRowChip(
                   'Status',
                   StatusChip(

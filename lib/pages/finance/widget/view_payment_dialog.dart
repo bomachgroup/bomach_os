@@ -2,6 +2,7 @@ import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/pages/finance/models/payment_model.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -49,7 +50,7 @@ class _ViewPaymentDialogState extends State<ViewPaymentDialog> {
                   children: [
                     _row('Payment Reference', p.paymentReference, isBold: true),
                     _row('Invoice ID', p.invoiceId.toString()),
-                    _row('Amount', '₦${p.amount}', isBold: true),
+                    _row('Amount', p.amount.toNaira(), isBold: true),
                     _row('Payment Method', p.paymentMethod),
                     _row('Payment Date', p.paymentDate),
                     _row('Transaction Ref', p.transactionReference),

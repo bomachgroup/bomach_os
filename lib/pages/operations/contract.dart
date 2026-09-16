@@ -13,6 +13,7 @@ import 'package:bomach_os/src/app_routes/app_route_constants.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -309,7 +310,7 @@ class ContractPageState extends State<ContractPage> {
             Expanded(
               flex: 2,
               child: Text(
-                '₦${contract.value.toStringAsFixed(2)}',
+                contract.value.toNaira(),
                 style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,

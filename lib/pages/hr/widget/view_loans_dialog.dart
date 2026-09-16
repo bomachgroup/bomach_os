@@ -5,6 +5,7 @@ import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -34,7 +35,7 @@ class ViewLoanDialog extends StatelessWidget {
           _buildSection(
             title: 'Loan Information',
             children: [
-              _detailRow('Loan Amount', 'NGN ${loan.loanAmount}'),
+              _detailRow('Loan Amount', loan.loanAmount.toNaira()),
               _detailRow(
                   'Repayment Date',
                   loan.repaymentDate.isNotEmpty ? loan.repaymentDate : '—'),
@@ -233,7 +234,7 @@ class ViewLoanDialog extends StatelessWidget {
                     ),
                     _metaChip(
                       icon: Iconsax.money,
-                      label: 'NGN ${loan.loanAmount}',
+                      label: loan.loanAmount.toNaira(),
                     ),
                   ],
                 ),

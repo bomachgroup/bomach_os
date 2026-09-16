@@ -4,6 +4,7 @@ import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -98,7 +99,7 @@ class ViewAssociateDialog extends StatelessWidget {
               _detailRow(
                 'Contract Value',
                 associate.grossSalary != null
-                    ? '₦${associate.grossSalary}'
+                    ? associate.grossSalary!.toNaira()
                     : '-',
               ),
             ],

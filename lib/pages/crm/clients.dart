@@ -13,6 +13,7 @@ import 'package:iconsax/iconsax.dart';
 
 import '../../src/constants/colors.dart';
 import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'controllers/crm_controller.dart';
 import 'dialogs/client_dialog.dart';
 import 'dialogs/lead_dialog.dart' show AddNewLeadDialog;
@@ -226,7 +227,7 @@ class CrmClientsPage extends StatelessWidget {
                             color: AppColors.textPrimary))),
                     DataCell(Text(c.email)),
                     DataCell(Text(c.phoneNumber ?? '—')),
-                    DataCell(Text('₦${c.balance.toStringAsFixed(2)}',
+                    DataCell(Text(c.balance.toNaira(),
                         style: AppTextStyles.bodyMd.copyWith(
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary))),
@@ -245,7 +246,7 @@ class CrmClientsPage extends StatelessWidget {
                                   size: 15,
                                   color: AppColors.textPrimary),
                             ),
-                            MyText('₦${c.balance.toStringAsFixed(2)}',
+                            MyText(c.balance.toNaira(),
                                 weight: 700,
                                 size: 14,
                                 color: AppColors.primary),

@@ -6,6 +6,7 @@ import 'package:bomach_os/pages/finance/controllers/expense_controller.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -93,7 +94,7 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _row('Amount', '₦${e.amount}', isBold: true),
+                    _row('Amount', e.amount.toNaira(), isBold: true),
                     _row('Category', e.category),
                     _row('Description', e.description),
                     _row('Date', e.date),

@@ -10,6 +10,7 @@ import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -248,7 +249,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
     });
   }
 
-  String _formatCurrency(double amount) => '₦${amount.toStringAsFixed(2)}';
+  String _formatCurrency(double amount) => amount.toNaira();
 
   @override
   Widget build(BuildContext context) {

@@ -11,6 +11,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/helper/screen_size.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -574,7 +575,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
           ),
           const SizedBox(height: 6),
           Text(
-            '₦${plot.price.toStringAsFixed(0)}',
+            plot.price.toNaira(decimals: 0),
             style: AppTextStyles.h4.copyWith(color: AppColors.primary),
           ),
           if (plot.buyerName != null) ...[

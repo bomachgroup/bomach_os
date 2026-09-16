@@ -20,6 +20,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -290,7 +291,7 @@ class _ServicesPageState extends State<ServicesPage> {
                             title: service.name,
                             category: service.category.name,
                             description: service.description,
-                            price: '₦${service.basePrice}',
+                            price: service.basePrice.toNaira(),
                             duration: service.deliveryTime,
                             status: service.status,
                             service: service,
@@ -425,7 +426,7 @@ class _ServicesPageState extends State<ServicesPage> {
                       email: quote.quoteNumber,
                       validUntil: quote.validUntil,
                       description: quote.description,
-                      price: '₦${quote.amount}',
+                      price: quote.amount.toNaira(),
                       statuses: [
                         quote.status.capitalizeFirst ?? quote.status,
                       ],
@@ -553,7 +554,7 @@ class _ServicesPageState extends State<ServicesPage> {
                       email: order.orderNumber,
                       validUntil: order.validUntil,
                       description: order.description,
-                      price: '₦${order.amount}',
+                      price: order.amount.toNaira(),
                       statuses: [
                         order.orderStatus.capitalizeFirst ?? order.orderStatus,
                         order.paymentStatus.capitalizeFirst ??

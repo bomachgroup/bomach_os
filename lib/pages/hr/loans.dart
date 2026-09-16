@@ -14,6 +14,7 @@ import 'package:bomach_os/pages/hr/widget/view_loans_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -359,7 +360,7 @@ class _LoanPageState extends State<LoanPage> {
           Expanded(
             flex: 2,
             child: Text(
-              '₦${loan.loanAmount}',
+              loan.loanAmount.toNaira(),
               style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
