@@ -562,6 +562,7 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.workReport: [Perms.workReportsList],
   RouteConstants.employeeEvaluation: [Perms.employeeEvaluationsList],
   RouteConstants.disciplinaryProcess: [Perms.disciplinaryCasesList],
+  RouteConstants.performanceEngine: [Perms.performanceReviewsList],
   // Audit V4 fix: previously unmapped gap routes.
   RouteConstants.benefits: [Perms.payrollList, Perms.payrollListOwn],
   RouteConstants.associates: [Perms.employeesList],

@@ -117,6 +117,7 @@ class RouteConstants {
   static const String performanceLeaderboard = '/hr/performance-leaderboard';
   static const String employeeEvaluation = '/hr/employee-evaluation';
   static const String disciplinaryProcess = '/hr/disciplinary-process';
+  static const String performanceEngine = '/hr/performance-engine';
 
   // services
   static const String services = '/services';
