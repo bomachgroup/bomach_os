@@ -48,7 +48,7 @@ const Set<String> dashboardRoutePaths = {
   '/hr/disciplinary-process', '/hr/leaves',
   '/hr/monthly-scorecard', '/hr/awards-recognition',
   '/hr/performance-leaderboard', '/hr/employee-evaluation',
-  '/hr/associates', '/hr/work-report',
+  '/hr/associates', '/hr/work-report', '/hr/performance-engine',
   // services local + webview routes
   '/services',
   '/services/dashboard', '/services/service-catalogue',
