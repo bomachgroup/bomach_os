@@ -20,6 +20,7 @@ import 'models/workspace_model.dart';
 import 'widget/clock_confirm_dialog.dart';
 import 'widget/submit_workspace_dialog.dart';
 import 'widget/workspace_details_dialog.dart';
+import 'all_attendance_history_page.dart';
 
 /// Attendance page.
 ///
@@ -666,6 +667,46 @@ class AttendancePageState extends State<AttendancePage> {
                     ),
                   ),
                 ],
+                if (!hasBlocker && !hasClockedIn) ...[
+                  () {
+                    final pastMissed = controller.dailyAttendanceList
+                        .firstWhereOrNull((d) => d.isMissedClockOut);
+                    if (pastMissed == null) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color:
+                              const Color(0xFFFEF3C7).withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                              color: const Color(0xFFF59E0B)
+                                  .withValues(alpha: 0.4)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Iconsax.info_circle,
+                                color: Color(0xFFD97706), size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Notice: You did not clock out on ${_prettyDate(pastMissed.date)}. Today\'s shift starts fresh when you clock in.',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF92400E),
+                                  height: 1.35,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }(),
+                ],
               ],
             );
           }),
@@ -1093,27 +1134,57 @@ class AttendancePageState extends State<AttendancePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Iconsax.clock,
-                    color: AppColors.primary, size: 18),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Attendance History',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.neutral900,
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Iconsax.clock,
+                        color: AppColors.primary, size: 18),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Attendance History',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.neutral900,
+                    ),
+                  ),
+                ],
               ),
+              Obx(() {
+                if (controller.dailyAttendanceList.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AllAttendanceHistoryPage(),
+                      ),
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textStyle: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  child: const Text('Show All'),
+                );
+              }),
             ],
           ),
           const SizedBox(height: 16),
@@ -1136,8 +1207,10 @@ class AttendancePageState extends State<AttendancePage> {
                 ),
               );
             }
+            final displayedList =
+                controller.dailyAttendanceList.take(7).toList();
             return ResponsiveTable<DailyAttendance>(
-              items: controller.dailyAttendanceList,
+              items: displayedList,
               columns: const [
                 DataColumn(label: Text('DATE')),
                 DataColumn(label: Text('CLOCK IN')),
@@ -1155,12 +1228,8 @@ class AttendancePageState extends State<AttendancePage> {
                 )),
                 DataCell(Text(day.clockInTime ?? '--:--',
                     style: const TextStyle(fontSize: 13))),
-                DataCell(Text(day.clockOutTime ?? '--:--',
-                    style: const TextStyle(fontSize: 13))),
-                DataCell(Text(
-                  day.hoursWorked,
-                  style: AppTextStyles.h4,
-                )),
+                DataCell(_buildHistoryClockOutCell(day)),
+                DataCell(_buildHistoryHoursCell(day)),
               ]),
               mobileCardBuilder: (day, index) => AppCard(
                 padding: const EdgeInsets.all(16),
@@ -1176,22 +1245,52 @@ class AttendancePageState extends State<AttendancePage> {
                             fontSize: 14,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            day.hoursWorked,
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                        if (day.isMissedClockOut)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF3C7),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: const Color(0xFFF59E0B)
+                                    .withValues(alpha: 0.4),
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Iconsax.warning_2,
+                                    size: 12, color: Color(0xFFD97706)),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Missed Clock-Out',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFFB45309),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              day.hoursWorked,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                     const Divider(height: 24),
@@ -1216,8 +1315,15 @@ class AttendancePageState extends State<AttendancePage> {
                               const Text('Clock Out',
                                   style: AppTextStyles.caption),
                               const SizedBox(height: 4),
-                              Text(day.clockOutTime ?? '--:--',
-                                  style: AppTextStyles.h4),
+                              if (day.isMissedClockOut)
+                                const Text('Missed',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFFB45309)))
+                              else
+                                Text(day.clockOutTime ?? '--:--',
+                                    style: AppTextStyles.h4),
                             ],
                           ),
                         ),
@@ -1230,6 +1336,55 @@ class AttendancePageState extends State<AttendancePage> {
           }),
         ],
       ),
+    );
+  }
+
+  Widget _buildHistoryClockOutCell(DailyAttendance day) {
+    if (day.isMissedClockOut) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEF3C7),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: const Color(0xFFF59E0B).withValues(alpha: 0.4),
+          ),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Iconsax.warning_2, size: 12, color: Color(0xFFD97706)),
+            SizedBox(width: 4),
+            Text(
+              'Missed',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFB45309),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return Text(day.clockOutTime ?? '--:--',
+        style: const TextStyle(fontSize: 13));
+  }
+
+  Widget _buildHistoryHoursCell(DailyAttendance day) {
+    if (day.isMissedClockOut) {
+      return const Text(
+        'Incomplete',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: AppColors.neutral400,
+        ),
+      );
+    }
+    return Text(
+      day.hoursWorked,
+      style: AppTextStyles.h4,
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:bomach_os/src/utils/wat_time.dart';
+import 'package:intl/intl.dart';
 
 class BiometricAttendanceRecord {
   final int id;
@@ -97,4 +98,11 @@ class DailyAttendance {
       clockOutTime!.trim().isNotEmpty;
 
   bool get isCompleted => hasClockedIn && hasClockedOut;
+
+  /// True if the employee clocked in on a prior day but never clocked out.
+  bool get isMissedClockOut {
+    if (!hasClockedIn || hasClockedOut) return false;
+    final todayStr = DateFormat('yyyy-MM-dd').format(WatTime.now());
+    return date != todayStr;
+  }
 }

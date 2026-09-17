@@ -90,6 +90,49 @@ void main() {
       expect(canClockOutNextDay, isFalse,
           reason: 'Fresh day must not allow clocking out before clocking in');
     });
+
+    test('missed clock out on previous day does not block next day clock in', () {
+      // Previous day was never clocked out
+      final yesterday = DailyAttendance(
+        date: '2020-01-01',
+        clockInTime: '08:30 AM',
+        clockOutTime: '--:--',
+      );
+      expect(yesterday.isMissedClockOut, isTrue,
+          reason: 'Past day with clock in but no clock out is a missed clock out');
+
+      final list = [yesterday];
+
+      // Current/new day arrives
+      final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final todayRecord = list.firstWhere(
+        (r) => r.date == todayStr,
+        orElse: () => DailyAttendance(date: todayStr),
+      );
+
+      expect(todayRecord.hasClockedIn, isFalse);
+      expect(todayRecord.hasClockedOut, isFalse);
+      expect(todayRecord.isMissedClockOut, isFalse);
+
+      final canClockIn = !todayRecord.hasClockedIn;
+      expect(canClockIn, isTrue,
+          reason: 'Unclosed previous day must never block today\'s clock in');
+    });
+
+    test('history list take(7) limits entries to 7 when more exist', () {
+      final records = List.generate(
+        15,
+        (i) => DailyAttendance(
+          date: '2026-09-${(i + 1).toString().padLeft(2, '0')}',
+          clockInTime: '08:00 AM',
+          clockOutTime: '05:00 PM',
+        ),
+      );
+
+      final displayed = records.take(7).toList();
+      expect(displayed.length, 7);
+      expect(records.length, 15);
+    });
   });
 
   group('BiometricAttendanceRecord normalization', () {
