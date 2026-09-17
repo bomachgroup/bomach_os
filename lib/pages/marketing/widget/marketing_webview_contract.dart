@@ -22,12 +22,13 @@ String buildMarketingIframeUrl({
     'embed': 'true',
     if (hideSidebar) 'hideSidebar': 'true',
     if (hideTopbar) 'hideTopbar': 'true',
+    if (token.isNotEmpty) 'token': token,
+    if (refreshToken.isNotEmpty) 'refreshToken': refreshToken,
+    if (fullName.isNotEmpty) 'fullName': fullName,
+    if (email.isNotEmpty) 'email': email,
     if (apiBaseUrl.isNotEmpty) 'apiBaseUrl': apiBaseUrl,
     if (backendUrl.isNotEmpty) 'backendUrl': backendUrl,
   };
-  for (final key in ['token', 'access_token', 'refresh_token', 'refreshToken', 'name', 'fullName', 'email', 'userEmail']) {
-    query.remove(key);
-  }
 
   return base.replace(path: '$basePath$routePath', queryParameters: query).toString();
 }

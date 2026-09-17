@@ -4,15 +4,26 @@ class ApiConstants {
   static const String _prodBase = 'https://bomachauth.bgbot.app';
   static const String _stagingBase = 'https://bomachauthtest.bgbot.app';
 
-  /// Exact-host staging allowlist (audit V5 fix). Substring matching
-  /// (`contains('test')`) used to route production credentials to the
-  /// staging backend on hosts like `evil-test.attacker.com` or branch
-  /// preview URLs; the old `|| host.isNotEmpty` tautology made the prod
-  /// allowlist dead code. Fail closed: anything not listed here is PROD.
+  @visibleForTesting
+  static bool isLiveHost(String host) {
+    final h = host.toLowerCase();
+    return h == 'bomach-os-app.web.app' ||
+        h == 'bomach-os-app.firebaseapp.com' ||
+        h == 'bomachosapp.web.app' ||
+        h == 'bomachauthapp.web.app' ||
+        h == 'bomachauth.bgbot.app';
+  }
+
   @visibleForTesting
   static bool isStagingHost(String host) {
     final h = host.toLowerCase();
-    return h == 'localhost' || h == '127.0.0.1' || h == 'bomach-os-test.web.app';
+    return h == 'localhost' ||
+        h == '127.0.0.1' ||
+        h == '[::1]' ||
+        h.endsWith('.local') ||
+        h == 'bomach-os-test.web.app' ||
+        h == 'bomachostest.web.app' ||
+        h.contains('test');
   }
 
   /// Local-dev escape hatch. Run with
@@ -42,7 +53,11 @@ class ApiConstants {
     if (!isWeb) {
       return isRelease ? _prodBase : _stagingBase;
     }
-    return isStagingHost(host) ? _stagingBase : _prodBase;
+    // On web: ONLY live hosts use prodBase. Standalone, localhost, and test use stagingBase.
+    if (isLiveHost(host)) {
+      return _prodBase;
+    }
+    return _stagingBase;
   }
 
   static String get authBaseUrl {

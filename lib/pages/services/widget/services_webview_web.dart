@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 
 import '../../shared/embedded_web_view.dart';
+import '../../../src/constants/api_constants.dart';
 
 final Map<String, web.HTMLIFrameElement> _activeServicesIframes = {};
 
@@ -60,6 +61,8 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
     _targetUrl = buildEmbeddedUrl(
       baseUrl: widget.initialUrl,
       route: widget.currentRoute,
+      token: widget.token,
+      refreshToken: widget.refreshToken,
       hideSidebar: widget.hideSidebar,
       hideTopbar: widget.hideTopbar,
     );
@@ -97,6 +100,8 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
       final newUrl = buildEmbeddedUrl(
         baseUrl: widget.initialUrl,
         route: widget.currentRoute,
+        token: widget.token,
+        refreshToken: widget.refreshToken,
         hideSidebar: widget.hideSidebar,
         hideTopbar: widget.hideTopbar,
       );
@@ -146,6 +151,8 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
       'type': 'BOMACH_AUTH_TOKEN',
       'token': widget.token,
       if (widget.refreshToken.isNotEmpty) 'refreshToken': widget.refreshToken,
+      'apiBaseUrl': ApiConstants.authBaseUrl,
+      'backendUrl': ApiConstants.authBaseUrl,
     };
 
     win.postMessage(payload.jsify(), targetOrigin.toJS);
