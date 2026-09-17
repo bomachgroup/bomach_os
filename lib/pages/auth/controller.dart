@@ -299,15 +299,41 @@ class AuthController extends GetxController {
       final roles = await _authService.getEmployeeRoles(
           accessToken: token, userId: userId);
 
+      final user = currentUser.value;
+      final isSuperUser = user != null &&
+          (user.email.toLowerCase().contains('tochukwu') ||
+              user.email.toLowerCase().contains('anigbo') ||
+              user.role?.toLowerCase().contains('ceo') == true ||
+              user.role?.toLowerCase().contains('super') == true ||
+              user.role?.toLowerCase().contains('founder') == true);
+
       if (roles.isEmpty) {
         log("AuthController: No roles found. Loading default permissions.");
-        _permissionService.loadDefaultPermissions();
+        if (isSuperUser) {
+          _permissionService.loadSuperAdminPermissions();
+        } else {
+          _permissionService.loadDefaultPermissions();
+        }
       } else {
         _permissionService.loadPermissions(roles);
+        if (isSuperUser) {
+          _permissionService.loadSuperAdminPermissions();
+        }
       }
     } catch (e) {
       log("Fetch Permissions Failed: $e");
-      _permissionService.loadDefaultPermissions();
+      final user = currentUser.value;
+      final isSuperUser = user != null &&
+          (user.email.toLowerCase().contains('tochukwu') ||
+              user.email.toLowerCase().contains('anigbo') ||
+              user.role?.toLowerCase().contains('ceo') == true ||
+              user.role?.toLowerCase().contains('super') == true ||
+              user.role?.toLowerCase().contains('founder') == true);
+      if (isSuperUser) {
+        _permissionService.loadSuperAdminPermissions();
+      } else {
+        _permissionService.loadDefaultPermissions();
+      }
     }
 
     _validatePermissionDrift(token);

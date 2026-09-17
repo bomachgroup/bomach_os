@@ -60,7 +60,7 @@ class PermissionService extends GetxService {
       ..clear()
       ..addAll(newPermissions)
       ..refresh();
-    _isSuperAdmin = _detectSuperAdmin();
+    _isSuperAdmin = _detectSuperAdmin(roles);
     _bump();
   }
 
@@ -157,11 +157,23 @@ class PermissionService extends GetxService {
     _bump();
   }
 
-  bool _detectSuperAdmin() {
-    final wildcard = _userPermissions['*'];
+  bool _detectSuperAdmin([List<Role>? roles]) {
+    final wildcard = _userPermissions['*'] ?? _userPermissions['all'];
     if (wildcard != null &&
         (wildcard.contains('*') || wildcard.contains('all'))) {
       return true;
+    }
+    if (roles != null) {
+      for (final role in roles) {
+        final lower = role.name.toLowerCase();
+        if (lower.contains('ceo') ||
+            lower.contains('super admin') ||
+            lower.contains('founder') ||
+            lower.contains('managing director') ||
+            lower.contains('executive director')) {
+          return true;
+        }
+      }
     }
     return false;
   }

@@ -604,13 +604,12 @@ const Map<String, List<Permission>> routeRequirements = {
     Perms.paymentsList,
     Perms.estateInvoicesList,
     Perms.serviceInvoicesList,
+    Perms.statsView,
   ],
   RouteConstants.financeDashboard: [
+    Perms.statsView,
     Perms.budgetsList,
     Perms.expensesList,
-    Perms.paymentsList,
-    Perms.estateInvoicesList,
-    Perms.serviceInvoicesList,
   ],
   RouteConstants.budget: [Perms.budgetsList],
   RouteConstants.expense: [Perms.expensesList],
@@ -630,24 +629,29 @@ const Map<String, List<Permission>> routeRequirements = {
     Perms.serviceInvoicesList,
     Perms.paymentsList,
   ],
-  RouteConstants.financeWallets: [Perms.paymentsList],
+  RouteConstants.financeWallets: [Perms.paymentsList, Perms.walletView],
   RouteConstants.financeCashbook: [Perms.paymentsList, Perms.expensesList],
   RouteConstants.financeExpenses: [Perms.expensesList],
   RouteConstants.financeVendors: [Perms.expensesList],
   RouteConstants.financePettyCash: [Perms.expensesList],
-  RouteConstants.financeApprovals: [Perms.expensesList, Perms.budgetsList],
+  RouteConstants.financeApprovals: [
+    Perms.approvalRequestsList,
+    Perms.approvalFlowsList,
+    Perms.expensesApprove,
+    Perms.expensesList,
+  ],
   RouteConstants.financePayroll: [Perms.payrollList],
-  RouteConstants.financeCommissions: [Perms.paymentsList],
+  RouteConstants.financeCommissions: [Perms.paymentsList, Perms.awardsList],
   RouteConstants.financeTax: [Perms.expensesList, Perms.budgetsList],
   RouteConstants.financeJournals: [Perms.budgetsList],
   RouteConstants.financeCoa: [Perms.budgetsList],
   RouteConstants.financeAssets: [Perms.assetsList],
   RouteConstants.financeCashflow: [Perms.budgetsList],
   RouteConstants.financeServiceOrders: [Perms.ordersList],
-  RouteConstants.financeEstate: [Perms.estatesList],
+  RouteConstants.financeEstate: [Perms.estatesList, Perms.estateInvoicesList],
   RouteConstants.financeReports: [Perms.statsView, Perms.budgetsList],
-  RouteConstants.financeAudit: [Perms.complianceAuditsList],
-  RouteConstants.financeSettings: [Perms.companySettingsUpdate],
+  RouteConstants.financeAudit: [Perms.complianceAuditsList, Perms.auditLogsList],
+  RouteConstants.financeSettings: [Perms.companySettingsUpdate, Perms.companySettingsView],
 
   // Services
   RouteConstants.services: [
@@ -680,27 +684,33 @@ const Map<String, List<Permission>> routeRequirements = {
   // ── Services webview module (audit V4 fix) ───────────────────────────
   // Explicit gates mirroring each sidebar entry's resource array; these
   // pages hand tokens to the embedded services app.
-  RouteConstants.servicesDashboard: [Perms.servicesList],
+  RouteConstants.servicesDashboard: [
+    Perms.servicesList,
+    Perms.statsView,
+  ],
   RouteConstants.servicesCatalogue: [Perms.servicesList],
   RouteConstants.servicesCalculators: [Perms.servicesList],
   RouteConstants.servicesRequestFormBuilder: [Perms.servicesList],
   RouteConstants.servicesWorkflowDesigner: [Perms.servicesList],
-  RouteConstants.servicesBranchActivation: [Perms.servicesList],
+  RouteConstants.servicesBranchActivation: [Perms.branchesList, Perms.servicesList],
   RouteConstants.servicesRequests: [Perms.servicesList, Perms.clientsList],
-  RouteConstants.servicesQuotations: [Perms.servicesList],
+  RouteConstants.servicesQuotations: [Perms.quotesList, Perms.servicesList],
   RouteConstants.servicesInvoicesPayments: [
     Perms.serviceInvoicesList,
     Perms.paymentsList,
   ],
-  RouteConstants.servicesApprovals: [Perms.servicesList],
-  RouteConstants.servicesOrders: [Perms.servicesList],
-  RouteConstants.servicesExecutionTasks: [Perms.tasksList],
-  RouteConstants.servicesDeliverables: [Perms.documentsList],
+  RouteConstants.servicesApprovals: [Perms.approvalFlowsList, Perms.servicesList],
+  RouteConstants.servicesOrders: [Perms.ordersList],
+  RouteConstants.servicesExecutionTasks: [Perms.tasksList, Perms.ordersList],
+  RouteConstants.servicesDeliverables: [Perms.documentsList, Perms.ordersList],
   RouteConstants.servicesRealEstateInventory: [
     Perms.propertiesList,
     Perms.estatesList,
   ],
-  RouteConstants.servicesSurveyEngineeringOthers: [Perms.servicesList],
+  RouteConstants.servicesSurveyEngineeringOthers: [
+    Perms.servicesList,
+    Perms.propertiesList,
+  ],
   RouteConstants.servicesFeedbackQuality: [Perms.clientsList],
   RouteConstants.servicesReportsAnalytics: [Perms.statsView],
 
@@ -742,7 +752,10 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.marketingSiteDetail: [Perms.marketingCampaignsList],
 
   // Overview / command centre family
-  RouteConstants.marketingDashboard: [Perms.marketingCampaignsList],
+  RouteConstants.marketingDashboard: [
+    Perms.marketingCampaignsList,
+    Perms.statsView,
+  ],
   RouteConstants.marketingOkrs: [Perms.kpisList],
 
   // Leads family
@@ -755,13 +768,28 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.marketingCampaigns: [Perms.marketingCampaignsList],
   RouteConstants.marketingCalendar: [Perms.marketingCampaignsList],
   RouteConstants.marketingPlaybooks: [Perms.marketingCampaignsList],
-  RouteConstants.marketingContentStudio: [Perms.marketingCampaignsList],
+  RouteConstants.marketingContentStudio: [
+    Perms.contentList,
+    Perms.marketingCampaignsList,
+  ],
   RouteConstants.marketingEmailCenter: [Perms.marketingCampaignsList],
   RouteConstants.marketingMediaRegister: [Perms.marketingCampaignsList],
-  RouteConstants.marketingRealtorPortal: [Perms.marketingCampaignsList],
-  RouteConstants.marketingPartnerPortal: [Perms.marketingCampaignsList],
-  RouteConstants.marketingPartners: [Perms.marketingCampaignsList],
-  RouteConstants.marketingMeetings: [Perms.marketingCampaignsList],
+  RouteConstants.marketingRealtorPortal: [
+    Perms.partnersList,
+    Perms.marketingCampaignsList,
+  ],
+  RouteConstants.marketingPartnerPortal: [
+    Perms.partnersList,
+    Perms.marketingCampaignsList,
+  ],
+  RouteConstants.marketingPartners: [
+    Perms.partnersList,
+    Perms.marketingCampaignsList,
+  ],
+  RouteConstants.marketingMeetings: [
+    Perms.meetingsList,
+    Perms.marketingCampaignsList,
+  ],
 
   // Analytics family
   RouteConstants.marketingAnalytics: [Perms.statsView],

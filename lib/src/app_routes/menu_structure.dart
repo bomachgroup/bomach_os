@@ -1056,9 +1056,6 @@ const List<SidebarSection> sidebarStructure = [
             route: RouteConstants.financeDashboard,
             resources: [
               PermissionConstants.resStats,
-              PermissionConstants.resBudgets,
-              PermissionConstants.resExpenses,
-              PermissionConstants.resPayments,
             ],
           ),
           SubMenuItemData(
