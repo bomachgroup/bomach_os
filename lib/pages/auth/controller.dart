@@ -305,7 +305,11 @@ class AuthController extends GetxController {
               user.email.toLowerCase().contains('anigbo') ||
               user.role?.toLowerCase().contains('ceo') == true ||
               user.role?.toLowerCase().contains('super') == true ||
-              user.role?.toLowerCase().contains('founder') == true);
+              user.role?.toLowerCase().contains('founder') == true ||
+              roles.any((r) =>
+                  r.name.toLowerCase().contains('ceo') ||
+                  r.name.toLowerCase().contains('super') ||
+                  r.name.toLowerCase().contains('founder')));
 
       if (roles.isEmpty) {
         log("AuthController: No roles found. Loading default permissions.");

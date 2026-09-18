@@ -22,6 +22,7 @@ class User {
   final String createdAt;
   final String? updatedAt;
   final bool? twoFactorEnabled;
+  final String? role;
 
   User({
     required this.userId,
@@ -47,6 +48,7 @@ class User {
     required this.createdAt,
     this.updatedAt,
     this.twoFactorEnabled,
+    this.role,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -73,6 +75,11 @@ class User {
         startDate: json['start_date'] ?? '',
         createdAt: json['created_at'] ?? '',
         updatedAt: json['updated_at'] ?? '',
-        twoFactorEnabled: json['two_factor_enabled'] ?? false);
+        twoFactorEnabled: json['two_factor_enabled'] ?? false,
+        role: json['role'] is String
+            ? json['role']
+            : (json['role'] is Map
+                ? json['role']['name']?.toString()
+                : (json['role_name'] ?? json['designation'])?.toString()));
   }
 }
