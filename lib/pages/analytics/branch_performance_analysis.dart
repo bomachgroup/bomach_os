@@ -1,4 +1,5 @@
 import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/pages/analytics/models/branch_performance_models.dart';
 import 'package:bomach_os/src/constants/colors.dart';
@@ -183,198 +184,202 @@ class _BranchPerformanceAnalysisPageState
     final selectedBranch = _branches[_selectedBranchIndex];
     final keyInsights = _generateBranchInsights();
 
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with Branch Selector
-          Column(
+    return PageScaffold(
+      children: [
+        SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const MyText(
-                'Branch Performance Analysis',
-                style: AppTextStyles.displayLg,
-              ),
-              const SizedBox(height: 8),
-              MyText(
-                'Performance insights for ${selectedBranch.branchName}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: AppColors.neutral500,
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Branch Dropdown Selector
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.neutral100),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: DropdownButton<int>(
-                  value: _selectedBranchIndex,
-                  onChanged: (int? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _selectedBranchIndex = newValue;
-                      });
-                    }
-                  },
-                  isExpanded: true,
-                  underline: const SizedBox(),
-                  items: _branches.asMap().entries.map((entry) {
-                    return DropdownMenuItem<int>(
-                      value: entry.key,
-                      child: MyText(entry.value.branchName),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-          kSizedBox,
-
-          // Summary Cards for Selected Branch
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              SizedBox(
-                width: 220,
-                child: _buildStatCard(
-                  'Revenue Generated',
-                  '₦${(selectedBranch.revenueGenerated / 1000000).toStringAsFixed(1)}M',
-                  Iconsax.trend_up,
-                  AppColors.success,
-                ),
-              ),
-              SizedBox(
-                width: 220,
-                child: _buildStatCard(
-                  'Operational Efficiency',
-                  '${selectedBranch.operationalEfficiency.toStringAsFixed(0)}%',
-                  Iconsax.speedometer,
-                  AppColors.primary,
-                ),
-              ),
-              SizedBox(
-                width: 220,
-                child: _buildStatCard(
-                  'Customer Satisfaction',
-                  '${selectedBranch.customerSatisfaction.toStringAsFixed(0)}%',
-                  Iconsax.emoji_happy,
-                  AppColors.warning,
-                ),
-              ),
-              SizedBox(
-                width: 220,
-                child: _buildStatCard(
-                  'Total Employees',
-                  selectedBranch.employeeCount.toString(),
-                  Iconsax.people,
-                  AppColors.primaryPressed,
-                ),
-              ),
-            ],
-          ),
-          kSizedBox,
-
-          // Key Insights Section
-          _SectionCard(
-            title: 'Key Insights',
-            titleIcon: Iconsax.lamp,
-            child: Column(
-              children: keyInsights
-                  .map((insight) => _buildInsightItem(insight))
-                  .toList(),
-            ),
-          ),
-          kSizedBox,
-
-          // Revenue Trend Chart
-          _SectionCard(
-            title: 'Revenue Trend (6 Months)',
-            titleIcon: Iconsax.chart,
-            child: SizedBox(
-              height: 280,
-              child: LineChart(
-                LineChartData(
-                  gridData: const FlGridData(show: true),
-                  titlesData: FlTitlesData(
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          if (value.toInt() < _revenueTrends.length) {
-                            return MyText(
-                              _revenueTrends[value.toInt()].month,
-                              style: const TextStyle(fontSize: 12),
-                            );
-                          }
-                          return const SizedBox();
-                        },
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          return MyText(
-                            '₦${(value / 1000000).toStringAsFixed(0)}M',
-                            style: const TextStyle(fontSize: 10),
-                          );
-                        },
-                      ),
+              // Header with Branch Selector
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const MyText(
+                    'Branch Performance Analysis',
+                    style: AppTextStyles.displayLg,
+                  ),
+                  const SizedBox(height: 8),
+                  MyText(
+                    'Performance insights for ${selectedBranch.branchName}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.neutral500,
                     ),
                   ),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: _revenueTrends
-                          .asMap()
-                          .entries
-                          .map((e) => FlSpot(
-                                e.key.toDouble(),
-                                e.value.revenue,
-                              ))
-                          .toList(),
-                      isCurved: true,
-                      color: AppColors.primary,
-                      barWidth: 3,
-                      dotData: const FlDotData(show: true),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                      ),
+                  const SizedBox(height: 16),
+                  // Branch Dropdown Selector
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.neutral100),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    LineChartBarData(
-                      spots: _revenueTrends
-                          .asMap()
-                          .entries
-                          .map((e) => FlSpot(
-                                e.key.toDouble(),
-                                e.value.target,
-                              ))
-                          .toList(),
-                      isCurved: true,
-                      color: AppColors.warning,
-                      barWidth: 2,
-                      dotData: const FlDotData(show: false),
-                      dashArray: [5, 5],
+                    child: DropdownButton<int>(
+                      value: _selectedBranchIndex,
+                      onChanged: (int? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedBranchIndex = newValue;
+                          });
+                        }
+                      },
+                      isExpanded: true,
+                      underline: const SizedBox(),
+                      items: _branches.asMap().entries.map((entry) {
+                        return DropdownMenuItem<int>(
+                          value: entry.key,
+                          child: MyText(entry.value.branchName),
+                        );
+                      }).toList(),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              kSizedBox,
+
+              // Summary Cards for Selected Branch
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  SizedBox(
+                    width: 220,
+                    child: _buildStatCard(
+                      'Revenue Generated',
+                      '₦${(selectedBranch.revenueGenerated / 1000000).toStringAsFixed(1)}M',
+                      Iconsax.trend_up,
+                      AppColors.success,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 220,
+                    child: _buildStatCard(
+                      'Operational Efficiency',
+                      '${selectedBranch.operationalEfficiency.toStringAsFixed(0)}%',
+                      Iconsax.speedometer,
+                      AppColors.primary,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 220,
+                    child: _buildStatCard(
+                      'Customer Satisfaction',
+                      '${selectedBranch.customerSatisfaction.toStringAsFixed(0)}%',
+                      Iconsax.emoji_happy,
+                      AppColors.warning,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 220,
+                    child: _buildStatCard(
+                      'Total Employees',
+                      selectedBranch.employeeCount.toString(),
+                      Iconsax.people,
+                      AppColors.primaryPressed,
+                    ),
+                  ),
+                ],
+              ),
+              kSizedBox,
+
+              // Key Insights Section
+              _SectionCard(
+                title: 'Key Insights',
+                titleIcon: Iconsax.lamp,
+                child: Column(
+                  children: keyInsights
+                      .map((insight) => _buildInsightItem(insight))
+                      .toList(),
                 ),
               ),
-            ),
-          ),
-          kSizedBox,
+              kSizedBox,
 
-          // Detailed Branch Metrics
-          _buildBranchCard(selectedBranch),
-          kSizedBox,
-        ],
-      ),
+              // Revenue Trend Chart
+              _SectionCard(
+                title: 'Revenue Trend (6 Months)',
+                titleIcon: Iconsax.chart,
+                child: SizedBox(
+                  height: 280,
+                  child: LineChart(
+                    LineChartData(
+                      gridData: const FlGridData(show: true),
+                      titlesData: FlTitlesData(
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) {
+                              if (value.toInt() < _revenueTrends.length) {
+                                return MyText(
+                                  _revenueTrends[value.toInt()].month,
+                                  style: const TextStyle(fontSize: 12),
+                                );
+                              }
+                              return const SizedBox();
+                            },
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) {
+                              return MyText(
+                                '₦${(value / 1000000).toStringAsFixed(0)}M',
+                                style: const TextStyle(fontSize: 10),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: _revenueTrends
+                              .asMap()
+                              .entries
+                              .map((e) => FlSpot(
+                                    e.key.toDouble(),
+                                    e.value.revenue,
+                                  ))
+                              .toList(),
+                          isCurved: true,
+                          color: AppColors.primary,
+                          barWidth: 3,
+                          dotData: const FlDotData(show: true),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        LineChartBarData(
+                          spots: _revenueTrends
+                              .asMap()
+                              .entries
+                              .map((e) => FlSpot(
+                                    e.key.toDouble(),
+                                    e.value.target,
+                                  ))
+                              .toList(),
+                          isCurved: true,
+                          color: AppColors.warning,
+                          barWidth: 2,
+                          dotData: const FlDotData(show: false),
+                          dashArray: [5, 5],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              kSizedBox,
+
+              // Detailed Branch Metrics
+              _buildBranchCard(selectedBranch),
+              kSizedBox,
+            ],
+          ),
+        ),
+      ],
     );
   }
 

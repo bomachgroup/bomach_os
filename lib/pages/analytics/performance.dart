@@ -1,4 +1,5 @@
 import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/app_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -51,7 +52,9 @@ class PerformanceAnalytics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const DashboardPage();
+    return const PageScaffold(
+      children: [DashboardPage()],
+    );
   }
 }
 

@@ -313,6 +313,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                     controller: _locationController,
                     title: 'Location',
                     hintText: 'Enter location/address',
+                    maxLines: 2,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter location';
@@ -344,6 +345,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
               controller: _locationController,
               title: 'Location',
               hintText: 'Enter location/address',
+              maxLines: 2,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter location';
@@ -621,11 +623,9 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
             child: MyElevatedButton(
               child: 'Request Quote',
               height: 42,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               onTap: () {
-                AppToast.success(
-                    context, 'Quote request sent successfully!');
+                AppToast.success(context, 'Quote request sent successfully!');
               },
             ),
           ),

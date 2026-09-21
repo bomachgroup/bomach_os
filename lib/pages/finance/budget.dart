@@ -8,6 +8,7 @@ import 'package:bomach_os/pages/finance/widget/view_budget_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,8 +19,7 @@ class BudgetPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final BudgetController controller = Get.put(BudgetController());
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
       children: [
         Row(
           children: [
@@ -37,8 +37,8 @@ class BudgetPage extends StatelessWidget {
                     ],
                   ),
                   MyElevatedButton(
-                    icon: const Icon(Iconsax.add_circle,
-                        color: AppColors.white),
+                    icon:
+                        const Icon(Iconsax.add_circle, color: AppColors.white),
                     child: "New Budget",
                     onTap: () {
                       showDialog(
@@ -109,7 +109,10 @@ class BudgetPage extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
-                children: controller.budgetList.map((budget) => _buildMobileCard(context, budget, controller)).toList(),
+                children: controller.budgetList
+                    .map((budget) =>
+                        _buildMobileCard(context, budget, controller))
+                    .toList(),
               ),
             );
           }),
@@ -118,7 +121,8 @@ class BudgetPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileCard(BuildContext context, budget, BudgetController controller) {
+  Widget _buildMobileCard(
+      BuildContext context, budget, BudgetController controller) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -235,7 +239,8 @@ class BudgetPage extends StatelessWidget {
                   const PopupMenuItem(value: 'edit', child: Text('Edit')),
                   const PopupMenuItem(
                       value: 'delete',
-                      child: Text('Delete', style: TextStyle(color: Colors.red))),
+                      child:
+                          Text('Delete', style: TextStyle(color: Colors.red))),
                 ],
               ),
             ],

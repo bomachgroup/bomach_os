@@ -106,7 +106,10 @@ class PunctualityReport {
 
   factory PunctualityReport.fromJson(Map<String, dynamic> json) {
     return PunctualityReport(
-      score: double.tryParse(json['score']?.toString() ?? '0') ?? 0,
+      score: double.tryParse(
+              (json['punctuality_score'] ?? json['score'])?.toString() ??
+                  '0') ??
+          0,
       totalDays: int.tryParse(json['total_days']?.toString() ?? '0') ?? 0,
       onTimeDays: int.tryParse(json['on_time_days']?.toString() ?? '0') ?? 0,
       lateDays: int.tryParse(json['late_days']?.toString() ?? '0') ?? 0,

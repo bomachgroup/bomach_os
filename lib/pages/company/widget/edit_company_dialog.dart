@@ -152,7 +152,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                     MyTextFormField(
                         controller: sloganCtrl,
                         title: 'Company Slogan',
-                        hintText: ''),
+                        hintText: '',
+                        height: 72,
+                        maxLines: 2),
                     const SizedBox(height: 20),
                     Row(children: [
                       Expanded(

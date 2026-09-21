@@ -352,6 +352,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
               initialValue: item.description,
               hintText: 'Description of service/item',
               title: 'Description*',
+              maxLines: 2,
               onChanged: (value) {
                 setState(() {
                   item.description = value;
@@ -494,8 +495,8 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
           _buildSummaryRow(
               'Subtotal', 'NGN ${NumberFormat('#,###.##').format(_subtotal)}'),
           const SizedBox(height: 12),
-          _buildSummaryRow('Discount',
-              '-NGN ${NumberFormat('#,###.##').format(_discount)}'),
+          _buildSummaryRow(
+              'Discount', '-NGN ${NumberFormat('#,###.##').format(_discount)}'),
           const SizedBox(height: 12),
           _buildSummaryRow('Tax (${_taxRate.toStringAsFixed(1)}%)',
               'NGN ${NumberFormat('#,###.##').format(_taxAmount)}'),
@@ -520,15 +521,13 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
           label,
           style: isTotal
               ? AppTextStyles.h4
-              : AppTextStyles.bodyMd
-                  .copyWith(color: AppColors.textSecondary),
+              : AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
         ),
         Text(
           value,
           style: isTotal
               ? AppTextStyles.h4.copyWith(color: AppColors.primary)
-              : AppTextStyles.bodyMd
-                  .copyWith(fontWeight: FontWeight.w600),
+              : AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );

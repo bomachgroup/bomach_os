@@ -3,6 +3,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/text/my_text.dart';
+import '../../components/section/page_scaffold.dart';
 import '../../src/constants/spaces.dart';
 import '../../src/constants/textstyle.dart';
 import 'overview.dart';
@@ -13,140 +14,144 @@ class RevenueAnalyticsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final screenWidth = constraints.maxWidth;
-      final bool isCompact = constraints.maxWidth < 900;
-      const cardGap = 16.0;
-      final columns = screenWidth >= 1100
-          ? 3
-          : screenWidth >= 680
-              ? 2
-              : 1;
-      final cardWidth = (screenWidth - (cardGap * (columns - 1))) / columns;
+    return PageScaffold(
+      children: [
+        LayoutBuilder(builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final bool isCompact = constraints.maxWidth < 900;
+          const cardGap = 16.0;
+          final columns = screenWidth >= 1100
+              ? 3
+              : screenWidth >= 680
+                  ? 2
+                  : 1;
+          final cardWidth = (screenWidth - (cardGap * (columns - 1))) / columns;
 
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              screenWidth > 800
-                  ? const Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              MyText(
-                                'Analytics',
-                                style: AppTextStyles.displayLg,
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  screenWidth > 800
+                      ? const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  MyText(
+                                    'Analytics',
+                                    style: AppTextStyles.displayLg,
+                                  ),
+                                  SizedBox(height: 4),
+                                  MyText(
+                                    'Business intelligence and performance metrics',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(height: 4),
-                              MyText(
-                                'Business intelligence and performance metrics',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 15,
-                                ),
+                            ),
+                            AnalyticsActions(),
+                          ],
+                        )
+                      : const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            MyText(
+                              'Analytics',
+                              style: AppTextStyles.displayLg,
+                            ),
+                            SizedBox(height: 4),
+                            MyText(
+                              'Business intelligence and performance metrics',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
                               ),
+                            ),
+                            SizedBox(height: 16),
+                            AnalyticsActions(),
+                          ],
+                        ),
+                  kSizedBox,
+                  Wrap(
+                    spacing: cardGap,
+                    runSpacing: cardGap,
+                    children: summaryData.map((e) {
+                      return SizedBox(
+                        width: cardWidth,
+                        child: AnalyticsMetricCard(
+                          title: e["title"] ?? '',
+                          value: e["value"] ?? '',
+                          subtitle: e['subtitle'] ?? '',
+                          showtrend: false,
+                        ),
+                      );
+                    }).toList(),
+                  )
+                ]),
+                kSizedBox,
+                SectionCard(
+                  title: "Revenue Trend Analysis",
+                  titleIcon: Iconsax.chart_2,
+                  child: SizedBox(
+                    height: 250,
+                    child: LineChart(
+                      LineChartData(
+                        titlesData: const FlTitlesData(show: true),
+                        borderData: FlBorderData(show: false),
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: [
+                              const FlSpot(1, 2),
+                              const FlSpot(2, 2.2),
+                              const FlSpot(3, 2.5),
+                              const FlSpot(4, 2.7),
+                              const FlSpot(5, 3),
+                              const FlSpot(6, 3.2),
                             ],
+                            isCurved: true,
+                            color: Colors.blue,
+                            belowBarData: BarAreaData(
+                                show: true,
+                                color: Colors.blue.withValues(alpha: 0.2)),
                           ),
-                        ),
-                        AnalyticsActions(),
-                      ],
-                    )
-                  : const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MyText(
-                          'Analytics',
-                          style: AppTextStyles.displayLg,
-                        ),
-                        SizedBox(height: 4),
-                        MyText(
-                          'Business intelligence and performance metrics',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        AnalyticsActions(),
-                      ],
-                    ),
-              kSizedBox,
-              Wrap(
-                spacing: cardGap,
-                runSpacing: cardGap,
-                children: summaryData.map((e) {
-                  return SizedBox(
-                    width: cardWidth,
-                    child: AnalyticsMetricCard(
-                      title: e["title"] ?? '',
-                      value: e["value"] ?? '',
-                      subtitle: e['subtitle'] ?? '',
-                      showtrend: false,
-                    ),
-                  );
-                }).toList(),
-              )
-            ]),
-            kSizedBox,
-            SectionCard(
-              title: "Revenue Trend Analysis",
-              titleIcon: Iconsax.chart_2,
-              child: SizedBox(
-                height: 250,
-                child: LineChart(
-                  LineChartData(
-                    titlesData: const FlTitlesData(show: true),
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: [
-                          const FlSpot(1, 2),
-                          const FlSpot(2, 2.2),
-                          const FlSpot(3, 2.5),
-                          const FlSpot(4, 2.7),
-                          const FlSpot(5, 3),
-                          const FlSpot(6, 3.2),
                         ],
-                        isCurved: true,
-                        color: Colors.blue,
-                        belowBarData: BarAreaData(
-                            show: true,
-                            color: Colors.blue.withValues(alpha: 0.2)),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                kSizedBox,
+                isCompact
+                    ? Column(
+                        children: [
+                          _buildServiceTypeCard(),
+                          const SizedBox(height: 16),
+                          _buildLocationCard(),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _buildServiceTypeCard(),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildLocationCard(),
+                          ),
+                        ],
+                      ),
+              ],
             ),
-            kSizedBox,
-            isCompact
-                ? Column(
-                    children: [
-                      _buildServiceTypeCard(),
-                      const SizedBox(height: 16),
-                      _buildLocationCard(),
-                    ],
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: _buildServiceTypeCard(),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildLocationCard(),
-                      ),
-                    ],
-                  ),
-          ],
-        ),
-      );
-    });
+          );
+        }),
+      ],
+    );
   }
 
   Widget _buildServiceTypeCard() {

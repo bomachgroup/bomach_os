@@ -1,6 +1,7 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/events/controller/event_controller.dart';
 import 'package:bomach_os/pages/events/widget/add_event_dialog.dart';
 import 'package:bomach_os/pages/events/widget/view_event_dialog.dart';
@@ -37,76 +38,83 @@ class _EventsPageState extends State<EventsPage> {
           controller.getEventsForDay(_selectedDay ?? _focusedDay);
       final totalEvents = controller.events.length;
 
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                Expanded(
-                  child: Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.start,
-                    spacing: 10,
-                    runSpacing: 10,
+      return PageScaffold(
+        scrollable: false,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
                     children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(
-                            'Events & Calendar',
-                            style: AppTextStyles.displayLg,
-                          ),
-                          SizedBox(height: 8),
-                          MyText(
-                            'Manage and track all company events',
-                            size: 14,
-                            weight: 400,
-                            color: AppColors.neutral500,
-                          ),
-                        ],
-                      ),
-                      MyElevatedButton(
-                        icon: const Icon(
-                          Iconsax.add_circle,
-                          color: AppColors.white,
+                      Expanded(
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.start,
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyText(
+                                  'Events & Calendar',
+                                  style: AppTextStyles.displayLg,
+                                ),
+                                SizedBox(height: 8),
+                                MyText(
+                                  'Manage and track all company events',
+                                  size: 14,
+                                  weight: 400,
+                                  color: AppColors.neutral500,
+                                ),
+                              ],
+                            ),
+                            MyElevatedButton(
+                              icon: const Icon(
+                                Iconsax.add_circle,
+                                color: AppColors.white,
+                              ),
+                              child: "New Event",
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const AddEventDialog();
+                                  },
+                                );
+                              },
+                            )
+                          ],
                         ),
-                        child: "New Event",
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const AddEventDialog();
-                            },
-                          );
-                        },
-                      )
+                      ),
                     ],
                   ),
-                ),
-              ],
+                  kSizedBox,
+
+                  // Loading indicator
+                  if (controller.isLoading.value && controller.events.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  else ...[
+                    // Calendar Section
+                    _buildCalendarSection(totalEvents),
+                    kSizedBox,
+
+                    // Events List Section
+                    _buildEventsListSection(selectedDayEvents),
+                  ],
+                ],
+              ),
             ),
-            kSizedBox,
-
-            // Loading indicator
-            if (controller.isLoading.value && controller.events.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else ...[
-              // Calendar Section
-              _buildCalendarSection(totalEvents),
-              kSizedBox,
-
-              // Events List Section
-              _buildEventsListSection(selectedDayEvents),
-            ],
-          ],
-        ),
+          ),
+        ],
       );
     });
   }

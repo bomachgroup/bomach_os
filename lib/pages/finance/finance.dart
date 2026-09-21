@@ -1,5 +1,6 @@
 import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
@@ -36,19 +37,14 @@ class _FinancePageState extends State<FinancePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const PageHeader(
-            title: 'Finance & Accounting',
-            subtitle: 'Invoices, payments, budgets, and financial reporting',
-          ),
-          kSizedBoxBG,
-          _buildSummaryGrid(),
-        ],
+    return PageScaffold(
+      header: const PageHeader(
+        title: 'Finance & Accounting',
+        subtitle: 'Invoices, payments, budgets, and financial reporting',
       ),
+      children: [
+        _buildSummaryGrid(),
+      ],
     );
   }
 
@@ -62,29 +58,37 @@ class _FinancePageState extends State<FinancePage> {
       rowGap: kDefaultSpaceBG,
       children: [
         Obx(() => _buildSummaryCard(
-          value: controller.isLoading.value ? '-' : controller.totalExpenses.value,
-          label: 'Total Expenses',
-          icon: Iconsax.money_remove,
-          accent: _accentRed,
-        )),
+              value: controller.isLoading.value
+                  ? '-'
+                  : controller.totalExpenses.value,
+              label: 'Total Expenses',
+              icon: Iconsax.money_remove,
+              accent: _accentRed,
+            )),
         Obx(() => _buildSummaryCard(
-          value: controller.isLoading.value ? '-' : controller.totalExpensesAmount.value,
-          label: 'Total Amount',
-          icon: Iconsax.money_send,
-          accent: _accentBlue,
-        )),
+              value: controller.isLoading.value
+                  ? '-'
+                  : controller.totalExpensesAmount.value,
+              label: 'Total Amount',
+              icon: Iconsax.money_send,
+              accent: _accentBlue,
+            )),
         Obx(() => _buildSummaryCard(
-          value: controller.isLoading.value ? '-' : controller.outstandingInvoices.value,
-          label: 'Outstanding Invoices',
-          icon: Iconsax.receipt_2_1,
-          accent: _accentAmber,
-        )),
+              value: controller.isLoading.value
+                  ? '-'
+                  : controller.outstandingInvoices.value,
+              label: 'Outstanding Invoices',
+              icon: Iconsax.receipt_2_1,
+              accent: _accentAmber,
+            )),
         Obx(() => _buildSummaryCard(
-          value: controller.isLoading.value ? '-' : controller.totalBudgetAmount.value,
-          label: 'Total Budget',
-          icon: Iconsax.wallet_3,
-          accent: _accentGreen,
-        )),
+              value: controller.isLoading.value
+                  ? '-'
+                  : controller.totalBudgetAmount.value,
+              label: 'Total Budget',
+              icon: Iconsax.wallet_3,
+              accent: _accentGreen,
+            )),
       ],
     );
   }

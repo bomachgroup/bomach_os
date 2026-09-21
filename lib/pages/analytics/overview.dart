@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../components/text/app_text.dart';
+import '../../components/section/page_scaffold.dart';
 import '../../src/constants/spaces.dart';
 import 'controllers/analytics_controller.dart';
 import 'widgets/metrics_card.dart';
@@ -13,26 +14,48 @@ class AnalyticsOverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final screenWidth = constraints.maxWidth;
-      const cardGap = 16.0;
-      final columns = screenWidth >= 1100
-          ? 3
-          : screenWidth >= 680
-              ? 2
-              : 1;
-      final cardWidth = (screenWidth - (cardGap * (columns - 1))) / columns;
+    return PageScaffold(
+      scrollable: false,
+      children: [
+        Expanded(
+          child: LayoutBuilder(builder: (context, constraints) {
+            final screenWidth = constraints.maxWidth;
+            const cardGap = 16.0;
+            final columns = screenWidth >= 1100
+                ? 3
+                : screenWidth >= 680
+                    ? 2
+                    : 1;
+            final cardWidth =
+                (screenWidth - (cardGap * (columns - 1))) / columns;
 
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            screenWidth > 800
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  screenWidth > 800
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AppText.displayLg(
+                                    'Analytics',
+                                  ),
+                                  const SizedBox(height: 4),
+                                  AppText.bodyMd(
+                                    'Business intelligence and performance metrics',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const AnalyticsActions(),
+                          ],
+                        )
+                      : Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AppText.displayLg(
@@ -43,120 +66,109 @@ class AnalyticsOverviewPage extends StatelessWidget {
                               'Business intelligence and performance metrics',
                               fontWeight: FontWeight.w500,
                             ),
+                            const SizedBox(height: 16),
+                            const AnalyticsActions(),
                           ],
                         ),
-                      ),
-                      const AnalyticsActions(),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppText.displayLg(
-                        'Analytics',
-                      ),
-                      const SizedBox(height: 4),
-                      AppText.bodyMd(
-                        'Business intelligence and performance metrics',
-                        fontWeight: FontWeight.w500,
-                      ),
-                      const SizedBox(height: 16),
-                      const AnalyticsActions(),
-                    ],
+                  kSizedBox,
+                  Builder(builder: (context) {
+                    final controller = Get.put(AnalyticsController());
+                    return Obx(() => Wrap(
+                          spacing: cardGap,
+                          runSpacing: cardGap,
+                          children: [
+                            SizedBox(
+                              width: cardWidth,
+                              child: AnalyticsMetricCard(
+                                title: "Total Employees",
+                                value:
+                                    controller.totalEmployees.value.toString(),
+                                subtitle:
+                                    "${controller.newHires30Days.value} new (30d)",
+                                imgPath: 'assets/icons/people.png',
+                                color: Colors.green,
+                              ),
+                            ),
+                            SizedBox(
+                              width: cardWidth,
+                              child: AnalyticsMetricCard(
+                                title: "Training Programs",
+                                value: controller.trainingPrograms.value
+                                    .toString(),
+                                subtitle: "Active programs",
+                                imgPath: 'assets/icons/points.png',
+                                color: Colors.blue,
+                              ),
+                            ),
+                            SizedBox(
+                              width: cardWidth,
+                              child: AnalyticsMetricCard(
+                                title: "Job Postings",
+                                value: controller.jobPostings.value.toString(),
+                                subtitle: "Open positions",
+                                imgPath: 'assets/icons/achievement.png',
+                                color: Colors.orange,
+                              ),
+                            ),
+                            SizedBox(
+                              width: cardWidth,
+                              child: AnalyticsMetricCard(
+                                title: "Leave Requests",
+                                value: controller.leaves.value.toString(),
+                                subtitle: "Pending/approved",
+                                imgPath: 'assets/icons/dollar.png',
+                                color: Colors.red,
+                              ),
+                            ),
+                            SizedBox(
+                              width: cardWidth,
+                              child: AnalyticsMetricCard(
+                                title: "Open Roles",
+                                value: controller.openRoles.value.toString(),
+                                subtitle: "Hiring positions",
+                                imgPath: 'assets/icons/chart.png',
+                                color: Colors.green,
+                              ),
+                            ),
+                            SizedBox(
+                              width: cardWidth,
+                              child: AnalyticsMetricCard(
+                                title: "New Hires (30d)",
+                                value:
+                                    controller.newHires30Days.value.toString(),
+                                subtitle: "Recent onboarding",
+                                imgPath: 'assets/icons/check.png',
+                                color: Colors.purple,
+                              ),
+                            ),
+                          ],
+                        ));
+                  }),
+                  kSizedBox,
+                  MetricsSection(
+                    title: "Revenue Summary",
+                    icon: Iconsax.money_recive,
+                    items: revenueData,
                   ),
-            kSizedBox,
-            Builder(builder: (context) {
-              final controller = Get.put(AnalyticsController());
-              return Obx(() => Wrap(
-                    spacing: cardGap,
-                    runSpacing: cardGap,
-                    children: [
-                      SizedBox(
-                        width: cardWidth,
-                        child: AnalyticsMetricCard(
-                          title: "Total Employees",
-                          value: controller.totalEmployees.value.toString(),
-                          subtitle:
-                              "${controller.newHires30Days.value} new (30d)",
-                          imgPath: 'assets/icons/people.png',
-                          color: Colors.green,
-                        ),
-                      ),
-                      SizedBox(
-                        width: cardWidth,
-                        child: AnalyticsMetricCard(
-                          title: "Training Programs",
-                          value: controller.trainingPrograms.value.toString(),
-                          subtitle: "Active programs",
-                          imgPath: 'assets/icons/points.png',
-                          color: Colors.blue,
-                        ),
-                      ),
-                      SizedBox(
-                        width: cardWidth,
-                        child: AnalyticsMetricCard(
-                          title: "Job Postings",
-                          value: controller.jobPostings.value.toString(),
-                          subtitle: "Open positions",
-                          imgPath: 'assets/icons/achievement.png',
-                          color: Colors.orange,
-                        ),
-                      ),
-                      SizedBox(
-                        width: cardWidth,
-                        child: AnalyticsMetricCard(
-                          title: "Leave Requests",
-                          value: controller.leaves.value.toString(),
-                          subtitle: "Pending/approved",
-                          imgPath: 'assets/icons/dollar.png',
-                          color: Colors.red,
-                        ),
-                      ),
-                      SizedBox(
-                        width: cardWidth,
-                        child: AnalyticsMetricCard(
-                          title: "Open Roles",
-                          value: controller.openRoles.value.toString(),
-                          subtitle: "Hiring positions",
-                          imgPath: 'assets/icons/chart.png',
-                          color: Colors.green,
-                        ),
-                      ),
-                      SizedBox(
-                        width: cardWidth,
-                        child: AnalyticsMetricCard(
-                          title: "New Hires (30d)",
-                          value: controller.newHires30Days.value.toString(),
-                          subtitle: "Recent onboarding",
-                          imgPath: 'assets/icons/check.png',
-                          color: Colors.purple,
-                        ),
-                      ),
-                    ],
-                  ));
-            }),
-            kSizedBox,
-            MetricsSection(
-              title: "Revenue Summary",
-              icon: Iconsax.money_recive,
-              items: revenueData,
-            ),
-            MetricsSection(
-              title: "Project Metrics",
-              icon: Iconsax.briefcase,
-              items: projectData,
-              progress: 0.0,
-            ),
-            MetricsSection(
-              title: "Team Overview",
-              icon: Iconsax.people,
-              items: teamData,
-              progress: 0.78,
-            ),
-          ],
+                  MetricsSection(
+                    title: "Project Metrics",
+                    icon: Iconsax.briefcase,
+                    items: projectData,
+                    progress: 0.0,
+                  ),
+                  MetricsSection(
+                    title: "Team Overview",
+                    icon: Iconsax.people,
+                    items: teamData,
+                    progress: 0.78,
+                  ),
+                ],
+              ),
+            );
+          }),
         ),
-      );
-    });
+      ],
+    );
   }
 }
 

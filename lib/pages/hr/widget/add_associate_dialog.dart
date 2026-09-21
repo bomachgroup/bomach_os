@@ -258,8 +258,7 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
                     title: 'Role*',
                     items: _associateRoles,
                     hintText: _selectedRole ?? 'Select role',
-                    onChanged: (val) =>
-                        setState(() => _selectedRole = val),
+                    onChanged: (val) => setState(() => _selectedRole = val),
                   ),
                 ),
               ],
@@ -269,6 +268,7 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
               title: 'Address',
               hintText: 'Street, city, state',
               controller: _addressCtrl,
+              maxLines: 3,
             ),
             const SizedBox(height: 20),
             MyTextFormField(
@@ -291,8 +291,7 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
         ),
         Obx(() => MyElevatedButton(
               height: 44,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               icon: const Icon(Iconsax.tick_circle,
                   size: 18, color: AppColors.textOnPrimary),
               isLoading: controller.isSaving.value,

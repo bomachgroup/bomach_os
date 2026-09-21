@@ -87,8 +87,10 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
     locationCtrl = TextEditingController(text: e?.meetingLocation ?? '');
 
     if (e != null) {
-      selectedFrom = e.eventTimeFrom.isNotEmpty ? parseApiDateTime(e.eventTimeFrom) : null;
-      selectedTo = e.eventTimeTo.isNotEmpty ? parseApiDateTime(e.eventTimeTo) : null;
+      selectedFrom =
+          e.eventTimeFrom.isNotEmpty ? parseApiDateTime(e.eventTimeFrom) : null;
+      selectedTo =
+          e.eventTimeTo.isNotEmpty ? parseApiDateTime(e.eventTimeTo) : null;
     }
 
     // Format datetimes for display
@@ -210,6 +212,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                 MyTextFormField(
                   controller: locationCtrl,
                   hintText: 'Physical address or virtual link',
+                  maxLines: 2,
                   leading: const Icon(Iconsax.location, size: 18),
                 ),
               ],
@@ -496,7 +499,8 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
       apiToDt = selectedTo!.toUtc().toIso8601String();
     } else {
       try {
-        final parsedTo = DateFormat('MM-dd-yyyy, hh:mma').parse(dateToCtrl.text);
+        final parsedTo =
+            DateFormat('MM-dd-yyyy, hh:mma').parse(dateToCtrl.text);
         apiToDt = parsedTo.toUtc().toIso8601String();
       } catch (_) {
         apiToDt = dateToCtrl.text;
@@ -679,7 +683,8 @@ class ViewEventDialog extends StatelessWidget {
           SizedBox(
             width: 150,
             child: Text(label,
-                style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted)),
+                style:
+                    AppTextStyles.bodySm.copyWith(color: AppColors.textMuted)),
           ),
           Expanded(
             child: Text(value,

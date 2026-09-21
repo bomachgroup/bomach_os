@@ -102,20 +102,19 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
                         controller: nameCtrl,
                         title: 'Worksite Name',
                         hintText: 'e.g. Site A',
-                        validator: (val) =>
-                            (val == null || val.trim().isEmpty)
-                                ? 'Required'
-                                : null,
+                        validator: (val) => (val == null || val.trim().isEmpty)
+                            ? 'Required'
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       MyTextFormField(
                         controller: locationCtrl,
                         title: 'Location',
                         hintText: 'e.g. 123 Industrial Rd',
-                        validator: (val) =>
-                            (val == null || val.trim().isEmpty)
-                                ? 'Required'
-                                : null,
+                        maxLines: 2,
+                        validator: (val) => (val == null || val.trim().isEmpty)
+                            ? 'Required'
+                            : null,
                       ),
                     ],
                   ),

@@ -17,6 +17,7 @@ import 'package:intl/intl.dart';
 
 import '../controller/work_report_controller.dart';
 import '../models/work_report_model.dart';
+import 'dynamic_item_list_field.dart';
 
 class WorkReportReviewDialog extends StatefulWidget {
   final WorkReport report;
@@ -116,9 +117,9 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
             title: 'Report Details',
             children: [
               _buildDetail('Operational Base', widget.report.operationalBase),
-              _buildDetail('Work Activities', widget.report.workActivities),
-              _buildDetail('Task Details', widget.report.taskDetails),
-              _buildDetail('Plan for Next Day', widget.report.planNextDay),
+              _buildNumberedDetail('Work Activities / Things Achieved', widget.report.workActivities),
+              _buildNumberedDetail('Problems Faced / Challenges', widget.report.taskDetails),
+              _buildNumberedDetail('Tasks & Plans for Next Week', widget.report.planNextDay),
               _buildDetail('Reviewed by', _reviewerLabel()),
               _buildAttachments(),
             ],
@@ -341,6 +342,65 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
               fontWeight: FontWeight.w500,
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNumberedDetail(String title, String? content) {
+    final items = WorkReportFormatUtils.parseItems(content);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 6),
+          if (items.isEmpty)
+            Text(
+              'None reported',
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textMuted,
+                fontStyle: FontStyle.italic,
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 6),
+              itemBuilder: (context, index) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${index + 1}. ',
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Expanded(
+                      child: SelectableText(
+                        items[index],
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
         ],
       ),
     );

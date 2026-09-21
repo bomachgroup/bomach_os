@@ -3,6 +3,7 @@ import 'dart:js_interop';
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:bomach_os/src/constants/api_constants.dart';
+import 'package:bomach_os/pages/shared/embedded_web_view_interaction.dart';
 import 'package:web/web.dart' as web;
 import 'finance_webview_contract.dart';
 
@@ -61,6 +62,7 @@ class _FinanceIFrameViewState extends State<_FinanceIFrameView> {
   late final String _targetUrl;
   Timer? _tokenRetryTimer;
   int _postAttempts = 0;
+  VoidCallback? _pointerEventsListener;
 
   @override
   void initState() {
@@ -75,6 +77,10 @@ class _FinanceIFrameViewState extends State<_FinanceIFrameView> {
         ..style.width = '100%'
         ..style.height = '100%'
         ..style.display = 'block';
+
+      _pointerEventsListener = () => _syncPointerEvents(iframe);
+      embeddedWebViewInteraction.addListener(_pointerEventsListener!);
+      _syncPointerEvents(iframe);
 
       // Deliver auth via postMessage once the child app has loaded
       iframe.addEventListener(
@@ -102,6 +108,10 @@ class _FinanceIFrameViewState extends State<_FinanceIFrameView> {
     });
 
     _scheduleTokenRetries();
+  }
+
+  void _syncPointerEvents(web.HTMLIFrameElement iframe) {
+    iframe.style.pointerEvents = embeddedWebViewInteraction.pointerEvents;
   }
 
   @override
@@ -147,8 +157,8 @@ class _FinanceIFrameViewState extends State<_FinanceIFrameView> {
   void _scheduleTokenRetries() {
     _tokenRetryTimer?.cancel();
     _postAttempts = 0;
-    _tokenRetryTimer = Timer.periodic(const Duration(milliseconds: 1500),
-        (timer) {
+    _tokenRetryTimer =
+        Timer.periodic(const Duration(milliseconds: 1500), (timer) {
       if (_postAttempts >= 3) {
         timer.cancel();
         return;
@@ -193,6 +203,10 @@ class _FinanceIFrameViewState extends State<_FinanceIFrameView> {
   @override
   void dispose() {
     _tokenRetryTimer?.cancel();
+    final pointerEventsListener = _pointerEventsListener;
+    if (pointerEventsListener != null) {
+      embeddedWebViewInteraction.removeListener(pointerEventsListener);
+    }
     final messageHandler = _activeMessageHandlers.remove(_viewType);
     if (messageHandler != null) {
       web.window.removeEventListener('message', messageHandler);

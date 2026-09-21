@@ -3,6 +3,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/input/my_dropdown.dart';
+import '../../components/section/page_scaffold.dart';
 import '../../components/text/my_text.dart';
 import 'dialogs/client_dialog.dart';
 import 'dialogs/lead_dialog.dart';
@@ -16,7 +17,6 @@ class InteractionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
-    final isTablet = screenWidth < 900;
 
     Widget buildActionButton({
       required IconData icon,
@@ -56,83 +56,95 @@ class InteractionsPage extends StatelessWidget {
       }
     }
 
-    return Column(
+    return PageScaffold(
       children: [
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: isMobile ? double.infinity : 520,
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MyText(
-                    'Customer Relationship Management',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 4),
-                  MyText(
-                    'Manage clients, leads, and customer interactions',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                buildActionButton(
-                    onPressed: () {},
-                    icon: Iconsax.message_text,
-                    label: 'Log Interactions',
-                    isWide: !isMobile),
-                buildActionButton(
-                    onPressed: () {
-                      AddNewLeadDialog.show(context);
-                    },
-                    icon: Iconsax.copy,
-                    label: 'Add Lead',
-                    isWide: !isMobile),
-                buildActionButton(
-                    onPressed: () {
-                      AddNewClientDialog.show(context);
-                    },
-                    icon: Iconsax.user_add,
-                    label: 'Add Client',
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    isWide: !isMobile),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isMobile ? double.infinity : 520,
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MyText(
+                        'Customer Relationship Management',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4),
+                      MyText(
+                        'Manage clients, leads, and customer interactions',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    buildActionButton(
+                        onPressed: () {},
+                        icon: Iconsax.message_text,
+                        label: 'Log Interactions',
+                        isWide: !isMobile),
+                    buildActionButton(
+                        onPressed: () {
+                          AddNewLeadDialog.show(context);
+                        },
+                        icon: Iconsax.copy,
+                        label: 'Add Lead',
+                        isWide: !isMobile),
+                    buildActionButton(
+                        onPressed: () {
+                          AddNewClientDialog.show(context);
+                        },
+                        icon: Iconsax.user_add,
+                        label: 'Add Client',
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        isWide: !isMobile),
+                  ],
+                ),
               ],
             ),
+            const SizedBox(height: 24),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 600;
+                final tablet = constraints.maxWidth < 900;
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: crmMetrics.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: compact ? 1 : 4,
+                    crossAxisSpacing: 16.0,
+                    mainAxisSpacing: 16.0,
+                    childAspectRatio: compact
+                        ? 3.0
+                        : tablet
+                            ? 1
+                            : 1.8,
+                  ),
+                  itemBuilder: (context, index) =>
+                      StandardMetricCard(data: crmMetrics[index]),
+                );
+              },
+            ),
+            const SizedBox(height: 32),
+            const InteractonsWidget()
           ],
         ),
-        const SizedBox(height: 24),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: crmMetrics.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isMobile ? 2 : 4,
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
-            childAspectRatio: isMobile
-                ? 1.5
-                : isTablet
-                    ? 1
-                    : 1.8,
-          ),
-          itemBuilder: (context, index) =>
-              StandardMetricCard(data: crmMetrics[index]),
-        ),
-        const SizedBox(height: 32),
-        const InteractonsWidget()
       ],
     );
   }
@@ -477,16 +489,23 @@ class InteractionDataTable extends StatelessWidget {
   }
 
   Widget _buildMeta(IconData icon, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 14, color: Colors.grey),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-        ),
-      ],
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 140),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: Colors.grey),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

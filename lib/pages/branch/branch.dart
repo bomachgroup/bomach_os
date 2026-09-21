@@ -2,6 +2,7 @@ import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/cards/invoice.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/input/upload_file.dart';
@@ -27,88 +28,92 @@ class _BranchPageState extends State<BranchPage> {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.sizeOf(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
       children: [
-        Row(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Row(
-                    mainAxisSize: MainAxisSize.min,
+            Row(
+              children: [
+                Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    spacing: 10,
+                    runSpacing: 10,
                     children: [
-                      MyText(
-                        'Enugu Branch',
-                        style: AppTextStyles.displayLg,
+                      const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          MyText(
+                            'Enugu Branch',
+                            style: AppTextStyles.displayLg,
+                          ),
+                          kSizedBoxWidthSM,
+                          Icon(
+                            Iconsax.arrow_down_1,
+                            size: 24,
+                          ),
+                        ],
                       ),
-                      kSizedBoxWidthSM,
-                      Icon(
-                        Iconsax.arrow_down_1,
-                        size: 24,
+                      Wrap(
+                        runSpacing: 15,
+                        children: [
+                          MyOutlinedButton(
+                            child: 'Company profile',
+                            onTap: () {},
+                          ),
+                          kSizedBoxWidth,
+                          MyElevatedButton(
+                            icon: const Icon(
+                              Iconsax.add_circle,
+                              color: AppColors.white,
+                            ),
+                            child: 'New Branch',
+                            onTap: () {
+                              showCreateBranchModal(context);
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Wrap(
-                    runSpacing: 15,
+                ),
+              ],
+            ),
+            kSizedBox,
+            SizedBox(
+              width: isLargeScreen(context) ? media.width - 300 : media.width,
+              child: LayoutGrid(
+                gridFit: GridFit.passthrough,
+                columnSizes: isSmallScreen(context) ? [1.fr] : [2.fr, 1.fr],
+                rowSizes: isSmallScreen(context) ? [auto, auto] : [auto],
+                columnGap: kDefaultSpaceBG,
+                rowGap: kDefaultSpaceBG,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyOutlinedButton(
-                        child: 'Company profile',
-                        onTap: () {},
-                      ),
-                      kSizedBoxWidth,
-                      MyElevatedButton(
-                        icon: const Icon(
-                          Iconsax.add_circle,
-                          color: AppColors.white,
-                        ),
-                        child: 'New Branch',
-                        onTap: () {
-                          showCreateBranchModal(context);
-                        },
-                      ),
+                      if (!isSmallScreen(context)) kSizedBox,
+                      _buildSummaryGrid(),
+                      kSizedBox,
+                      kSizedBoxSM,
+                      _buildClientInvoiceSection(),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildBranchDateTimeCard(),
+                      kSizedBox,
+                      kSizedBoxSM,
+                      _buildCompanySchedule(),
                     ],
                   ),
                 ],
               ),
             ),
           ],
-        ),
-        kSizedBox,
-        SizedBox(
-          width: isLargeScreen(context) ? media.width - 300 : media.width,
-          child: LayoutGrid(
-            gridFit: GridFit.passthrough,
-            columnSizes: isSmallScreen(context) ? [1.fr] : [2.fr, 1.fr],
-            rowSizes: isSmallScreen(context) ? [auto, auto] : [auto],
-            columnGap: kDefaultSpaceBG,
-            rowGap: kDefaultSpaceBG,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!isSmallScreen(context)) kSizedBox,
-                  _buildSummaryGrid(),
-                  kSizedBox,
-                  kSizedBoxSM,
-                  _buildClientInvoiceSection(),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildBranchDateTimeCard(),
-                  kSizedBox,
-                  kSizedBoxSM,
-                  _buildCompanySchedule(),
-                ],
-              ),
-            ],
-          ),
         ),
       ],
     );
@@ -322,8 +327,9 @@ class _BranchPageState extends State<BranchPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          runSpacing: 4,
           children: [
             const MyText(
               'Client Invoice',
@@ -473,6 +479,7 @@ class _BranchPageState extends State<BranchPage> {
     required String title,
     required String subtitle,
   }) {
+    final compact = MediaQuery.sizeOf(context).width < 600;
     return Row(
       children: [
         MyText(
@@ -484,7 +491,7 @@ class _BranchPageState extends State<BranchPage> {
           ),
         ),
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: kDefaultSpace),
+          margin: EdgeInsets.symmetric(horizontal: compact ? 8 : kDefaultSpace),
           width: 2,
           height: 51,
           decoration: BoxDecoration(

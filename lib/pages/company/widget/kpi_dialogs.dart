@@ -69,8 +69,8 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
         text: weightVal != null
             ? weightVal.toStringAsFixed(weightVal % 1 == 0 ? 0 : 2)
             : '');
-    _sequenceCtrl = TextEditingController(
-        text: kpi?.sequence?.toString() ?? '');
+    _sequenceCtrl =
+        TextEditingController(text: kpi?.sequence?.toString() ?? '');
     _fetchMetrics();
   }
 
@@ -134,7 +134,8 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
               MyTextFormField(
                 controller: descCtrl,
                 hintText: 'Description (optional)',
-                height: 44,
+                height: 88,
+                maxLines: 3,
               ),
             ],
           ),
@@ -259,8 +260,10 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                     Icon(Icons.add_circle_outline,
                         size: 14, color: AppColors.primary),
                     const SizedBox(width: 4),
-                    Text('New', style: AppTextStyles.caption.copyWith(
-                        color: AppColors.primary, fontWeight: FontWeight.w600)),
+                    Text('New',
+                        style: AppTextStyles.caption.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -270,8 +273,10 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
           _loadingMetrics
               ? const SizedBox(
                   height: 48,
-                  child: Center(child: SizedBox(
-                    width: 20, height: 20,
+                  child: Center(
+                      child: SizedBox(
+                    width: 20,
+                    height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )),
                 )
@@ -285,10 +290,12 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                   hint: Text(_metrics.isEmpty
                       ? 'No metrics available — click "+ New" above'
                       : 'Select a metric'),
-                  items: _metrics.map((m) => DropdownMenuItem(
-                    value: m.id,
-                    child: Text('${m.name} (${m.unit})'),
-                  )).toList(),
+                  items: _metrics
+                      .map((m) => DropdownMenuItem(
+                            value: m.id,
+                            child: Text('${m.name} (${m.unit})'),
+                          ))
+                      .toList(),
                   onChanged: (v) => setState(() {
                     _selectedMetricId = v;
                     final m = _metrics.firstWhereOrNull((x) => x.id == v);
@@ -298,7 +305,9 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
           const SizedBox(height: 16),
 
           // ── Role Selector (when no preset role) ─────────────────────
-          if (widget.presetRoleId == null && !isEdit && Get.isRegistered<RolesController>()) ...[
+          if (widget.presetRoleId == null &&
+              !isEdit &&
+              Get.isRegistered<RolesController>()) ...[
             const Text('Role', style: AppTextStyles.label),
             const SizedBox(height: 8),
             GetBuilder<RolesController>(
@@ -311,10 +320,12 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                 ),
                 initialValue: _selectedRoleId,
                 hint: const Text('Select role'),
-                items: rc.roles.map((r) => DropdownMenuItem(
-                  value: r.id,
-                  child: Text(r.name),
-                )).toList(),
+                items: rc.roles
+                    .map((r) => DropdownMenuItem(
+                          value: r.id,
+                          child: Text(r.name),
+                        ))
+                    .toList(),
                 onChanged: (v) => setState(() => _selectedRoleId = v),
               ),
             ),
@@ -342,8 +353,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                           .map((t) => DropdownMenuItem(
                               value: t, child: Text(_formatLabel(t))))
                           .toList(),
-                      onChanged: (v) =>
-                          setState(() => _trackingMode = v!),
+                      onChanged: (v) => setState(() => _trackingMode = v!),
                     ),
                   ],
                 ),
@@ -383,7 +393,8 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Target Value ${_selectedMetricUnit.isNotEmpty ? "($_selectedMetricUnit)" : ""}',
+                    Text(
+                        'Target Value ${_selectedMetricUnit.isNotEmpty ? "($_selectedMetricUnit)" : ""}',
                         style: AppTextStyles.label),
                     const SizedBox(height: 8),
                     MyTextFormField(

@@ -65,7 +65,10 @@ class _WorkReportPageState extends State<WorkReportPage> {
     final q = _searchQuery.toLowerCase();
     return reports.where((r) {
       return r.employeeId.toString().toLowerCase().contains(q) ||
-          controller.employeeDisplayName(r.employeeId).toLowerCase().contains(q) ||
+          controller
+              .employeeDisplayName(r.employeeId)
+              .toLowerCase()
+              .contains(q) ||
           (r.operationalBase ?? '').toLowerCase().contains(q) ||
           (r.workActivities ?? '').toLowerCase().contains(q) ||
           r.status.toLowerCase().contains(q);
@@ -296,7 +299,11 @@ class _WorkReportPageState extends State<WorkReportPage> {
                 const SizedBox(height: 3),
                 Text(
                   (report.workActivities?.trim().isNotEmpty ?? false)
-                      ? report.workActivities!.trim()
+                      ? report.workActivities!
+                          .split('\n')
+                          .firstWhere((l) => l.trim().isNotEmpty,
+                              orElse: () => report.workActivities!)
+                          .trim()
                       : 'No activity summary',
                   style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.textMuted,
@@ -313,7 +320,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
               report.day != null
                   ? DateFormat('dd MMM yyyy').format(report.day!)
                   : '—',
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -321,7 +329,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
             flex: 1,
             child: Text(
               '${report.hoursWorked.toStringAsFixed(1)} hrs',
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -331,7 +340,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
               report.createdAt != null
                   ? DateFormat('dd MMM yyyy HH:mm').format(report.createdAt!)
                   : '—',
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -341,7 +351,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
               report.updatedAt != null
                   ? DateFormat('dd MMM yyyy HH:mm').format(report.updatedAt!)
                   : '—',
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -378,34 +389,42 @@ class _WorkReportPageState extends State<WorkReportPage> {
         if (token == null || !context.mounted) return;
 
         if (result == 'view') {
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
+          );
           try {
             final fullReport =
-                await controller.getReportById(token, report.id);
+                await controller.getReportForViewing(token, report);
             if (mounted) {
-              showDialog(
+              Navigator.of(context).pop();
+              showDialog<void>(
                 context: context,
                 builder: (context) => WorkReportReviewDialog(
-                      report: fullReport,
-                      token: token,
-                      employeeName:
-                          controller.employeeDisplayName(fullReport.employeeId),
-                    ),
+                  report: fullReport,
+                  token: token,
+                  employeeName:
+                      controller.employeeDisplayName(fullReport.employeeId),
+                ),
               );
             }
           } catch (e) {
             debugPrint("View Error: $e");
             if (mounted) {
+              Navigator.of(context).pop();
               AppToast.error(context, 'View report failed. Please try again.');
             }
           }
         } else if (result == 'edit') {
-          showDialog(
-            context: context,
-            builder: (context) => DailyWorkReportDialog(
-              existingReport: report,
-              token: token,
-            ),
-          );
+          await _openReportForEdit(report, token);
         } else if (result == 'delete') {
           await controller.deleteReport(token, report.id);
         }
@@ -445,5 +464,38 @@ class _WorkReportPageState extends State<WorkReportPage> {
         ),
       ],
     );
+  }
+
+  Future<void> _openReportForEdit(WorkReport report, String token) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final fullReport = await controller.getReportForViewing(token, report);
+      if (!mounted) return;
+
+      Navigator.of(context).pop();
+      showDialog<void>(
+        context: context,
+        builder: (context) =>
+            DailyWorkReportDialog(existingReport: fullReport, token: token),
+      );
+    } catch (e) {
+      debugPrint('Edit Error: $e');
+      if (!mounted) return;
+
+      Navigator.of(context).pop();
+      AppToast.error(context, 'Edit report failed. Please try again.');
+    }
   }
 }

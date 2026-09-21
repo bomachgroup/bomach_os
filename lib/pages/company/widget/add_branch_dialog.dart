@@ -238,6 +238,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                         controller: addressCtrl,
                         title: 'Office Address',
                         hintText: 'Enter full address',
+                        maxLines: 3,
                         validator: (val) =>
                             (val == null || val.isEmpty) ? 'Required' : null,
                       ),

@@ -77,7 +77,10 @@ class PageScaffold extends StatelessWidget {
         ? Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxContentWidth),
-              child: body,
+              child: SizedBox(
+                width: double.infinity,
+                child: body,
+              ),
             ),
           )
         : body;

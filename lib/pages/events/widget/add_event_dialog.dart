@@ -304,6 +304,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                           hintText: 'Enter meeting location',
                           spaceBetweenText: 10,
                           title: 'Meeting Location',
+                          maxLines: 2,
                         ),
                         const SizedBox(height: 16),
 

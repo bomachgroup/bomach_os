@@ -31,6 +31,7 @@ import 'widget/add_employee_document.dart';
 import 'widget/add_new_employee.dart';
 import 'widget/exit_employee_dialog.dart';
 import 'widget/suspend_employee_dialog.dart';
+import 'widget/dynamic_item_list_field.dart';
 
 class EmployeeProfile extends StatefulWidget {
   final Employee? e;
@@ -1072,9 +1073,34 @@ class _EmployeeDesktopProfileLayoutState
   }
 
   Widget _reportDetail(String label, String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Text('$label: —'),
+      );
+    }
+    final items = WorkReportFormatUtils.parseItems(value);
+    if (items.length <= 1) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Text('$label: ${items.isNotEmpty ? items.first : value}'),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text('$label: ${value?.trim().isNotEmpty == true ? value : '—'}'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('$label:'),
+          const SizedBox(height: 4),
+          ...items.asMap().entries.map(
+                (entry) => Padding(
+                  padding: const EdgeInsets.only(left: 12, bottom: 2),
+                  child: Text('${entry.key + 1}. ${entry.value}'),
+                ),
+              ),
+        ],
+      ),
     );
   }
 

@@ -465,7 +465,8 @@ All prices are in Nigerian Naira (₦).''';
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.05),
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.05),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.neutral300),
                               ),
@@ -619,6 +620,7 @@ All prices are in Nigerian Naira (₦).''';
                   hintText: 'Item description',
                   spaceBetweenText: 10,
                   title: 'Description*',
+                  maxLines: 2,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Required';

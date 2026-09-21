@@ -82,14 +82,14 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
   }
 
   String _categoryLabel(String value) {
-    final match = _categoryOptions
-        .firstWhere((e) => e['value'] == value, orElse: () => const {});
+    final match = _categoryOptions.firstWhere((e) => e['value'] == value,
+        orElse: () => const {});
     return match['label'] ?? value;
   }
 
   String _statusLabel(String value) {
-    final match = _statusOptions
-        .firstWhere((e) => e['value'] == value, orElse: () => const {});
+    final match = _statusOptions.firstWhere((e) => e['value'] == value,
+        orElse: () => const {});
     return match['label'] ?? value;
   }
 
@@ -139,9 +139,8 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                         controller: _nameCtrl,
                         title: 'Partner Name',
                         hintText: 'e.g. ABC Technologies Ltd',
-                        validator: (val) => (val == null || val.isEmpty)
-                            ? 'Required'
-                            : null,
+                        validator: (val) =>
+                            (val == null || val.isEmpty) ? 'Required' : null,
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -171,6 +170,7 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                         controller: _addressCtrl,
                         title: 'Address',
                         hintText: 'Partner address',
+                        maxLines: 3,
                       ),
                     ],
                   ),
@@ -187,9 +187,8 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                         child: MyDropdown(
                           title: 'Category',
                           hintText: _categoryLabel(_selectedCategory),
-                          items: _categoryOptions
-                              .map((c) => c['label']!)
-                              .toList(),
+                          items:
+                              _categoryOptions.map((c) => c['label']!).toList(),
                           initialSelection: _categoryLabel(_selectedCategory),
                           onChanged: (val) {
                             for (final c in _categoryOptions) {
@@ -207,9 +206,8 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                         child: MyDropdown(
                           title: 'Status',
                           hintText: _statusLabel(_selectedStatus),
-                          items: _statusOptions
-                              .map((s) => s['label']!)
-                              .toList(),
+                          items:
+                              _statusOptions.map((s) => s['label']!).toList(),
                           initialSelection: _statusLabel(_selectedStatus),
                           onChanged: (val) {
                             for (final s in _statusOptions) {
@@ -280,7 +278,8 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),

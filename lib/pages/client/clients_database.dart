@@ -5,6 +5,7 @@ import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/button/sort_bar.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/nav/three_dot_pop.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/spaces.dart';
@@ -31,93 +32,97 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
       children: [
-        const Row(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const Row(
               children: [
-                MyText(
-                  'Clients',
-                  style: AppTextStyles.displayLg,
-                ),
-                MyText(
-                  'Clients',
-                  style: AppTextStyles.h4,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    MyText(
+                      'Clients',
+                      style: AppTextStyles.displayLg,
+                    ),
+                    MyText(
+                      'Clients',
+                      style: AppTextStyles.h4,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-        kSizedBoxBG,
-        Wrap(
-          spacing: 8, // Horizontal space between items
-          runSpacing: 8, // Vertical space when wrapping
-          children: [
-            MyElevatedButton(
-              icon: const Icon(
-                Iconsax.add_circle,
-                color: AppColors.white,
-              ),
-              child: 'New Client',
-              onTap: () {},
-            ),
-            kSizedBoxWidth,
-            SizedBox(
-              width: 220,
-              height: 48,
-              child: MyTextFormField(
-                hintText: 'Search...',
-                leading: Icon(
-                  Iconsax.search_normal,
-                  color: AppColors.neutral500.withValues(alpha: 0.5),
+            kSizedBoxBG,
+            Wrap(
+              spacing: 8, // Horizontal space between items
+              runSpacing: 8, // Vertical space when wrapping
+              children: [
+                MyElevatedButton(
+                  icon: const Icon(
+                    Iconsax.add_circle,
+                    color: AppColors.white,
+                  ),
+                  child: 'New Client',
+                  onTap: () {},
                 ),
-              ),
-            ),
-            const SortBar(
-              text: 'Sort',
-            ),
-          ],
-        ),
-        kSizedBox,
-        kSizedBoxSM,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
+                kSizedBoxWidth,
+                SizedBox(
+                  width: 220,
+                  height: 48,
+                  child: MyTextFormField(
+                    hintText: 'Search...',
+                    leading: Icon(
+                      Iconsax.search_normal,
+                      color: AppColors.neutral500.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
+                const SortBar(
+                  text: 'Sort',
+                ),
+              ],
+            ),
+            kSizedBox,
+            kSizedBoxSM,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              decoration: BoxDecoration(
+                border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
+                borderRadius: BorderRadius.circular(16),
               ),
-              // const PaginatorFooter(),
-            ],
-          ),
-        )
+              child: Column(
+                children: [
+                  Scrollbar(
+                    controller: _scrollController,
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      scrollDirection: Axis.horizontal,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: bodySpace(context),
+                        ),
+                        child: DataTable(
+                          dataRowMinHeight: 68,
+                          dataRowMaxHeight: 68,
+                          columnSpacing: 24,
+                          horizontalMargin: 12,
+                          columns: _createColumns(),
+                          rows: _createRows(context),
+                          showBottomBorder: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // const PaginatorFooter(),
+                ],
+              ),
+            )
+          ],
+        ),
       ],
     );
   }

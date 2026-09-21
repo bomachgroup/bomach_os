@@ -927,6 +927,7 @@ class ChatSection extends StatelessWidget {
                         const Expanded(
                           child: MyTextFormField(
                             hintText: 'Message #general...',
+                            maxLines: 4,
                           ),
                         ),
                         const SizedBox(width: 12),

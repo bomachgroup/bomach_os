@@ -171,6 +171,7 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
                     controller: _addressCtrl,
                     title: 'Precise Address *',
                     hintText: 'Full address',
+                    maxLines: 3,
                     validator: _requiredValidator,
                   ),
                 ],
@@ -235,8 +236,7 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
         ),
         Obx(() => MyElevatedButton(
               height: 44,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               isLoading: _ctrl.isSaving.value,
               child: 'Save Estate',
               onTap: _ctrl.isSaving.value ? null : _save,

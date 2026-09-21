@@ -2,6 +2,7 @@ import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/dashboad/controller/dashboard_controller.dart';
 import 'package:bomach_os/pages/dashboad/models/dashboard_models.dart';
@@ -34,44 +35,61 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return _buildLoadingState();
-      }
-
-      if (controller.errorMessage.isNotEmpty) {
-        return Center(
-          child: EmptyState(
-            title: 'Could not load dashboard',
-            subtitle: controller.errorMessage.value,
-            icon: Iconsax.warning_2,
-            action: OutlinedButton.icon(
-              onPressed: controller.fetchAll,
-              icon: const Icon(Iconsax.refresh, size: 18),
-              label: const Text('Retry'),
-            ),
-          ),
+        return PageScaffold(
+          scrollable: false,
+          children: [Expanded(child: _buildLoadingState())],
         );
       }
 
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      if (controller.errorMessage.isNotEmpty) {
+        return PageScaffold(
+          scrollable: false,
           children: [
-            const PageHeader(
-              title: 'Dashboard',
-              subtitle:
-                  "Welcome back — here's what's happening across your workspace",
+            Expanded(
+              child: Center(
+                child: EmptyState(
+                  title: 'Could not load dashboard',
+                  subtitle: controller.errorMessage.value,
+                  icon: Iconsax.warning_2,
+                  action: OutlinedButton.icon(
+                    onPressed: controller.fetchAll,
+                    icon: const Icon(Iconsax.refresh, size: 18),
+                    label: const Text('Retry'),
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            _buildWelcomeHeader(),
-            const SizedBox(height: 24),
-            _buildStatsGrid(),
-            const SizedBox(height: 24),
-            _buildPerformanceSection(),
-            const SizedBox(height: 24),
-            _buildOverviewSection(),
-            const SizedBox(height: 24),
           ],
-        ),
+        );
+      }
+
+      return PageScaffold(
+        scrollable: false,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const PageHeader(
+                    title: 'Dashboard',
+                    subtitle:
+                        "Welcome back — here's what's happening across your workspace",
+                  ),
+                  const SizedBox(height: 16),
+                  _buildWelcomeHeader(),
+                  const SizedBox(height: 24),
+                  _buildStatsGrid(),
+                  const SizedBox(height: 24),
+                  _buildPerformanceSection(),
+                  const SizedBox(height: 24),
+                  _buildOverviewSection(),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+        ],
       );
     });
   }

@@ -342,10 +342,9 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                         hintText: 'Select type',
                         spaceBetweenText: 8,
                         title: 'Property Type*',
-                        validator: (val) =>
-                            val == null || val.trim().isEmpty
-                                ? 'Property type is required'
-                                : null,
+                        validator: (val) => val == null || val.trim().isEmpty
+                            ? 'Property type is required'
+                            : null,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -356,10 +355,9 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                         hintText: 'Select category',
                         spaceBetweenText: 8,
                         title: 'Category*',
-                        validator: (val) =>
-                            val == null || val.trim().isEmpty
-                                ? 'Category is required'
-                                : null,
+                        validator: (val) => val == null || val.trim().isEmpty
+                            ? 'Category is required'
+                            : null,
                       ),
                     ),
                   ],
@@ -386,6 +384,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                   hintText: 'Enter full address',
                   spaceBetweenText: 8,
                   title: 'Location/Address*',
+                  maxLines: 3,
                   validator: (val) => val == null || val.trim().isEmpty
                       ? 'Location is required'
                       : null,
@@ -406,13 +405,11 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                         title: 'Price (\u20A6)*',
                         keyboardType: TextInputType.number,
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'[\d.]')),
+                          FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
                         ],
-                        validator: (val) =>
-                            val == null || val.trim().isEmpty
-                                ? 'Price is required'
-                                : null,
+                        validator: (val) => val == null || val.trim().isEmpty
+                            ? 'Price is required'
+                            : null,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -424,8 +421,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                         title: 'Size (sqm)',
                         keyboardType: TextInputType.number,
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'[\d.]')),
+                          FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
                         ],
                       ),
                     ),
@@ -497,8 +493,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                 if (_imageUrls.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   ..._imageUrls.asMap().entries.map(
-                        (entry) =>
-                            _buildImageRow(entry.key, entry.value),
+                        (entry) => _buildImageRow(entry.key, entry.value),
                       ),
                 ],
               ],
@@ -779,8 +774,8 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                     borderSide:
                         BorderSide(color: AppColors.primary, width: 1.5),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 14),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                 ),
                 onChanged: _filterClients,
                 onTap: () => setState(() => _showClientDropdown = true),
@@ -795,8 +790,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                     border: Border.all(color: AppColors.borderSubtle),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            AppColors.neutral900.withValues(alpha: 0.08),
+                        color: AppColors.neutral900.withValues(alpha: 0.08),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -832,8 +826,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                       : null,
                                 ),
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       client.fullName,

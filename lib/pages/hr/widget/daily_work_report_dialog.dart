@@ -20,6 +20,7 @@ import 'package:intl/intl.dart';
 import '../controller/work_report_controller.dart';
 import '../models/work_report_model.dart';
 import '../models/workspace_model.dart';
+import 'dynamic_item_list_field.dart';
 
 class DailyWorkReportDialog extends StatefulWidget {
   final WorkReport? existingReport;
@@ -39,9 +40,9 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   final WorkReportController controller = Get.find();
 
   late TextEditingController _hoursWorkedController;
-  late TextEditingController _workActivitiesController;
-  late TextEditingController _taskDetailsController;
-  late TextEditingController _nextDayPlanController;
+  final List<TextEditingController> _achievedControllers = [];
+  final List<TextEditingController> _problemsControllers = [];
+  final List<TextEditingController> _plansControllers = [];
   final List<WorkReportAttachment> _attachments = [];
   bool _isUploading = false;
 
@@ -58,10 +59,30 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
     _hoursWorkedController =
         TextEditingController(text: r?.hoursWorked.toString() ?? '');
     _selectedOperationalBase = r?.operationalBase;
-    _workActivitiesController =
-        TextEditingController(text: r?.workActivities ?? '');
-    _taskDetailsController = TextEditingController(text: r?.taskDetails ?? '');
-    _nextDayPlanController = TextEditingController(text: r?.planNextDay ?? '');
+
+    final achievedItems = WorkReportFormatUtils.parseItems(r?.workActivities);
+    if (achievedItems.isNotEmpty) {
+      _achievedControllers.addAll(
+          achievedItems.map((item) => TextEditingController(text: item)));
+    } else {
+      _achievedControllers.add(TextEditingController());
+    }
+
+    final problemsItems = WorkReportFormatUtils.parseItems(r?.taskDetails);
+    if (problemsItems.isNotEmpty) {
+      _problemsControllers.addAll(
+          problemsItems.map((item) => TextEditingController(text: item)));
+    } else {
+      _problemsControllers.add(TextEditingController());
+    }
+
+    final plansItems = WorkReportFormatUtils.parseItems(r?.planNextDay);
+    if (plansItems.isNotEmpty) {
+      _plansControllers.addAll(
+          plansItems.map((item) => TextEditingController(text: item)));
+    } else {
+      _plansControllers.add(TextEditingController());
+    }
 
     _reportDate = r?.day ?? DateTime.now();
     if (r?.attachments != null) {
@@ -73,9 +94,15 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   @override
   void dispose() {
     _hoursWorkedController.dispose();
-    _workActivitiesController.dispose();
-    _taskDetailsController.dispose();
-    _nextDayPlanController.dispose();
+    for (final c in _achievedControllers) {
+      c.dispose();
+    }
+    for (final c in _problemsControllers) {
+      c.dispose();
+    }
+    for (final c in _plansControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -120,6 +147,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
     } catch (e) {
       if (mounted) {
         AppToast.error(context, 'Failed to upload file: $e');
+
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -139,10 +167,16 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   }
 
   void _handleSubmit() async {
+    final navigatorContext = Navigator.of(context).context;
     if (_hoursWorkedController.text.isEmpty) {
       AppToast.error(context, 'Hours worked is required');
       return;
     }
+
+    final activities =
+        WorkReportFormatUtils.serializeItems(_achievedControllers);
+    final problems = WorkReportFormatUtils.serializeItems(_problemsControllers);
+    final plans = WorkReportFormatUtils.serializeItems(_plansControllers);
 
     final report = WorkReport(
       id: widget.existingReport?.id ?? '',
@@ -152,15 +186,9 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
       operationalBase: _selectedOperationalBase?.isNotEmpty == true
           ? _selectedOperationalBase
           : null,
-      workActivities: _workActivitiesController.text.isNotEmpty
-          ? _workActivitiesController.text
-          : null,
-      taskDetails: _taskDetailsController.text.isNotEmpty
-          ? _taskDetailsController.text
-          : null,
-      planNextDay: _nextDayPlanController.text.isNotEmpty
-          ? _nextDayPlanController.text
-          : null,
+      workActivities: activities,
+      taskDetails: problems,
+      planNextDay: plans,
       status: 'draft',
       rating: widget.existingReport?.rating,
       feedback: widget.existingReport?.feedback,
@@ -177,7 +205,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
 
     if (success && mounted) {
       Navigator.of(context).pop();
-      AppToast.success(context, 'Report submitted');
+      AppToast.success(navigatorContext, 'Report submitted');
     } else if (mounted) {
       AppToast.error(context, 'Failed to submit');
     }
@@ -230,26 +258,60 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
           _buildSection(
             title: 'Activities & Plans',
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyTextFormField(
-                  title: 'Work Activities',
-                  controller: _workActivitiesController,
-                  maxLines: 3,
-                  hintText: 'Describe what you worked on today...',
+                DynamicItemListField(
+                  title: 'Things Achieved / Work Activities',
+                  subtitle: 'Itemize the tasks and milestones completed today',
+                  hintText: 'Describe an achievement or completed task...',
+                  controllers: _achievedControllers,
+                  onAdd: () {
+                    setState(() {
+                      _achievedControllers.add(TextEditingController());
+                    });
+                  },
+                  onRemove: (index) {
+                    setState(() {
+                      _achievedControllers[index].dispose();
+                      _achievedControllers.removeAt(index);
+                    });
+                  },
                 ),
-                const SizedBox(height: 16),
-                MyTextFormField(
-                  title: 'Task Details',
-                  controller: _taskDetailsController,
-                  maxLines: 3,
-                  hintText: 'Specific tasks completed...',
+                const SizedBox(height: 20),
+                DynamicItemListField(
+                  title: 'Problems Faced / Challenges',
+                  subtitle: 'List any blockers or difficulties encountered',
+                  hintText: 'Describe a challenge, blocker, or issue faced...',
+                  controllers: _problemsControllers,
+                  onAdd: () {
+                    setState(() {
+                      _problemsControllers.add(TextEditingController());
+                    });
+                  },
+                  onRemove: (index) {
+                    setState(() {
+                      _problemsControllers[index].dispose();
+                      _problemsControllers.removeAt(index);
+                    });
+                  },
                 ),
-                const SizedBox(height: 16),
-                MyTextFormField(
-                  title: 'Plan for Next Day',
-                  controller: _nextDayPlanController,
-                  maxLines: 3,
-                  hintText: 'What do you plan to work on tomorrow...',
+                const SizedBox(height: 20),
+                DynamicItemListField(
+                  title: 'Tasks & Plans for Next Week',
+                  subtitle: 'What do you plan to work on next week / tomorrow',
+                  hintText: 'Describe a planned task or goal...',
+                  controllers: _plansControllers,
+                  onAdd: () {
+                    setState(() {
+                      _plansControllers.add(TextEditingController());
+                    });
+                  },
+                  onRemove: (index) {
+                    setState(() {
+                      _plansControllers[index].dispose();
+                      _plansControllers.removeAt(index);
+                    });
+                  },
                 ),
               ],
             ),

@@ -1,4 +1,7 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
+import 'package:bomach_os/components/section/responsive_stat_row.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/hr/controller/work_report_controller.dart';
@@ -19,7 +22,6 @@ class MyWorkReportsPage extends StatefulWidget {
 }
 
 class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
-  final ScrollController _scrollController = ScrollController();
   final WorkReportController controller = Get.put(WorkReportController());
   final _storage = const FlutterSecureStorage();
 
@@ -56,14 +58,14 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      gap: 16,
+      scrollable: true,
       children: [
         _buildPageHeader(),
         const SizedBox(height: 20),
@@ -71,81 +73,93 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         const SizedBox(height: 20),
         _buildFilterBar(),
         const SizedBox(height: 16),
-        Expanded(child: _buildReportsTable()),
+        _buildReportsTable(),
       ],
     );
   }
 
   Widget _buildPageHeader() {
-    return Row(
+    final title = Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Row(
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.info.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Iconsax.document_text,
+              color: AppColors.info, size: 24),
+        ),
+        const SizedBox(width: 14),
+        const Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.info.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Iconsax.document_text,
-                    color: AppColors.info, size: 24),
-              ),
-              const SizedBox(width: 14),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MyText('My Work Reports',
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.neutral800)),
-                  SizedBox(height: 2),
-                  MyText('Submit and track your daily work reports',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.neutral400)),
-                ],
-              ),
+              MyText('My Work Reports',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.neutral800)),
+              SizedBox(height: 2),
+              MyText('Submit and track your daily work reports',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.neutral400)),
             ],
           ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.neutral100,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: IconButton(
-                icon: const Icon(Iconsax.refresh,
-                    color: AppColors.neutral500, size: 22),
-                onPressed: _loadData,
-                tooltip: 'Refresh',
-              ),
-            ),
-            const SizedBox(width: 10),
-            MyElevatedButton(
-              icon: const Icon(Iconsax.add,
-                  color: AppColors.white, size: 20),
-              child: "New Report",
-              borderCurve: 12,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-              onTap: () async {
-                final token = await _getToken();
-                if (token != null && context.mounted) {
-                  showDialog(
-                    context: context,
-                    builder: (context) => DailyWorkReportDialog(token: token),
-                  );
-                }
-              },
-            ),
-          ],
+      ],
+    );
+
+    final actions = Wrap(
+      spacing: 10,
+      runSpacing: 8,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.neutral100,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: IconButton(
+            icon: const Icon(Iconsax.refresh,
+                color: AppColors.neutral500, size: 22),
+            onPressed: _loadData,
+            tooltip: 'Refresh',
+          ),
+        ),
+        MyElevatedButton(
+          icon: const Icon(Iconsax.add, color: AppColors.white, size: 20),
+          child: "New Report",
+          borderCurve: 12,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          onTap: () async {
+            final token = await _getToken();
+            if (token != null && context.mounted) {
+              showDialog(
+                context: context,
+                builder: (context) => DailyWorkReportDialog(token: token),
+              );
+            }
+          },
         ),
       ],
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 700) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [title, const SizedBox(height: 12), actions],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [Expanded(child: title), actions],
+        );
+      },
     );
   }
 
@@ -162,23 +176,16 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
           .where((r) => r.status.toLowerCase() == 'rejected')
           .length;
 
-      return Row(
-        children: [
-          Expanded(
-              child: _buildSummaryCard('Total Reports', '$all',
-                  Iconsax.document_text, const Color(0xFF6366F1))),
-          const SizedBox(width: 12),
-          Expanded(
-              child: _buildSummaryCard('Pending Review', '$submitted',
-                  Iconsax.clock, AppColors.info)),
-          const SizedBox(width: 12),
-          Expanded(
-              child: _buildSummaryCard('Approved', '$approved',
-                  Iconsax.tick_circle, AppColors.success)),
-          const SizedBox(width: 12),
-          Expanded(
-              child: _buildSummaryCard('Rejected', '$rejected',
-                  Iconsax.close_circle, AppColors.danger)),
+      return ResponsiveStatRow(
+        cards: [
+          _buildSummaryCard('Total Reports', '$all', Iconsax.document_text,
+              const Color(0xFF6366F1)),
+          _buildSummaryCard(
+              'Pending Review', '$submitted', Iconsax.clock, AppColors.info),
+          _buildSummaryCard(
+              'Approved', '$approved', Iconsax.tick_circle, AppColors.success),
+          _buildSummaryCard(
+              'Rejected', '$rejected', Iconsax.close_circle, AppColors.danger),
         ],
       );
     });
@@ -273,59 +280,71 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         color: AppColors.neutral100,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(
-        children: filters.map((f) {
-          final isActive = _selectedFilter == f['key'];
-          final color = f['color'] as Color;
-          return Expanded(
-            child: InkWell(
-              onTap: () => setState(() => _selectedFilter = f['key'] as String),
-              borderRadius: BorderRadius.circular(10),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: isActive ? AppColors.white : Colors.transparent,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final row = Row(
+            children: filters.map((f) {
+              final isActive = _selectedFilter == f['key'];
+              final color = f['color'] as Color;
+              return Expanded(
+                child: InkWell(
+                  onTap: () =>
+                      setState(() => _selectedFilter = f['key'] as String),
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: isActive
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      f['icon'] as IconData,
-                      size: 16,
-                      color: isActive ? color : AppColors.neutral400,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isActive ? AppColors.white : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: isActive
+                          ? [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.06),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
                     ),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: MyText(
-                        f['label'] as String,
-                        isSelectable: false,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              isActive ? FontWeight.w600 : FontWeight.w500,
-                          color: isActive
-                              ? AppColors.neutral800
-                              : AppColors.neutral400,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          f['icon'] as IconData,
+                          size: 16,
+                          color: isActive ? color : AppColors.neutral400,
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: MyText(
+                            f['label'] as String,
+                            isSelectable: false,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight:
+                                  isActive ? FontWeight.w600 : FontWeight.w500,
+                              color: isActive
+                                  ? AppColors.neutral800
+                                  : AppColors.neutral400,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            }).toList(),
           );
-        }).toList(),
+          if (constraints.maxWidth < 600) {
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(width: 620, child: row),
+            );
+          }
+          return row;
+        },
       ),
     );
   }
@@ -382,7 +401,8 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                   ),
                   const SizedBox(height: 6),
                   const MyText('Submit a new report to get started',
-                      style: TextStyle(fontSize: 13, color: AppColors.neutral400)),
+                      style:
+                          TextStyle(fontSize: 13, color: AppColors.neutral400)),
                 ],
               ),
             ),
@@ -391,11 +411,8 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
 
         return Padding(
           padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: reports.map((r) => _buildMobileCard(r)).toList(),
-            ),
+          child: Column(
+            children: reports.map((r) => _buildMobileCard(r)).toList(),
           ),
         );
       }),
@@ -419,7 +436,8 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
             children: [
               Row(
                 children: [
-                  const Icon(Iconsax.calendar_1, size: 16, color: AppColors.info),
+                  const Icon(Iconsax.calendar_1,
+                      size: 16, color: AppColors.info),
                   const SizedBox(width: 6),
                   MyText(
                     report.day != null
@@ -441,7 +459,8 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFF6366F1).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
@@ -488,8 +507,6 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
     );
   }
 
-
-
   Widget _buildStatusBadge(String status) {
     final color = _getStatusColor(status);
     final icon = _getStatusIcon(status);
@@ -518,7 +535,8 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
 
   Widget _buildRating(int rating) {
     if (rating == 0) {
-      return const MyText('\u2014', style: TextStyle(color: AppColors.neutral400));
+      return const MyText('\u2014',
+          style: TextStyle(color: AppColors.neutral400));
     }
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -526,8 +544,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         ...List.generate(5, (i) {
           return Icon(
             i < rating ? Iconsax.star1 : Iconsax.star,
-            color:
-                i < rating ? AppColors.warning : AppColors.neutral200,
+            color: i < rating ? AppColors.warning : AppColors.neutral200,
             size: 18,
           );
         }),
@@ -549,8 +566,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
           color: AppColors.neutral100,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Icon(Iconsax.more,
-            size: 18, color: AppColors.neutral500),
+        child: const Icon(Iconsax.more, size: 18, color: AppColors.neutral500),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 8,
@@ -560,26 +576,18 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         if (token == null || !context.mounted) return;
 
         if (value == 'view') {
-          showDialog(
-            context: context,
-            builder: (context) =>
-                WorkReportReviewDialog(report: report, token: token),
-          );
+          await _openReportDetails(report, token);
         } else if (value == 'edit') {
-          showDialog(
-            context: context,
-            builder: (context) =>
-                DailyWorkReportDialog(existingReport: report, token: token),
-          );
+          await _openReportForEdit(report, token);
         }
       },
       itemBuilder: (context) => [
-        _buildMenuItem(Iconsax.eye, 'View Details', 'view',
-            const Color(0xFF6366F1)),
+        _buildMenuItem(
+            Iconsax.eye, 'View Details', 'view', const Color(0xFF6366F1)),
         if (report.status.toLowerCase() == 'draft' ||
             report.status.toLowerCase() == 'rejected')
-          _buildMenuItem(Iconsax.edit, 'Edit & Resubmit', 'edit',
-              AppColors.info),
+          _buildMenuItem(
+              Iconsax.edit, 'Edit & Resubmit', 'edit', AppColors.info),
       ],
     );
   }
@@ -607,6 +615,73 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _openReportDetails(WorkReport report, String token) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final fullReport = await controller.getReportForViewing(token, report);
+      if (!mounted) return;
+
+      Navigator.of(context).pop();
+      showDialog(
+        context: context,
+        builder: (context) => WorkReportReviewDialog(
+          report: fullReport,
+          token: token,
+          employeeName: controller.employeeDisplayName(fullReport.employeeId),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop();
+        AppToast.error(context, 'View report failed. Please try again.');
+      }
+    }
+  }
+
+  Future<void> _openReportForEdit(WorkReport report, String token) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final fullReport = await controller.getReportForViewing(token, report);
+      if (!mounted) return;
+
+      Navigator.of(context).pop();
+      showDialog(
+        context: context,
+        builder: (context) =>
+            DailyWorkReportDialog(existingReport: fullReport, token: token),
+      );
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop();
+        AppToast.error(context, 'Edit report failed. Please try again.');
+      }
+    }
   }
 
   Color _getStatusColor(String status) {

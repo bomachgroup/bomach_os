@@ -26,10 +26,6 @@ String buildEmbeddedUrl({
   final effectiveApiBase = apiBaseUrl ?? ApiConstants.authBaseUrl;
   queryParams['apiBaseUrl'] = effectiveApiBase;
   queryParams['backendUrl'] = backendUrl ?? effectiveApiBase;
-  if (token != null && token.isNotEmpty) queryParams['token'] = token;
-  if (refreshToken != null && refreshToken.isNotEmpty) {
-    queryParams['refreshToken'] = refreshToken;
-  }
 
   return uri.replace(queryParameters: queryParams).toString();
 }

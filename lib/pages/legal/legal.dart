@@ -1,6 +1,7 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/pages/legal/audits.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:flutter/material.dart';
 import '../../components/text/my_text.dart';
 import 'cases.dart';
@@ -110,156 +111,164 @@ class _LegalsPageState extends State<LegalsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 600;
-        final isTablet =
-            constraints.maxWidth < 1000 && constraints.maxWidth >= 600;
-        final double pageViewHeight = isMobile ? 600 : (isTablet ? 650 : 700);
+    return PageScaffold(
+      scrollable: false,
+      children: [
+        Expanded(
+          child: LayoutBuilder(builder: (context, constraints) {
+            final isMobile = constraints.maxWidth < 600;
+            final isTablet =
+                constraints.maxWidth < 1000 && constraints.maxWidth >= 600;
+            final double pageViewHeight =
+                isMobile ? 600 : (isTablet ? 650 : 700);
 
-        return SingleChildScrollView(
-          padding: EdgeInsets.all(isMobile ? 12 : 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: isMobile
-                    ? CrossAxisAlignment.start
-                    : CrossAxisAlignment.center,
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(isMobile ? 12 : 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MyText("Legal & Compliance",
-                            style: TextStyle(
-                                fontSize: 26, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 4),
-                        MyText(
-                            "Manage contracts, compliance requirements, and legal documentation",
-                            style:
-                                TextStyle(fontSize: 14, color: Colors.black54)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: isMobile
+                        ? CrossAxisAlignment.start
+                        : CrossAxisAlignment.center,
+                    children: [
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            MyText("Legal & Compliance",
+                                style: TextStyle(
+                                    fontSize: 26, fontWeight: FontWeight.bold)),
+                            SizedBox(height: 4),
+                            MyText(
+                                "Manage contracts, compliance requirements, and legal documentation",
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.black54)),
+                          ],
+                        ),
+                      ),
+                      if (!isMobile)
+                        MyElevatedButton(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) =>
+                                  const CreateNewContractDialog(),
+                            );
+                          },
+                          icon: const Icon(Iconsax.add, color: Colors.white),
+                          child: "New Contract",
+                        ),
+                    ],
+                  ),
+                  if (isMobile)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0, bottom: 8),
+                      child: MyElevatedButton(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                const CreateNewContractDialog(),
+                          );
+                        },
+                        icon: const Icon(Iconsax.add, color: Colors.white),
+                        child: "New Contract",
+                      ),
+                    ),
+                  const SizedBox(height: 24),
+                  DynamicSummaryRow(dashboardData: _dashboardData),
+                  const SizedBox(height: 24),
+                  isMobile
+                      ? SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              PageButton(
+                                label: "Contracts",
+                                index: 0,
+                                isSelected: _currentIndex == 0,
+                                onTap: () => _onTabSelected(0),
+                              ),
+                              PageButton(
+                                label: "Compliance",
+                                index: 1,
+                                isSelected: _currentIndex == 1,
+                                onTap: () => _onTabSelected(1),
+                              ),
+                              PageButton(
+                                label: "Cases",
+                                index: 2,
+                                isSelected: _currentIndex == 2,
+                                onTap: () => _onTabSelected(2),
+                              ),
+                              PageButton(
+                                label: "Audits",
+                                index: 3,
+                                isSelected: _currentIndex == 3,
+                                onTap: () => _onTabSelected(3),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: PageButton(
+                                label: "Contracts",
+                                index: 0,
+                                isSelected: _currentIndex == 0,
+                                onTap: () => _onTabSelected(0),
+                              ),
+                            ),
+                            Expanded(
+                              child: PageButton(
+                                label: "Compliance",
+                                index: 1,
+                                isSelected: _currentIndex == 1,
+                                onTap: () => _onTabSelected(1),
+                              ),
+                            ),
+                            Expanded(
+                              child: PageButton(
+                                label: "Cases",
+                                index: 2,
+                                isSelected: _currentIndex == 2,
+                                onTap: () => _onTabSelected(2),
+                              ),
+                            ),
+                            Expanded(
+                              child: PageButton(
+                                label: "Audits",
+                                index: 3,
+                                isSelected: _currentIndex == 3,
+                                onTap: () => _onTabSelected(3),
+                              ),
+                            ),
+                          ],
+                        ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: pageViewHeight,
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: _onPageChanged,
+                      children: const [
+                        ContractsPageView(),
+                        CompliancePageView(),
+                        CasesPageView(),
+                        AuditsPageView()
                       ],
                     ),
                   ),
-                  if (!isMobile)
-                    MyElevatedButton(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const CreateNewContractDialog(),
-                        );
-                      },
-                      icon: const Icon(Iconsax.add, color: Colors.white),
-                      child: "New Contract",
-                    ),
                 ],
               ),
-              if (isMobile)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12.0, bottom: 8),
-                  child: MyElevatedButton(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const CreateNewContractDialog(),
-                      );
-                    },
-                    icon: const Icon(Iconsax.add, color: Colors.white),
-                    child: "New Contract",
-                  ),
-                ),
-              const SizedBox(height: 24),
-              DynamicSummaryRow(dashboardData: _dashboardData),
-              const SizedBox(height: 24),
-              isMobile
-                  ? SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          PageButton(
-                            label: "Contracts",
-                            index: 0,
-                            isSelected: _currentIndex == 0,
-                            onTap: () => _onTabSelected(0),
-                          ),
-                          PageButton(
-                            label: "Compliance",
-                            index: 1,
-                            isSelected: _currentIndex == 1,
-                            onTap: () => _onTabSelected(1),
-                          ),
-                          PageButton(
-                            label: "Cases",
-                            index: 2,
-                            isSelected: _currentIndex == 2,
-                            onTap: () => _onTabSelected(2),
-                          ),
-                          PageButton(
-                            label: "Audits",
-                            index: 3,
-                            isSelected: _currentIndex == 3,
-                            onTap: () => _onTabSelected(3),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: PageButton(
-                            label: "Contracts",
-                            index: 0,
-                            isSelected: _currentIndex == 0,
-                            onTap: () => _onTabSelected(0),
-                          ),
-                        ),
-                        Expanded(
-                          child: PageButton(
-                            label: "Compliance",
-                            index: 1,
-                            isSelected: _currentIndex == 1,
-                            onTap: () => _onTabSelected(1),
-                          ),
-                        ),
-                        Expanded(
-                          child: PageButton(
-                            label: "Cases",
-                            index: 2,
-                            isSelected: _currentIndex == 2,
-                            onTap: () => _onTabSelected(2),
-                          ),
-                        ),
-                        Expanded(
-                          child: PageButton(
-                            label: "Audits",
-                            index: 3,
-                            isSelected: _currentIndex == 3,
-                            onTap: () => _onTabSelected(3),
-                          ),
-                        ),
-                      ],
-                    ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: pageViewHeight,
-                child: PageView(
-                  controller: _pageController,
-                  onPageChanged: _onPageChanged,
-                  children: const [
-                    ContractsPageView(),
-                    CompliancePageView(),
-                    CasesPageView(),
-                    AuditsPageView()
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+            );
+          }),
+        ),
+      ],
     );
   }
 }

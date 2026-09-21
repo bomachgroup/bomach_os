@@ -91,7 +91,8 @@ class _MeetingTableState extends State<MeetingTable> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        children: List.generate(_totalMeetings, (index) => _buildMobileCard(index)),
+        children:
+            List.generate(_totalMeetings, (index) => _buildMobileCard(index)),
       ),
     );
   }
@@ -129,7 +130,9 @@ class _MeetingTableState extends State<MeetingTable> {
                     ),
                     StatusChip(
                       label: index.isEven ? 'Completed' : 'Scheduled',
-                      tone: index.isEven ? StatusTone.success : StatusTone.primary,
+                      tone: index.isEven
+                          ? StatusTone.success
+                          : StatusTone.primary,
                       dense: true,
                     ),
                   ],
@@ -137,7 +140,8 @@ class _MeetingTableState extends State<MeetingTable> {
                 const SizedBox(height: 12),
                 Text(
                   'O2 Arena Estate Dev',
-                  style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                  style: AppTextStyles.bodyMd
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
                 const Row(
@@ -153,16 +157,22 @@ class _MeetingTableState extends State<MeetingTable> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Iconsax.people, size: 14, color: AppColors.textMuted),
+                        const Icon(Iconsax.people,
+                            size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 6),
-                        Text('23 Attendees', style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+                        Text('23 Attendees',
+                            style: AppTextStyles.bodySm
+                                .copyWith(color: AppColors.textSecondary)),
                       ],
                     ),
                     Row(
                       children: [
-                        const Icon(Iconsax.document, size: 14, color: AppColors.textMuted),
+                        const Icon(Iconsax.document,
+                            size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 6),
-                        Text('2 Files', style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+                        Text('2 Files',
+                            style: AppTextStyles.bodySm
+                                .copyWith(color: AppColors.textSecondary)),
                       ],
                     ),
                   ],
@@ -188,7 +198,8 @@ class _MeetingTableState extends State<MeetingTable> {
                             ),
                             items: const [
                               PopupMenuItem(value: 'edit', child: Text('Edit')),
-                              PopupMenuItem(value: 'cancel', child: Text('Cancel')),
+                              PopupMenuItem(
+                                  value: 'cancel', child: Text('Cancel')),
                             ],
                           );
                           // Handle menu selection here
@@ -216,8 +227,6 @@ class _MeetingTableState extends State<MeetingTable> {
       ),
     );
   }
-
-
 }
 
 /// Dialog showing a meeting's info panel and the suggestions/comments thread.
@@ -327,8 +336,7 @@ class SuggestionsAndComments extends StatelessWidget {
           ),
           SizedBox(height: 12),
           MessageBubble(
-            message:
-                '@janeagbo she talk up the function of a program manager.',
+            message: '@janeagbo she talk up the function of a program manager.',
             time: '9:54 PM',
             isMe: false,
           ),
@@ -367,9 +375,8 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final bubbleColor = isMe ? AppColors.primary : AppColors.surfaceMuted;
     final textColor = isMe ? AppColors.white : AppColors.textPrimary;
-    final timeColor = isMe
-        ? AppColors.white.withValues(alpha: 0.8)
-        : AppColors.textMuted;
+    final timeColor =
+        isMe ? AppColors.white.withValues(alpha: 0.8) : AppColors.textMuted;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -386,8 +393,8 @@ class MessageBubble extends StatelessWidget {
                 maxWidth: MediaQuery.of(context).size.width * 0.55,
               ),
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: bubbleColor,
                   borderRadius: BorderRadius.only(
@@ -504,6 +511,8 @@ class ChatInputField extends StatelessWidget {
     return TextField(
       cursorColor: AppColors.primary,
       style: AppTextStyles.bodyMd,
+      minLines: 1,
+      maxLines: 4,
       decoration: InputDecoration(
         hintText: 'Write a message...',
         hintStyle: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),

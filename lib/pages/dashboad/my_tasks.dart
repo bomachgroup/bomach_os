@@ -4,6 +4,8 @@ import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
+import 'package:bomach_os/components/section/responsive_stat_row.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/operations/models/models.dart';
 import 'package:bomach_os/src/constants/api_constants.dart';
@@ -143,8 +145,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      scrollable: true,
       children: [
         _buildPageHeader(),
         const SizedBox(height: 20),
@@ -158,50 +160,66 @@ class _MyTasksPageState extends State<MyTasksPage> {
   }
 
   Widget _buildPageHeader() {
-    return Row(
+    final title = Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Row(
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: _accentIndigo.withValues(alpha: 0.1),
+            borderRadius: AppRadii.brMd,
+          ),
+          child:
+              const Icon(Iconsax.task_square, color: _accentIndigo, size: 24),
+        ),
+        const SizedBox(width: 14),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: _accentIndigo.withValues(alpha: 0.1),
-                  borderRadius: AppRadii.brMd,
+              const MyText('My Tasks', style: AppTextStyles.h1),
+              const SizedBox(height: 2),
+              MyText(
+                'Manage and track your assigned tasks',
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textMuted,
                 ),
-                child: const Icon(Iconsax.task_square,
-                    color: _accentIndigo, size: 24),
-              ),
-              const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const MyText('My Tasks', style: AppTextStyles.h1),
-                  const SizedBox(height: 2),
-                  MyText(
-                    'Manage and track your assigned tasks',
-                    style: AppTextStyles.bodyMd.copyWith(
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
         ),
-        Container(
-          decoration: const BoxDecoration(
-            color: AppColors.surfaceMuted,
-            borderRadius: AppRadii.brMd,
-          ),
-          child: IconButton(
-            icon: const Icon(Iconsax.refresh,
-                color: AppColors.textSecondary, size: 20),
-            onPressed: () => controller.fetchMyTasks(),
-            tooltip: 'Refresh',
-          ),
-        ),
       ],
+    );
+
+    final refresh = Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brMd,
+      ),
+      child: IconButton(
+        icon: const Icon(Iconsax.refresh,
+            color: AppColors.textSecondary, size: 20),
+        onPressed: () => controller.fetchMyTasks(),
+        tooltip: 'Refresh',
+      ),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 600) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              title,
+              const SizedBox(height: 12),
+              Align(alignment: Alignment.centerRight, child: refresh),
+            ],
+          );
+        }
+        return Row(
+          children: [Expanded(child: title), refresh],
+        );
+      },
     );
   }
 
@@ -218,23 +236,16 @@ class _MyTasksPageState extends State<MyTasksPage> {
           .where((t) => t.status.toLowerCase() == 'completed')
           .length;
 
-      return Row(
-        children: [
-          Expanded(
-              child: _buildSummaryCard('Total Tasks', '$all',
-                  Iconsax.task_square, _accentIndigo)),
-          const SizedBox(width: 12),
-          Expanded(
-              child: _buildSummaryCard('Pending', '$pending',
-                  Iconsax.hashtag_1, _accentAmber)),
-          const SizedBox(width: 12),
-          Expanded(
-              child: _buildSummaryCard('In Progress', '$inProgress',
-                  Iconsax.refresh_2, _accentCyan)),
-          const SizedBox(width: 12),
-          Expanded(
-              child: _buildSummaryCard('Completed', '$completed',
-                  Iconsax.tick_circle, _accentGreen)),
+      return ResponsiveStatRow(
+        cards: [
+          _buildSummaryCard(
+              'Total Tasks', '$all', Iconsax.task_square, _accentIndigo),
+          _buildSummaryCard(
+              'Pending', '$pending', Iconsax.hashtag_1, _accentAmber),
+          _buildSummaryCard(
+              'In Progress', '$inProgress', Iconsax.refresh_2, _accentCyan),
+          _buildSummaryCard(
+              'Completed', '$completed', Iconsax.tick_circle, _accentGreen),
         ],
       );
     });
@@ -270,7 +281,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
                 ),
                 MyText(
                   label,
-                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -287,67 +299,90 @@ class _MyTasksPageState extends State<MyTasksPage> {
       {'key': 'in_progress', 'label': 'In Progress', 'icon': Iconsax.refresh_2},
       {'key': 'completed', 'label': 'Completed', 'icon': Iconsax.tick_circle},
     ];
-    return Obx(() => Container(
-          padding: const EdgeInsets.all(4),
-          decoration: const BoxDecoration(
-            color: AppColors.surfaceMuted,
-            borderRadius: AppRadii.brMd,
-          ),
-          child: Row(
-            children: filters.map((f) {
-              final isActive = controller.selectedFilter.value == f['key'];
-              return Expanded(
-                child: InkWell(
-                  onTap: () {
-                    controller.selectedFilter.value = f['key'] as String;
-                    controller.fetchMyTasks();
-                  },
-                  borderRadius: AppRadii.brSm,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: isActive ? AppColors.surface : Colors.transparent,
-                      borderRadius: AppRadii.brSm,
-                      boxShadow: isActive
-                          ? [
-                              BoxShadow(
-                                color: AppColors.neutral900
-                                    .withValues(alpha: 0.06),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          f['icon'] as IconData,
-                          size: 16,
-                          color: isActive ? _accentIndigo : AppColors.textMuted,
-                        ),
-                        const SizedBox(width: 6),
-                        MyText(
-                          f['label'] as String,
-                          isSelectable: false,
-                          style: AppTextStyles.label.copyWith(
-                            fontWeight:
-                                isActive ? FontWeight.w600 : FontWeight.w500,
-                            color: isActive
-                                ? AppColors.textPrimary
-                                : AppColors.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
+    return Obx(() {
+      final selectedFilter = controller.selectedFilter.value;
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final buttons = filters.map((f) {
+            final isActive = selectedFilter == f['key'];
+            return _buildFilterButton(f, isActive);
+          }).toList();
+
+          final content = constraints.maxWidth < 600
+              ? SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: buttons
+                        .map((button) => SizedBox(width: 132, child: button))
+                        .toList(),
                   ),
+                )
+              : Row(
+                  children:
+                      buttons.map((button) => Expanded(child: button)).toList(),
+                );
+
+          return Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              color: AppColors.surfaceMuted,
+              borderRadius: AppRadii.brMd,
+            ),
+            child: content,
+          );
+        },
+      );
+    });
+  }
+
+  Widget _buildFilterButton(Map<String, dynamic> filter, bool isActive) {
+    return InkWell(
+      onTap: () {
+        controller.selectedFilter.value = filter['key'] as String;
+        controller.fetchMyTasks();
+      },
+      borderRadius: AppRadii.brSm,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.surface : Colors.transparent,
+          borderRadius: AppRadii.brSm,
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: AppColors.neutral900.withValues(alpha: 0.06),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              filter['icon'] as IconData,
+              size: 16,
+              color: isActive ? _accentIndigo : AppColors.textMuted,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: MyText(
+                filter['label'] as String,
+                isSelectable: false,
+                maxLines: 1,
+                style: AppTextStyles.label.copyWith(
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                  color: isActive ? AppColors.textPrimary : AppColors.textMuted,
                 ),
-              );
-            }).toList(),
-          ),
-        ));
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildTasksTable() {
@@ -387,7 +422,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-            children: controller.tasks.map((t) => _buildTaskMobileCard(t)).toList(),
+            children:
+                controller.tasks.map((t) => _buildTaskMobileCard(t)).toList(),
           ),
         );
       }),
@@ -426,7 +462,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: _getPriorityColor(task.priority).withValues(alpha: 0.1),
+                  color:
+                      _getPriorityColor(task.priority).withValues(alpha: 0.1),
                   borderRadius: AppRadii.brSm,
                 ),
                 child: Center(
@@ -456,12 +493,14 @@ class _MyTasksPageState extends State<MyTasksPage> {
                 children: [
                   Text(
                     'Due Date',
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 2),
                   MyText(
                     task.dueDate.isNotEmpty ? task.dueDate : '\u2014',
-                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -470,12 +509,16 @@ class _MyTasksPageState extends State<MyTasksPage> {
                 children: [
                   Text(
                     'Est. Hours',
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 2),
                   MyText(
-                    task.estimatedHours > 0 ? '${task.estimatedHours}h' : '\u2014',
-                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                    task.estimatedHours > 0
+                        ? '${task.estimatedHours}h'
+                        : '\u2014',
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -484,7 +527,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
                 children: [
                   Text(
                     'Priority',
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 2),
                   _buildPriorityChip(task.priority),
@@ -503,8 +547,6 @@ class _MyTasksPageState extends State<MyTasksPage> {
       ),
     );
   }
-
-
 
   Widget _buildPriorityChip(String priority) {
     StatusTone tone;
@@ -532,8 +574,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
           color: AppColors.surfaceMuted,
           borderRadius: AppRadii.brSm,
         ),
-        child: const Icon(Iconsax.more,
-            size: 18, color: AppColors.textSecondary),
+        child:
+            const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
       ),
       shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
       elevation: 8,
@@ -553,8 +595,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
           _buildMenuItem(
               Iconsax.play_circle, 'Start Task', 'start', _accentCyan),
         if (task.status.toLowerCase() == 'in_progress')
-          _buildMenuItem(Iconsax.tick_circle, 'Mark Complete', 'complete',
-              _accentGreen),
+          _buildMenuItem(
+              Iconsax.tick_circle, 'Mark Complete', 'complete', _accentGreen),
       ],
     );
   }
@@ -601,8 +643,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
           Row(
             children: [
               Expanded(
-                  child: _detailItem(
-                      Iconsax.flag, 'Priority', task.priority,
+                  child: _detailItem(Iconsax.flag, 'Priority', task.priority,
                       badge: _buildPriorityChip(task.priority))),
               const SizedBox(width: 16),
               Expanded(
@@ -614,9 +655,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
           Row(
             children: [
               Expanded(
-                  child: _detailItem(
-                      Iconsax.calendar_1,
-                      'Due Date',
+                  child: _detailItem(Iconsax.calendar_1, 'Due Date',
                       task.dueDate.isNotEmpty ? task.dueDate : 'Not set')),
               const SizedBox(width: 16),
               Expanded(
@@ -629,8 +668,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
             ],
           ),
           if (task.assignedTo.isNotEmpty)
-            _detailItem(Iconsax.people, 'Assigned To',
-                task.assignedTo.join(', ')),
+            _detailItem(
+                Iconsax.people, 'Assigned To', task.assignedTo.join(', ')),
         ],
       ),
     );
@@ -649,7 +688,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
               const SizedBox(width: 6),
               MyText(
                 label,
-                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                style:
+                    AppTextStyles.caption.copyWith(color: AppColors.textMuted),
               ),
             ],
           ),

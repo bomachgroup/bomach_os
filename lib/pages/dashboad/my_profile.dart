@@ -2,6 +2,7 @@ import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/auth/controller.dart';
 import 'package:bomach_os/src/constants/colors.dart';
@@ -30,71 +31,86 @@ class MyProfilePage extends StatelessWidget {
       final user = authController.currentUser.value;
 
       if (user == null) {
-        return const Center(
-          child: EmptyState(
-            title: 'Profile not available',
-            subtitle: 'Please log in to view your profile',
-            icon: Iconsax.user_remove,
-          ),
+        return const PageScaffold(
+          scrollable: false,
+          children: [
+            Expanded(
+              child: Center(
+                child: EmptyState(
+                  title: 'Profile not available',
+                  subtitle: 'Please log in to view your profile',
+                  icon: Iconsax.user_remove,
+                ),
+              ),
+            ),
+          ],
         );
       }
 
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PageHeader(
-              title: 'My Profile',
-              subtitle:
-                  'Your personal information and employment details',
-            ),
-            const SizedBox(height: 16),
-            _buildProfileHeader(user),
-            const SizedBox(height: 24),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth > 800) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
+      return PageScaffold(
+        scrollable: false,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const PageHeader(
+                    title: 'My Profile',
+                    subtitle:
+                        'Your personal information and employment details',
+                  ),
+                  const SizedBox(height: 16),
+                  _buildProfileHeader(user),
+                  const SizedBox(height: 24),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth > 800) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildPersonalInfoCard(user),
-                            const SizedBox(height: 20),
-                            _buildContactInfoCard(user),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  _buildPersonalInfoCard(user),
+                                  const SizedBox(height: 20),
+                                  _buildContactInfoCard(user),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  _buildEmploymentCard(user),
+                                  const SizedBox(height: 20),
+                                  _buildAccountInfoCard(
+                                      context, user, authController),
+                                ],
+                              ),
+                            ),
                           ],
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            _buildEmploymentCard(user),
-                            const SizedBox(height: 20),
-                            _buildAccountInfoCard(context, user, authController),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }
-                return Column(
-                  children: [
-                    _buildPersonalInfoCard(user),
-                    const SizedBox(height: 20),
-                    _buildContactInfoCard(user),
-                    const SizedBox(height: 20),
-                    _buildEmploymentCard(user),
-                    const SizedBox(height: 20),
-                    _buildAccountInfoCard(context, user, authController),
-                  ],
-                );
-              },
+                        );
+                      }
+                      return Column(
+                        children: [
+                          _buildPersonalInfoCard(user),
+                          const SizedBox(height: 20),
+                          _buildContactInfoCard(user),
+                          const SizedBox(height: 20),
+                          _buildEmploymentCard(user),
+                          const SizedBox(height: 20),
+                          _buildAccountInfoCard(context, user, authController),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
-          ],
-        ),
+          ),
+        ],
       );
     });
   }
@@ -168,7 +184,9 @@ class MyProfilePage extends StatelessWidget {
                     ),
                   ),
                 const SizedBox(height: 12),
-                Row(
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
                   children: [
                     _buildHeaderChip(
                       icon: Iconsax.record_circle,
@@ -178,15 +196,13 @@ class MyProfilePage extends StatelessWidget {
                           ? const Color(0xFF4ADE80)
                           : const Color(0xFFFCA5A5),
                     ),
-                    const SizedBox(width: 10),
                     if (user.employmentType != null &&
                         user.employmentType!.isNotEmpty)
                       _buildHeaderChip(
                         icon: Iconsax.briefcase,
                         iconSize: 14,
                         label: user.employmentType!,
-                        color:
-                            AppColors.textOnPrimary.withValues(alpha: 0.8),
+                        color: AppColors.textOnPrimary.withValues(alpha: 0.8),
                       ),
                   ],
                 ),
@@ -267,8 +283,7 @@ class MyProfilePage extends StatelessWidget {
       icon: Iconsax.sms,
       color: _accentCyan,
       children: [
-        _buildInfoTile(
-            Iconsax.sms, 'Email Address', user.email, _accentRed),
+        _buildInfoTile(Iconsax.sms, 'Email Address', user.email, _accentRed),
         const SizedBox(height: 12),
         _buildInfoTile(
             Iconsax.call,
@@ -441,9 +456,12 @@ class MyProfilePage extends StatelessWidget {
                 child: Icon(icon, color: color, size: 20),
               ),
               const SizedBox(width: 12),
-              MyText(
-                title,
-                style: AppTextStyles.h4.copyWith(fontSize: 17),
+              Flexible(
+                child: MyText(
+                  title,
+                  maxLines: 2,
+                  style: AppTextStyles.h4.copyWith(fontSize: 17),
+                ),
               ),
             ],
           ),
@@ -465,7 +483,8 @@ class MyProfilePage extends StatelessWidget {
               children: [
                 MyText(
                   field.label,
-                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 6),
                 MyText(
@@ -502,7 +521,8 @@ class MyProfilePage extends StatelessWidget {
             children: [
               MyText(
                 label,
-                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                style:
+                    AppTextStyles.caption.copyWith(color: AppColors.textMuted),
               ),
               const SizedBox(height: 2),
               MyText(

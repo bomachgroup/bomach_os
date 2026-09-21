@@ -1,4 +1,5 @@
 import 'package:bomach_os/components/cards/stats_header.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
@@ -21,8 +22,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
       children: [
         // Header Section
         const Row(
@@ -100,11 +100,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
           'count': _controller.totalMeetings.value.toString(),
           'icon': Iconsax.people
         },
-        {
-          'label': 'Documents',
-          'count': '—',
-          'icon': Iconsax.document_text
-        },
+        {'label': 'Documents', 'count': '—', 'icon': Iconsax.document_text},
         {'label': 'Team Members', 'count': '—', 'icon': Iconsax.people},
       ];
 
@@ -157,104 +153,106 @@ class _ProjectCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         color: AppColors.white,
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  spacing: 10,
-                  children: [
-                    const MyText(
-                      "Commercial Complex Survey",
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                runSpacing: 6,
+                spacing: 10,
+                children: [
+                  const MyText(
+                    "Commercial Complex Survey",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.black,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const MyText(
+                      "Active",
                       style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.neutral200),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const MyText(
+                      "High",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              kSizedBoxTiny,
+              const Wrap(
+                runSpacing: 4,
+                spacing: 10,
+                children: [
+                  MyText(
+                    "3 members",
+                    style: TextStyle(
+                      color: AppColors.neutral400,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  MyText(
+                    "2 files",
+                    style: TextStyle(
+                      color: AppColors.neutral400,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  MyText(
+                    "1 pending tasks",
+                    style: TextStyle(
+                      color: AppColors.neutral400,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              kSizedBoxSM,
+              LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                return Container(
+                  width: constraints.maxWidth,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: AppColors.neutral200,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 0.60,
+                    child: Container(
                       decoration: BoxDecoration(
                         color: AppColors.black,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const MyText(
-                        "Active",
-                        style: TextStyle(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.w400,
-                        ),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.neutral200),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const MyText(
-                        "High",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                kSizedBoxTiny,
-                const Row(
-                  spacing: 10,
-                  children: [
-                    MyText(
-                      "3 members",
-                      style: TextStyle(
-                        color: AppColors.neutral400,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    MyText(
-                      "2 files",
-                      style: TextStyle(
-                        color: AppColors.neutral400,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    MyText(
-                      "1 pending tasks",
-                      style: TextStyle(
-                        color: AppColors.neutral400,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-                kSizedBoxSM,
-                LayoutBuilder(builder:
-                    (BuildContext context, BoxConstraints constraints) {
-                  return Container(
-                    width: constraints.maxWidth,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: AppColors.neutral200,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: 0.60,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.black,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
+                  ),
+                );
+              }),
+            ],
           ),
+          const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
@@ -404,7 +402,8 @@ class CommunicationItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header row with name, tag, and time
-              Row(
+              Wrap(
+                runSpacing: 4,
                 spacing: 10,
                 children: [
                   Text(

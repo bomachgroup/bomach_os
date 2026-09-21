@@ -20,10 +20,8 @@ class ApiConstants {
     return h == 'localhost' ||
         h == '127.0.0.1' ||
         h == '[::1]' ||
-        h.endsWith('.local') ||
         h == 'bomach-os-test.web.app' ||
-        h == 'bomachostest.web.app' ||
-        h.contains('test');
+        h == 'bomachostest.web.app';
   }
 
   /// Local-dev escape hatch. Run with
@@ -53,11 +51,12 @@ class ApiConstants {
     if (!isWeb) {
       return isRelease ? _prodBase : _stagingBase;
     }
-    // On web: ONLY live hosts use prodBase. Standalone, localhost, and test use stagingBase.
+    // On web: only the exact staging allowlist uses staging. Unknown hosts
+    // fail closed to production rather than inheriting staging credentials.
     if (isLiveHost(host)) {
       return _prodBase;
     }
-    return _stagingBase;
+    return isStagingHost(host) ? _stagingBase : _prodBase;
   }
 
   static String get authBaseUrl {

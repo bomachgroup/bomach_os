@@ -1,4 +1,5 @@
 import 'package:bomach_os/components/text/app_text.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/analytics/overview.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,9 @@ class ProjectsAnalytics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ProjectBody();
+    return const PageScaffold(
+      children: [ProjectBody()],
+    );
   }
 }
 
@@ -376,39 +379,68 @@ class _TeamPerformanceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 600;
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(team.name,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
-              Text('${(team.successRate * 100).toStringAsFixed(0)}% success',
-                  style: const TextStyle(color: Colors.green)),
+              compact
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(team.name,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        Text(
+                            '${(team.successRate * 100).toStringAsFixed(0)}% success',
+                            style: const TextStyle(color: Colors.green)),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(team.name,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        Text(
+                            '${(team.successRate * 100).toStringAsFixed(0)}% success',
+                            style: const TextStyle(color: Colors.green)),
+                      ],
+                    ),
+              const SizedBox(height: 4),
+              compact
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${team.projects} projects',
+                            style: const TextStyle(color: Colors.grey)),
+                        Text('Avg: ${team.avgDays} days',
+                            style: const TextStyle(color: Colors.grey)),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${team.projects} projects',
+                            style: const TextStyle(color: Colors.grey)),
+                        Text('Avg: ${team.avgDays} days',
+                            style: const TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+              LinearProgressIndicator(
+                value: team.successRate,
+                minHeight: 8,
+                color: Colors.black,
+                backgroundColor: Colors.grey,
+                borderRadius: BorderRadius.circular(5),
+              ),
             ],
           ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('${team.projects} projects',
-                  style: const TextStyle(color: Colors.grey)),
-              Text('Avg: ${team.avgDays} days',
-                  style: const TextStyle(color: Colors.grey)),
-            ],
-          ),
-          LinearProgressIndicator(
-            value: team.successRate,
-            minHeight: 8,
-            color: Colors.black,
-            backgroundColor: Colors.grey,
-            borderRadius: BorderRadius.circular(5),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

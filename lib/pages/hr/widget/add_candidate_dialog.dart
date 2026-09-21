@@ -153,8 +153,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
         ),
         Obx(() => MyElevatedButton(
               height: 44,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               isLoading: controller.isSaving.value,
               icon: _currentStep == 2
                   ? const Icon(Iconsax.tick_circle,
@@ -182,8 +181,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
               onTap: () => setState(() => _currentStep = index),
               borderRadius: AppRadii.brSm,
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -201,9 +199,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
                     Container(
                       height: 2,
                       width: 30,
-                      color: isActive
-                          ? AppColors.primary
-                          : Colors.transparent,
+                      color: isActive ? AppColors.primary : Colors.transparent,
                     ),
                   ],
                 ),
@@ -273,6 +269,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
           title: 'Address/Location',
           hintText: 'Street, city, state',
           controller: _addressCtrl,
+          maxLines: 3,
         ),
         const SizedBox(height: 24),
         _sectionLabel('Social Presence'),
@@ -329,6 +326,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
           title: 'Key Skills (Comma separated)',
           hintText: 'e.g. Flutter, Dart, Firebase',
           controller: _skillsCtrl,
+          maxLines: 3,
         ),
         const SizedBox(height: 24),
         _sectionLabel('Education'),
@@ -379,13 +377,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
               child: MyDropdown(
                 title: 'Source',
                 hintText: 'Select',
-                items: [
-                  'Internal',
-                  'Referral',
-                  'Job Board',
-                  'Social',
-                  'Other'
-                ],
+                items: ['Internal', 'Referral', 'Job Board', 'Social', 'Other'],
               ),
             ),
             const SizedBox(width: 16),

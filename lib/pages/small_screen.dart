@@ -1,5 +1,6 @@
 import 'package:bomach_os/components/nav/header.dart';
 import 'package:bomach_os/components/nav/side_menu.dart';
+import 'package:bomach_os/pages/shared/embedded_web_view_interaction.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,6 +11,7 @@ class SmallScreenDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      onDrawerChanged: embeddedWebViewInteraction.setDrawerOpen,
       drawer: const Drawer(
         child: SafeArea(
           child: SideMenu(useAvailableHeight: true),

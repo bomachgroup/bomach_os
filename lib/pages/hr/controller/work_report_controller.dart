@@ -87,6 +87,14 @@ class WorkReportController extends GetxController {
     return _service.getWorkReportById(token, id);
   }
 
+  /// List responses may contain only summary fields. Always resolve the
+  /// server's detail representation before opening a report viewer.
+  Future<WorkReport> getReportForViewing(
+      String token, WorkReport listedReport) async {
+    if (listedReport.id.isEmpty) return listedReport;
+    return _service.getWorkReportById(token, listedReport.id);
+  }
+
   String employeeDisplayName(int employeeId) {
     final name = employeeNames[employeeId]?.trim();
     if (name != null && name.isNotEmpty) return name;

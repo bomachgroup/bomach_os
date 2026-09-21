@@ -117,8 +117,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                           initialSelection: selectedDepartmentId != null
                               ? controller.departments
                                   .firstWhereOrNull((d) =>
-                                      d.id.toString() ==
-                                      selectedDepartmentId)
+                                      d.id.toString() == selectedDepartmentId)
                                   ?.name
                               : null,
                           items: controller.departments
@@ -127,8 +126,8 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                           onChanged: (val) {
                             final dept = controller.departments
                                 .firstWhereOrNull((d) => d.name == val);
-                            setState(() => selectedDepartmentId =
-                                dept?.id.toString());
+                            setState(() =>
+                                selectedDepartmentId = dept?.id.toString());
                           },
                         )),
                   ),
@@ -163,6 +162,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       controller: locationCtrl,
                       title: 'Location',
                       hintText: 'City, Country',
+                      maxLines: 2,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -203,8 +203,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       hintText: 'Select status',
                       initialSelection: selectedStatus,
                       items: const ['Pending', 'In Progress', 'Completed'],
-                      onChanged: (val) =>
-                          setState(() => selectedStatus = val),
+                      onChanged: (val) => setState(() => selectedStatus = val),
                     ),
                   ),
                 ]),

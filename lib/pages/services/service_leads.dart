@@ -4,6 +4,7 @@ import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/permission_gate.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/app_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
@@ -189,9 +190,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
 
                     // Buttons
                     const Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: AppColors.borderSubtle),
+                        height: 1, thickness: 1, color: AppColors.borderSubtle),
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -254,8 +253,8 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                         }
                                       } catch (e) {
                                         if (mounted) {
-                                          AppToast.error(
-                                              context, 'Error: ${e.toString()}');
+                                          AppToast.error(context,
+                                              'Error: ${e.toString()}');
                                         }
                                       } finally {
                                         if (mounted) {
@@ -284,401 +283,424 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
   Widget build(BuildContext context) {
     return Obx(() {
       if (_controller.errorMessage.isNotEmpty) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppText.bodyMd(
-                  _controller.errorMessage.value,
-                  color: AppColors.danger,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                MyElevatedButton(
-                  child: 'Retry',
-                  onTap: () => _controller.fetchLeads(),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
+        return PageScaffold(
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    AppText.h3(
-                      "Service Leads",
+                    AppText.bodyMd(
+                      _controller.errorMessage.value,
+                      color: AppColors.danger,
+                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 6),
-                    AppText.bodySm(
-                      "Manage service leads and convert to clients",
-                      color: AppColors.textSecondary,
+                    const SizedBox(height: 16),
+                    MyElevatedButton(
+                      child: 'Retry',
+                      onTap: () => _controller.fetchLeads(),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
-              PermissionGate(
-                resource: 'leads',
-                action: 'create',
-                child: MyElevatedButton(
-                  child: 'Add Lead',
-                  bgColor: AppColors.primary,
-                  icon: const Icon(Iconsax.add, color: AppColors.white),
-                  onTap: _showAddLeadDialog,
-                ),
+            ),
+          ],
+        );
+      }
+
+      return PageScaffold(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppText.h3(
+                          "Service Leads",
+                        ),
+                        const SizedBox(height: 6),
+                        AppText.bodySm(
+                          "Manage service leads and convert to clients",
+                          color: AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  PermissionGate(
+                    resource: 'leads',
+                    action: 'create',
+                    child: MyElevatedButton(
+                      child: 'Add Lead',
+                      bgColor: AppColors.primary,
+                      icon: const Icon(Iconsax.add, color: AppColors.white),
+                      onTap: _showAddLeadDialog,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-          // Search Bar
-          MyTextFormField(
-            controller: _searchController,
-            hintText: "Search by client name...",
-            leading: const Icon(Iconsax.search_normal),
-            onChanged: (val) {
-              // Debounce search to avoid too many API calls
-              Future.delayed(const Duration(milliseconds: 500), () {
-                if (_searchController.text == val) {
-                  _controller.fetchLeads(search: val.trim());
-                }
-              });
-            },
-          ),
-
-          const SizedBox(height: 24),
-
-          // Loading or empty state
-          if (_controller.isLoading.value)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(40.0),
-                child: CircularProgressIndicator(),
+              // Search Bar
+              MyTextFormField(
+                controller: _searchController,
+                hintText: "Search by client name...",
+                leading: const Icon(Iconsax.search_normal),
+                onChanged: (val) {
+                  // Debounce search to avoid too many API calls
+                  Future.delayed(const Duration(milliseconds: 500), () {
+                    if (_searchController.text == val) {
+                      _controller.fetchLeads(search: val.trim());
+                    }
+                  });
+                },
               ),
-            )
-          else if (_controller.leads.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Center(
-                child: AppText.bodySm(
-                  'No leads available',
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            )
-          else
-            Column(
-              children: [
-                // Leads List
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _controller.leads.length,
-                  itemBuilder: (context, index) {
-                    final lead = _controller.leads[index];
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: AppCard(
-                        padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    AppText.h4(
-                                      lead.fullName,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    AppText.caption(
-                                      lead.email,
-                                    ),
-                                    const SizedBox(height: 2),
-                                    AppText.caption(
-                                      lead.phoneNumber,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              StatusChip(
-                                label:
-                                    lead.status.capitalizeFirst ?? lead.status,
-                                tone: _mapStatusToTone(lead.status),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.neutral100,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+              const SizedBox(height: 24),
+
+              // Loading or empty state
+              if (_controller.isLoading.value)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(40.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else if (_controller.leads.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(40.0),
+                  child: Center(
+                    child: AppText.bodySm(
+                      'No leads available',
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  children: [
+                    // Leads List
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _controller.leads.length,
+                      itemBuilder: (context, index) {
+                        final lead = _controller.leads[index];
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: AppCard(
+                            padding: const EdgeInsets.all(20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (lead.interestedServices.isNotEmpty)
-                                  Row(
-                                    children: [
-                                      const Icon(Iconsax.building_4,
-                                          size: 14,
-                                          color: AppColors.textSecondary),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: AppText.caption(
-                                          lead.interestedServices,
-                                          color: AppColors.textPrimary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                if (lead.assignedToName.isNotEmpty) ...[
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Icon(Iconsax.profile_circle,
-                                          size: 14,
-                                          color: AppColors.textSecondary),
-                                      const SizedBox(width: 8),
-                                      AppText.caption(
-                                        'Assigned to: ${lead.assignedToName}',
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          if (lead.notes.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            AppText.bodySm(
-                              'Notes: ${lead.notes}',
-                              color: AppColors.textSecondary,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ],
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              if (lead.status.toLowerCase() != 'converted')
-                                MyElevatedButton(
-                                  child: 'Convert to Client',
-                                  bgColor: AppColors.primary,
-                                  onTap: () async {
-                                    // Show confirmation dialog
-                                    final confirmed = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: AppText.h4(
-                                            'Convert Lead to Client'),
-                                        content: AppText.bodyMd(
-                                          'Are you sure you want to convert ${lead.fullName} to a client?',
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context, false),
-                                            child: AppText.bodyMd('Cancel',
-                                                color: AppColors.textSecondary),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          AppText.h4(
+                                            lead.fullName,
                                           ),
-                                          MyElevatedButton(
-                                            child: 'Convert',
-                                            onTap: () =>
-                                                Navigator.pop(context, true),
+                                          const SizedBox(height: 4),
+                                          AppText.caption(
+                                            lead.email,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          AppText.caption(
+                                            lead.phoneNumber,
                                           ),
                                         ],
                                       ),
-                                    );
-
-                                    if (confirmed == true && mounted) {
-                                      final success = await _controller
-                                          .convertLeadToClient(lead.id);
-
-                                      if (success && mounted) {
-                                        AppToast.success(
-                                          context,
-                                          '${lead.fullName} successfully converted to client',
-                                        );
-                                      } else if (mounted) {
-                                        AppToast.error(
-                                          context,
-                                          'Failed to convert lead. Please try again.',
-                                        );
-                                      }
-                                    }
-                                  },
+                                    ),
+                                    StatusChip(
+                                      label: lead.status.capitalizeFirst ??
+                                          lead.status,
+                                      tone: _mapStatusToTone(lead.status),
+                                    ),
+                                  ],
                                 ),
-                              if (lead.status.toLowerCase() == 'converted')
+                                const SizedBox(height: 16),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
+                                  padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: AppColors.success
-                                        .withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                        color: AppColors.success
-                                            .withValues(alpha: 0.3)),
+                                    color: AppColors.neutral100,
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Iconsax.tick_circle,
-                                          size: 16, color: AppColors.success),
-                                      const SizedBox(width: 8),
-                                      AppText.bodySm(
-                                        'Converted to Client',
-                                        color: AppColors.success,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      if (lead.interestedServices.isNotEmpty)
+                                        Row(
+                                          children: [
+                                            const Icon(Iconsax.building_4,
+                                                size: 14,
+                                                color: AppColors.textSecondary),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: AppText.caption(
+                                                lead.interestedServices,
+                                                color: AppColors.textPrimary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      if (lead.assignedToName.isNotEmpty) ...[
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            const Icon(Iconsax.profile_circle,
+                                                size: 14,
+                                                color: AppColors.textSecondary),
+                                            const SizedBox(width: 8),
+                                            AppText.caption(
+                                              'Assigned to: ${lead.assignedToName}',
+                                              color: AppColors.textPrimary,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
-                            ],
+                                if (lead.notes.isNotEmpty) ...[
+                                  const SizedBox(height: 12),
+                                  AppText.bodySm(
+                                    'Notes: ${lead.notes}',
+                                    color: AppColors.textSecondary,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ],
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    if (lead.status.toLowerCase() !=
+                                        'converted')
+                                      MyElevatedButton(
+                                        child: 'Convert to Client',
+                                        bgColor: AppColors.primary,
+                                        onTap: () async {
+                                          // Show confirmation dialog
+                                          final confirmed =
+                                              await showDialog<bool>(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: AppText.h4(
+                                                  'Convert Lead to Client'),
+                                              content: AppText.bodyMd(
+                                                'Are you sure you want to convert ${lead.fullName} to a client?',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, false),
+                                                  child: AppText.bodyMd(
+                                                      'Cancel',
+                                                      color: AppColors
+                                                          .textSecondary),
+                                                ),
+                                                MyElevatedButton(
+                                                  child: 'Convert',
+                                                  onTap: () => Navigator.pop(
+                                                      context, true),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+
+                                          if (confirmed == true && mounted) {
+                                            final success = await _controller
+                                                .convertLeadToClient(lead.id);
+
+                                            if (success && mounted) {
+                                              AppToast.success(
+                                                context,
+                                                '${lead.fullName} successfully converted to client',
+                                              );
+                                            } else if (mounted) {
+                                              AppToast.error(
+                                                context,
+                                                'Failed to convert lead. Please try again.',
+                                              );
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    if (lead.status.toLowerCase() ==
+                                        'converted')
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.success
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: AppColors.success
+                                                  .withValues(alpha: 0.3)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Iconsax.tick_circle,
+                                                size: 16,
+                                                color: AppColors.success),
+                                            const SizedBox(width: 8),
+                                            AppText.bodySm(
+                                              'Converted to Client',
+                                              color: AppColors.success,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    // Pagination Controls
+                    Obx(() {
+                      final currentPage = _controller.currentPage.value;
+                      final hasNextPage =
+                          _controller.leads.length >= _controller.limit;
+
+                      final totalPages =
+                          hasNextPage ? currentPage + 1 : currentPage;
+                      int endPage = totalPages.clamp(1, totalPages);
+                      int startPage = (endPage - 4).clamp(1, endPage);
+
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: currentPage > 1
+                                ? () => _controller.previousPage(
+                                      search:
+                                          _searchController.text.trim().isEmpty
+                                              ? null
+                                              : _searchController.text.trim(),
+                                    )
+                                : null,
+                            icon: const Icon(Iconsax.arrow_left_2, size: 20),
+                            style: IconButton.styleFrom(
+                              backgroundColor: currentPage > 1
+                                  ? AppColors.primary
+                                  : AppColors.neutral200,
+                              foregroundColor: currentPage > 1
+                                  ? AppColors.white
+                                  : AppColors.textSecondary,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          ...List.generate(
+                            endPage - startPage + 1,
+                            (index) {
+                              final pageNumber = startPage + index;
+                              final isCurrentPage = pageNumber == currentPage;
+
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: InkWell(
+                                  onTap: () => _controller.goToPage(
+                                    pageNumber,
+                                    search:
+                                        _searchController.text.trim().isEmpty
+                                            ? null
+                                            : _searchController.text.trim(),
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: isCurrentPage
+                                          ? AppColors.primary
+                                          : AppColors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: isCurrentPage
+                                            ? AppColors.primary
+                                            : AppColors.neutral200,
+                                      ),
+                                      boxShadow: isCurrentPage
+                                          ? [
+                                              BoxShadow(
+                                                color: AppColors.primary
+                                                    .withValues(alpha: 0.2),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              )
+                                            ]
+                                          : null,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: AppText.bodySm(
+                                      '$pageNumber',
+                                      color: isCurrentPage
+                                          ? AppColors.white
+                                          : AppColors.textPrimary,
+                                      fontWeight: isCurrentPage
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          IconButton(
+                            onPressed: hasNextPage
+                                ? () => _controller.nextPage(
+                                      search:
+                                          _searchController.text.trim().isEmpty
+                                              ? null
+                                              : _searchController.text.trim(),
+                                    )
+                                : null,
+                            icon: const Icon(Iconsax.arrow_right_3, size: 20),
+                            style: IconButton.styleFrom(
+                              backgroundColor: hasNextPage
+                                  ? AppColors.primary
+                                  : AppColors.neutral200,
+                              foregroundColor: hasNextPage
+                                  ? AppColors.white
+                                  : AppColors.textSecondary,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
                           ),
                         ],
-                      ),
-                    ),
-                  );
-                  },
+                      );
+                    }),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                // Pagination Controls
-                Obx(() {
-                  final currentPage = _controller.currentPage.value;
-                  final hasNextPage =
-                      _controller.leads.length >= _controller.limit;
-
-                  final totalPages =
-                      hasNextPage ? currentPage + 1 : currentPage;
-                  int endPage = totalPages.clamp(1, totalPages);
-                  int startPage = (endPage - 4).clamp(1, endPage);
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: currentPage > 1
-                            ? () => _controller.previousPage(
-                                  search: _searchController.text.trim().isEmpty
-                                      ? null
-                                      : _searchController.text.trim(),
-                                )
-                            : null,
-                        icon: const Icon(Iconsax.arrow_left_2, size: 20),
-                        style: IconButton.styleFrom(
-                          backgroundColor: currentPage > 1
-                              ? AppColors.primary
-                              : AppColors.neutral200,
-                          foregroundColor: currentPage > 1
-                              ? AppColors.white
-                              : AppColors.textSecondary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      ...List.generate(
-                        endPage - startPage + 1,
-                        (index) {
-                          final pageNumber = startPage + index;
-                          final isCurrentPage = pageNumber == currentPage;
-
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: InkWell(
-                              onTap: () => _controller.goToPage(
-                                pageNumber,
-                                search: _searchController.text.trim().isEmpty
-                                    ? null
-                                    : _searchController.text.trim(),
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: isCurrentPage
-                                      ? AppColors.primary
-                                      : AppColors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: isCurrentPage
-                                        ? AppColors.primary
-                                        : AppColors.neutral200,
-                                  ),
-                                  boxShadow: isCurrentPage
-                                      ? [
-                                          BoxShadow(
-                                            color: AppColors.primary
-                                                .withValues(alpha: 0.2),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          )
-                                        ]
-                                      : null,
-                                ),
-                                alignment: Alignment.center,
-                                child: AppText.bodySm(
-                                  '$pageNumber',
-                                  color: isCurrentPage
-                                      ? AppColors.white
-                                      : AppColors.textPrimary,
-                                  fontWeight: isCurrentPage
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                      IconButton(
-                        onPressed: hasNextPage
-                            ? () => _controller.nextPage(
-                                  search: _searchController.text.trim().isEmpty
-                                      ? null
-                                      : _searchController.text.trim(),
-                                )
-                            : null,
-                        icon: const Icon(Iconsax.arrow_right_3, size: 20),
-                        style: IconButton.styleFrom(
-                          backgroundColor: hasNextPage
-                              ? AppColors.primary
-                              : AppColors.neutral200,
-                          foregroundColor: hasNextPage
-                              ? AppColors.white
-                              : AppColors.textSecondary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-              ],
-            ),
+            ],
+          ),
         ],
       );
     });

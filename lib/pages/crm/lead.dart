@@ -3,6 +3,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
 
 import '../../components/input/my_dropdown.dart';
+import '../../components/section/page_scaffold.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
 import '../../src/services/crm/crm_service.dart';
@@ -60,106 +61,111 @@ class CrmLeadsPage extends StatelessWidget {
       }
     }
 
-    return Column(
+    return PageScaffold(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          spacing: 12,
+        Column(
           children: [
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const MyText(
-                    'Customer Relationship Management',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  MyText(
-                    'Manage clients, leads, and customer interactions',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
             Row(
-              spacing: 8,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 12,
               children: [
-                buildActionButton(
-                    onPressed: () {},
-                    icon: Iconsax.message_text,
-                    label: 'Log Interactions',
-                    isWide: !isMobile),
-                buildActionButton(
-                    onPressed: () {
-                      AddNewLeadDialog.show(context);
-                    },
-                    icon: Iconsax.copy,
-                    label: 'Add Lead',
-                    isWide: !isMobile),
-                buildActionButton(
-                    onPressed: () {
-                      AddNewClientDialog.show(context);
-                    },
-                    icon: Iconsax.user_add,
-                    label: 'Add Client',
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    isWide: !isMobile),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const MyText(
+                        'Customer Relationship Management',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      MyText(
+                        'Manage clients, leads, and customer interactions',
+                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  spacing: 8,
+                  children: [
+                    buildActionButton(
+                        onPressed: () {},
+                        icon: Iconsax.message_text,
+                        label: 'Log Interactions',
+                        isWide: !isMobile),
+                    buildActionButton(
+                        onPressed: () {
+                          AddNewLeadDialog.show(context);
+                        },
+                        icon: Iconsax.copy,
+                        label: 'Add Lead',
+                        isWide: !isMobile),
+                    buildActionButton(
+                        onPressed: () {
+                          AddNewClientDialog.show(context);
+                        },
+                        icon: Iconsax.user_add,
+                        label: 'Add Client',
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        isWide: !isMobile),
+                  ],
+                ),
               ],
             ),
+            const SizedBox(height: 24),
+            Obx(() {
+              final metrics = [
+                MetricData(
+                    title: 'Total Clients',
+                    value: controller.totalClients.value.toString(),
+                    icon: Iconsax.people,
+                    color: Colors.blue.shade600,
+                    subtitle: 'Active client base'),
+                MetricData(
+                    title: 'Total Leads',
+                    value: controller.totalLeads.value.toString(),
+                    icon: Iconsax.trend_up,
+                    color: Colors.green.shade600,
+                    subtitle: 'Current leads'),
+                MetricData(
+                    title: 'Conversion Rate',
+                    value: controller.totalLeads.value > 0
+                        ? '${((controller.totalClients.value / (controller.totalClients.value + controller.totalLeads.value)) * 100).toStringAsFixed(1)}%'
+                        : '0%',
+                    icon: Iconsax.money_recive,
+                    color: Colors.purple.shade600,
+                    subtitle: 'Lead to client'),
+                MetricData(
+                    title: 'Retention Rate',
+                    value: '—',
+                    icon: Iconsax.star1,
+                    color: Colors.orange.shade600,
+                    subtitle: 'Client retention'),
+              ];
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: metrics.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isMobile ? 1 : 4,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                  childAspectRatio: isMobile
+                      ? 3.0
+                      : isTablet
+                          ? 1
+                          : 1.8,
+                ),
+                itemBuilder: (context, index) =>
+                    StandardMetricCard(data: metrics[index]),
+              );
+            }),
+            const SizedBox(height: 32),
+            _LeadsTableLive(controller: controller),
           ],
         ),
-        const SizedBox(height: 24),
-        Obx(() {
-          final metrics = [
-            MetricData(
-                title: 'Total Clients',
-                value: controller.totalClients.value.toString(),
-                icon: Iconsax.people,
-                color: Colors.blue.shade600,
-                subtitle: 'Active client base'),
-            MetricData(
-                title: 'Total Leads',
-                value: controller.totalLeads.value.toString(),
-                icon: Iconsax.trend_up,
-                color: Colors.green.shade600,
-                subtitle: 'Current leads'),
-            MetricData(
-                title: 'Conversion Rate',
-                value: controller.totalLeads.value > 0
-                    ? '${((controller.totalClients.value / (controller.totalClients.value + controller.totalLeads.value)) * 100).toStringAsFixed(1)}%'
-                    : '0%',
-                icon: Iconsax.money_recive,
-                color: Colors.purple.shade600,
-                subtitle: 'Lead to client'),
-            MetricData(
-                title: 'Retention Rate',
-                value: '—',
-                icon: Iconsax.star1,
-                color: Colors.orange.shade600,
-                subtitle: 'Client retention'),
-          ];
-
-          return GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: metrics.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: isMobile ? 2 : 4,
-              crossAxisSpacing: 16.0,
-              mainAxisSpacing: 16.0,
-              childAspectRatio: isMobile
-                  ? 1.5
-                  : isTablet
-                      ? 1
-                      : 1.8,
-            ),
-            itemBuilder: (context, index) =>
-                StandardMetricCard(data: metrics[index]),
-          );
-        }),
-        const SizedBox(height: 32),
-        _LeadsTableLive(controller: controller),
       ],
     );
   }
@@ -367,13 +373,15 @@ class _LeadDataTableLive extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: const Icon(Iconsax.arrow_swap_horizontal, size: 18),
-                    onPressed: () => controller.convertLeadToClient(context, lead.id),
+                    onPressed: () =>
+                        controller.convertLeadToClient(context, lead.id),
                     tooltip: 'Convert to Client',
                     constraints: const BoxConstraints(),
                     padding: const EdgeInsets.all(8),
                   ),
                   IconButton(
-                    icon: const Icon(Iconsax.trash, size: 18, color: Colors.red),
+                    icon:
+                        const Icon(Iconsax.trash, size: 18, color: Colors.red),
                     onPressed: () => controller.deleteLead(context, lead.id),
                     tooltip: 'Delete',
                     constraints: const BoxConstraints(),

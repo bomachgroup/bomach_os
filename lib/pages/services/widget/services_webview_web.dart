@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 
 import '../../shared/embedded_web_view.dart';
+import '../../shared/embedded_web_view_interaction.dart';
 import '../../../src/constants/api_constants.dart';
 
 final Map<String, web.HTMLIFrameElement> _activeServicesIframes = {};
@@ -53,6 +54,7 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
   late String _targetUrl;
   Timer? _tokenRetryTimer;
   int _postAttempts = 0;
+  VoidCallback? _pointerEventsListener;
 
   @override
   void initState() {
@@ -76,6 +78,10 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
         ..style.height = '100%'
         ..style.display = 'block';
 
+      _pointerEventsListener = () => _syncPointerEvents(iframe);
+      embeddedWebViewInteraction.addListener(_pointerEventsListener!);
+      _syncPointerEvents(iframe);
+
       iframe.addEventListener(
         'load',
         ((web.Event _) => _postTokens(iframe)).toJS,
@@ -86,6 +92,10 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
     });
 
     _scheduleTokenRetries();
+  }
+
+  void _syncPointerEvents(web.HTMLIFrameElement iframe) {
+    iframe.style.pointerEvents = embeddedWebViewInteraction.pointerEvents;
   }
 
   @override
@@ -118,8 +128,8 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
   void _scheduleTokenRetries() {
     _tokenRetryTimer?.cancel();
     _postAttempts = 0;
-    _tokenRetryTimer = Timer.periodic(const Duration(milliseconds: 1500),
-        (timer) {
+    _tokenRetryTimer =
+        Timer.periodic(const Duration(milliseconds: 1500), (timer) {
       if (_postAttempts >= 12) {
         timer.cancel();
         return;
@@ -161,6 +171,10 @@ class _ServicesIFrameViewState extends State<_ServicesIFrameView> {
   @override
   void dispose() {
     _tokenRetryTimer?.cancel();
+    final pointerEventsListener = _pointerEventsListener;
+    if (pointerEventsListener != null) {
+      embeddedWebViewInteraction.removeListener(pointerEventsListener);
+    }
     _activeServicesIframes.remove(_viewType);
     super.dispose();
   }
