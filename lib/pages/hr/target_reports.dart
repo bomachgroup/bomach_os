@@ -63,6 +63,7 @@ class _TargetReportsPageState extends State<TargetReportsPage> {
                   onSubmitted: controller.setSearch,
                 ),
               ),
+              const SizedBox(width: 16),
               DropdownButton<String?>(
                 value: controller.selectedStatus.value,
                 hint: const Text('All statuses'),

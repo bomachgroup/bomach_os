@@ -64,6 +64,15 @@ class WorkReport {
             .toList()
         : <WorkReportAttachment>[];
 
+    final rawReviewer = json['reviewed_by'];
+    final reviewerName = rawReviewer is Map
+        ? [rawReviewer['first_name'], rawReviewer['last_name']]
+            .whereType<String>()
+            .map((part) => part.trim())
+            .where((part) => part.isNotEmpty)
+            .join(' ')
+        : rawReviewer?.toString();
+
     return WorkReport(
       id: json['id']?.toString() ?? '',
       employeeId: json['employee_id'] is int
@@ -83,7 +92,7 @@ class WorkReport {
       reviewedById: json['reviewed_by_id'] is int
           ? json['reviewed_by_id']
           : int.tryParse(json['reviewed_by_id']?.toString() ?? ''),
-      reviewedBy: json['reviewed_by']?.toString(),
+      reviewedBy: reviewerName,
       reviewedAt: json['reviewed_at'] != null
           ? DateTime.tryParse(json['reviewed_at'].toString())
           : null,
