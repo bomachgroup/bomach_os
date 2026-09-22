@@ -1,5 +1,17 @@
+import 'package:bomach_os/src/app_routes/app_route_constants.dart';
+
 /// Builds the child-app URL without placing credentials or user identity in it.
 /// Authentication is delivered separately through a validated postMessage.
+const String marketingNewLeadNavigationMessage =
+    'BOMACH_NAVIGATE_MARKETING_NEW_LEAD';
+
+String? marketingRouteForMessage(String? message) {
+  if (message == marketingNewLeadNavigationMessage) {
+    return RouteConstants.marketingNewLead;
+  }
+  return null;
+}
+
 String buildMarketingIframeUrl({
   required String baseUrl,
   required String route,

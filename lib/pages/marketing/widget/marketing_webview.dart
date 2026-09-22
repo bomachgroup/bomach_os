@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:bomach_os/src/constants/api_constants.dart';
 import '../../auth/controller.dart';
 
@@ -57,6 +58,12 @@ class _MarketingWebViewState extends State<MarketingWebView> {
     }
   }
 
+  void _handleNavigationRequested(String route) {
+    if (mounted && GoRouter.of(context).state.matchedLocation != route) {
+      context.go(route);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -85,6 +92,7 @@ class _MarketingWebViewState extends State<MarketingWebView> {
           currentRoute: widget.route,
           hideSidebar: widget.hideSidebar,
           hideTopbar: widget.hideTopbar,
+          onNavigationRequested: _handleNavigationRequested,
         );
       });
     }
@@ -98,6 +106,7 @@ class _MarketingWebViewState extends State<MarketingWebView> {
       currentRoute: widget.route,
       hideSidebar: widget.hideSidebar,
       hideTopbar: widget.hideTopbar,
+      onNavigationRequested: _handleNavigationRequested,
     );
   }
 }

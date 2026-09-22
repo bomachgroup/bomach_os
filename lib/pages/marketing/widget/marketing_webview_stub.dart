@@ -14,6 +14,7 @@ Widget buildMarketingPlatformView({
   required String currentRoute,
   bool hideSidebar = true,
   bool hideTopbar = false,
+  ValueChanged<String>? onNavigationRequested,
 }) {
   return Container(
     width: double.infinity,

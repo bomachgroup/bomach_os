@@ -19,6 +19,7 @@ Widget buildMarketingPlatformView({
   required String currentRoute,
   bool hideSidebar = true,
   bool hideTopbar = false,
+  ValueChanged<String>? onNavigationRequested,
 }) {
   return _MarketingIFrameView(
     initialUrl: initialUrl,
@@ -29,6 +30,7 @@ Widget buildMarketingPlatformView({
     currentRoute: currentRoute,
     hideSidebar: hideSidebar,
     hideTopbar: hideTopbar,
+    onNavigationRequested: onNavigationRequested,
   );
 }
 
@@ -41,6 +43,7 @@ class _MarketingIFrameView extends StatefulWidget {
   final String currentRoute;
   final bool hideSidebar;
   final bool hideTopbar;
+  final ValueChanged<String>? onNavigationRequested;
 
   const _MarketingIFrameView({
     required this.initialUrl,
@@ -51,6 +54,7 @@ class _MarketingIFrameView extends StatefulWidget {
     required this.currentRoute,
     required this.hideSidebar,
     required this.hideTopbar,
+    this.onNavigationRequested,
   });
 
   @override
@@ -96,6 +100,13 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
           sourceMatches: event.source == iframe.contentWindow,
         );
         if (!trusted) return;
+        final messageData = event.data;
+        final message = messageData is JSString ? messageData.toDart : null;
+        final requestedRoute = marketingRouteForMessage(message);
+        if (requestedRoute != null) {
+          widget.onNavigationRequested?.call(requestedRoute);
+          return;
+        }
         _postAttempts = 0;
         _postTokens(iframe);
         _scheduleTokenRetries();

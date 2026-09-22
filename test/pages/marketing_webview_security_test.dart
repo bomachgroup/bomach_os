@@ -29,6 +29,15 @@ void main() {
     );
   });
 
+  test('maps the trusted Register Lead message to the Flutter menu route', () {
+    expect(
+      marketingRouteForMessage('BOMACH_NAVIGATE_MARKETING_NEW_LEAD'),
+      '/marketing/new-lead',
+    );
+    expect(marketingRouteForMessage('UNRECOGNIZED_MESSAGE'), isNull);
+    expect(marketingRouteForMessage(null), isNull);
+  });
+
   test('marketing iframe URL contains layout/config only, never credentials or identity', () {
     const token = 'ACCESS_TOKEN_SHOULD_NOT_BE_IN_URL';
     const refreshToken = 'REFRESH_TOKEN_SHOULD_NOT_BE_IN_URL';
