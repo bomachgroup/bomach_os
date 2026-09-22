@@ -255,7 +255,45 @@ class LeaveRequestController extends GetxController {
   }
 
   Future<void> pickDate(BuildContext context, bool isStart) async {
-    // ... existing implementation
+    final earliestDate = DateTime(1900);
+    final latestDate = DateTime(2100, 12, 31);
+    final startDate = selectedStartDate == null
+        ? null
+        : DateTime(
+            selectedStartDate!.year,
+            selectedStartDate!.month,
+            selectedStartDate!.day,
+          );
+    final firstDate = !isStart && startDate != null ? startDate : earliestDate;
+    final currentSelection = isStart ? selectedStartDate : selectedEndDate;
+    var initialDate = currentSelection ?? startDate ?? DateTime.now();
+
+    if (initialDate.isBefore(firstDate)) initialDate = firstDate;
+    if (initialDate.isAfter(latestDate)) initialDate = latestDate;
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: latestDate,
+    );
+
+    if (pickedDate == null || !context.mounted) return;
+
+    final date = DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
+    if (isStart) {
+      selectedStartDate = date;
+      startDateController.text = DateFormat('yyyy-MM-dd').format(date);
+
+      // A later start date makes an earlier end date invalid.
+      if (selectedEndDate != null && selectedEndDate!.isBefore(date)) {
+        selectedEndDate = null;
+        endDateController.clear();
+      }
+    } else {
+      selectedEndDate = date;
+      endDateController.text = DateFormat('yyyy-MM-dd').format(date);
+    }
   }
 
   Future<String?> _getToken(BuildContext context) async {
