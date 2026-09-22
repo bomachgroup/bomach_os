@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/cards/app_card.dart';
@@ -122,81 +124,150 @@ class _TargetReportsPageState extends State<TargetReportsPage> {
   }
 
   Future<void> _showCreateDialog(BuildContext context) async {
-    final targetId = TextEditingController();
+    int? selectedTargetId;
     final summary = TextEditingController();
     final progress = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    unawaited(controller.fetchMyAssignedTargets());
 
     final saved = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Submit target progress'),
-        content: Form(
-          key: formKey,
-          child: SizedBox(
-            width: 440,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: targetId,
-                  decoration:
-                      const InputDecoration(labelText: 'Assigned target ID'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) =>
-                      int.tryParse(value?.trim() ?? '') == null
-                          ? 'Enter the assigned target ID'
-                          : null,
-                ),
-                TextFormField(
-                  controller: progress,
-                  decoration:
-                      const InputDecoration(labelText: 'Progress value'),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  validator: (value) =>
-                      double.tryParse(value?.trim() ?? '') == null
-                          ? 'Enter a numeric progress value'
-                          : null,
-                ),
-                TextFormField(
-                  controller: summary,
-                  decoration: const InputDecoration(labelText: 'Summary'),
-                  maxLines: 4,
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? 'Summary is required'
-                      : null,
-                ),
-              ],
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: const Text('Submit target progress'),
+          content: Form(
+            key: formKey,
+            child: SizedBox(
+              width: 440,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Obx(() {
+                    if (controller.isLoadingTargets.value) {
+                      return const InputDecorator(
+                        decoration:
+                            InputDecoration(labelText: 'Assigned target'),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            SizedBox(width: 10),
+                            Text('Loading assigned targets...'),
+                          ],
+                        ),
+                      );
+                    }
+
+                    if (controller.targetLoadError.value.isNotEmpty) {
+                      return InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Assigned target',
+                        ),
+                        child: Row(
+                          children: [
+                            const Expanded(
+                              child: Text('Could not load assigned targets.'),
+                            ),
+                            TextButton(
+                              onPressed: () => unawaited(
+                                controller.fetchMyAssignedTargets(),
+                              ),
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    if (controller.assignedTargets.isEmpty) {
+                      return const InputDecorator(
+                        decoration:
+                            InputDecoration(labelText: 'Assigned target'),
+                        child: Text('No active assigned targets found.'),
+                      );
+                    }
+
+                    return DropdownButtonFormField<int>(
+                      initialValue: selectedTargetId,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Assigned target',
+                      ),
+                      items: controller.assignedTargets
+                          .map(
+                            (target) => DropdownMenuItem<int>(
+                              value: target.id,
+                              child: Text(
+                                target.optionLabel,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) => setDialogState(
+                        () => selectedTargetId = value,
+                      ),
+                      validator: (value) =>
+                          value == null ? 'Select an assigned target' : null,
+                    );
+                  }),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: progress,
+                    decoration:
+                        const InputDecoration(labelText: 'Progress value'),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: (value) =>
+                        double.tryParse(value?.trim() ?? '') == null
+                            ? 'Enter a numeric value'
+                            : null,
+                  ),
+                  TextFormField(
+                    controller: summary,
+                    decoration: const InputDecoration(labelText: 'Summary'),
+                    maxLines: 4,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Summary is required'
+                        : null,
+                  ),
+                ],
+              ),
             ),
           ),
+          actions: [
+            MyOutlinedButton(
+              height: 40,
+              child: 'Cancel',
+              onTap: () => Navigator.pop(dialogContext, false),
+            ),
+            MyElevatedButton(
+              height: 40,
+              child: 'Submit',
+              onTap: () async {
+                if (!(formKey.currentState?.validate() ?? false) ||
+                    selectedTargetId == null) {
+                  return;
+                }
+                final result = await controller.createReport(
+                  employeeTargetId: selectedTargetId!,
+                  summary: summary.text.trim(),
+                  progressValue: double.parse(progress.text.trim()),
+                );
+                if (result && dialogContext.mounted) {
+                  Navigator.pop(dialogContext, true);
+                }
+              },
+            ),
+          ],
         ),
-        actions: [
-          MyOutlinedButton(
-            height: 40,
-            child: 'Cancel',
-            onTap: () => Navigator.pop(dialogContext, false),
-          ),
-          MyElevatedButton(
-            height: 40,
-            child: 'Submit',
-            onTap: () async {
-              if (!(formKey.currentState?.validate() ?? false)) return;
-              final result = await controller.createReport(
-                employeeTargetId: int.parse(targetId.text.trim()),
-                summary: summary.text.trim(),
-                progressValue: double.parse(progress.text.trim()),
-              );
-              if (result && dialogContext.mounted) {
-                Navigator.pop(dialogContext, true);
-              }
-            },
-          ),
-        ],
       ),
     );
 
-    targetId.dispose();
     summary.dispose();
     progress.dispose();
     if (saved == true && mounted) setState(() {});

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
+import '../../../src/model/employee_target_model.dart';
 import '../../../src/model/target_report_model.dart';
 import '../../../src/services/target_report_service.dart';
 
@@ -24,12 +25,33 @@ class TargetReportController extends GetxController {
   }
 
   final reports = <TargetReport>[].obs;
+  final assignedTargets = <EmployeeTarget>[].obs;
   final isLoading = false.obs;
+  final isLoadingTargets = false.obs;
   final isSaving = false.obs;
   final errorMessage = ''.obs;
+  final targetLoadError = ''.obs;
   final selectedStatus = RxnString();
   final searchQuery = ''.obs;
   final count = 0.obs;
+
+  Future<void> fetchMyAssignedTargets() async {
+    isLoadingTargets.value = true;
+    targetLoadError.value = '';
+    try {
+      final token = await _tokenReader();
+      if (token == null || token.isEmpty) {
+        throw Exception('Authentication is required to load assigned targets.');
+      }
+      assignedTargets.assignAll(await _service.listMyAssignedTargets(token));
+    } catch (error) {
+      log('TargetReportController.fetchMyAssignedTargets error: $error');
+      assignedTargets.clear();
+      targetLoadError.value = error.toString();
+    } finally {
+      isLoadingTargets.value = false;
+    }
+  }
 
   Future<void> fetchMine() async {
     isLoading.value = true;

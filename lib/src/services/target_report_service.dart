@@ -1,4 +1,5 @@
 import 'package:bomach_os/src/constants/api_constants.dart';
+import 'package:bomach_os/src/model/employee_target_model.dart';
 import 'package:bomach_os/src/model/target_report_model.dart';
 import 'package:dio/dio.dart';
 
@@ -19,6 +20,28 @@ class TargetReportService {
 
   Options _auth(String token) =>
       Options(headers: {'Authorization': 'Bearer $token'});
+
+  Future<List<EmployeeTarget>> listMyAssignedTargets(String token) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/employees/me/targets',
+        queryParameters: {'is_active': true, 'limit': 100, 'offset': 0},
+        options: _auth(token),
+      );
+      final data = response.data;
+      final items = data is Map
+          ? (data['items'] as List? ?? const [])
+          : (data as List? ?? const []);
+
+      return items
+          .map((item) =>
+              EmployeeTarget.fromJson(Map<String, dynamic>.from(item as Map)))
+          .where((target) => target.isActive)
+          .toList();
+    } catch (error) {
+      throw _handleError(error);
+    }
+  }
 
   Future<({List<TargetReport> list, int count})> listMine(
     String token, {
