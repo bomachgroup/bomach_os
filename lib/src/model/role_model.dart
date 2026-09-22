@@ -43,6 +43,33 @@ class Role {
     this.directReportRoleIds = const [],
   });
 
+  Role copyWith({
+    String? mission,
+    String? jobDescription,
+    List<String>? responsibilities,
+  }) {
+    return Role(
+      id: id,
+      name: name,
+      mission: mission ?? this.mission,
+      jobDescription: jobDescription ?? this.jobDescription,
+      responsibilities: responsibilities ?? this.responsibilities,
+      branches: branches,
+      permissions: permissions,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      levelId: levelId,
+      levelName: levelName,
+      departmentId: departmentId,
+      departmentName: departmentName,
+      unitId: unitId,
+      unitName: unitName,
+      reportsToRoleId: reportsToRoleId,
+      reportsToRoleName: reportsToRoleName,
+      directReportRoleIds: directReportRoleIds,
+    );
+  }
+
   factory Role.fromJson(Map<String, dynamic> json) {
     final rawPermissions = json['permissions'] as Map<String, dynamic>? ?? {};
     final mappedPermissions = <String, List<String>>{};
@@ -90,7 +117,8 @@ class Role {
       unitName: json['unit_name'],
       // C5: Reporting Structure
       reportsToRoleId: json['reports_to_role_id'] ?? json['reports_to_id'],
-      reportsToRoleName: json['reports_to_role_name'] ?? json['reports_to_name'],
+      reportsToRoleName:
+          json['reports_to_role_name'] ?? json['reports_to_name'],
       directReportRoleIds: directReports,
     );
   }

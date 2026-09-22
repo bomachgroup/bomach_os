@@ -63,16 +63,33 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
   int _selectedSubTabIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    Get.find<RolesController>().requestRoleDescription(widget.roleId);
+  }
+
+  @override
+  void didUpdateWidget(covariant RoleDetailPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.roleId != widget.roleId) {
+      Get.find<RolesController>().requestRoleDescription(widget.roleId);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Obx(() => _buildContent(context));
   }
 
   Widget _buildContent(BuildContext context) {
     final ctrl = Get.find<RolesController>();
-    final role = ctrl.roles.firstWhereOrNull((r) => r.id == widget.roleId) ??
-        ctrl.selectedRole.value;
+    final baseRole =
+        ctrl.roles.firstWhereOrNull((r) => r.id == widget.roleId) ??
+            (ctrl.selectedRole.value?.id == widget.roleId
+                ? ctrl.selectedRole.value
+                : null);
 
-    if (role == null) {
+    if (baseRole == null) {
       ctrl.requestRoleDetails(widget.roleId);
       return PageScaffold(
         header: PageHeader(
@@ -108,6 +125,16 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
         ],
       );
     }
+
+    final description = ctrl.roleDescriptions[widget.roleId];
+    final role = description == null
+        ? baseRole
+        : baseRole.copyWith(
+            mission: description['purpose']?.toString(),
+            jobDescription: description['job_description']?.toString(),
+            responsibilities:
+                _parseResponsibilities(description['responsibilities']),
+          );
 
     final categories = [
       RoleCategory(
@@ -408,6 +435,20 @@ class _RoleDetailPageState extends State<RoleDetailPage> {
         ),
       ],
     );
+  }
+
+  List<String>? _parseResponsibilities(dynamic value) {
+    if (value is Iterable) {
+      return value.map((item) => item.toString()).toList();
+    }
+    if (value is String) {
+      return value
+          .split(RegExp(r'\r?\n'))
+          .map((item) => item.trim())
+          .where((item) => item.isNotEmpty)
+          .toList();
+    }
+    return null;
   }
 }
 
