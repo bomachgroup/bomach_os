@@ -9,6 +9,7 @@ import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -17,6 +18,8 @@ import 'package:intl/intl.dart';
 import 'controller/biometrics_controller.dart';
 import 'models/attendance_models.dart';
 import 'models/workspace_model.dart';
+import '../auth/controller.dart';
+import '../../src/services/attendance_reminder_coordinator.dart';
 import 'widget/clock_confirm_dialog.dart';
 import 'widget/submit_workspace_dialog.dart';
 import 'widget/workspace_details_dialog.dart';
@@ -40,6 +43,10 @@ class AttendancePage extends StatefulWidget {
 
 class AttendancePageState extends State<AttendancePage> {
   final BiometricsController controller = Get.put(BiometricsController());
+  final AttendanceReminderCoordinator reminderCoordinator =
+      Get.isRegistered<AttendanceReminderCoordinator>()
+          ? Get.find<AttendanceReminderCoordinator>()
+          : Get.put(AttendanceReminderCoordinator());
   final _storage = const FlutterSecureStorage();
 
   Stream<String> get _timeStream => Stream.periodic(
@@ -69,6 +76,100 @@ class AttendancePageState extends State<AttendancePage> {
         controller.fetchBiometricStatus(token),
       ]);
     }
+  }
+
+  Future<void> _setRemindersEnabled(bool enabled) async {
+    final auth =
+        Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
+    final userId = auth?.currentUser.value?.userId;
+    if (userId == null || userId <= 0) {
+      reminderCoordinator.statusMessage.value =
+          'Sign in again before enabling attendance reminders.';
+      return;
+    }
+    if (enabled) {
+      await reminderCoordinator.enableForUser(userId);
+    } else {
+      await reminderCoordinator.disableForUser(userId);
+    }
+  }
+
+  Widget _buildReminderControl() {
+    if (!kIsWeb) return const SizedBox.shrink();
+    return Obx(() {
+      final enabled = reminderCoordinator.isEnabled.value;
+      final isEnabling = reminderCoordinator.isEnabling.value;
+      final status = reminderCoordinator.statusMessage.value;
+      final hasRetry = enabled &&
+          (status.contains('Select Retry') || status.contains('Could not'));
+
+      return Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.neutral200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SwitchListTile.adaptive(
+              value: enabled,
+              onChanged: isEnabling ? null : _setRemindersEnabled,
+              activeColor: AppColors.primary,
+              secondary: Icon(
+                enabled ? Iconsax.notification_bing : Iconsax.notification,
+                color: AppColors.primary,
+              ),
+              title: const Text('Attendance reminders'),
+              subtitle: Text(
+                isEnabling
+                    ? 'Setting up reminders…'
+                    : enabled
+                        ? 'Location and 5:00pm WAT reminders are enabled.'
+                        : 'Optional. Location access is required; browser notifications are optional.',
+              ),
+            ),
+            if (enabled || status.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (status.isNotEmpty)
+                      Text(
+                        status,
+                        style: TextStyle(
+                          color: status.contains('Could not')
+                              ? AppColors.danger
+                              : AppColors.neutral600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    if (enabled) ...[
+                      if (status.isNotEmpty) const SizedBox(height: 4),
+                      const Text(
+                        'Reminders run only while BOMACH is active. Location is not monitored while the app is suspended or closed.',
+                        style: TextStyle(
+                          color: AppColors.neutral600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                    if (hasRetry) ...[
+                      const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        onPressed: reminderCoordinator.retry,
+                        icon: const Icon(Iconsax.refresh, size: 16),
+                        label: const Text('Retry'),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+          ],
+        ),
+      );
+    });
   }
 
   Future<void> _openFaceSetup() async {
@@ -147,6 +248,7 @@ class AttendancePageState extends State<AttendancePage> {
         ),
       ),
       children: [
+        _buildReminderControl(),
         // Stats row
         Obx(() => _buildStatsRow(_computeStats(controller.rawRecords))),
         kSizedBox,
@@ -576,10 +678,14 @@ class AttendancePageState extends State<AttendancePage> {
 
             // Smart button enable/disable rules:
             // 1. Can only clock in if not blocked, not authenticating, and hasn't clocked in today yet.
-            final canClockIn = !hasBlocker && !isAuthenticating && !hasClockedIn;
+            final canClockIn =
+                !hasBlocker && !isAuthenticating && !hasClockedIn;
 
             // 2. Can only clock out after clocking in, and hasn't clocked out today yet.
-            final canClockOut = !hasBlocker && !isAuthenticating && hasClockedIn && !hasClockedOut;
+            final canClockOut = !hasBlocker &&
+                !isAuthenticating &&
+                hasClockedIn &&
+                !hasClockedOut;
 
             return Column(
               children: [
@@ -589,7 +695,8 @@ class AttendancePageState extends State<AttendancePage> {
                       child: _buildActionButton(
                         buttonText: "Clock In",
                         buttonColor: AppColors.success,
-                        onTap: canClockIn ? () => _handleClockAction(true) : null,
+                        onTap:
+                            canClockIn ? () => _handleClockAction(true) : null,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -597,7 +704,9 @@ class AttendancePageState extends State<AttendancePage> {
                       child: _buildActionButton(
                         buttonText: "Clock Out",
                         buttonColor: AppColors.primary,
-                        onTap: canClockOut ? () => _handleClockAction(false) : null,
+                        onTap: canClockOut
+                            ? () => _handleClockAction(false)
+                            : null,
                       ),
                     ),
                   ],
@@ -669,8 +778,10 @@ class AttendancePageState extends State<AttendancePage> {
                 ],
                 if (!hasBlocker && !hasClockedIn) ...[
                   () {
-                    final pastMissed = controller.dailyAttendanceList
-                        .firstWhereOrNull((d) => d.isMissedClockOut);
+                    final pastMissed = missedClockOutNoticeForPreviousWatDay(
+                      controller.dailyAttendanceList,
+                      controller.trustedTime,
+                    );
                     if (pastMissed == null) return const SizedBox.shrink();
                     return Padding(
                       padding: const EdgeInsets.only(top: 12),
@@ -679,8 +790,7 @@ class AttendancePageState extends State<AttendancePage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          color:
-                              const Color(0xFFFEF3C7).withValues(alpha: 0.7),
+                          color: const Color(0xFFFEF3C7).withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                               color: const Color(0xFFF59E0B)
@@ -719,7 +829,8 @@ class AttendancePageState extends State<AttendancePage> {
   String? _disabledReason() {
     if (controller.isFetchingWorkspace.value ||
         controller.isFetchingStatus.value ||
-        (controller.isLoading.value && controller.dailyAttendanceList.isEmpty)) {
+        (controller.isLoading.value &&
+            controller.dailyAttendanceList.isEmpty)) {
       return 'Loading your status…';
     }
     if (!controller.hasFace.value) {

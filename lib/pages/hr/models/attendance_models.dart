@@ -106,3 +106,24 @@ class DailyAttendance {
     return date != todayStr;
   }
 }
+
+/// Returns the single unfinished attendance record that is eligible for the
+/// one-day missed-clock-out notice. [trustedNow] must already be in WAT.
+/// Historical missed records remain available to attendance history; they do
+/// not keep the dashboard/attendance notice visible beyond the next day.
+DailyAttendance? missedClockOutNoticeForPreviousWatDay(
+  Iterable<DailyAttendance> records,
+  DateTime trustedNow,
+) {
+  final previousWatDay = trustedNow.subtract(const Duration(days: 1));
+  final previousDayKey = DateFormat('yyyy-MM-dd').format(previousWatDay);
+
+  for (final record in records) {
+    if (record.date == previousDayKey &&
+        record.hasClockedIn &&
+        !record.hasClockedOut) {
+      return record;
+    }
+  }
+  return null;
+}

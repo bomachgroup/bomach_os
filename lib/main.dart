@@ -3,6 +3,7 @@ import 'package:bomach_os/src/app_routes/app_router.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/services/attendance_reminder_coordinator.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
@@ -24,6 +25,7 @@ void main() async {
   prefs = await SharedPreferences.getInstance();
   // Initialize AuthController globally
   Get.put(AuthController());
+  Get.put(AttendanceReminderCoordinator(), permanent: true);
 
   runApp(const MyApp());
 }

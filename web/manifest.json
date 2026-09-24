@@ -1,11 +1,13 @@
 {
   "name": "Bomach OS",
   "short_name": "Bomach OS",
-  "start_url": ".",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0175C2",
-  "theme_color": "#0175C2",
-  "description": "A new Flutter project.",
+  "background_color": "#F8FAFC",
+  "theme_color": "#2563EB",
+  "description": "BOMACH OS employee workspace for attendance, tasks, work reports, and company operations.",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [

@@ -124,6 +124,7 @@ import '../../pages/operations/work_site.dart';
 import '../../pages/security/security.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/services/estate_service.dart';
+import 'package:bomach_os/src/services/attendance_reminder_host.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
 import 'dashboard_route_paths.dart';
 import 'detail_fallbacks.dart';
@@ -667,10 +668,13 @@ final GoRouter goRouter = (() {
 
       // Dashboard with indexed stack navigation
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) => ResponsiveWidget(
-          smallScreen: SmallScreenDashboard(navigationShell: navigationShell),
-          mediumScreen: SmallScreenDashboard(navigationShell: navigationShell),
-          largeScreen: LargeScreenDashboard(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) => AttendanceReminderHost(
+          child: ResponsiveWidget(
+            smallScreen: SmallScreenDashboard(navigationShell: navigationShell),
+            mediumScreen:
+                SmallScreenDashboard(navigationShell: navigationShell),
+            largeScreen: LargeScreenDashboard(navigationShell: navigationShell),
+          ),
         ),
         branches: _dashboardRoutes.entries
             .map((entry) => _createBranch(entry.key, entry.value))

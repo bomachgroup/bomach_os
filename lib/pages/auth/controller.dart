@@ -15,6 +15,7 @@ import '../../src/app_routes/app_route_constants.dart';
 import '../../src/app_routes/sidebar_prefs.dart';
 import '../../src/model/user_model.dart';
 import '../../src/services/auth_service.dart';
+import '../../src/services/attendance_reminder_coordinator.dart';
 import '../../src/services/permission_service.dart';
 
 class AuthController extends GetxController {
@@ -357,6 +358,9 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     try {
+      if (Get.isRegistered<AttendanceReminderCoordinator>()) {
+        await Get.find<AttendanceReminderCoordinator>().stop();
+      }
       final token = await _storage.read(key: 'access_token');
       if (token != null) {
         await _authService.logout(accessToken: token);

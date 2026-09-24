@@ -6,6 +6,7 @@ import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/dashboad/controller/dashboard_controller.dart';
 import 'package:bomach_os/pages/dashboad/models/dashboard_models.dart';
+import 'package:bomach_os/pages/dashboad/widgets/dashboard_attendance_cta.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
@@ -78,6 +79,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 16),
                   _buildWelcomeHeader(),
+                  const SizedBox(height: 12),
+                  const DashboardAttendanceCta(),
                   const SizedBox(height: 24),
                   _buildStatsGrid(),
                   const SizedBox(height: 24),
