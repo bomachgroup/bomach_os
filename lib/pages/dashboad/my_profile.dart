@@ -1,5 +1,6 @@
 import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
@@ -9,6 +10,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/user_model.dart';
+import 'package:bomach_os/pages/dashboad/widget/change_password_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -429,6 +431,28 @@ class MyProfilePage extends StatelessWidget {
           _ProfileField('User ID', '${user.userId}'),
           _ProfileField('Created', _formatDate(user.createdAt)),
         ]),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            icon: const Icon(Iconsax.lock),
+            label: const Text('Change password'),
+            onPressed: user.email.trim().isEmpty
+                ? null
+                : () => showDialog<void>(
+                      context: context,
+                      builder: (dialogContext) => ChangePasswordDialog(
+                        email: user.email,
+                        onCompleted: () {
+                          Navigator.of(dialogContext).pop();
+                          AppToast.success(
+                            context,
+                            'Password updated successfully.',
+                          );
+                        },
+                      ),
+                    ),
+          ),
+        ),
       ],
     );
   }
