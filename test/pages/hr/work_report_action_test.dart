@@ -8,7 +8,7 @@ void main() {
 
     expect(source, contains('barrierDismissible: false'));
     expect(source, contains('CircularProgressIndicator'));
-    expect(source, contains('Navigator.of(context).pop()'));
+    expect(source, contains('Navigator.of(context, rootNavigator: true).pop()'));
   });
 
   test('admin edit report resolves the full report before opening the dialog', () {

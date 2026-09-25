@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../src/app_routes/app_route_constants.dart';
 import '../../src/app_routes/sidebar_prefs.dart';
+import '../../src/model/role_model.dart';
 import '../../src/model/user_model.dart';
 import '../../src/services/auth_service.dart';
 import '../../src/services/attendance_reminder_coordinator.dart';
@@ -30,6 +31,13 @@ class AuthController extends GetxController {
   var obscurePassword = true.obs;
   Rx<User?> currentUser = Rx<User?>(null);
   var isAuthInitializing = true.obs;
+
+  /// Cached roles for the authenticated user. The Role page can refresh this
+  /// data without forcing a new login, while retaining the cache on failure.
+  final RxList<Role> currentRoles = <Role>[].obs;
+  final RxBool isCurrentRolesLoading = false.obs;
+  final RxString currentRolesError = ''.obs;
+  final RxInt currentRolesErrorStatus = 0.obs;
 
   // Combined stream for GoRouter to watch both auth state and initialization
   final _refreshController = StreamController<void>.broadcast();
@@ -299,6 +307,7 @@ class AuthController extends GetxController {
 
       final roles = await _authService.getEmployeeRoles(
           accessToken: token, userId: userId);
+      currentRoles.assignAll(roles);
 
       final user = currentUser.value;
       final isSuperUser = user != null &&
@@ -344,6 +353,47 @@ class AuthController extends GetxController {
     _validatePermissionDrift(token);
   }
 
+  /// Strictly refresh the authenticated user's role details. Cached roles are
+  /// intentionally retained when the refresh fails so the page can still
+  /// render the last known server response.
+  Future<void> refreshCurrentRoles() async {
+    if (isCurrentRolesLoading.value) return;
+
+    isCurrentRolesLoading.value = true;
+    currentRolesError.value = '';
+    currentRolesErrorStatus.value = 0;
+
+    try {
+      final token = await _storage.read(key: 'access_token');
+      final storedUserId = await _storage.read(key: 'user_id');
+      final userId =
+          currentUser.value?.userId ?? int.tryParse(storedUserId ?? '');
+
+      if (token == null || token.isEmpty || userId == null || userId <= 0) {
+        currentRolesError.value =
+            'Your session has expired. Please sign in again.';
+        currentRolesErrorStatus.value = 401;
+        return;
+      }
+
+      final roles = await _authService.getEmployeeRolesStrict(
+        accessToken: token,
+        userId: userId,
+      );
+      currentRoles.assignAll(roles);
+    } on AuthException catch (error) {
+      currentRolesError.value = error.message;
+      currentRolesErrorStatus.value = error.statusCode ?? 0;
+    } catch (error) {
+      currentRolesError.value =
+          'Could not load your role details. Please try again.';
+      currentRolesErrorStatus.value = 0;
+      log('Role refresh failed: $error');
+    } finally {
+      isCurrentRolesLoading.value = false;
+    }
+  }
+
   /// Fire-and-forget check that our declared `Perms.*` constants still
   /// match what the backend exposes. Logs warnings in debug mode only.
   void _validatePermissionDrift(String token) {
@@ -382,6 +432,9 @@ class AuthController extends GetxController {
         log("Sidebar pref cleanup skipped: $e");
       }
       currentUser.value = null;
+      currentRoles.clear();
+      currentRolesError.value = '';
+      currentRolesErrorStatus.value = 0;
       _notifyRefresh();
       emailController.clear();
       passwordController.clear();

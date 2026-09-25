@@ -34,6 +34,7 @@ enum SubMenuItem {
   myTasks,
   myReports,
   myTargetReports,
+  dashboardRole,
   company,
   branch,
   board,
@@ -288,6 +289,13 @@ const List<SidebarSection> sidebarStructure = [
             label: 'Profile',
             route: RouteConstants.employeeMyProfile,
             resources: [PermissionConstants.resEmployees],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.dashboardRole,
+            icon: Icons.shield_outlined,
+            label: 'Role',
+            route: RouteConstants.employeeRole,
+            resources: [PermissionConstants.resRoles],
           ),
           SubMenuItemData(
             id: SubMenuItem.myTasks,

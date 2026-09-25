@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -7,8 +8,9 @@ import '../../pages/auth/controller.dart';
 import '../../src/model/user_model.dart';
 import 'attendance_reminder_coordinator.dart';
 
-/// Keeps an existing reminder opt-in running across the signed-in app shell
-/// and pauses it whenever the application is backgrounded.
+/// Keeps an existing reminder opt-in running across the signed-in app shell.
+/// Web monitoring continues best-effort while the PWA is backgrounded; native
+/// monitoring pauses in background. Browsers may still suspend a hidden PWA.
 class AttendanceReminderHost extends StatefulWidget {
   const AttendanceReminderHost({
     required this.child,
@@ -68,9 +70,7 @@ class _AttendanceReminderHostState extends State<AttendanceReminderHost>
         _activeUserId = userId;
         unawaited(coordinator?.resumeForUser(userId));
       }
-    } else if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.hidden ||
-        state == AppLifecycleState.detached) {
+    } else if (shouldPauseAttendanceReminders(state, isWeb: kIsWeb)) {
       unawaited(_coordinator?.pause());
     }
   }
@@ -85,4 +85,13 @@ class _AttendanceReminderHostState extends State<AttendanceReminderHost>
 
   @override
   Widget build(BuildContext context) => widget.child;
+}
+
+bool shouldPauseAttendanceReminders(
+  AppLifecycleState state, {
+  required bool isWeb,
+}) {
+  if (state == AppLifecycleState.detached) return true;
+  if (isWeb) return false;
+  return state == AppLifecycleState.paused || state == AppLifecycleState.hidden;
 }

@@ -17,12 +17,6 @@ class DashboardController extends GetxController {
   Rxn<DashboardOverview> overview = Rxn<DashboardOverview>();
   Rxn<EmployeeDashboardStats> stats = Rxn<EmployeeDashboardStats>();
 
-  @override
-  void onInit() {
-    super.onInit();
-    fetchAll();
-  }
-
   Future<String?> _getToken() async {
     String? token = await _storage.read(key: 'access_token');
     if (token == null) return null;
@@ -43,59 +37,47 @@ class DashboardController extends GetxController {
         return;
       }
 
-      final results = await Future.wait([
-        _service.getSummary(token).catchError((_) => DashboardSummary(
-              fullName: '',
-              jobTitle: '',
-              departmentName: '',
-              scorecard: Scorecard(
-                  overallScore: 0,
-                  workReportsScore: 0,
-                  punctualityScore: 0,
-                  rankText: ''),
-              ranking: Ranking(rank: 0, totalMembers: 0),
-            )),
-        _service.getPerformanceCard(token).catchError((_) => PerformanceCard(
-              fullName: '',
-              jobTitle: '',
-              departmentName: '',
-              overallScore: 0,
-              rankText: '',
-              workReport: WorkReportStats(
-                  score: 0, reportsSubmitted: 0, approved: 0, averageRating: 0),
-              punctualityReport: PunctualityReport(
-                  score: 0,
-                  totalDays: 0,
-                  onTimeDays: 0,
-                  lateDays: 0,
-                  absentDays: 0),
-            )),
-        _service.getOverview(token).catchError((_) => DashboardOverview(
-              totalEmployees: 0,
-              newHires30Days: 0,
-              newHiresToday: 0,
-              openRoles: 0,
-              headcountByDepartment: [],
-            )),
-        _service.getStats(token).catchError((_) => EmployeeDashboardStats(
-              totalProjects: 0,
-              totalBudget: 0,
-              budgetUtilization: 0,
-              totalWorksites: 0,
-              totalContracts: 0,
-              totalTimelines: 0,
-            )),
+      final results = await Future.wait<Object?>([
+        _load(_service.getSummary(token)),
+        _load(_service.getPerformanceCard(token)),
+        _load(_service.getOverview(token)),
+        _load(_service.getStats(token)),
       ]);
 
-      summary.value = results[0] as DashboardSummary;
-      performanceCard.value = results[1] as PerformanceCard;
-      overview.value = results[2] as DashboardOverview;
-      stats.value = results[3] as EmployeeDashboardStats;
+      if (results[0] is DashboardSummary) {
+        summary.value = results[0] as DashboardSummary;
+      }
+      if (results[1] is PerformanceCard) {
+        performanceCard.value = results[1] as PerformanceCard;
+      }
+      if (results[2] is DashboardOverview) {
+        overview.value = results[2] as DashboardOverview;
+      }
+      if (results[3] is EmployeeDashboardStats) {
+        stats.value = results[3] as EmployeeDashboardStats;
+      }
+
+      final failures = results.whereType<Object>().where((result) =>
+          result is! DashboardSummary &&
+          result is! PerformanceCard &&
+          result is! DashboardOverview &&
+          result is! EmployeeDashboardStats);
+      if (failures.isNotEmpty) {
+        errorMessage('Some dashboard data could not be refreshed.');
+      }
     } catch (e) {
       errorMessage('Failed to load dashboard: $e');
       debugPrint("Dashboard fetch error: $e");
     } finally {
       isLoading(false);
+    }
+  }
+
+  Future<Object?> _load<T>(Future<T> request) async {
+    try {
+      return await request;
+    } catch (error) {
+      return error;
     }
   }
 }

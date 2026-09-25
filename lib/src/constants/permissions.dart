@@ -330,8 +330,7 @@ class Perms {
   // Leave Requests
   static const leaveRequestsCreate = Permission('leave_requests', 'create');
   static const leaveRequestsList = Permission('leave_requests', 'list');
-  static const leaveRequestsListOwn =
-      Permission('leave_requests', 'list_own');
+  static const leaveRequestsListOwn = Permission('leave_requests', 'list_own');
   static const leaveRequestsUpdate = Permission('leave_requests', 'update');
   static const leaveRequestsUpdateOwn =
       Permission('leave_requests', 'update_own');
@@ -386,8 +385,7 @@ class Perms {
   static const workReportsDelete = Permission('work_reports', 'delete');
 
   // Disciplinary / Awards
-  static const disciplinaryCasesList =
-      Permission('disciplinary_cases', 'list');
+  static const disciplinaryCasesList = Permission('disciplinary_cases', 'list');
   static const disciplinaryCasesListOwn =
       Permission('disciplinary_cases', 'list_own');
   static const awardsList = Permission('awards', 'list');
@@ -401,8 +399,7 @@ class Perms {
 
   static const complianceRecordsCreate =
       Permission('compliance_records', 'create');
-  static const complianceRecordsList =
-      Permission('compliance_records', 'list');
+  static const complianceRecordsList = Permission('compliance_records', 'list');
   static const complianceRecordsUpdate =
       Permission('compliance_records', 'update');
 
@@ -514,7 +511,10 @@ const Map<String, List<Permission>> routeRequirements = {
   ],
 
   // Company (admin)
-  RouteConstants.company: [Perms.companySettingsView, Perms.companySettingsUpdate],
+  RouteConstants.company: [
+    Perms.companySettingsView,
+    Perms.companySettingsUpdate
+  ],
   RouteConstants.branch: [Perms.branchesList, Perms.branchesView],
   RouteConstants.board: [Perms.boardResolutionsList],
   RouteConstants.broadcast: [Perms.announcementsList],
@@ -650,8 +650,14 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.financeServiceOrders: [Perms.ordersList],
   RouteConstants.financeEstate: [Perms.estatesList, Perms.estateInvoicesList],
   RouteConstants.financeReports: [Perms.statsView, Perms.budgetsList],
-  RouteConstants.financeAudit: [Perms.complianceAuditsList, Perms.auditLogsList],
-  RouteConstants.financeSettings: [Perms.companySettingsUpdate, Perms.companySettingsView],
+  RouteConstants.financeAudit: [
+    Perms.complianceAuditsList,
+    Perms.auditLogsList
+  ],
+  RouteConstants.financeSettings: [
+    Perms.companySettingsUpdate,
+    Perms.companySettingsView
+  ],
 
   // Services
   RouteConstants.services: [
@@ -692,14 +698,20 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.servicesCalculators: [Perms.servicesList],
   RouteConstants.servicesRequestFormBuilder: [Perms.servicesList],
   RouteConstants.servicesWorkflowDesigner: [Perms.servicesList],
-  RouteConstants.servicesBranchActivation: [Perms.branchesList, Perms.servicesList],
+  RouteConstants.servicesBranchActivation: [
+    Perms.branchesList,
+    Perms.servicesList
+  ],
   RouteConstants.servicesRequests: [Perms.servicesList, Perms.clientsList],
   RouteConstants.servicesQuotations: [Perms.quotesList, Perms.servicesList],
   RouteConstants.servicesInvoicesPayments: [
     Perms.serviceInvoicesList,
     Perms.paymentsList,
   ],
-  RouteConstants.servicesApprovals: [Perms.approvalFlowsList, Perms.servicesList],
+  RouteConstants.servicesApprovals: [
+    Perms.approvalFlowsList,
+    Perms.servicesList
+  ],
   RouteConstants.servicesOrders: [Perms.ordersList],
   RouteConstants.servicesExecutionTasks: [Perms.tasksList, Perms.ordersList],
   RouteConstants.servicesDeliverables: [Perms.documentsList, Perms.ordersList],
@@ -846,6 +858,7 @@ const Map<String, List<Permission>> routeRequirements = {
   ],
   RouteConstants.employeeAttendance: _publicToLoggedIn,
   RouteConstants.employeeTraining: [Perms.trainingProgramsList],
+  RouteConstants.employeeRole: [Perms.rolesViewOwn, Perms.rolesView],
 };
 
 /// Routes the super admin / CEO should be redirected AWAY from

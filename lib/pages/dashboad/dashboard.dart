@@ -33,6 +33,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   static const _accentRed = AppColors.danger;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) controller.fetchAll();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.isLoading.value) {
@@ -42,7 +50,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       }
 
-      if (controller.errorMessage.isNotEmpty) {
+      if (controller.errorMessage.isNotEmpty &&
+          controller.summary.value == null &&
+          controller.performanceCard.value == null &&
+          controller.overview.value == null &&
+          controller.stats.value == null) {
         return PageScaffold(
           scrollable: false,
           children: [
@@ -72,11 +84,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const PageHeader(
+                  PageHeader(
                     title: 'Dashboard',
                     subtitle:
                         "Welcome back — here's what's happening across your workspace",
+                    trailing: IconButton(
+                      tooltip: 'Refresh dashboard',
+                      onPressed: controller.fetchAll,
+                      icon: const Icon(Iconsax.refresh),
+                    ),
                   ),
+                  if (controller.errorMessage.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    MaterialBanner(
+                      content: Text(controller.errorMessage.value),
+                      leading: const Icon(Iconsax.warning_2),
+                      actions: [
+                        TextButton.icon(
+                          onPressed: controller.fetchAll,
+                          icon: const Icon(Iconsax.refresh, size: 16),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   _buildWelcomeHeader(),
                   const SizedBox(height: 12),

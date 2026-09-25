@@ -163,7 +163,8 @@ void main() {
       service.loadDefaultPermissions();
       expect(service.canAccessRouteTyped(RouteConstants.marketingDashboard),
           isFalse);
-      expect(service.canAccessRouteTyped(RouteConstants.servicesInvoicesPayments),
+      expect(
+          service.canAccessRouteTyped(RouteConstants.servicesInvoicesPayments),
           isFalse);
       expect(service.canAccessRouteTyped(RouteConstants.orgChart), isFalse);
 
@@ -178,7 +179,8 @@ void main() {
       marketingUser.testInjectPermissions({
         'marketing_campaigns': {'list'},
       });
-      expect(marketingUser.canAccessRouteTyped(RouteConstants.marketingDashboard),
+      expect(
+          marketingUser.canAccessRouteTyped(RouteConstants.marketingDashboard),
           isTrue);
     });
 
@@ -252,8 +254,36 @@ void main() {
     });
   });
 
-  group('T9: sidebar routes all resolve to registered dashboard routes',
-      () {
+  group('Dashboard Role route', () {
+    test('registers Role after Profile and accepts self-role access', () {
+      final dashboard = _findMain(MainMenuItem.dashboard);
+      expect(dashboard, isNotNull);
+
+      final childLabels =
+          dashboard!.children.map((child) => child.label).toList();
+      expect(childLabels, contains('Role'));
+      expect(childLabels.indexOf('Role'), childLabels.indexOf('Profile') + 1);
+      expect(dashboardRoutePaths, contains(RouteConstants.employeeRole));
+      expect(routeRequirements[RouteConstants.employeeRole],
+          contains(Perms.rolesViewOwn));
+      expect(routeRequirements[RouteConstants.employeeRole],
+          contains(Perms.rolesView));
+
+      final employee = PermissionService()
+        ..testInjectPermissions({
+          'roles': {'view_own'},
+        });
+      expect(employee.canAccessRouteTyped(RouteConstants.employeeRole), isTrue);
+
+      final defaultEmployee = PermissionService()..loadDefaultPermissions();
+      expect(
+        defaultEmployee.canAccessRouteTyped(RouteConstants.employeeRole),
+        isTrue,
+      );
+    });
+  });
+
+  group('T9: sidebar routes all resolve to registered dashboard routes', () {
     test('land survey detail route is registered', () {
       expect(
         dashboardRoutePaths,
@@ -296,19 +326,16 @@ void main() {
     });
 
     test('Disciplinary Process is registered (the audited 404)', () {
-      expect(
-          dashboardRoutePaths.contains(RouteConstants.disciplinaryProcess),
+      expect(dashboardRoutePaths.contains(RouteConstants.disciplinaryProcess),
           isTrue,
           reason: 'HR > Disciplinary Process leads to Page not found');
     });
 
-    test('EVERY sidebar main+sub route exists in the dashboard registry',
-        () {
+    test('EVERY sidebar main+sub route exists in the dashboard registry', () {
       final problems = <String>[];
       for (final section in sidebarStructure) {
         for (final item in section.items) {
-          if (item.route != null &&
-              !dashboardRoutePaths.contains(item.route)) {
+          if (item.route != null && !dashboardRoutePaths.contains(item.route)) {
             problems.add('${item.id.name} → ${item.route}');
           }
           for (final child in item.children) {
@@ -320,8 +347,7 @@ void main() {
         }
       }
       expect(problems, isEmpty,
-          reason:
-              'sidebar entries with unregistered routes render "Page not '
+          reason: 'sidebar entries with unregistered routes render "Page not '
               'found": $problems');
       // Sanity: the structure actually has routes to check.
       expect(dashboardRoutePaths.length, greaterThan(50));

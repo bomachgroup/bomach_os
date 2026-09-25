@@ -16,6 +16,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/biometrics_controller.dart';
+import 'attendance_period_label.dart';
 import 'models/attendance_models.dart';
 import 'models/workspace_model.dart';
 import '../auth/controller.dart';
@@ -115,7 +116,7 @@ class AttendancePageState extends State<AttendancePage> {
             SwitchListTile.adaptive(
               value: enabled,
               onChanged: isEnabling ? null : _setRemindersEnabled,
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
               secondary: Icon(
                 enabled ? Iconsax.notification_bing : Iconsax.notification,
                 color: AppColors.primary,
@@ -148,7 +149,7 @@ class AttendancePageState extends State<AttendancePage> {
                     if (enabled) ...[
                       if (status.isNotEmpty) const SizedBox(height: 4),
                       const Text(
-                        'Reminders run only while BOMACH is active. Location is not monitored while the app is suspended or closed.',
+                        'Background delivery is best-effort: browsers may suspend the app. BOMACH rechecks when reopened; reliable alerts while suspended require push support.',
                         style: TextStyle(
                           color: AppColors.neutral600,
                           fontSize: 12,
@@ -416,14 +417,17 @@ class AttendancePageState extends State<AttendancePage> {
     final cards = [
       _StatCardData(
         title: 'This Week',
-        value: '${stats.thisWeekDays}',
+        value: AttendancePeriodLabel.week(stats.thisWeekDays),
         subtitle: 'days clocked in',
         icon: Iconsax.calendar_1,
         color: AppColors.success,
       ),
       _StatCardData(
         title: 'This Month',
-        value: '${stats.thisMonthDays}',
+        value: AttendancePeriodLabel.month(
+          stats.thisMonthDays,
+          controller.trustedTime,
+        ),
         subtitle: 'days clocked in',
         icon: Iconsax.calendar_1,
         color: AppColors.primary,

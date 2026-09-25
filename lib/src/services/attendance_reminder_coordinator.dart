@@ -25,8 +25,9 @@ export 'attendance_reminder_contracts.dart';
 
 /// Opt-in reminders for an active, authenticated BOMACH session.
 ///
-/// This coordinator intentionally has no background/push behavior. Monitoring
-/// is stopped while the app is suspended and restarted when it resumes.
+/// Web monitoring is best-effort while the installed app remains running.
+/// Browsers may throttle or suspend a background PWA; reliable delivery while
+/// suspended requires server-sent Web Push.
 class AttendanceReminderCoordinator extends GetxService {
   AttendanceReminderCoordinator({
     AttendanceReminderApi? api,
@@ -101,12 +102,13 @@ class AttendanceReminderCoordinator extends GetxService {
         return false;
       }
 
-      // Request permissions one at a time. If the browser no longer allows a
-      // notification prompt after location consent, the in-app fallback works.
-      final initialFix = await _location.requestPermissionAndGetPosition();
+      // Ask for notification permission directly from the toggle gesture,
+      // before location permission and GPS acquisition introduce a long await.
+      // Browsers may reject notification prompts without recent user activation.
       final notificationsGranted = await _notifications
           .requestPermission()
           .catchError((Object _) => false);
+      final initialFix = await _location.requestPermissionAndGetPosition();
 
       await _store.setEnabled(userId, true);
       isEnabled.value = true;
@@ -117,7 +119,8 @@ class AttendanceReminderCoordinator extends GetxService {
         statusMessage.value =
             'Reminders are enabled. Browser notifications are unavailable, so reminders will appear in BOMACH while it is open.';
       } else if (statusMessage.value.isEmpty) {
-        statusMessage.value = 'Location and clock-out reminders are enabled.';
+        statusMessage.value =
+            'Reminders are enabled. Background delivery is best-effort because browsers can suspend apps; reopening BOMACH checks for missed reminders.';
       }
       return true;
     } catch (error) {
@@ -142,6 +145,9 @@ class AttendanceReminderCoordinator extends GetxService {
       return;
     }
     if (_activeUserId == userId && !_paused && _positionSubscription != null) {
+      // A browser may throttle timers while the PWA is hidden without sending
+      // a lifecycle transition. Always catch up on return to the foreground.
+      await _checkRemindersOnResume(_activeToken!);
       return;
     }
 
@@ -281,6 +287,17 @@ class AttendanceReminderCoordinator extends GetxService {
     await _checkClockOutReminder(forceRefresh: false);
   }
 
+  Future<void> _checkRemindersOnResume(String token) async {
+    await _syncServerTime(token);
+    await _refreshWorkspaces(token);
+    try {
+      await _handlePosition(await _location.getCurrentPosition());
+    } catch (error) {
+      developer.log('Could not refresh reminder location on resume: $error');
+    }
+    await _checkClockOutReminder(forceRefresh: true);
+  }
+
   Future<void> _syncServerTime(String token) async {
     try {
       _serverTimeOffset = await _api.fetchServerTimeOffset(token);
@@ -307,7 +324,12 @@ class AttendanceReminderCoordinator extends GetxService {
         for (final previous in _usableWorkspaces) {
           final previousKey = _workspaceKey(previous);
           if (!nextKeys.contains(previousKey)) {
-            await _store.setInside(userId, previousKey, false);
+            await _store.setInside(
+              userId,
+              previousKey,
+              _dateKey(trustedTime),
+              false,
+            );
           }
         }
       }
@@ -346,6 +368,7 @@ class AttendanceReminderCoordinator extends GetxService {
 
     for (final workspace in _usableWorkspaces) {
       final workspaceKey = _workspaceKey(workspace);
+      final date = _dateKey(trustedTime);
       final distance = Geolocator.distanceBetween(
         position.latitude,
         position.longitude,
@@ -358,7 +381,7 @@ class AttendanceReminderCoordinator extends GetxService {
             _minimumEffectiveWorkspaceRadiusMeters,
           )
           .toDouble();
-      final wasInside = await _store.isInside(userId, workspaceKey);
+      final wasInside = await _store.isInside(userId, workspaceKey, date);
 
       if (distance <= radius) {
         if (wasInside) continue;
@@ -366,13 +389,18 @@ class AttendanceReminderCoordinator extends GetxService {
         try {
           final state = await _fetchTodayAttendance(token);
           if (state == null) continue;
-          await _store.setInside(userId, workspaceKey, true);
-          if (state.hasClockedIn) continue;
-          await _notify(
-            'workspace:${workspaceKey}:${_dateKey(trustedTime)}',
+          if (state.hasClockedIn) {
+            await _store.setInside(userId, workspaceKey, date, true);
+            continue;
+          }
+          final delivered = await _notify(
+            'workspace:$workspaceKey:$date',
             'Workspace nearby',
             'You are near ${workspace.workspaceName}. Remember to clock in when your workday starts.',
           );
+          if (delivered) {
+            await _store.setInside(userId, workspaceKey, date, true);
+          }
         } finally {
           _arrivalChecksInFlight.remove(workspaceKey);
         }
@@ -382,7 +410,7 @@ class AttendanceReminderCoordinator extends GetxService {
           radius * 0.5,
         );
         if (wasInside && distance > radius + exitBuffer) {
-          await _store.setInside(userId, workspaceKey, false);
+          await _store.setInside(userId, workspaceKey, date, false);
         }
       }
     }
@@ -434,18 +462,19 @@ class AttendanceReminderCoordinator extends GetxService {
       }
       if (!state.hasClockedIn) return;
 
-      await _notify(
+      final delivered = await _notify(
         'clock-out:$date',
         'Clock out reminder',
         'It is after 5:00pm WAT. Please clock out if your workday is finished.',
       );
+      if (!delivered) return;
       await _store.markClockOutReminderSent(userId, date);
     } finally {
       _remindersInFlight.remove(reminderKey);
     }
   }
 
-  Future<void> _notify(
+  Future<bool> _notify(
     String tag,
     String title,
     String body,
@@ -460,7 +489,15 @@ class AttendanceReminderCoordinator extends GetxService {
     } catch (error) {
       developer.log('Browser attendance notification failed: $error');
     }
-    if (!delivered) _inAppReminder(title, body);
+    if (delivered) return true;
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    if (lifecycle == AppLifecycleState.hidden ||
+        lifecycle == AppLifecycleState.paused ||
+        lifecycle == AppLifecycleState.detached) {
+      return false;
+    }
+    _inAppReminder(title, body);
+    return true;
   }
 
   _TodayAttendanceState _todayStateFrom(
@@ -597,16 +634,26 @@ class SharedPreferencesAttendanceReminderStore
   }
 
   @override
-  Future<bool> isInside(int userId, String workspaceKey) async =>
-      (await _prefs).getBool(_insideKey(userId, workspaceKey)) ?? false;
+  Future<bool> isInside(
+    int userId,
+    String workspaceKey,
+    String watDate,
+  ) async {
+    final prefs = await _prefs;
+    return prefs.getString(_insideDateKey(userId, workspaceKey)) == watDate &&
+        (prefs.getBool(_insideKey(userId, workspaceKey)) ?? false);
+  }
 
   @override
   Future<void> setInside(
     int userId,
     String workspaceKey,
+    String watDate,
     bool inside,
   ) async {
-    await (await _prefs).setBool(_insideKey(userId, workspaceKey), inside);
+    final prefs = await _prefs;
+    await prefs.setString(_insideDateKey(userId, workspaceKey), watDate);
+    await prefs.setBool(_insideKey(userId, workspaceKey), inside);
   }
 
   @override
@@ -620,6 +667,9 @@ class SharedPreferencesAttendanceReminderStore
 
   String _insideKey(int userId, String workspaceKey) =>
       'attendance_reminder_inside_${userId}_${Uri.encodeComponent(workspaceKey)}';
+
+  String _insideDateKey(int userId, String workspaceKey) =>
+      'attendance_reminder_inside_date_${userId}_${Uri.encodeComponent(workspaceKey)}';
 
   String _clockOutKey(int userId, String date) =>
       'attendance_clock_out_reminder_${userId}_$date';

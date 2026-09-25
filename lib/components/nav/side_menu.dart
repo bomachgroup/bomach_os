@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:bomach_os/components/dialog/user_profile_dialog.dart';
-import 'package:bomach_os/main.dart';
 import 'package:bomach_os/pages/auth/controller.dart';
 import 'package:bomach_os/pages/company/controllers/broadcast_controller.dart';
 import 'package:bomach_os/src/app_routes/app_route_constants.dart';
@@ -18,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SideMenu extends StatefulWidget {
   /// When true, the sidebar renders as a narrow icon-only rail with tooltips;
@@ -35,11 +35,22 @@ class SideMenu extends StatefulWidget {
   /// page behind it.
   final bool useAvailableHeight;
 
+  /// Router used to synchronize the active menu row with navigation that
+  /// originates outside the sidebar (page actions, redirects, and browser
+  /// Back/Forward).
+  final GoRouter router;
+
+  /// Preferences are injected by the app shell so this widget stays decoupled
+  /// from application bootstrap and can be exercised in isolation.
+  final SharedPreferences preferences;
+
   const SideMenu({
     super.key,
     this.isCollapsed = false,
     this.onToggleCollapse,
     this.useAvailableHeight = false,
+    required this.router,
+    required this.preferences,
   });
 
   static SideMenu of(BuildContext context) {
@@ -66,6 +77,7 @@ class _SideMenuState extends State<SideMenu> {
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode(debugLabel: 'sidebar-search');
   final ScrollController _scrollController = ScrollController();
+  late final GoRouter _router;
   final Map<MainMenuItem, GlobalKey> _menuKeys = {};
   String _searchQuery = '';
 
@@ -81,8 +93,10 @@ class _SideMenuState extends State<SideMenu> {
   @override
   void initState() {
     super.initState();
+    _router = widget.router;
     _initializeRouteMapping();
     _loadPinned();
+    _router.routerDelegate.addListener(_updateSelectionBasedOnCurrentRoute);
     // Register a global shortcut so \u2318K / Ctrl+K focuses the sidebar
     // search from anywhere in the app (no matter which page or field is
     // focused). HardwareKeyboard fires before any widget-level handlers.
@@ -94,14 +108,16 @@ class _SideMenuState extends State<SideMenu> {
   }
 
   void _loadPinned() {
-    final subs = prefs.getStringList('sidebarPinnedSubs') ?? const <String>[];
+    final subs = widget.preferences.getStringList('sidebarPinnedSubs') ??
+        const <String>[];
     for (final s in subs) {
       final i = int.tryParse(s);
       if (i != null && i >= 0 && i < SubMenuItem.values.length) {
         _pinnedSubs.add(SubMenuItem.values[i]);
       }
     }
-    final mains = prefs.getStringList('sidebarPinnedMains') ?? const <String>[];
+    final mains = widget.preferences.getStringList('sidebarPinnedMains') ??
+        const <String>[];
     for (final s in mains) {
       final i = int.tryParse(s);
       if (i != null && i >= 0 && i < MainMenuItem.values.length) {
@@ -111,11 +127,11 @@ class _SideMenuState extends State<SideMenu> {
   }
 
   Future<void> _savePinned() async {
-    await prefs.setStringList(
+    await widget.preferences.setStringList(
       'sidebarPinnedSubs',
       _pinnedSubs.map((e) => e.index.toString()).toList(),
     );
-    await prefs.setStringList(
+    await widget.preferences.setStringList(
       'sidebarPinnedMains',
       _pinnedMains.map((e) => e.index.toString()).toList(),
     );
@@ -184,6 +200,7 @@ class _SideMenuState extends State<SideMenu> {
 
   @override
   void dispose() {
+    _router.routerDelegate.removeListener(_updateSelectionBasedOnCurrentRoute);
     HardwareKeyboard.instance.removeHandler(_handleGlobalKey);
     _searchCtrl.dispose();
     _searchFocusNode.dispose();
@@ -282,65 +299,56 @@ class _SideMenuState extends State<SideMenu> {
   }
 
   void _updateSelectionBasedOnCurrentRoute() {
-    final currentRoute = GoRouterState.of(context).uri.toString();
-    log('Current Route: $currentRoute');
+    if (!mounted) return;
 
-    // Find menu item for current route
-    if (routeToMenuMapping.containsKey(currentRoute)) {
-      final selection = routeToMenuMapping[currentRoute]!;
-      setState(() {
-        selectedMainMenu = selection.mainMenuItem;
-        selectedSubMenu = selection.subMenuItem;
-        // Auto-open the group whose child owns the active route, so a deep
-        // link or back/forward navigation lands with the right tab expanded.
-        if (selection.subMenuItem != null) {
-          _openMenu = selection.mainMenuItem;
-        }
-      });
-      _saveMenuState(selection.mainMenuItem, selection.subMenuItem);
-      _saveOpenMenu(_openMenu);
-      log('Menu selection updated based on route: main=$selectedMainMenu, sub=$selectedSubMenu');
-    } else {
-      // If route is not found in mapping, load from preferences as fallback
-      _loadMenuState();
-    }
-  }
+    // Use the router's current URI rather than GoRouterState.of(context): the
+    // latter can remain scoped to the shell's original route during shell
+    // branch changes. Matching only the path also keeps query strings from
+    // breaking selection, and the longest-prefix match covers detail routes.
+    final currentPath = _router.routeInformationProvider.value.uri.path;
+    final exact = routeToMenuMapping[currentPath];
+    final matchingPaths = routeToMenuMapping.keys
+        .where((path) => currentPath.startsWith('$path/'))
+        .toList()
+      ..sort((a, b) => b.length.compareTo(a.length));
+    final selection = exact ??
+        (matchingPaths.isEmpty
+            ? null
+            : routeToMenuMapping[matchingPaths.first]);
 
-  void _loadMenuState() {
-    final mainMenuIndex = prefs.getInt('selectedMenu');
-    final subMenuIndex = prefs.getInt('selectedSubMenu');
-    final openMenuIndex = prefs.getInt('sidebarOpenMenu');
+    final nextMain = selection?.mainMenuItem;
+    final nextSub = selection?.subMenuItem;
+    final nextOpen = nextSub == null ? _openMenu : nextMain;
+    final changed = selectedMainMenu != nextMain ||
+        selectedSubMenu != nextSub ||
+        (nextSub != null && _openMenu != nextOpen);
+
+    if (!changed) return;
 
     setState(() {
-      // Audit B13 fix: bound-check every restored ordinal via the shared
-      // helpers — a stale index after an enum reorder used to throw.
-      selectedMainMenu =
-          safeMainIndex(mainMenuIndex) ?? MainMenuItem.dashboard;
-      selectedSubMenu = safeSubIndex(subMenuIndex);
-      // Restore accordion state: prefer the saved open group; fall back to
-      // the parent of the selected sub-item so a first-time user with no
-      // saved pref still lands with the right group expanded.
-      final restoredOpen = safeMainIndex(openMenuIndex);
-      if (restoredOpen != null) {
-        _openMenu = restoredOpen;
-      } else if (selectedSubMenu != null) {
-        _openMenu = selectedMainMenu;
-      }
+      selectedMainMenu = nextMain;
+      selectedSubMenu = nextSub;
+      // Auto-open the parent owning the active child, including deep links.
+      if (nextSub != null) _openMenu = nextMain;
     });
-    log('Menu state loaded from preferences: main=$selectedMainMenu, sub=$selectedSubMenu, open=$_openMenu');
+
+    if (selection != null) {
+      _saveMenuState(selection.mainMenuItem, selection.subMenuItem);
+      _saveOpenMenu(_openMenu);
+    }
   }
 
   Future<void> _saveMenuState(
       MainMenuItem mainMenu, SubMenuItem? subMenu) async {
-    await prefs.setInt('selectedMenu', mainMenu.index);
-    await prefs.setInt('selectedSubMenu', subMenu?.index ?? -1);
+    await widget.preferences.setInt('selectedMenu', mainMenu.index);
+    await widget.preferences.setInt('selectedSubMenu', subMenu?.index ?? -1);
     log('Menu state saved to preferences: main=$mainMenu, sub=$subMenu');
   }
 
   /// Persist the currently-open accordion group (or `null` if everything is
   /// collapsed) so the sidebar reopens with the same group after a restart.
   Future<void> _saveOpenMenu(MainMenuItem? openMenu) async {
-    await prefs.setInt('sidebarOpenMenu', openMenu?.index ?? -1);
+    await widget.preferences.setInt('sidebarOpenMenu', openMenu?.index ?? -1);
   }
 
   void _navigate(
@@ -1332,8 +1340,7 @@ class _SectionHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (showDivider)
-            const SizedBox(height: 24),
+          if (showDivider) const SizedBox(height: 24),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),

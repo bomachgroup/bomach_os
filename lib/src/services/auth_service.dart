@@ -4,7 +4,6 @@ import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:bomach_os/src/helper/error_helper.dart';
 import 'package:dio/dio.dart';
 
-
 import '../../pages/services/models/client_model.dart';
 import '../../pages/services/models/lead_model.dart';
 import '../model/role_model.dart';
@@ -144,7 +143,8 @@ class AuthService {
       );
 
       if (response.data == null || response.data is! Map<String, dynamic>) {
-        throw AuthException(message: 'Server returned invalid employee profile');
+        throw AuthException(
+            message: 'Server returned invalid employee profile');
       }
 
       return User.fromJson(response.data);
@@ -191,6 +191,53 @@ class AuthService {
     }
   }
 
+  /// Fetches employee roles without converting API failures into an empty
+  /// success result. The canonical API returns one role object; older
+  /// deployments may still return a list, so both shapes are supported.
+  Future<List<Role>> getEmployeeRolesStrict({
+    required String accessToken,
+    required int userId,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/roles/employees/$userId',
+        options: _authOptions(accessToken),
+      );
+
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        try {
+          return [Role.fromJson(data)];
+        } catch (_) {
+          throw AuthException(
+            message: 'The server returned an invalid role record.',
+          );
+        }
+      }
+
+      if (data is List) {
+        try {
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw const FormatException('Role item is not an object');
+            }
+            return Role.fromJson(item);
+          }).toList();
+        } catch (_) {
+          throw AuthException(
+            message: 'The server returned an invalid role list.',
+          );
+        }
+      }
+
+      throw AuthException(
+        message: 'The server returned an invalid role response.',
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// GET PERMISSIONS MAP
   /// Returns the backend's authoritative list of resources and their valid
   /// actions: `{ "employees": ["create","view",...], ... }`. Used on the
@@ -219,7 +266,6 @@ class AuthService {
       return {};
     }
   }
-
 
   // REFRESH TOKEN
   Future<String> refreshToken({required String refreshToken}) async {
@@ -343,7 +389,10 @@ class AuthService {
         options: _authOptions(accessToken),
       );
       if (response.data is Map<String, dynamic>) {
-        return response.data['is_enabled'] ?? response.data['enabled'] ?? response.data['status'] ?? false;
+        return response.data['is_enabled'] ??
+            response.data['enabled'] ??
+            response.data['status'] ??
+            false;
       }
       return false;
     } on DioException catch (e) {
@@ -359,7 +408,10 @@ class AuthService {
         options: _authOptions(accessToken),
       );
       if (response.data is Map<String, dynamic>) {
-        return response.data['is_enabled'] ?? response.data['enabled'] ?? response.data['status'] ?? true;
+        return response.data['is_enabled'] ??
+            response.data['enabled'] ??
+            response.data['status'] ??
+            true;
       }
       return true;
     } on DioException catch (e) {
@@ -375,7 +427,10 @@ class AuthService {
         options: _authOptions(accessToken),
       );
       if (response.data is Map<String, dynamic>) {
-        return response.data['is_enabled'] ?? response.data['enabled'] ?? response.data['status'] ?? false;
+        return response.data['is_enabled'] ??
+            response.data['enabled'] ??
+            response.data['status'] ??
+            false;
       }
       return false;
     } on DioException catch (e) {

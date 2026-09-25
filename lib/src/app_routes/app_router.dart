@@ -31,6 +31,7 @@ import 'package:bomach_os/pages/dashboad/dashboard.dart';
 import 'package:bomach_os/pages/dashboad/my_tasks.dart';
 import 'package:bomach_os/pages/dashboad/my_profile.dart';
 import 'package:bomach_os/pages/dashboad/my_work_reports.dart';
+import 'package:bomach_os/pages/dashboad/role.dart';
 import 'package:bomach_os/pages/hr/target_reports.dart';
 import 'package:bomach_os/pages/employee/employee.dart';
 import 'package:bomach_os/pages/employee/employee_attendance.dart';
@@ -136,6 +137,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.employeeMyReports: const MyWorkReportsPage(),
   RouteConstants.employeeMyTargetReports: const TargetReportsPage(),
   RouteConstants.employeeMyProfile: const MyProfilePage(),
+  RouteConstants.employeeRole: const RolePage(),
 
   // hr
   RouteConstants.hr: const HRPage(),
@@ -444,7 +446,8 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
         if (path == RouteConstants.estateDetail ||
             path == RouteConstants.estatePerformance) {
           if (durableEstatePath) {
-            final estateId = int.tryParse(state.pathParameters['estateId'] ?? '');
+            final estateId =
+                int.tryParse(state.pathParameters['estateId'] ?? '');
             if (estateId != null) {
               return _EstateByIdRoute(
                 estateId: estateId,
@@ -465,7 +468,9 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
           final extra = state.extra;
           final roleId = durableRolePath
               ? int.tryParse(state.pathParameters['roleId'] ?? '')
-              : extra is int ? extra : null;
+              : extra is int
+                  ? extra
+                  : null;
           if (roleId != null) return RoleDetailPage(roleId: roleId);
           return const RoleDetailUnavailable();
         }
@@ -520,7 +525,8 @@ class _EstateByIdRouteState extends State<_EstateByIdRoute> {
     if (token == null || token.trim().isEmpty) {
       throw Exception('Authentication required');
     }
-    return EstateService().getEstate(token.replaceAll('"', '').trim(), widget.estateId);
+    return EstateService()
+        .getEstate(token.replaceAll('"', '').trim(), widget.estateId);
   }
 
   @override

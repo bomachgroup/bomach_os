@@ -314,11 +314,20 @@ class MyProfilePage extends StatelessWidget {
       children: [
         _buildFieldRow([
           _ProfileField('Employment Type', _capitalize(user.employmentType)),
-          _ProfileField('Branch ID', '${user.branchId}'),
+          _ProfileField(
+            'Branch',
+            user.branchName?.trim().isNotEmpty == true
+                ? user.branchName!.trim()
+                : 'Not assigned',
+          ),
         ]),
         _buildFieldRow([
-          _ProfileField('Department ID', '${user.departmentId}'),
-          _ProfileField('Level ID', '${user.levelId}'),
+          _ProfileField(
+            'Department',
+            user.departmentName?.trim().isNotEmpty == true
+                ? user.departmentName!.trim()
+                : 'Not assigned',
+          ),
         ]),
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
@@ -428,7 +437,6 @@ class MyProfilePage extends StatelessWidget {
           ),
         ),
         _buildFieldRow([
-          _ProfileField('User ID', '${user.userId}'),
           _ProfileField('Created', _formatDate(user.createdAt)),
         ]),
         Align(

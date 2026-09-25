@@ -48,6 +48,8 @@ class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
             child: SideMenu(
               isCollapsed: _sidebarCollapsed,
               onToggleCollapse: _toggleSidebar,
+              router: GoRouter.of(context),
+              preferences: prefs,
             ),
           ),
           Expanded(

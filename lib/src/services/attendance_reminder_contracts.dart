@@ -26,7 +26,7 @@ abstract interface class AttendanceReminderLocationProvider {
 abstract interface class AttendanceReminderNotificationProvider {
   Future<bool> requestPermission();
 
-  /// Returns true only when a browser notification was actually displayed.
+  /// Returns true when the browser accepted the notification request.
   Future<bool> showNotification({
     required String title,
     required String body,
@@ -39,9 +39,14 @@ abstract interface class AttendanceReminderStore {
 
   Future<void> setEnabled(int userId, bool enabled);
 
-  Future<bool> isInside(int userId, String workspaceKey);
+  Future<bool> isInside(int userId, String workspaceKey, String watDate);
 
-  Future<void> setInside(int userId, String workspaceKey, bool inside);
+  Future<void> setInside(
+    int userId,
+    String workspaceKey,
+    String watDate,
+    bool inside,
+  );
 
   Future<bool> wasClockOutReminderSent(int userId, String watDate);
 

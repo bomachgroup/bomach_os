@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:bomach_os/pages/hr/models/workspace_model.dart';
 import 'package:bomach_os/src/services/attendance_reminder_coordinator.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late _FakeReminderApi api;
@@ -12,6 +12,7 @@ void main() {
   late _FakeNotifier notifier;
   late _FakeReminderStore store;
   late DateTime now;
+  late bool inAppAvailable;
   late AttendanceReminderCoordinator coordinator;
 
   Position fix({
@@ -48,6 +49,7 @@ void main() {
     location = _FakeLocationProvider()..firstFix = fix();
     notifier = _FakeNotifier();
     store = _FakeReminderStore();
+    inAppAvailable = true;
     now = DateTime(2026, 9, 24, 16, 30);
     coordinator = AttendanceReminderCoordinator(
       api: api,
@@ -57,8 +59,10 @@ void main() {
       tokenReader: () async => 'test-token',
       now: (offset) => now.add(offset),
       enablePeriodicChecks: false,
-      inAppReminder: (title, message) =>
-          notifier.inAppMessages.add('$title: $message'),
+      inAppReminder: (title, message) {
+        if (!inAppAvailable) return;
+        notifier.inAppMessages.add('$title: $message');
+      },
     );
   });
 
@@ -69,10 +73,14 @@ void main() {
 
   test('requests permissions only on opt-in and deduplicates each arrival',
       () async {
+    final permissionOrder = <String>[];
+    location.onPermissionRequested = () => permissionOrder.add('location');
+    notifier.onPermissionRequested = () => permissionOrder.add('notification');
     expect(location.permissionRequests, 0);
     expect(notifier.permissionRequests, 0);
 
     expect(await coordinator.enableForUser(42), isTrue);
+    expect(permissionOrder, ['notification', 'location']);
     expect(location.permissionRequests, 1);
     expect(notifier.permissionRequests, 1);
     expect(await store.isEnabled(42), isTrue);
@@ -88,6 +96,17 @@ void main() {
     location.emit(fix(latitude: 6.0001));
     await flushEvents();
     expect(notifier.messages, hasLength(2));
+  });
+
+  test('a prior-day inside state does not suppress today’s arrival alert',
+      () async {
+    await store.setInside(42, 'id-8', '2026-09-24', true);
+    now = DateTime(2026, 9, 25, 8);
+
+    expect(await coordinator.enableForUser(42), isTrue);
+
+    expect(notifier.messages, hasLength(1));
+    expect(notifier.messages.single.$1, 'Workspace nearby');
   });
 
   test('location denial does not enable monitoring', () async {
@@ -160,6 +179,32 @@ void main() {
         hasLength(1));
   });
 
+  testWidgets(
+      'does not consume the daily clock-out reminder when the PWA is hidden and delivery fails',
+      (tester) async {
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    now = DateTime(2026, 9, 24, 17, 1);
+    location.firstFix = fix(latitude: 6.01);
+    api.attendanceRecords = [
+      {'attendance_type': 'CLOCK_IN', 'timestamp': '2026-09-24T07:00:00Z'},
+    ];
+    notifier.permissionGranted = false;
+    inAppAvailable = false;
+
+    expect(await coordinator.enableForUser(42), isTrue);
+    expect(notifier.inAppMessages, isEmpty);
+
+    notifier.permissionGranted = true;
+    inAppAvailable = true;
+    await coordinator.checkClockOutReminderNow();
+
+    expect(
+      notifier.messages.where((message) => message.$1 == 'Clock out reminder'),
+      hasLength(1),
+    );
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+  });
+
   test('does not remind before 5pm, without clock-in, or after clock-out',
       () async {
     location.firstFix = fix(latitude: 6.01);
@@ -216,6 +261,23 @@ void main() {
         reason: 'resume must not re-prompt for location permission');
   });
 
+  test('foreground resume rechecks after background execution was throttled',
+      () async {
+    location.firstFix = fix(latitude: 6.01);
+    api.attendanceRecords = [
+      {'attendance_type': 'CLOCK_IN', 'timestamp': '2026-09-24T07:00:00Z'},
+    ];
+    await coordinator.enableForUser(42);
+
+    now = DateTime(2026, 9, 24, 17, 10);
+    await coordinator.resumeForUser(42);
+
+    expect(
+      notifier.messages.where((message) => message.$1 == 'Clock out reminder'),
+      hasLength(1),
+    );
+  });
+
   test('does not request permissions when the session token is unavailable',
       () async {
     coordinator = AttendanceReminderCoordinator(
@@ -263,6 +325,7 @@ class _FakeLocationProvider implements AttendanceReminderLocationProvider {
   late final StreamController<Position> _positions =
       StreamController<Position>.broadcast(onCancel: () => cancelled = true);
   int permissionRequests = 0;
+  void Function()? onPermissionRequested;
   Position firstFix = Position(
     longitude: 0,
     latitude: 0,
@@ -285,6 +348,7 @@ class _FakeLocationProvider implements AttendanceReminderLocationProvider {
 
   @override
   Future<Position> requestPermissionAndGetPosition() async {
+    onPermissionRequested?.call();
     permissionRequests++;
     if (permissionError case final error?) throw error;
     return firstFix;
@@ -299,18 +363,19 @@ class _FakeLocationProvider implements AttendanceReminderLocationProvider {
   @override
   Stream<Position> watchPositions() => positions;
 
-  @override
   Future<void> dispose() => _positions.close();
 }
 
 class _FakeNotifier implements AttendanceReminderNotificationProvider {
   int permissionRequests = 0;
+  void Function()? onPermissionRequested;
   bool permissionGranted = true;
   final messages = <(String, String)>[];
   final inAppMessages = <String>[];
 
   @override
   Future<bool> requestPermission() async {
+    onPermissionRequested?.call();
     permissionRequests++;
     return permissionGranted;
   }
@@ -329,7 +394,7 @@ class _FakeNotifier implements AttendanceReminderNotificationProvider {
 
 class _FakeReminderStore implements AttendanceReminderStore {
   final _enabled = <int, bool>{};
-  final _inside = <String, bool>{};
+  final _inside = <String, (String, bool)>{};
   final _clockOutSent = <String>{};
 
   @override
@@ -340,12 +405,19 @@ class _FakeReminderStore implements AttendanceReminderStore {
       _enabled[userId] = enabled;
 
   @override
-  Future<bool> isInside(int userId, String workspaceKey) async =>
-      _inside['$userId:$workspaceKey'] ?? false;
+  Future<bool> isInside(int userId, String workspaceKey, String watDate) async {
+    final entry = _inside['$userId:$workspaceKey'];
+    return entry != null && entry.$1 == watDate && entry.$2;
+  }
 
   @override
-  Future<void> setInside(int userId, String workspaceKey, bool inside) async =>
-      _inside['$userId:$workspaceKey'] = inside;
+  Future<void> setInside(
+    int userId,
+    String workspaceKey,
+    String watDate,
+    bool inside,
+  ) async =>
+      _inside['$userId:$workspaceKey'] = (watDate, inside);
 
   @override
   Future<bool> wasClockOutReminderSent(int userId, String watDate) async =>

@@ -260,4 +260,5 @@ class RouteConstants {
   static const String employeeMyReports = '/dashboard/my-reports';
   static const String employeeMyTargetReports = '/dashboard/my-target-reports';
   static const String employeeMyProfile = '/dashboard/my-profile';
+  static const String employeeRole = '/dashboard/role';
 }

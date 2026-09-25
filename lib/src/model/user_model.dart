@@ -16,7 +16,9 @@ class User {
   final String? employeeId; // The formatted ID (e.g., EMP-001)
   final String? employmentType;
   final int branchId;
+  final String? branchName;
   final int departmentId;
+  final String? departmentName;
   final int levelId;
   final String? startDate;
   final String createdAt;
@@ -42,7 +44,9 @@ class User {
     this.employeeId,
     this.employmentType,
     required this.branchId,
+    this.branchName,
     required this.departmentId,
+    this.departmentName,
     required this.levelId,
     this.startDate,
     required this.createdAt,
@@ -70,7 +74,9 @@ class User {
         employeeId: json['employee_id'] ?? '',
         employmentType: json['employment_type'] ?? '',
         branchId: json['branch_id'] ?? 0,
+        branchName: json['branch_name']?.toString(),
         departmentId: json['department_id'] ?? 0,
+        departmentName: json['department_name']?.toString(),
         levelId: json['level_id'] ?? 0,
         startDate: json['start_date'] ?? '',
         createdAt: json['created_at'] ?? '',
