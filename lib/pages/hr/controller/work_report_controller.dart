@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../src/services/employees_services.dart';
 import '../../../src/services/hr/work_report_service.dart';
+import '../../../src/model/employees_model.dart';
 import '../models/work_report_model.dart';
 
 class WorkReportController extends GetxController {
@@ -101,6 +102,21 @@ class WorkReportController extends GetxController {
     return 'Employee name unavailable (ID: $employeeId)';
   }
 
+  /// WorkReport.employee_id is the employee table's primary key. Employee.id
+  /// in the app model is user_id, while tableId maps the employee record's id.
+  /// Indexing both creates collisions and can label one employee's report
+  /// with another employee's name when those independent ID sequences overlap.
+  static Map<int, String> buildEmployeeNameIndex(Iterable<Employee> employees) {
+    final names = <int, String>{};
+    for (final employee in employees) {
+      final employeeRecordId = int.tryParse(employee.tableId ?? '');
+      final name = employee.fullName.trim();
+      if (employeeRecordId == null || name.isEmpty) continue;
+      names.putIfAbsent(employeeRecordId, () => name);
+    }
+    return names;
+  }
+
   Future<void> _loadEmployeeNames(String token) async {
     try {
       final result = await _employeeService.getEmployees(
@@ -109,16 +125,7 @@ class WorkReportController extends GetxController {
         limit: 100,
         offset: 0,
       );
-      final resolved = <int, String>{};
-      for (final employee in result.list) {
-        final name = employee.fullName.trim();
-        if (name.isEmpty) continue;
-        final userId = int.tryParse(employee.id);
-        if (userId != null) resolved[userId] = name;
-        final tableId = int.tryParse(employee.tableId ?? '');
-        if (tableId != null) resolved[tableId] = name;
-      }
-      employeeNames.assignAll(resolved);
+      employeeNames.assignAll(buildEmployeeNameIndex(result.list));
     } catch (e) {
       // Report access should remain usable when employee metadata is not
       // available to the current reviewer; the row displays a clear fallback.

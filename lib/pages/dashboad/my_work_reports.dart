@@ -635,7 +635,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
       final fullReport = await controller.getReportForViewing(token, report);
       if (!mounted) return;
 
-      Navigator.of(context).pop();
+      Navigator.of(context, rootNavigator: true).pop();
       showDialog(
         context: context,
         builder: (context) => WorkReportReviewDialog(
@@ -646,7 +646,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
       );
     } catch (e) {
       if (mounted) {
-        Navigator.of(context).pop();
+        Navigator.of(context, rootNavigator: true).pop();
         AppToast.error(context, 'View report failed. Please try again.');
       }
     }
@@ -670,7 +670,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
       final fullReport = await controller.getReportForViewing(token, report);
       if (!mounted) return;
 
-      Navigator.of(context).pop();
+      Navigator.of(context, rootNavigator: true).pop();
       showDialog(
         context: context,
         builder: (context) =>
@@ -678,7 +678,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
       );
     } catch (e) {
       if (mounted) {
-        Navigator.of(context).pop();
+        Navigator.of(context, rootNavigator: true).pop();
         AppToast.error(context, 'Edit report failed. Please try again.');
       }
     }
