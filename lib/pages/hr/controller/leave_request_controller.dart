@@ -1,12 +1,14 @@
 import 'dart:developer';
 import 'package:bomach_os/components/feedback/app_toast.dart';
-import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/pages/auth/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 
+import '../../../src/constants/permissions.dart';
+import '../../../src/services/permission_service.dart';
 import '../../../src/services/hr/leave_request_services.dart';
 import '../models/leave_request_model.dart' show LeaveRequest;
 
@@ -25,6 +27,7 @@ class LeaveRequestController extends GetxController {
   var currentPage = 1.obs;
   var itemsPerPage = 10.obs;
   var activeTab = 'All'.obs;
+  var selectedRequestKind = 'all'.obs;
   var stats = <String, int>{
     'pending': 0,
     'onLeave': 0,
@@ -32,7 +35,7 @@ class LeaveRequestController extends GetxController {
     'rejected': 0
   }.obs;
   final searchController = TextEditingController();
-  var selectedStatusFilter = 'All Statutes'.obs;
+  var selectedStatusFilter = 'All statuses'.obs;
 
   final List<String> leaveTypes = [
     'sick_leave',
@@ -43,10 +46,16 @@ class LeaveRequestController extends GetxController {
     'unpaid_leave'
   ];
   final List<String> filterStatusOptions = [
-    'All Statutes',
+    'All statuses',
     'Pending',
     'Approved',
     'Rejected'
+  ];
+  final List<String> requestKindOptions = [
+    'all',
+    'leave',
+    'absence',
+    'running_late',
   ];
 
   // Form Controllers
@@ -70,8 +79,12 @@ class LeaveRequestController extends GetxController {
     searchController.dispose();
     _debounce?.cancel();
     employeeIdController.dispose();
+    employeeNameController.dispose();
+    startDateController.dispose();
+    endDateController.dispose();
     reasonController.dispose();
-    // ... dispose other controllers
+    approverIdController.dispose();
+    rejectionReasonController.dispose();
     super.onClose();
   }
 
@@ -85,9 +98,30 @@ class LeaveRequestController extends GetxController {
     });
   }
 
+  bool _requirePermission(
+    BuildContext context,
+    Permission permission,
+    String action,
+  ) {
+    if (Get.find<PermissionService>().has(permission)) return true;
+    if (context.mounted) {
+      AppToast.error(context, 'Your role does not allow you to $action.');
+    }
+    return false;
+  }
+
   void updateStatusFilter(String? newValue, BuildContext context) {
     if (newValue != null) {
       selectedStatusFilter.value = newValue;
+      if (newValue != 'All statuses') activeTab.value = 'All';
+      currentPage.value = 1;
+      fetchLeaveRequests(context);
+    }
+  }
+
+  void updateRequestKindFilter(String? newValue, BuildContext context) {
+    if (newValue != null && requestKindOptions.contains(newValue)) {
+      selectedRequestKind.value = newValue;
       currentPage.value = 1;
       fetchLeaveRequests(context);
     }
@@ -95,6 +129,16 @@ class LeaveRequestController extends GetxController {
 
   Future<void> fetchLeaveRequests(BuildContext context,
       {bool refresh = false}) async {
+    if (!Get.find<PermissionService>().has(Perms.leaveRequestsList)) {
+      leaveList.clear();
+      totalCount.value = 0;
+      stats.updateAll((_, __) => 0);
+      isLoading.value = false;
+      hasError.value = false;
+      errorMessage.value = '';
+      return;
+    }
+
     try {
       if (!refresh) isLoading.value = true;
       hasError.value = false;
@@ -109,7 +153,10 @@ class LeaveRequestController extends GetxController {
       String? statusParam;
       if (activeTab.value == 'Pending Approvals') {
         statusParam = 'pending';
-      } else if (selectedStatusFilter.value != 'All Statutes') {
+      } else if (activeTab.value == 'History' &&
+          selectedStatusFilter.value == 'All statuses') {
+        statusParam = 'history';
+      } else if (selectedStatusFilter.value != 'All statuses') {
         statusParam = selectedStatusFilter.value.toLowerCase();
       }
 
@@ -118,6 +165,7 @@ class LeaveRequestController extends GetxController {
       final result = await _service.getLeaveRequests(
         token,
         status: statusParam,
+        requestKind: selectedRequestKind.value,
         search: searchController.text.trim().isNotEmpty
             ? searchController.text.trim()
             : null,
@@ -142,10 +190,11 @@ class LeaveRequestController extends GetxController {
     try {
       final summary = await _service.getLeaveRequestsSummary(token);
       if (summary is Map) {
-        stats['pending'] = summary['pending'] ?? 0;
-        stats['onLeave'] = summary['on_leave'] ?? 0;
-        stats['approved'] = summary['approved'] ?? 0;
-        stats['rejected'] = summary['rejected'] ?? 0;
+        int count(String key) => (summary[key] as num?)?.toInt() ?? 0;
+        stats['pending'] = count('pending');
+        stats['onLeave'] = count('on_leave');
+        stats['approved'] = count('approved_this_month');
+        stats['rejected'] = count('rejected');
       }
     } catch (e) {
       log("Stats error: $e");
@@ -155,13 +204,50 @@ class LeaveRequestController extends GetxController {
   void setActiveTab(String tab, BuildContext context) {
     activeTab.value = tab;
     currentPage.value = 1;
-    if (tab == 'Pending Approvals') selectedStatusFilter.value = 'All Statutes';
+    selectedStatusFilter.value = 'All statuses';
     fetchLeaveRequests(context);
   }
 
   // --- NEW METHOD: Update Status (Approve/Reject) ---
-  Future<void> updateLeaveStatus(BuildContext context, int id, String status,
-      {String? rejectionReason}) async {
+  Future<void> updateLeaveStatus(
+    BuildContext context,
+    int id,
+    String status, {
+    required String requestEmployeeId,
+    String? rejectionReason,
+  }) async {
+    final normalizedStatus = status.toLowerCase();
+    final requiredPermission = switch (normalizedStatus) {
+      'approved' => Perms.leaveRequestsApprove,
+      'rejected' => Perms.leaveRequestsReject,
+      _ => null,
+    };
+    if (requiredPermission == null) return;
+    final action = normalizedStatus == 'approved' ? 'approve' : 'reject';
+    if (!_requirePermission(
+      context,
+      requiredPermission,
+      '$action leave requests',
+    )) {
+      return;
+    }
+
+    final currentEmployeeId = Get.isRegistered<AuthController>()
+        ? Get.find<AuthController>().currentUser.value?.id
+        : null;
+    if (currentEmployeeId == null || currentEmployeeId <= 0) {
+      if (context.mounted) {
+        AppToast.warning(context, 'Your employee profile is still loading.');
+      }
+      return;
+    }
+    if (currentEmployeeId.toString() == requestEmployeeId) {
+      if (context.mounted) {
+        AppToast.error(context, 'You cannot review your own request.');
+      }
+      return;
+    }
+
     try {
       isSaving.value = true;
       final token = await _getToken(context);
@@ -179,13 +265,16 @@ class LeaveRequestController extends GetxController {
 
       if (context.mounted) {
         Navigator.pop(context); // Close the View Dialog
-        AppToast.info(context, "Request ${status == 'approved' ? 'Approved' : 'Rejected'} Successfully");
+        AppToast.info(context,
+            "Request ${status == 'approved' ? 'Approved' : 'Rejected'} Successfully");
       }
     } catch (e) {
       log("Status Update Error: $e");
       if (context.mounted) {
-        _showDialog(
-            context, "Error", "Failed to update status. Please try again.");
+        AppToast.error(
+          context,
+          e.toString().replaceFirst(RegExp(r'^Exception: '), ''),
+        );
       }
     } finally {
       isSaving.value = false;
@@ -196,6 +285,11 @@ class LeaveRequestController extends GetxController {
 
   Future<void> saveLeaveRequest(BuildContext context, {int? id}) async {
     // ... existing implementation for Create/Edit
+    final permission =
+        id == null ? Perms.leaveRequestsCreate : Perms.leaveRequestsUpdate;
+    final action = id == null ? 'create leave requests' : 'edit leave requests';
+    if (!_requirePermission(context, permission, action)) return;
+
     try {
       isSaving.value = true;
       final request = LeaveRequest(
@@ -301,18 +395,6 @@ class LeaveRequestController extends GetxController {
     if (token == null) return null;
     if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
     return token.replaceAll('"', '').trim();
-  }
-
-  void _showDialog(BuildContext context, String title, String content) {
-    DialogScaffold.show(
-      context,
-      title: title,
-      size: DialogSize.sm,
-      body: Text(content),
-      actions: [TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("OK"))],
-    );
   }
 
   void changePage(int page, BuildContext context) {

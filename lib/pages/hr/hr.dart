@@ -384,12 +384,15 @@ class _LeavesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _DashboardLinkCard(
-      title: 'Leave Requests',
-      icon: Iconsax.calendar_remove,
-      message: 'Review and manage leave records from the supported HR flow.',
-      buttonLabel: 'Open Leave Requests',
-      route: RouteConstants.leaveRequest,
+    return const PermissionGate(
+      require: Perms.leaveRequestsList,
+      child: _DashboardLinkCard(
+        title: 'Leave Requests',
+        icon: Iconsax.calendar_remove,
+        message: 'Review and manage leave records from the supported HR flow.',
+        buttonLabel: 'Open Leave Requests',
+        route: RouteConstants.leaveRequest,
+      ),
     );
   }
 }
