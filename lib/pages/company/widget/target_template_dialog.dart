@@ -130,7 +130,7 @@ class _CreateEditTargetTemplateDialogState
               border: OutlineInputBorder(borderRadius: AppRadii.brMd),
               contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
-            initialValue: _period,
+            value: _period,
             items: _periods
                 .map((p) => DropdownMenuItem(
                       value: p,
@@ -145,7 +145,7 @@ class _CreateEditTargetTemplateDialogState
               const Text('Active', style: AppTextStyles.label),
               const SizedBox(width: 12),
               Switch(
-                activeThumbColor: AppColors.primary,
+                activeColor: AppColors.primary,
                 value: _isActive,
                 onChanged: (v) => setState(() => _isActive = v),
               ),

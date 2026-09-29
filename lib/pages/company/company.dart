@@ -117,8 +117,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
       case 'Profile':
         return MyElevatedButton(
           child: 'Edit Profile',
-          icon: const Icon(Iconsax.edit,
-              size: 16, color: AppColors.textOnPrimary),
+          icon: const Icon(
+            Iconsax.edit,
+            size: 16,
+            color: AppColors.textOnPrimary,
+          ),
           onTap: () => showDialog(
             context: context,
             builder: (_) => const EditProfileDialog(),
@@ -127,8 +130,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
       case 'Global Business':
         return MyElevatedButton(
           child: 'Edit Settings',
-          icon: const Icon(Iconsax.setting_2,
-              size: 16, color: AppColors.textOnPrimary),
+          icon: const Icon(
+            Iconsax.setting_2,
+            size: 16,
+            color: AppColors.textOnPrimary,
+          ),
           onTap: () => showDialog(
             context: context,
             builder: (_) => const EditGlobalBusinessDialog(),
@@ -137,8 +143,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
       case 'Ownership & Shareholders':
         return MyElevatedButton(
           child: 'Edit Shareholders',
-          icon: const Icon(Iconsax.people,
-              size: 16, color: AppColors.textOnPrimary),
+          icon: const Icon(
+            Iconsax.people,
+            size: 16,
+            color: AppColors.textOnPrimary,
+          ),
           onTap: () => showDialog(
             context: context,
             builder: (_) => const EditShareHoldersDialog(),
@@ -316,13 +325,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
   }
 
   Widget _buildLogoFallback(Color accent) {
-    return Center(
-      child: Icon(
-        Iconsax.building_3,
-        size: 34,
-        color: accent,
-      ),
-    );
+    return Center(child: Icon(Iconsax.building_3, size: 34, color: accent));
   }
 
   Widget _buildMetaChip({
@@ -342,8 +345,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon,
-              size: 14, color: foregroundColor ?? AppColors.textSecondary),
+          Icon(
+            icon,
+            size: 14,
+            color: foregroundColor ?? AppColors.textSecondary,
+          ),
           const SizedBox(width: 8),
           Text(
             _displayValue(label),
@@ -446,10 +452,12 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: _companyTabs
-              .map((label) => Padding(
+              .map(
+                (label) => Padding(
                     padding: const EdgeInsets.only(right: 6),
                     child: _buildTabButton(label),
-                  ))
+                ),
+              )
               .toList(),
         ),
       ),
@@ -561,8 +569,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
         MyElevatedButton(
           height: 48,
           child: 'Edit Profile',
-          icon: const Icon(Iconsax.edit,
-              size: 16, color: AppColors.textOnPrimary),
+          icon: const Icon(
+            Iconsax.edit,
+            size: 16,
+            color: AppColors.textOnPrimary,
+          ),
           onTap: () => showDialog(
             context: context,
             builder: (_) => const EditProfileDialog(),
@@ -626,11 +637,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
         }
 
         return Column(
-          children: [
-            cards[0],
-            const SizedBox(height: 16),
-            cards[1],
-          ],
+          children: [cards[0], const SizedBox(height: 16), cards[1]],
         );
       },
     );
@@ -675,8 +682,10 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+          ),
           const SizedBox(height: 4),
           Text(
             _displayValue(value),
@@ -696,8 +705,10 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+          ),
           const SizedBox(height: 6),
           Row(
             children: [
@@ -749,9 +760,12 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
         icon: Iconsax.global,
         children: [
           _buildDetailEntry('Default Currency', data.defaultCurrency),
-           _buildDetailEntry('Language Preference',
-              LanguageHelper.toDisplay(data.languagePreference)),
+          _buildDetailEntry(
+            'Language Preference',
+            LanguageHelper.toDisplay(data.languagePreference),
+          ),
           _buildDetailEntry('Time Zone', controller.timeZone.value),
+          _buildDetailEntry('Punctuality time', data.punctualityTime),
         ],
       ),
       _buildSupportCard(
@@ -794,7 +808,10 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
               final intro = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Global business settings', style: AppTextStyles.h2),
+                  const Text(
+                    'Global business settings',
+                    style: AppTextStyles.h2,
+                  ),
                   const SizedBox(height: 6),
                   Text(
                     'Brand presentation, operating defaults, and approval behavior live here.',
@@ -807,8 +824,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
 
               final action = MyElevatedButton(
                 child: 'Edit Settings',
-                icon: const Icon(Iconsax.setting_2,
-                    size: 16, color: AppColors.textOnPrimary),
+                icon: const Icon(
+                  Iconsax.setting_2,
+                  size: 16,
+                  color: AppColors.textOnPrimary,
+                ),
                 onTap: () => showDialog(
                   context: context,
                   builder: (_) => const EditGlobalBusinessDialog(),
@@ -818,11 +838,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
               if (compact) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    intro,
-                    const SizedBox(height: 16),
-                    action,
-                  ],
+                  children: [intro, const SizedBox(height: 16), action],
                 );
               }
 
@@ -869,7 +885,10 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                 final intro = Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Ownership & shareholders', style: AppTextStyles.h2),
+                    const Text(
+                      'Ownership & shareholders',
+                      style: AppTextStyles.h2,
+                    ),
                     const SizedBox(height: 6),
                     Text(
                       'Track equity distribution, active shareholders, and board-linked ownership records.',
@@ -886,8 +905,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                   children: [
                     MyElevatedButton(
                       child: 'Edit Shareholders',
-                      icon: const Icon(Iconsax.edit,
-                          size: 16, color: AppColors.textOnPrimary),
+                      icon: const Icon(
+                        Iconsax.edit,
+                        size: 16,
+                        color: AppColors.textOnPrimary,
+                      ),
                       onTap: () => showDialog(
                         context: context,
                         builder: (_) => const EditShareHoldersDialog(),
@@ -904,7 +926,9 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                         foregroundColor: AppColors.textPrimary,
                         side: const BorderSide(color: AppColors.borderStrong),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         shape: const RoundedRectangleBorder(
                           borderRadius: AppRadii.brMd,
                         ),
@@ -916,11 +940,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                 if (compact) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      intro,
-                      const SizedBox(height: 16),
-                      actions,
-                    ],
+                    children: [intro, const SizedBox(height: 16), actions],
                   );
                 }
 
@@ -995,8 +1015,10 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Shareholder register',
-                                  style: AppTextStyles.h3),
+                              const Text(
+                                'Shareholder register',
+                                style: AppTextStyles.h3,
+                              ),
                               const SizedBox(height: 4),
                               Text(
                                 '${list.length} active ownership records',
@@ -1022,44 +1044,56 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 18, vertical: 14),
+                            horizontal: 18,
+                            vertical: 14,
+                          ),
                           color: AppColors.surface,
                           child: Row(
                             children: [
                               Expanded(
                                 flex: 4,
-                                child: Text('Shareholder',
+                                child: Text(
+                                  'Shareholder',
                                     style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
-                                    )),
+                                  ),
+                                ),
                               ),
                               Expanded(
                                 flex: 2,
-                                child: Text('Role',
+                                child: Text(
+                                  'Role',
                                     style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
-                                    )),
+                                  ),
+                                ),
                               ),
                               Expanded(
                                 flex: 2,
-                                child: Text('Shares',
+                                child: Text(
+                                  'Shares',
                                     style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
-                                    )),
+                                  ),
+                                ),
                               ),
                               Expanded(
                                 flex: 2,
-                                child: Text('Ownership',
+                                child: Text(
+                                  'Ownership',
                                     style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
-                                    )),
+                                  ),
+                                ),
                               ),
                               Expanded(
                                 flex: 2,
-                                child: Text('Status',
+                                child: Text(
+                                  'Status',
                                     style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
-                                    )),
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 48),
                             ],
@@ -1085,7 +1119,10 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
   }
 
   Widget _buildShareholderRow(
-      BuildContext context, Shareholder shareholder, int index) {
+    BuildContext context,
+    Shareholder shareholder,
+    int index,
+  ) {
     final numberFormat = NumberFormat('#,###');
     final avatarColor = _avatarColor(index);
     final roleTone = _roleTone(shareholder.titleDisplay);
@@ -1093,9 +1130,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.borderSubtle),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
       ),
       child: Row(
         children: [
@@ -1106,7 +1141,8 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                 CircleAvatar(
                   radius: 20,
                   backgroundColor: avatarColor.withValues(alpha: 0.14),
-                  child: shareholder.profilePicture != null &&
+                  child:
+                      shareholder.profilePicture != null &&
                           shareholder.profilePicture!.isNotEmpty
                       ? ClipOval(
                           child: Image.network(
@@ -1217,7 +1253,9 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                     break;
                   case 'delete':
                     final confirmed = await showDeleteShareholderDialog(
-                        context, shareholder.fullName);
+                      context,
+                      shareholder.fullName,
+                    );
                     if (confirmed == true && context.mounted) {
                       controller.deleteShareholder(context, shareholder.id);
                     }
@@ -1229,8 +1267,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                   value: 'view',
                   child: Row(
                     children: [
-                      Icon(Iconsax.eye,
-                          size: 18, color: AppColors.textSecondary),
+                      Icon(
+                        Iconsax.eye,
+                        size: 18,
+                        color: AppColors.textSecondary,
+                      ),
                       SizedBox(width: 8),
                       Text('View Details'),
                     ],
@@ -1240,8 +1281,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                   value: 'edit',
                   child: Row(
                     children: [
-                      Icon(Iconsax.edit,
-                          size: 18, color: AppColors.textSecondary),
+                      Icon(
+                        Iconsax.edit,
+                        size: 18,
+                        color: AppColors.textSecondary,
+                      ),
                       SizedBox(width: 8),
                       Text('Edit'),
                     ],
@@ -1297,7 +1341,10 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Shareholder details', style: AppTextStyles.h2),
+                        const Text(
+                          'Shareholder details',
+                          style: AppTextStyles.h2,
+                        ),
                         const SizedBox(height: 6),
                         Text(
                           'A closer look at role, contact information, and ownership position.',
@@ -1320,13 +1367,19 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
               _buildDetailRow('Email', shareholder.email),
               _buildDetailRow('Phone', shareholder.phoneNumber),
               _buildDetailRow('Role', shareholder.titleDisplay),
-              _buildDetailRow('Shares',
-                  NumberFormat('#,###').format(shareholder.shareCount)),
+              _buildDetailRow(
+                'Shares',
+                NumberFormat('#,###').format(shareholder.shareCount),
+              ),
               _buildDetailRow('Percentage', '${shareholder.sharePercentage}%'),
               _buildDetailRow(
-                  'Board Member', shareholder.isBoardMember ? 'Yes' : 'No'),
+                'Board Member',
+                shareholder.isBoardMember ? 'Yes' : 'No',
+              ),
               _buildDetailRow(
-                  'Status', shareholder.isActive ? 'Active' : 'Inactive'),
+                'Status',
+                shareholder.isActive ? 'Active' : 'Inactive',
+              ),
               if (shareholder.notes != null && shareholder.notes!.isNotEmpty)
                 _buildDetailRow('Notes', shareholder.notes!),
             ],
@@ -1346,7 +1399,9 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
             width: 120,
             child: Text(
               label,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
           Expanded(
@@ -1404,10 +1459,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
             spacing: 16,
             runSpacing: 16,
             children: cards
-                .map((card) => SizedBox(
-                      width: (width - 16) / 2,
-                      child: card,
-                    ))
+                .map((card) => SizedBox(width: (width - 16) / 2, child: card))
                 .toList(),
           );
         }
@@ -1588,7 +1640,6 @@ class DashboardStatCard extends StatelessWidget {
   }
 }
 
-
 class ResponsiveSubheader extends StatelessWidget {
   const ResponsiveSubheader({
     super.key,
@@ -1603,7 +1654,8 @@ class ResponsiveSubheader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
       final isCompact = constraints.maxWidth < 700;
 
       if (isCompact) {
@@ -1615,10 +1667,7 @@ class ResponsiveSubheader extends StatelessWidget {
             Row(
               children: [
                 if (search != null) Expanded(child: search!),
-                if (action != null) ...[
-                  const SizedBox(width: 12),
-                  action!,
-                ],
+                  if (action != null) ...[const SizedBox(width: 12), action!],
               ],
             ),
           ],
@@ -1630,13 +1679,11 @@ class ResponsiveSubheader extends StatelessWidget {
         children: [
           Expanded(child: title),
           if (search != null) SizedBox(width: 220, child: search!),
-          if (action != null) ...[
-            const SizedBox(width: 12),
-            action!,
-          ],
+            if (action != null) ...[const SizedBox(width: 12), action!],
         ],
       );
-    });
+      },
+    );
   }
 }
 
@@ -1654,7 +1701,8 @@ class ResponsiveTableWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
       if (constraints.maxWidth < breakpoint) {
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -1662,6 +1710,7 @@ class ResponsiveTableWrapper extends StatelessWidget {
         );
       }
       return child;
-    });
+      },
+    );
   }
 }

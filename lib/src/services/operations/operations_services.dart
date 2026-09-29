@@ -6,11 +6,10 @@ import '../../../pages/operations/models/models.dart';
 class DashboardService {
   final Dio _dio;
 
-  DashboardService({
-    required String baseUrl,
-    Dio? dioOverride,
-  }) : _dio = dioOverride ??
-            Dio(BaseOptions(
+  DashboardService({required String baseUrl, Dio? dioOverride})
+      : _dio = dioOverride ??
+            Dio(
+              BaseOptions(
               baseUrl: baseUrl,
               connectTimeout: const Duration(seconds: 15),
               receiveTimeout: const Duration(seconds: 15),
@@ -18,23 +17,25 @@ class DashboardService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
-            )) {
-    _dio.interceptors.add(LogInterceptor(
+              ),
+            ) {
+    _dio.interceptors.add(
+      LogInterceptor(
       request: true,
       requestHeader: true,
       responseBody: true,
       responseHeader: false,
-    ));
+      ),
+    );
   }
 
   Options _authOptions(String token) {
-    return Options(headers: {
-      'Authorization': 'Bearer $token',
-    });
+    return Options(headers: {'Authorization': 'Bearer $token'});
   }
 
-  Future<DashboardStats> getDashboardStats(
-      {required String accessToken}) async {
+  Future<DashboardStats> getDashboardStats({
+    required String accessToken,
+  }) async {
     try {
       final response = await _dio.get(
         '/api/v1/dashboard/stats',
@@ -98,7 +99,7 @@ class DashboardService {
     try {
       final response = await _dio.post(
         '/api/v1/projects',
-        data: project.toJson(),
+        data: project.toJson(includeStatus: false),
         options: _authOptions(accessToken),
       );
       return Project.fromJson(response.data);
@@ -139,6 +140,25 @@ class DashboardService {
     }
   }
 
+  Future<void> addProjectEmployees({
+    required String accessToken,
+    required int projectId,
+    required List<String> employeeIds,
+  }) async {
+    try {
+      await _dio.patch(
+        '/api/v1/projects/$projectId',
+        data: {
+          'employee_ids':
+              employeeIds.map(int.tryParse).whereType<int>().toList(),
+        },
+        options: _authOptions(accessToken),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<void> deleteProject({
     required String accessToken,
     required int projectId,
@@ -170,9 +190,7 @@ class DashboardService {
     }
   }
 
-  Future<dynamic> getProjectStats({
-    required String accessToken,
-  }) async {
+  Future<dynamic> getProjectStats({required String accessToken}) async {
     try {
       final response = await _dio.get(
         '/api/v1/projects/stats',

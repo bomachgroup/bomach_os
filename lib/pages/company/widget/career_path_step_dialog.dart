@@ -77,7 +77,7 @@ class _CreateEditCareerPathStepDialogState
               border: OutlineInputBorder(borderRadius: AppRadii.brMd),
               contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
-            initialValue: _toRoleId,
+            value: _toRoleId,
             items: widget.roles
                 .where((r) => r.id != widget.currentRoleId)
                 .map((r) => DropdownMenuItem(
@@ -120,7 +120,7 @@ class _CreateEditCareerPathStepDialogState
               const Text('Active', style: AppTextStyles.label),
               const SizedBox(width: 12),
               Switch(
-                activeThumbColor: AppColors.primary,
+                activeColor: AppColors.primary,
                 value: _isActive,
                 onChanged: (v) => setState(() => _isActive = v),
               ),

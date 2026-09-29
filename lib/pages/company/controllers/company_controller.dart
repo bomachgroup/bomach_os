@@ -99,14 +99,18 @@ class CompanyController extends GetxController {
   }
 
   Future<void> updateCompanyProfile(
-      BuildContext context, CompanySettings settings) async {
+    BuildContext context,
+    CompanySettings settings,
+  ) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return;
 
       final result = await _companyService.updateCompanySettings(
-          accessToken: token, settings: settings);
+        accessToken: token,
+        settings: settings,
+      );
       companySettings.value = result;
 
       if (context.mounted) {
@@ -174,7 +178,10 @@ class CompanyController extends GetxController {
   }
 
   Future<void> updateCompliance(
-      BuildContext context, String id, Compliance item) async {
+    BuildContext context,
+    String id,
+    Compliance item,
+  ) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
@@ -262,8 +269,9 @@ class CompanyController extends GetxController {
 
       // For dev purposes, if no token, we might still want to show UI (remove this in prod)
       if (token != null) {
-        final settings =
-            await _companyService.getCompanySettings(accessToken: token);
+        final settings = await _companyService.getCompanySettings(
+          accessToken: token,
+        );
         companySettings.value = settings;
       } else {
         // Fallback for UI testing if auth fails
@@ -283,8 +291,9 @@ class CompanyController extends GetxController {
     try {
       final token = await _getToken();
       if (token != null) {
-        final choices =
-            await _companyService.getCompanyFieldChoices(accessToken: token);
+        final choices = await _companyService.getCompanyFieldChoices(
+          accessToken: token,
+        );
         fieldChoices.value = choices;
       }
     } catch (e) {
@@ -297,8 +306,9 @@ class CompanyController extends GetxController {
       isDashboardLoading.value = true;
       final token = await _getToken();
       if (token != null) {
-        final stats =
-            await _companyService.getDashboardStats(accessToken: token);
+        final stats = await _companyService.getDashboardStats(
+          accessToken: token,
+        );
         dashboardStats.value = stats;
       }
     } catch (e) {
@@ -324,7 +334,9 @@ class CompanyController extends GetxController {
   }
 
   Future<void> createShareholder(
-      BuildContext context, Map<String, dynamic> data) async {
+    BuildContext context,
+    Map<String, dynamic> data,
+  ) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
@@ -348,7 +360,10 @@ class CompanyController extends GetxController {
   }
 
   Future<void> updateShareholder(
-      BuildContext context, int id, Map<String, dynamic> data) async {
+    BuildContext context,
+    int id,
+    Map<String, dynamic> data,
+  ) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
@@ -364,8 +379,11 @@ class CompanyController extends GetxController {
       }
     } catch (e) {
       if (context.mounted) {
-        _showSnackBar(context, "Failed to update shareholder: $e",
-            isError: true);
+        _showSnackBar(
+          context,
+          "Failed to update shareholder: $e",
+          isError: true,
+        );
       }
     } finally {
       isSaving.value = false;
@@ -387,8 +405,11 @@ class CompanyController extends GetxController {
       }
     } catch (e) {
       if (context.mounted) {
-        _showSnackBar(context, "Failed to remove shareholder: $e",
-            isError: true);
+        _showSnackBar(
+          context,
+          "Failed to remove shareholder: $e",
+          isError: true,
+        );
       }
     } finally {
       isSaving.value = false;
@@ -434,12 +455,16 @@ class CompanyController extends GetxController {
           // API not available — save locally
           authorizedShares.value = shares;
           await _storage.write(
-              key: 'authorized_shares', value: shares.toString());
+            key: 'authorized_shares',
+            value: shares.toString(),
+          );
         }
       } else {
         authorizedShares.value = shares;
         await _storage.write(
-            key: 'authorized_shares', value: shares.toString());
+          key: 'authorized_shares',
+          value: shares.toString(),
+        );
       }
 
       if (context.mounted) {
@@ -479,8 +504,11 @@ class CompanyController extends GetxController {
         final token = await _getToken();
         if (token != null) {
           final bytes = await logoFile.readAsBytes();
-          finalLogoUrl =
-              await _authService.uploadFile(token, bytes, logoFile.name);
+          finalLogoUrl = await _authService.uploadFile(
+            token,
+            bytes,
+            logoFile.name,
+          );
         }
       } catch (e) {
         log("Logo upload failed: $e");
@@ -501,7 +529,8 @@ class CompanyController extends GetxController {
               companySlogan: slogan,
               rcNumber: rcNumber ?? current.rcNumber,
               companyLogo: finalLogoUrl ?? current.companyLogo,
-            ));
+      ),
+    );
   }
 
   // Refactored to handle "Global Business" specific updates
@@ -513,6 +542,7 @@ class CompanyController extends GetxController {
     required String language,
     required String timeZoneVal, // New
     required String rules,
+    required String punctualityTime,
     // Toggles handled locally for now
   }) async {
     timeZone.value = timeZoneVal;
@@ -525,12 +555,16 @@ class CompanyController extends GetxController {
               defaultCurrency: currency,
               languagePreference: language,
               businessRules: rules,
-            ));
+        punctualityTime: punctualityTime,
+      ),
+    );
   }
 
   // Helper to reduce code duplication
-  Future<void> _performUpdate(BuildContext context,
-      CompanySettings Function(CompanySettings) updateFn) async {
+  Future<void> _performUpdate(
+    BuildContext context,
+    CompanySettings Function(CompanySettings) updateFn,
+  ) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
@@ -564,9 +598,14 @@ class CompanyController extends GetxController {
   }
 
   // --- UTILS ---
-  void _showSnackBar(BuildContext context, String message,
-      {bool isError = false}) {
-    isError ? AppToast.error(context, message) : AppToast.info(context, message);
+  void _showSnackBar(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
+    isError
+        ? AppToast.error(context, message)
+        : AppToast.info(context, message);
   }
 
   String _readableError(Object error) {
@@ -578,14 +617,17 @@ class CompanyController extends GetxController {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title,
+        title: Text(
+          title,
             style: TextStyle(
                 color: title.toLowerCase().contains("failed")
                     ? Colors.red
-                    : Colors.black)),
+                : Colors.black,
+          ),
+        ),
         content: Text(message),
         actions: [
-          TextButton(onPressed: () => context.pop(), child: const Text("OK"))
+          TextButton(onPressed: () => context.pop(), child: const Text("OK")),
         ],
       ),
     );
@@ -624,6 +666,7 @@ extension CompanySettingsExt on CompanySettings {
     String? defaultCurrency,
     String? languagePreference,
     String? businessRules,
+    String? punctualityTime,
     String? companyLogo,
   }) {
     return CompanySettings(
@@ -639,6 +682,7 @@ extension CompanySettingsExt on CompanySettings {
       defaultCurrency: defaultCurrency ?? this.defaultCurrency,
       languagePreference: languagePreference ?? this.languagePreference,
       businessRules: businessRules ?? this.businessRules,
+      punctualityTime: punctualityTime ?? this.punctualityTime,
       companyLogo: companyLogo ?? this.companyLogo,
       createdAt: createdAt,
       updatedAt: DateTime.now().toIso8601String(),

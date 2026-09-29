@@ -11,10 +11,11 @@ class CompanyService {
   final Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   static final baseUrl = ApiConstants.baseUrl;
-  CompanyService({
-    Dio? dioOverride,
-  }) : _dio = dioOverride ??
-            Dio(BaseOptions(
+  CompanyService({Dio? dioOverride})
+    : _dio =
+          dioOverride ??
+          Dio(
+            BaseOptions(
               baseUrl: baseUrl,
               connectTimeout: const Duration(seconds: 15),
               receiveTimeout: const Duration(seconds: 15),
@@ -22,33 +23,43 @@ class CompanyService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
-            )) {
-    _dio.interceptors.add(LogInterceptor(
+            ),
+          ) {
+    _dio.interceptors.add(
+      LogInterceptor(
       request: true,
       requestHeader: true,
       responseBody: true,
       responseHeader: false,
-    ));
+      ),
+    );
   }
 
   Options _authOptions(String token) {
-    return Options(headers: {
-      'Authorization': 'Bearer $token',
-    });
+    return Options(headers: {'Authorization': 'Bearer $token'});
   }
 
-  Future<CompanySettings> getCompanySettings(
-      {required String accessToken}) async {
+  Future<CompanySettings> getCompanySettings({
+    required String accessToken,
+  }) async {
     try {
-      log("CompanyService: Fetching settings (profile + branding + preferences)...");
+      log(
+        "CompanyService: Fetching settings (profile + branding + preferences)...",
+      );
 
       final results = await Future.wait([
-        _dio.get('/api/v1/company/company/profile',
-            options: _authOptions(accessToken)),
-        _dio.get('/api/v1/company/company/branding',
-            options: _authOptions(accessToken)),
-        _dio.get('/api/v1/company/company/preferences',
-            options: _authOptions(accessToken)),
+        _dio.get(
+          '/api/v1/company/company/profile',
+          options: _authOptions(accessToken),
+        ),
+        _dio.get(
+          '/api/v1/company/company/branding',
+          options: _authOptions(accessToken),
+        ),
+        _dio.get(
+          '/api/v1/company/preferences',
+          options: _authOptions(accessToken),
+        ),
       ]);
 
       final profile = _asMap(results[0].data);
@@ -74,7 +85,9 @@ class CompanyService {
     required CompanySettings settings,
   }) async {
     try {
-      log("CompanyService: Updating settings (profile + branding + preferences)...");
+      log(
+        "CompanyService: Updating settings (profile + branding + preferences)...",
+      );
 
       final results = await Future.wait([
         _dio.put(
@@ -88,7 +101,7 @@ class CompanyService {
           options: _authOptions(accessToken),
         ),
         _dio.put(
-          '/api/v1/company/company/preferences',
+          '/api/v1/company/preferences',
           data: settings.toPreferencesUpdateJson(),
           options: _authOptions(accessToken),
         ),
@@ -140,7 +153,10 @@ class CompanyService {
   }
 
   Future<void> updateCompliance(
-      String token, String id, Compliance compliance) async {
+    String token,
+    String id,
+    Compliance compliance,
+  ) async {
     try {
       await _dio.put(
         '/api/v1/compliance/compliance-records/$id',
@@ -163,8 +179,11 @@ class CompanyService {
     }
   }
 
-  Future<List<Shareholder>> getShareholders(String token,
-      {int limit = 100, int offset = 0}) async {
+  Future<List<Shareholder>> getShareholders(
+    String token, {
+    int limit = 100,
+    int offset = 0,
+  }) async {
     try {
       final response = await _dio.get(
         '/api/v1/shareholders/',
@@ -179,7 +198,9 @@ class CompanyService {
   }
 
   Future<Shareholder> createShareholder(
-      String token, Map<String, dynamic> data) async {
+    String token,
+    Map<String, dynamic> data,
+  ) async {
     try {
       final response = await _dio.post(
         '/api/v1/shareholders/',
@@ -193,7 +214,10 @@ class CompanyService {
   }
 
   Future<Shareholder> updateShareholder(
-      String token, int id, Map<String, dynamic> data) async {
+    String token,
+    int id,
+    Map<String, dynamic> data,
+  ) async {
     try {
       final response = await _dio.put(
         '/api/v1/shareholders/$id',
@@ -220,8 +244,10 @@ class CompanyService {
   Future<EquityInfo> getEquityInfo(String token) async {
     try {
       final shareholders = await getShareholders(token, limit: 200);
-      final issuedShares =
-          shareholders.fold<int>(0, (sum, s) => sum + s.shareCount);
+      final issuedShares = shareholders.fold<int>(
+        0,
+        (sum, s) => sum + s.shareCount,
+      );
       final saved = await _storage.read(key: 'authorized_shares');
       final authorizedShares = int.tryParse(saved ?? '') ?? 0;
       return EquityInfo(
@@ -235,12 +261,18 @@ class CompanyService {
   }
 
   Future<EquityInfo> updateEquityInfo(
-      String token, int authorizedShares) async {
+    String token,
+    int authorizedShares,
+  ) async {
     await _storage.write(
-        key: 'authorized_shares', value: authorizedShares.toString());
+      key: 'authorized_shares',
+      value: authorizedShares.toString(),
+    );
     final shareholders = await getShareholders(token, limit: 200);
-    final issuedShares =
-        shareholders.fold<int>(0, (sum, s) => sum + s.shareCount);
+    final issuedShares = shareholders.fold<int>(
+      0,
+      (sum, s) => sum + s.shareCount,
+    );
     return EquityInfo(
       authorizedShares: authorizedShares,
       issuedShares: issuedShares,
@@ -248,8 +280,9 @@ class CompanyService {
     );
   }
 
-  Future<DashboardStats> getDashboardStats(
-      {required String accessToken}) async {
+  Future<DashboardStats> getDashboardStats({
+    required String accessToken,
+  }) async {
     try {
       final response = await _dio.get(
         '/api/v1/stats/dashboard',
@@ -261,8 +294,9 @@ class CompanyService {
     }
   }
 
-  Future<CompanyFieldChoices> getCompanyFieldChoices(
-      {required String accessToken}) async {
+  Future<CompanyFieldChoices> getCompanyFieldChoices({
+    required String accessToken,
+  }) async {
     try {
       final response = await _dio.get(
         '/api/v1/company/company/choices',

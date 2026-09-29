@@ -20,6 +20,7 @@ class CompanySettings {
   final String defaultCurrency;
   final String languagePreference;
   final String businessRules;
+  final String punctualityTime;
   final String? companyLogo;
   final String createdAt;
   final String? updatedAt;
@@ -37,6 +38,7 @@ class CompanySettings {
     required this.defaultCurrency,
     required this.languagePreference,
     required this.businessRules,
+    this.punctualityTime = '09:00',
     this.companyLogo,
     required this.createdAt,
     this.updatedAt,
@@ -61,6 +63,7 @@ class CompanySettings {
       defaultCurrency: preferences['default_currency'] ?? '',
       languagePreference: preferences['language_preference'] ?? '',
       businessRules: preferences['business_rules'] ?? '',
+      punctualityTime: preferences['punctuality_time']?.toString() ?? '09:00',
       createdAt: profile['created_at'] ?? '',
       updatedAt: profile['updated_at'],
     );
@@ -85,6 +88,7 @@ class CompanySettings {
         'default_currency': defaultCurrency,
         'language_preference': languagePreference,
         'business_rules': businessRules,
+    'punctuality_time': punctualityTime,
       };
 }
 
@@ -145,7 +149,8 @@ class Compliance {
       contactEmail: json['contact_email'] ?? '',
       cost: num.tryParse(json['cost']?.toString() ?? '') ?? 0,
       priorityLevel: json['priority_level'] ?? 'medium',
-      documents: (json['documents'] as List<dynamic>?)
+      documents:
+          (json['documents'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
@@ -381,18 +386,17 @@ class CompanyFieldChoices {
   final List<CompanyFieldOption> currencies;
   final List<CompanyFieldOption> languages;
 
-  CompanyFieldChoices({
-    required this.currencies,
-    required this.languages,
-  });
+  CompanyFieldChoices({required this.currencies, required this.languages});
 
   factory CompanyFieldChoices.fromJson(Map<String, dynamic> json) {
     return CompanyFieldChoices(
-      currencies: (json['currencies'] as List?)
+      currencies:
+          (json['currencies'] as List?)
               ?.map((e) => CompanyFieldOption.fromJson(e))
               .toList() ??
           [],
-      languages: (json['languages'] as List?)
+      languages:
+          (json['languages'] as List?)
               ?.map((e) => CompanyFieldOption.fromJson(e))
               .toList() ??
           [],

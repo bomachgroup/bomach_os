@@ -45,7 +45,8 @@ class ProjectOverview extends StatelessWidget {
         const SizedBox(height: 20),
 
         // Progress + Client cards
-        LayoutBuilder(builder: (context, constraints) {
+        LayoutBuilder(
+          builder: (context, constraints) {
           final isWide = constraints.maxWidth >= 720;
           final cardWidth = isWide
               ? (constraints.maxWidth - 20) / 2
@@ -64,7 +65,8 @@ class ProjectOverview extends StatelessWidget {
               ),
             ],
           );
-        }),
+          },
+        ),
         const SizedBox(height: 28),
 
         // Financial overview
@@ -75,7 +77,8 @@ class ProjectOverview extends StatelessWidget {
           style: AppTextStyles.bodySm,
         ),
         const SizedBox(height: 16),
-        LayoutBuilder(builder: (context, constraints) {
+        LayoutBuilder(
+          builder: (context, constraints) {
           final isWide = constraints.maxWidth >= 780;
           const count = 3;
           final cardWidth = isWide
@@ -116,7 +119,8 @@ class ProjectOverview extends StatelessWidget {
               ),
             ],
           );
-        }),
+          },
+        ),
         const SizedBox(height: 28),
 
         // Summary
@@ -175,13 +179,9 @@ class _ProgressCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Project Progress',
-                  style: AppTextStyles.overline,
-                ),
+                const Text('Project Progress', style: AppTextStyles.overline),
                 const SizedBox(height: 8),
-                _buildDateRow(
-                    Iconsax.calendar_1, 'Start', project.startDate),
+                _buildDateRow(Iconsax.calendar_1, 'Start', project.startDate),
                 const SizedBox(height: 8),
                 _buildDateRow(Iconsax.timer_1, 'End', project.deadline),
               ],
@@ -243,13 +243,26 @@ class _ClientCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Client ID: ${project.clientId}',
-                      style: AppTextStyles.bodyLg
-                          .copyWith(fontWeight: FontWeight.w600),
+                      project.clientName.isNotEmpty
+                          ? project.clientName
+                          : project.clientId == null
+                          ? 'No client assigned'
+                          : 'Client ${project.clientId}',
+                      style: AppTextStyles.bodyLg.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
-                    const Text(
-                      'Corporate Client',
+                    Text(
+                      [project.clientEmail, project.clientPhone]
+                              .where((value) => value.isNotEmpty)
+                              .join(' · ')
+                              .isEmpty
+                          ? 'Client details unavailable'
+                          : [
+                              project.clientEmail,
+                              project.clientPhone,
+                            ].where((value) => value.isNotEmpty).join(' · '),
                       style: AppTextStyles.bodySm,
                     ),
                   ],

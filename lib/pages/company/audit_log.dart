@@ -469,7 +469,7 @@ class _AuditLogFilterBarState extends State<AuditLogFilterBar> {
         SizedBox(
           width: 160,
           child: DropdownButtonFormField<String>(
-            initialValue: _auditType,
+            value: _auditType,
             isExpanded: true,
             decoration: const InputDecoration(
               labelText: 'Audit type',
@@ -492,7 +492,7 @@ class _AuditLogFilterBarState extends State<AuditLogFilterBar> {
         SizedBox(
           width: 160,
           child: DropdownButtonFormField<String>(
-            initialValue: _auditStatus,
+            value: _auditStatus,
             isExpanded: true,
             decoration: const InputDecoration(
               labelText: 'Audit status',

@@ -51,15 +51,14 @@ class _EachProjectsState extends State<EachProjects> {
 
   @override
   Widget build(BuildContext context) {
-    final Project? project = widget.project ??
+    final Project? project =
+        widget.project ??
         ModalRoute.of(context)?.settings.arguments as Project?;
 
     if (project == null) {
       return const PageScaffold(
         children: [
-          Center(
-            child: MyText('Project not found', style: AppTextStyles.h2),
-          ),
+          Center(child: MyText('Project not found', style: AppTextStyles.h2)),
         ],
       );
     }
@@ -78,15 +77,21 @@ class _EachProjectsState extends State<EachProjects> {
               child: MyTextFormField(
                 hintText: 'Search...',
                 height: 48,
-                leading: Icon(Iconsax.search_normal,
-                    size: 18, color: AppColors.textMuted),
+                leading: Icon(
+                  Iconsax.search_normal,
+                  size: 18,
+                  color: AppColors.textMuted,
+                ),
               ),
             ),
             if ([1, 2, 4, 5].contains(_currentTab))
               MyElevatedButton(
                 height: 48,
-                icon: const Icon(Iconsax.add_circle,
-                    color: AppColors.textOnPrimary, size: 18),
+                icon: const Icon(
+                  Iconsax.add_circle,
+                  color: AppColors.textOnPrimary,
+                  size: 18,
+                ),
                 child: _getButtonTitle(_currentTab),
                 onTap: () => _handleButtonTap(context, _currentTab, project),
               ),
@@ -109,7 +114,8 @@ class _EachProjectsState extends State<EachProjects> {
   Widget _buildSummaryCard(Project project) {
     return AppCard(
       padding: const EdgeInsets.all(20),
-      child: LayoutBuilder(builder: (context, constraints) {
+      child: LayoutBuilder(
+        builder: (context, constraints) {
         final compact = constraints.maxWidth < 720;
         final title = Row(
           children: [
@@ -121,8 +127,11 @@ class _EachProjectsState extends State<EachProjects> {
                 borderRadius: AppRadii.brMd,
               ),
               alignment: Alignment.center,
-              child: const Icon(Iconsax.folder_2,
-                  size: 24, color: AppColors.primary),
+                child: const Icon(
+                  Iconsax.folder_2,
+                  size: 24,
+                  color: AppColors.primary,
+                ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -139,8 +148,9 @@ class _EachProjectsState extends State<EachProjects> {
                     project.summary.isEmpty
                         ? project.shortCode
                         : project.summary,
-                    style: AppTextStyles.bodySm
-                        .copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.bodySm.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -177,11 +187,7 @@ class _EachProjectsState extends State<EachProjects> {
         if (compact) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              title,
-              const SizedBox(height: 16),
-              chips,
-            ],
+              children: [title, const SizedBox(height: 16), chips],
           );
         }
 
@@ -193,7 +199,8 @@ class _EachProjectsState extends State<EachProjects> {
             chips,
           ],
         );
-      }),
+        },
+      ),
     );
   }
 
@@ -211,7 +218,8 @@ class _EachProjectsState extends State<EachProjects> {
           children: List.generate(_projectTabs.length, (index) {
             return Padding(
               padding: EdgeInsets.only(
-                  right: index == _projectTabs.length - 1 ? 0 : 6),
+                right: index == _projectTabs.length - 1 ? 0 : 6,
+              ),
               child: _buildTabButton(_projectTabs[index], index),
             );
           }),
@@ -238,9 +246,7 @@ class _EachProjectsState extends State<EachProjects> {
           child: Text(
             title,
             style: AppTextStyles.bodyMd.copyWith(
-              color: isActive
-                  ? AppColors.textPrimary
-                  : AppColors.textSecondary,
+              color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -280,10 +286,7 @@ class _EachProjectsState extends State<EachProjects> {
         content = const SizedBox();
     }
 
-    return AppCard(
-      padding: const EdgeInsets.all(20),
-      child: content,
-    );
+    return AppCard(padding: const EdgeInsets.all(20), child: content);
   }
 
   String _getButtonTitle(int index) {
@@ -306,22 +309,29 @@ class _EachProjectsState extends State<EachProjects> {
       case 1:
         showDialog(
             context: context,
-            builder: (_) => const AddProjectMemberDialog());
+          builder: (_) => AddProjectMemberDialog(
+            projectId: project.id,
+            existingEmployeeIds: project.employeeIds,
+          ),
+        );
         break;
       case 2:
         showDialog(
             context: context,
-            builder: (_) => AddWorksiteDialog(projectId: project.id));
+          builder: (_) => AddWorksiteDialog(projectId: project.id),
+        );
         break;
       case 4:
         showDialog(
             context: context,
-            builder: (_) => AddMileStoneDialog(projectId: project.id));
+          builder: (_) => AddMileStoneDialog(projectId: project.id),
+        );
         break;
       case 5:
         showDialog(
             context: context,
-            builder: (_) => AddTaskDialog(projectId: project.id));
+          builder: (_) => AddTaskDialog(projectId: project.id),
+        );
         break;
     }
   }

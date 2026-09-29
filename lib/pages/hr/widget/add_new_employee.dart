@@ -1063,7 +1063,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: safeValue,
+          value: safeValue,
           hint: Text(
             'Select $title',
             style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),

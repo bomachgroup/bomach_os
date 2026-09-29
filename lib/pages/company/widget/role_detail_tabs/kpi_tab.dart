@@ -12,8 +12,9 @@ import '../kpi_dialogs.dart';
 
 class KpiTab extends StatelessWidget {
   final int roleId;
+  final bool readOnly;
 
-  const KpiTab({super.key, required this.roleId});
+  const KpiTab({super.key, required this.roleId, this.readOnly = false});
 
   String _fmt(String s) =>
       s.split('_').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
@@ -50,20 +51,21 @@ class KpiTab extends StatelessWidget {
                         style: AppTextStyles.bodyMd
                             .copyWith(color: AppColors.textMuted)),
                     const SizedBox(height: 16),
-                    PermissionGate(
-                      require: Perms.rolesUpdate,
-                      child: MyElevatedButton(
-                        height: 40,
-                        child: 'Add KPI',
-                        icon: const Icon(Iconsax.add,
-                            size: 16, color: AppColors.textOnPrimary),
-                        onTap: () => showDialog(
-                          context: context,
-                          builder: (_) => CreateEditKpiDialog(
-                              ctrl: ctrl, presetRoleId: roleId),
+                    if (!readOnly)
+                      PermissionGate(
+                        require: Perms.rolesUpdate,
+                        child: MyElevatedButton(
+                          height: 40,
+                          child: 'Add KPI',
+                          icon: const Icon(Iconsax.add,
+                              size: 16, color: AppColors.textOnPrimary),
+                          onTap: () => showDialog(
+                            context: context,
+                            builder: (_) => CreateEditKpiDialog(
+                                ctrl: ctrl, presetRoleId: roleId),
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -74,10 +76,10 @@ class KpiTab extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(24),
-            itemCount: roleKpis.length + 1,
+            itemCount: roleKpis.length + (readOnly ? 0 : 1),
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
-              if (index == roleKpis.length) {
+              if (!readOnly && index == roleKpis.length) {
                 return Center(
                   child: PermissionGate(
                     require: Perms.rolesUpdate,
@@ -134,52 +136,54 @@ class KpiTab extends StatelessWidget {
                         ],
                       ),
                     ),
-                    PermissionGate(
-                      require: Perms.rolesUpdate,
-                      child: PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_vert,
-                            size: 18, color: AppColors.textMuted),
-                        onSelected: (val) {
-                          if (val == 'edit') {
-                            showDialog(
-                              context: context,
-                              builder: (_) => CreateEditKpiDialog(
-                                ctrl: ctrl,
-                                kpi: k,
-                                presetRoleId: roleId,
+                    if (!readOnly)
+                      PermissionGate(
+                        require: Perms.rolesUpdate,
+                        child: PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert,
+                              size: 18, color: AppColors.textMuted),
+                          onSelected: (val) {
+                            if (val == 'edit') {
+                              showDialog(
+                                context: context,
+                                builder: (_) => CreateEditKpiDialog(
+                                  ctrl: ctrl,
+                                  kpi: k,
+                                  presetRoleId: roleId,
+                                ),
+                              );
+                            } else if (val == 'delete' && k.id != null) {
+                              _showDeleteConfirm(context, ctrl, k.id!);
+                            }
+                          },
+                          itemBuilder: (_) => [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(Iconsax.edit,
+                                      size: 16, color: AppColors.textPrimary),
+                                  SizedBox(width: 8),
+                                  Text('Edit KPI'),
+                                ],
                               ),
-                            );
-                          } else if (val == 'delete' && k.id != null) {
-                            _showDeleteConfirm(context, ctrl, k.id!);
-                          }
-                        },
-                        itemBuilder: (_) => [
-                          const PopupMenuItem(
-                            value: 'edit',
-                            child: Row(
-                              children: [
-                                Icon(Iconsax.edit,
-                                    size: 16, color: AppColors.textPrimary),
-                                SizedBox(width: 8),
-                                Text('Edit KPI'),
-                              ],
                             ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                Icon(Iconsax.trash,
-                                    size: 16, color: AppColors.danger),
-                                SizedBox(width: 8),
-                                Text('Delete KPI',
-                                    style: TextStyle(color: AppColors.danger)),
-                              ],
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(Iconsax.trash,
+                                      size: 16, color: AppColors.danger),
+                                  SizedBox(width: 8),
+                                  Text('Delete KPI',
+                                      style:
+                                          TextStyle(color: AppColors.danger)),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               );

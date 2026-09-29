@@ -91,7 +91,7 @@ class _CreateEditSopDialogState extends State<CreateEditSopDialog> {
                               .copyWith(color: AppColors.textPrimary)),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<int>(
-                        initialValue: _selectedSopId,
+                        value: _selectedSopId,
                         decoration: _defaultDropdownDecoration,
                         items: list.map((item) {
                           final id = item['id'] as int? ?? 0;
@@ -137,7 +137,7 @@ class _CreateEditSopDialogState extends State<CreateEditSopDialog> {
                           .copyWith(color: AppColors.textPrimary)),
                   const SizedBox(width: 12),
                   Switch(
-                    activeThumbColor: AppColors.primary,
+                    activeColor: AppColors.primary,
                     value: _isActive,
                     onChanged: (v) => setState(() => _isActive = v),
                   ),

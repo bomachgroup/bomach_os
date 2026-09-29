@@ -9,7 +9,8 @@ import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
-import 'package:bomach_os/pages/operations/operations.dart' show projectStatusTone;
+import 'package:bomach_os/pages/operations/operations.dart'
+    show projectStatusTone;
 import 'package:bomach_os/pages/operations/widget/add_project_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
@@ -48,8 +49,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
         subtitle: 'Overview and management of all projects',
         trailing: MyElevatedButton(
           height: 48,
-          icon: const Icon(Iconsax.add_circle,
-              color: AppColors.textOnPrimary, size: 18),
+          icon: const Icon(
+            Iconsax.add_circle,
+            color: AppColors.textOnPrimary,
+            size: 18,
+          ),
           child: 'Add Project',
           onTap: () {
             showDialog(
@@ -59,10 +63,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
           },
         ),
       ),
-      children: [
-        _buildToolbar(),
-        _buildProjectsTable(context),
-      ],
+      children: [_buildToolbar(), _buildProjectsTable(context)],
     );
   }
 
@@ -73,8 +74,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
       child: MyTextFormField(
         hintText: 'Search projects by name or short code',
         height: 48,
-        leading: const Icon(Iconsax.search_normal,
-            size: 18, color: AppColors.textMuted),
+        leading: const Icon(
+          Iconsax.search_normal,
+          size: 18,
+          color: AppColors.textMuted,
+        ),
         onChanged: (val) => controller.fetchProjects(context, search: val),
       ),
     );
@@ -82,8 +86,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   Widget _buildProjectsTable(BuildContext context) {
     return Obx(() {
-      final loading =
-          controller.isLoading.value && controller.projects.isEmpty;
+      final loading = controller.isLoading.value && controller.projects.isEmpty;
       final isEmpty =
           !controller.isLoading.value && controller.projects.isEmpty;
 
@@ -101,15 +104,18 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Projects register',
-                            style: AppTextStyles.h3),
+                        const Text(
+                          'Projects register',
+                          style: AppTextStyles.h3,
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           loading
                               ? 'Loading projects...'
                               : '${controller.totalCount.value} projects on record',
                           style: AppTextStyles.bodyMd.copyWith(
-                              color: AppColors.textSecondary),
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
@@ -137,8 +143,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   subtitle: 'Create a new project to get started.',
                   action: MyElevatedButton(
                     child: 'Add Project',
-                    icon: const Icon(Iconsax.add_circle,
-                        size: 18, color: AppColors.textOnPrimary),
+                    icon: const Icon(
+                      Iconsax.add_circle,
+                      size: 18,
+                      color: AppColors.textOnPrimary,
+                    ),
                     onTap: () {
                       showDialog(
                         context: context,
@@ -156,8 +165,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
               child: Obx(() {
                 final limit = controller.currentLimit.value;
                 final offset = controller.currentOffset.value;
-                final currentPage =
-                    limit > 0 ? (offset ~/ limit) + 1 : 1;
+                final currentPage = limit > 0 ? (offset ~/ limit) + 1 : 1;
                 return PaginatorFooter(
                   totalItems: controller.totalCount.value,
                   limit: limit,
@@ -221,16 +229,13 @@ class _ProjectsPageState extends State<ProjectsPage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (_) => EachProjects(project: project)),
+          MaterialPageRoute(builder: (_) => EachProjects(project: project)),
         );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: AppColors.borderSubtle),
-          ),
+          border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
         ),
         child: Row(
           children: [
@@ -238,8 +243,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
               flex: 2,
               child: Text(
                 project.shortCode.isEmpty ? '—' : project.shortCode,
-                style: AppTextStyles.bodyMd
-                    .copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textSecondary,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -257,7 +263,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             Expanded(
               flex: 2,
               child: Text(
-                'N${project.budget.toStringAsFixed(2)}',
+                '${project.budgetCurrency} ${project.formattedBudget}',
                 style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
@@ -268,8 +274,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
               flex: 2,
               child: Text(
                 project.startDate.isEmpty ? '—' : project.startDate,
-                style: AppTextStyles.bodyMd
-                    .copyWith(color: AppColors.textPrimary),
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -277,8 +284,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
               flex: 2,
               child: Text(
                 project.deadline.isEmpty ? '—' : project.deadline,
-                style: AppTextStyles.bodyMd
-                    .copyWith(color: AppColors.textPrimary),
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -295,10 +303,14 @@ class _ProjectsPageState extends State<ProjectsPage> {
             SizedBox(
               width: 48,
               child: PopupMenuButton<String>(
-                icon: const Icon(Iconsax.more,
-                    size: 18, color: AppColors.textSecondary),
-                shape:
-                    const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+                icon: const Icon(
+                  Iconsax.more,
+                  size: 18,
+                  color: AppColors.textSecondary,
+                ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.brMd,
+                ),
                 onSelected: (value) async {
                   switch (value) {
                     case 'view':

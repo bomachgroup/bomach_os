@@ -76,7 +76,7 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
 
     ui_web.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
       final iframe = web.HTMLIFrameElement()
-        ..src = _targetUrl
+        ..referrerPolicy = 'strict-origin-when-cross-origin'
         ..style.border = 'none'
         ..style.width = '100%'
         ..style.height = '100%'
@@ -86,18 +86,24 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
       embeddedWebViewInteraction.addListener(_pointerEventsListener!);
       _syncPointerEvents(iframe);
 
-      // Deliver auth via postMessage once the child app has loaded
+      // Deliver auth after the child app loads, then retry while its message
+      // listener and auth state finish initializing.
       iframe.addEventListener(
         'load',
-        ((web.Event _) => _postTokens(iframe)).toJS,
+        ((web.Event _) {
+          _postAttempts = 0;
+          _postTokens(iframe);
+          _scheduleTokenRetries();
+        }).toJS,
       );
 
       final messageHandler = ((web.MessageEvent event) {
         final targetOrigin = _originForTarget();
+        final sourceMatches = event.source == iframe.contentWindow;
         final trusted = isTrustedMarketingMessage(
           eventOrigin: event.origin,
           targetOrigin: targetOrigin,
-          sourceMatches: event.source == iframe.contentWindow,
+          sourceMatches: sourceMatches,
         );
         if (!trusted) return;
         final messageData = event.data;
@@ -115,10 +121,12 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
       web.window.addEventListener('message', messageHandler);
 
       _activeIframes[_viewType] = iframe;
+      // Set src only after the load and parent-message listeners are attached.
+      // Otherwise the initial navigation can finish before the load handler
+      // exists, leaving the child app waiting for its auth postMessage.
+      iframe.src = _targetUrl;
       return iframe;
     });
-
-    _scheduleTokenRetries();
   }
 
   void _syncPointerEvents(web.HTMLIFrameElement iframe) {
@@ -160,6 +168,7 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
       email: widget.email,
       apiBaseUrl: effectiveApiBase,
       backendUrl: effectiveApiBase,
+      parentOrigin: Uri.base.origin,
       hideSidebar: widget.hideSidebar,
       hideTopbar: widget.hideTopbar,
     );
@@ -230,8 +239,6 @@ class _MarketingIFrameViewState extends State<_MarketingIFrameView> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: HtmlElementView(viewType: _viewType),
-    );
+    return SizedBox.expand(child: HtmlElementView(viewType: _viewType));
   }
 }

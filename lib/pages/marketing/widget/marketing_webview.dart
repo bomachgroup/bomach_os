@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -31,18 +33,37 @@ class _MarketingWebViewState extends State<MarketingWebView> {
   String _token = '';
   String _refreshToken = '';
   bool _isLoading = true;
+  StreamSubscription<dynamic>? _authUserSubscription;
+  int _tokenLoadGeneration = 0;
 
   @override
   void initState() {
     super.initState();
     _loadAuthToken();
+    if (Get.isRegistered<AuthController>()) {
+      final authController = Get.find<AuthController>();
+      _authUserSubscription = authController.currentUser.listen((user) {
+        if (user == null) {
+          _tokenLoadGeneration++;
+          if (mounted) {
+            setState(() {
+              _token = '';
+              _refreshToken = '';
+            });
+          }
+        } else {
+          _loadAuthToken();
+        }
+      });
+    }
   }
 
   Future<void> _loadAuthToken() async {
+    final generation = ++_tokenLoadGeneration;
     try {
       final token = await _storage.read(key: 'access_token');
       final refreshToken = await _storage.read(key: 'refresh_token');
-      if (mounted) {
+      if (mounted && generation == _tokenLoadGeneration) {
         setState(() {
           _token = token ?? '';
           _refreshToken = refreshToken ?? '';
@@ -50,12 +71,21 @@ class _MarketingWebViewState extends State<MarketingWebView> {
         });
       }
     } catch (_) {
-      if (mounted) {
+      if (mounted && generation == _tokenLoadGeneration) {
         setState(() {
+          _token = '';
+          _refreshToken = '';
           _isLoading = false;
         });
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _tokenLoadGeneration++;
+    _authUserSubscription?.cancel();
+    super.dispose();
   }
 
   void _handleNavigationRequested(String route) {
@@ -69,6 +99,25 @@ class _MarketingWebViewState extends State<MarketingWebView> {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_token.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Marketing is waiting for your Bomach OS sign-in.'),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: _loadAuthToken,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
       );
     }
 

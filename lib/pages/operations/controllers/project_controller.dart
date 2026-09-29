@@ -8,17 +8,23 @@ import 'package:get/get.dart';
 import '../../../pages/operations/models/models.dart';
 import '../../../src/model/departments_units_model.dart';
 import '../../../src/services/employees_services.dart';
+import '../../../src/model/employees_model.dart';
+import '../../../src/services/crm/crm_service.dart';
 import '../../../src/services/operations/operations_services.dart';
 
 class ProjectController extends GetxController {
-  final DashboardService _service =
-      DashboardService(baseUrl: ApiConstants.operationsBaseUrl);
+  final DashboardService _service = DashboardService(
+    baseUrl: ApiConstants.operationsBaseUrl,
+  );
   final EmployeeService _employeeService = EmployeeService();
+  final CrmService _crmService = CrmService();
   final _storage = const FlutterSecureStorage();
 
   var projects = <Project>[].obs;
   var projectEmployees = <ProjectEmployee>[].obs;
   var departments = <Department>[].obs;
+  var employees = <Employee>[].obs;
+  var clients = <CrmClient>[].obs;
   var isLoading = false.obs;
   var isActionLoading = false.obs;
   var isLoadingEmployees = false.obs;
@@ -33,6 +39,30 @@ class ProjectController extends GetxController {
   void onInit() {
     super.onInit();
     _fetchDepartments();
+    _fetchProjectLookups();
+  }
+
+  Future<void> _fetchProjectLookups() async {
+    try {
+      final stored = await _storage.read(key: 'access_token');
+      if (stored == null) return;
+      final token = stored
+          .replaceFirst('Bearer ', '')
+          .replaceAll('"', '')
+          .trim();
+      final results = await Future.wait([
+        _employeeService.getEmployees(token, isActive: true, limit: 200),
+        _crmService.getClients(token, limit: 200),
+      ]);
+      employees.assignAll(
+        (results[0] as ({List<Employee> list, int count})).list,
+      );
+      clients.assignAll(
+        (results[1] as ({List<CrmClient> items, int total})).items,
+      );
+    } catch (e) {
+      log('Unable to load project client and employee options: $e');
+    }
   }
 
   Future<void> _fetchDepartments() async {
@@ -42,8 +72,10 @@ class ProjectController extends GetxController {
       final t = token.startsWith("Bearer ")
           ? token.replaceFirst("Bearer ", "")
           : token;
-      final result = await _employeeService
-          .getDepartments(t.replaceAll('"', '').trim(), limit: 200);
+      final result = await _employeeService.getDepartments(
+        t.replaceAll('"', '').trim(),
+        limit: 200,
+      );
       departments.assignAll(result);
     } catch (e) {
       log("Error fetching departments: $e");
@@ -65,8 +97,11 @@ class ProjectController extends GetxController {
     AppToast.success(context, message);
   }
 
-  Future<void> fetchProjects(BuildContext context,
-      {String? search, String? status}) async {
+  Future<void> fetchProjects(
+    BuildContext context, {
+    String? search,
+    String? status,
+  }) async {
     try {
       if (search != null) {
         currentSearch.value = search;
@@ -115,14 +150,20 @@ class ProjectController extends GetxController {
   }
 
   Future<void> updateProject(
-      BuildContext context, int id, Project project) async {
+    BuildContext context,
+    int id,
+    Project project,
+  ) async {
     try {
       isActionLoading.value = true;
       final token = await _getToken(context);
       if (token == null) throw Exception("Authentication token not found");
 
       await _service.updateProject(
-          accessToken: token, projectId: id, project: project);
+        accessToken: token,
+        projectId: id,
+        project: project,
+      );
 
       _showSuccess(context, "Project updated successfully");
       Navigator.of(context).pop();
@@ -135,14 +176,20 @@ class ProjectController extends GetxController {
   }
 
   Future<void> updateProjectStatus(
-      BuildContext context, int id, String status) async {
+    BuildContext context,
+    int id,
+    String status,
+  ) async {
     try {
       isActionLoading.value = true;
       final token = await _getToken(context);
       if (token == null) throw Exception("Authentication token not found");
 
       await _service.updateProjectStatus(
-          accessToken: token, projectId: id, status: status);
+        accessToken: token,
+        projectId: id,
+        status: status,
+      );
 
       _showSuccess(context, "Project status updated to $status");
       fetchProjects(context);
@@ -154,7 +201,9 @@ class ProjectController extends GetxController {
   }
 
   Future<void> fetchProjectEmployees(
-      BuildContext context, int projectId) async {
+    BuildContext context,
+    int projectId,
+  ) async {
     try {
       isLoadingEmployees.value = true;
       final token = await _getToken(context);
@@ -170,6 +219,32 @@ class ProjectController extends GetxController {
       _showError(context, "Failed to load project members: ${e.toString()}");
     } finally {
       isLoadingEmployees.value = false;
+    }
+  }
+
+  Future<void> addProjectEmployee(
+    BuildContext context,
+    int projectId,
+    String employeeId,
+    List<String> existingIds,
+  ) async {
+    try {
+      isActionLoading.value = true;
+      final token = await _getToken(context);
+      if (token == null) throw Exception('Authentication token not found');
+      final employeeIds = {...existingIds, employeeId}.toList();
+      await _service.addProjectEmployees(
+        accessToken: token,
+        projectId: projectId,
+        employeeIds: employeeIds,
+      );
+      await fetchProjectEmployees(context, projectId);
+      _showSuccess(context, 'Project member added successfully');
+      if (context.mounted) Navigator.of(context).pop();
+    } catch (e) {
+      _showError(context, 'Failed to add project member: ${e.toString()}');
+    } finally {
+      isActionLoading.value = false;
     }
   }
 

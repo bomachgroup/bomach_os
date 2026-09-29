@@ -65,7 +65,7 @@ class _CreateResourceDialogState extends State<CreateResourceDialog> {
                 style: AppTextStyles.label.copyWith(color: AppColors.textPrimary)),
             const SizedBox(height: 8),
             DropdownButtonFormField<ResourceType>(
-              initialValue: _selectedType,
+              value: _selectedType,
               decoration: _dropdownDecor,
               items: ResourceType.values.map((t) => DropdownMenuItem(
                   value: t, child: Text(_typeLabel(t)))).toList(),

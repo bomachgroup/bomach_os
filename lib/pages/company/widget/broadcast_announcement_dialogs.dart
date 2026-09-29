@@ -498,7 +498,7 @@ class _CreateEditAnnouncementDialogState
         const SizedBox(width: 12),
         Switch(
           value: isActive,
-          activeThumbColor: AppColors.primary,
+          activeColor: AppColors.primary,
           onChanged: (val) => setState(() => isActive = val),
         ),
         const SizedBox(width: 8),

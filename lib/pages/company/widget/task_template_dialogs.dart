@@ -106,7 +106,7 @@ class _CreateEditTaskTemplateDialogState
                   style: AppTextStyles.label.copyWith(color: AppColors.textPrimary)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                initialValue: _priority,
+                value: _priority,
                 decoration: _defaultDropdownDecoration,
                 items: RoleTaskTemplate.priorityOptions
                     .map((p) => DropdownMenuItem(
@@ -125,7 +125,7 @@ class _CreateEditTaskTemplateDialogState
                           .copyWith(color: AppColors.textPrimary)),
                   const SizedBox(width: 12),
                   Switch(
-                    activeThumbColor: AppColors.primary,
+                    activeColor: AppColors.primary,
                     value: _isActive,
                     onChanged: (v) => setState(() => _isActive = v),
                   ),

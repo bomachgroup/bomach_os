@@ -6,13 +6,18 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 import '../../../src/services/operations/works_services.dart';
+import '../../../src/services/crm/crm_service.dart';
 
 class WorksiteController extends GetxController {
-  final WorksiteService _service =
-      WorksiteService(baseUrl: ApiConstants.operationsBaseUrl);
+  final WorksiteService _service = WorksiteService(
+    baseUrl: ApiConstants.operationsBaseUrl,
+  );
+  final CrmService _crmService = CrmService();
   final _storage = const FlutterSecureStorage();
 
   var worksites = <Worksite>[].obs;
+  var clients = <CrmClient>[].obs;
+  var leads = <CrmLead>[].obs;
   var isLoading = false.obs;
   var isActionLoading = false.obs;
   var errorMessage = ''.obs;
@@ -21,6 +26,31 @@ class WorksiteController extends GetxController {
 
   var currentLimit = 10.obs;
   var currentOffset = 0.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _fetchContactOptions();
+  }
+
+  Future<void> _fetchContactOptions() async {
+    try {
+      final stored = await _storage.read(key: 'access_token');
+      if (stored == null) return;
+      final token = stored
+          .replaceFirst('Bearer ', '')
+          .replaceAll('"', '')
+          .trim();
+      final result = await Future.wait([
+        _crmService.getClients(token, limit: 200),
+        _crmService.getLeads(token, limit: 200),
+      ]);
+      clients.assignAll(
+        (result[0] as ({List<CrmClient> items, int total})).items,
+      );
+      leads.assignAll((result[1] as ({List<CrmLead> items, int total})).items);
+    } catch (_) {}
+  }
 
   Future<String?> _getToken(BuildContext context) async {
     String? token = await _storage.read(key: 'access_token');
@@ -37,8 +67,11 @@ class WorksiteController extends GetxController {
     AppToast.success(context, message);
   }
 
-  Future<void> fetchWorksites(BuildContext context,
-      {int? projectId, String? search}) async {
+  Future<void> fetchWorksites(
+    BuildContext context, {
+    int? projectId,
+    String? search,
+  }) async {
     try {
       if (search != null) {
         currentSearch.value = search;
@@ -90,14 +123,20 @@ class WorksiteController extends GetxController {
   }
 
   Future<void> updateWorksite(
-      BuildContext context, int id, Worksite worksite) async {
+    BuildContext context,
+    int id,
+    Worksite worksite,
+  ) async {
     try {
       isActionLoading.value = true;
       final token = await _getToken(context);
       if (token == null) throw Exception("Authentication token not found");
 
       await _service.updateWorksite(
-          accessToken: token, worksiteId: id, worksite: worksite);
+        accessToken: token,
+        worksiteId: id,
+        worksite: worksite,
+      );
 
       _showSuccess(context, "Worksite updated successfully");
       Navigator.of(context).pop();
@@ -112,7 +151,10 @@ class WorksiteController extends GetxController {
   }
 
   Future<void> deleteWorksite(
-      BuildContext context, int id, int projectId) async {
+    BuildContext context,
+    int id,
+    int projectId,
+  ) async {
     try {
       isActionLoading.value = true;
       final token = await _getToken(context);

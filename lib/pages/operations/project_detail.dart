@@ -46,8 +46,11 @@ class ProjectDetailPage extends StatelessWidget {
         trailing: MyElevatedButton(
           height: 48,
           bgColor: AppColors.danger,
-          icon: const Icon(Iconsax.trash,
-              size: 18, color: AppColors.textOnPrimary),
+          icon: const Icon(
+            Iconsax.trash,
+            size: 18,
+            color: AppColors.textOnPrimary,
+          ),
           child: 'Delete Project',
           onTap: () => _confirmDelete(context, controller, proj),
         ),
@@ -69,16 +72,18 @@ class ProjectDetailPage extends StatelessWidget {
                       borderRadius: AppRadii.brMd,
                     ),
                     alignment: Alignment.center,
-                    child: const Icon(Iconsax.folder_2,
-                        size: 24, color: AppColors.primary),
+                    child: const Icon(
+                      Iconsax.folder_2,
+                      size: 24,
+                      color: AppColors.primary,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Project Overview',
-                            style: AppTextStyles.h3),
+                        const Text('Project Overview', style: AppTextStyles.h3),
                         const SizedBox(height: 4),
                         Text(
                           'Key information on file for this project.',
@@ -101,12 +106,18 @@ class ProjectDetailPage extends StatelessWidget {
               _DetailSection(
                 items: [
                   _DetailItem('Project Name', proj.name),
-                  _DetailItem('Short Code',
-                      proj.shortCode.isEmpty ? '—' : proj.shortCode),
                   _DetailItem(
-                      'Category', proj.category.isEmpty ? '—' : proj.category),
-                  _DetailItem('Department',
-                      proj.department.isEmpty ? '—' : proj.department),
+                    'Short Code',
+                    proj.shortCode.isEmpty ? '—' : proj.shortCode,
+                  ),
+                  _DetailItem(
+                    'Category',
+                    proj.category.isEmpty ? '—' : proj.category,
+                  ),
+                  _DetailItem(
+                    'Department',
+                    proj.department.isEmpty ? '—' : proj.department,
+                  ),
                   _DetailItem(
                     'Priority',
                     proj.priority.isEmpty ? '—' : proj.priority,
@@ -115,13 +126,21 @@ class ProjectDetailPage extends StatelessWidget {
                         : priorityTone(proj.priority),
                   ),
                   _DetailItem(
-                      'Budget', 'N${proj.budget.toStringAsFixed(2)}'),
-                  _DetailItem('Start Date',
-                      proj.startDate.isEmpty ? '—' : proj.startDate),
-                  _DetailItem('Deadline',
-                      proj.deadline.isEmpty ? '—' : proj.deadline),
+                    'Budget',
+                    '${proj.budgetCurrency} ${proj.formattedBudget}',
+                  ),
                   _DetailItem(
-                      'Location', proj.location.isEmpty ? '—' : proj.location),
+                    'Start Date',
+                    proj.startDate.isEmpty ? '—' : proj.startDate,
+                  ),
+                  _DetailItem(
+                    'Deadline',
+                    proj.deadline.isEmpty ? '—' : proj.deadline,
+                  ),
+                  _DetailItem(
+                    'Location',
+                    proj.location.isEmpty ? '—' : proj.location,
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -156,7 +175,10 @@ class ProjectDetailPage extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(
-      BuildContext context, ProjectController controller, Project proj) async {
+    BuildContext context,
+    ProjectController controller,
+    Project proj,
+  ) async {
     final confirmed = await DialogScaffold.show<bool>(
       context,
       title: 'Delete Project',
@@ -201,19 +223,17 @@ class _DetailSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
       final twoCol = constraints.maxWidth >= 640;
       if (!twoCol) {
-        return Column(
-          children: [
-            for (final item in items) _row(item),
-          ],
-        );
+          return Column(children: [for (final item in items) _row(item)]);
       }
 
       final rows = <Widget>[];
       for (var i = 0; i < items.length; i += 2) {
-        rows.add(Row(
+          rows.add(
+            Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(child: _row(items[i])),
@@ -224,10 +244,12 @@ class _DetailSection extends StatelessWidget {
                   : const SizedBox(),
             ),
           ],
-        ));
+            ),
+          );
       }
       return Column(children: rows);
-    });
+      },
+    );
   }
 
   Widget _row(_DetailItem item) {
@@ -247,10 +269,7 @@ class _DetailSection extends StatelessWidget {
             child: item.chipTone != null
                 ? Align(
                     alignment: Alignment.centerLeft,
-                    child: StatusChip(
-                      label: item.value,
-                      tone: item.chipTone!,
-                    ),
+                    child: StatusChip(label: item.value, tone: item.chipTone!),
                   )
                 : Text(
                     item.value,

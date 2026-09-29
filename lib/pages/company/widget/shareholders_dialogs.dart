@@ -304,7 +304,7 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
             child: Padding(
               padding: const EdgeInsets.only(right: 8),
               child: DropdownButtonFormField<String>(
-                initialValue:
+                value:
                     _roleOptions.contains(row.role) ? row.role : null,
                 isDense: true,
                 decoration: InputDecoration(

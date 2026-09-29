@@ -390,7 +390,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                                         setState(() => isActive = val),
                                     dense: true,
                                     contentPadding: EdgeInsets.zero,
-                                    activeThumbColor: AppColors.success,
+                                    activeColor: AppColors.success,
                                     title: Text(
                                       isActive ? 'Active' : 'Inactive',
                                       style: AppTextStyles.bodyMd.copyWith(

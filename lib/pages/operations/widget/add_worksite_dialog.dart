@@ -17,11 +17,7 @@ class AddWorksiteDialog extends StatefulWidget {
   final Worksite? worksite;
   final int projectId;
 
-  const AddWorksiteDialog({
-    super.key,
-    this.worksite,
-    this.projectId = 0,
-  });
+  const AddWorksiteDialog({super.key, this.worksite, this.projectId = 0});
 
   @override
   State<AddWorksiteDialog> createState() => AddWorksiteDialogState();
@@ -35,6 +31,10 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
   late TextEditingController locationCtrl;
   late TextEditingController descCtrl;
   String selectedStatus = 'Active';
+  String? selectedClientId;
+  String? selectedLeadId;
+  final clientCtrl = TextEditingController();
+  final leadCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -46,6 +46,8 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
     if (widget.worksite != null && widget.worksite!.status.isNotEmpty) {
       selectedStatus = widget.worksite!.status;
     }
+    selectedClientId = widget.worksite?.clientId?.toString();
+    selectedLeadId = widget.worksite?.leadId?.toString();
   }
 
   @override
@@ -53,6 +55,8 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
     nameCtrl.dispose();
     locationCtrl.dispose();
     descCtrl.dispose();
+    clientCtrl.dispose();
+    leadCtrl.dispose();
     super.dispose();
   }
 
@@ -67,6 +71,10 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
       location: locationCtrl.text,
       status: selectedStatus,
       description: descCtrl.text,
+      clientId: selectedClientId == null
+          ? null
+          : int.tryParse(selectedClientId!),
+      leadId: selectedLeadId == null ? null : int.tryParse(selectedLeadId!),
       createdAt: widget.worksite?.createdAt ?? '',
       updatedAt: '',
     );
@@ -82,7 +90,8 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.worksite != null;
 
-    return Obx(() => DialogScaffold(
+    return Obx(
+      () => DialogScaffold(
           title: isEdit ? 'Edit Worksite' : 'New Worksite',
           subtitle: isEdit
               ? 'Update worksite location and operational status.'
@@ -120,6 +129,77 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
                   ),
                 ),
                 const SizedBox(height: 20),
+              _buildSection(
+                title: 'Client or lead (optional)',
+                subtitle: 'Choose one contact to associate with this worksite.',
+                child: Column(
+                  children: [
+                    Obx(
+                      () => MyDropdown(
+                        controller: clientCtrl,
+                        title: 'Client',
+                        hintText: 'No client selected',
+                        initialSelection: selectedClientId == null
+                            ? null
+                            : controller.clients
+                                  .firstWhereOrNull(
+                                    (client) =>
+                                        client.id.toString() ==
+                                        selectedClientId,
+                                  )
+                                  ?.fullName,
+                        items: controller.clients
+                            .map((client) => client.fullName)
+                            .toList(),
+                        onChanged: (name) {
+                          final client = controller.clients.firstWhereOrNull(
+                            (item) => item.fullName == name,
+                          );
+                          setState(() {
+                            selectedClientId = client?.id.toString();
+                            if (client != null) {
+                              selectedLeadId = null;
+                              leadCtrl.clear();
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Obx(
+                      () => MyDropdown(
+                        controller: leadCtrl,
+                        title: 'Lead',
+                        hintText: 'No lead selected',
+                        initialSelection: selectedLeadId == null
+                            ? null
+                            : controller.leads
+                                  .firstWhereOrNull(
+                                    (lead) =>
+                                        lead.id.toString() == selectedLeadId,
+                                  )
+                                  ?.fullName,
+                        items: controller.leads
+                            .map((lead) => lead.fullName)
+                            .toList(),
+                        onChanged: (name) {
+                          final lead = controller.leads.firstWhereOrNull(
+                            (item) => item.fullName == name,
+                          );
+                          setState(() {
+                            selectedLeadId = lead?.id.toString();
+                            if (lead != null) {
+                              selectedClientId = null;
+                              clientCtrl.clear();
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
                 _buildSection(
                   title: 'Operational status',
                   subtitle: 'Track the current working state of this site.',
@@ -169,7 +249,8 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
                     ),
             ),
           ],
-        ));
+      ),
+    );
   }
 
   Widget _buildSection({
@@ -192,8 +273,9 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style:
-                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
           const SizedBox(height: 16),

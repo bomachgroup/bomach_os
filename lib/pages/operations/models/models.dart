@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class DashboardStats {
   final int activeProjects;
   final String totalBudget;
@@ -41,12 +43,19 @@ class Project {
   final String shortCode;
   final String category;
   final String department;
-  final int clientId;
+  final int? departmentId;
+  final int? clientId;
+  final String clientName;
+  final String clientEmail;
+  final String clientPhone;
+  final List<String> employeeIds;
+  final int? serviceOrderId;
   final String location;
   final String priority;
   final String status;
   final String summary;
   final double budget;
+  final String budgetCurrency;
   final double progress;
   final String startDate;
   final String deadline;
@@ -58,12 +67,19 @@ class Project {
     required this.shortCode,
     required this.category,
     required this.department,
-    required this.clientId,
+    this.departmentId,
+    this.clientId,
+    this.clientName = '',
+    this.clientEmail = '',
+    this.clientPhone = '',
+    this.employeeIds = const [],
+    this.serviceOrderId,
     required this.location,
     required this.priority,
     required this.status,
     required this.summary,
     required this.budget,
+    this.budgetCurrency = 'NGN',
     required this.progress,
     required this.startDate,
     required this.deadline,
@@ -77,12 +93,44 @@ class Project {
       shortCode: json['short_code']?.toString() ?? '',
       category: json['category']?.toString() ?? '',
       department: json['department']?.toString() ?? '',
-      clientId: int.tryParse(json['client_id']?.toString() ?? '0') ?? 0,
+      departmentId: json['department_id'] == null
+          ? null
+          : int.tryParse(json['department_id'].toString()),
+      clientId: json['client_id'] == null
+          ? null
+          : int.tryParse(json['client_id'].toString()),
+      clientName: json['client_name']?.toString() ??
+          (json['client'] is Map
+              ? json['client']['name']?.toString() ?? ''
+              : ''),
+      clientEmail: json['client_email']?.toString() ??
+          (json['client'] is Map
+              ? json['client']['email']?.toString() ?? ''
+              : ''),
+      clientPhone: json['client_phone']?.toString() ??
+          (json['client'] is Map
+              ? json['client']['phone']?.toString() ?? ''
+              : ''),
+      employeeIds: (json['employee_ids'] is List
+              ? json['employee_ids'] as List
+              : json['employees'] is List
+                  ? (json['employees'] as List)
+                      .map((row) => row is Map ? row['id'] : row)
+                      .toList()
+                  : const <dynamic>[])
+          .map((id) => id.toString())
+          .toList(),
+      serviceOrderId: json['service_order_id'] == null
+          ? null
+          : int.tryParse(json['service_order_id'].toString()),
       location: json['location']?.toString() ?? '',
       priority: json['priority']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       summary: json['summary']?.toString() ?? '',
       budget: double.tryParse(json['budget']?.toString() ?? '0') ?? 0.0,
+      budgetCurrency: json['budget_currency']?.toString() ??
+          json['currency']?.toString() ??
+          'NGN',
       progress: double.tryParse(json['progress']?.toString() ?? '0') ?? 0.0,
       startDate: json['start_date']?.toString() ?? '',
       deadline: json['deadline']?.toString() ?? '',
@@ -90,25 +138,29 @@ class Project {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({bool includeStatus = true}) {
     return {
-      'id': id,
       'name': name,
       'short_code': shortCode,
       'category': category,
-      'department': department,
-      'client_id': clientId,
+      if (departmentId != null) 'department_id': departmentId,
+      if (clientId != null) 'client_id': clientId,
+      'employee_ids': employeeIds.map(int.tryParse).whereType<int>().toList(),
+      if (serviceOrderId != null) 'service_order_id': serviceOrderId,
       'location': location,
       'priority': priority,
-      'status': status,
       'summary': summary,
       'budget': budget,
+      'budget_currency': budgetCurrency,
       'progress': progress,
       'start_date': startDate,
       'deadline': deadline,
       'file_url': fileUrl,
+      if (includeStatus) 'status': status,
     };
   }
+
+  String get formattedBudget => NumberFormat('#,##0.##').format(budget);
 }
 
 class Task {
@@ -168,6 +220,7 @@ class Task {
 
   Map<String, dynamic> toJson() {
     return {
+      'project_id': projectId == 0 ? null : projectId,
       if (milestoneId != null) 'milestone_id': milestoneId,
       'name': name,
       'description': description.isEmpty ? null : description,
@@ -187,6 +240,8 @@ class Worksite {
   final String location;
   final String status;
   final String description;
+  final int? clientId;
+  final int? leadId;
   final String createdAt;
   final String updatedAt;
 
@@ -197,6 +252,8 @@ class Worksite {
     required this.location,
     required this.status,
     required this.description,
+    this.clientId,
+    this.leadId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -209,6 +266,12 @@ class Worksite {
       location: json['location']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
+      clientId: json['client_id'] == null
+          ? null
+          : int.tryParse(json['client_id'].toString()),
+      leadId: json['lead_id'] == null
+          ? null
+          : int.tryParse(json['lead_id'].toString()),
       createdAt: json['created_at']?.toString() ?? '',
       updatedAt: json['updated_at']?.toString() ?? '',
     );
@@ -221,6 +284,8 @@ class Worksite {
       'location': location,
       'status': status,
       'description': description,
+      'client_id': clientId,
+      'lead_id': leadId,
     };
   }
 }
@@ -421,11 +486,7 @@ class SiteEquipment {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'worksite_id': worksiteId,
-      'name': name,
-      'unit_value': unitValue,
-    };
+    return {'worksite_id': worksiteId, 'name': name, 'unit_value': unitValue};
   }
 }
 

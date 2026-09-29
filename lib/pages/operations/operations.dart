@@ -27,8 +27,9 @@ class OperationsPage extends StatefulWidget {
 }
 
 class _OperationsPageState extends State<OperationsPage> {
-  final OperationsDashboardController controller =
-      Get.put(OperationsDashboardController());
+  final OperationsDashboardController controller = Get.put(
+    OperationsDashboardController(),
+  );
 
   @override
   void initState() {
@@ -46,8 +47,11 @@ class _OperationsPageState extends State<OperationsPage> {
         subtitle: 'Overview of projects, budgets, worksites, and timelines',
         trailing: MyElevatedButton(
           height: 48,
-          icon: const Icon(Iconsax.add_circle,
-              color: AppColors.textOnPrimary, size: 18),
+          icon: const Icon(
+            Iconsax.add_circle,
+            color: AppColors.textOnPrimary,
+            size: 18,
+          ),
           child: 'Add Project',
           onTap: () {
             showDialog(
@@ -91,14 +95,18 @@ class _StatPlaceholder extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       child: Row(
         children: [
-          const Icon(Iconsax.info_circle,
-              size: 18, color: AppColors.textSecondary),
+          const Icon(
+            Iconsax.info_circle,
+            size: 18,
+            color: AppColors.textSecondary,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               'Unable to load operations stats right now.',
-              style: AppTextStyles.bodyMd
-                  .copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
         ],
@@ -229,7 +237,8 @@ class _RecentProjectsSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-            child: LayoutBuilder(builder: (context, constraints) {
+            child: LayoutBuilder(
+              builder: (context, constraints) {
               final compact = constraints.maxWidth < 640;
               final titleBlock = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,8 +247,9 @@ class _RecentProjectsSection extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Latest projects across the organisation',
-                    style: AppTextStyles.bodyMd
-                        .copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                   ),
                 ],
               );
@@ -249,8 +259,11 @@ class _RecentProjectsSection extends StatelessWidget {
                 child: MyTextFormField(
                   hintText: 'Search projects...',
                   height: 44,
-                  leading: const Icon(Iconsax.search_normal,
-                      size: 18, color: AppColors.textMuted),
+                    leading: const Icon(
+                      Iconsax.search_normal,
+                      size: 18,
+                      color: AppColors.textMuted,
+                    ),
                   onChanged: (val) =>
                       controller.fetchProjects(context, search: val),
                 ),
@@ -259,11 +272,7 @@ class _RecentProjectsSection extends StatelessWidget {
               if (compact) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    titleBlock,
-                    const SizedBox(height: 12),
-                    search,
-                  ],
+                    children: [titleBlock, const SizedBox(height: 12), search],
                 );
               }
 
@@ -274,7 +283,8 @@ class _RecentProjectsSection extends StatelessWidget {
                   search,
                 ],
               );
-            }),
+              },
+            ),
           ),
           const Divider(height: 1, color: AppColors.borderSubtle),
           Obx(() {
@@ -370,8 +380,9 @@ class _ProjectTile extends StatelessWidget {
                     children: [
                       Text(
                         project.shortCode,
-                        style: AppTextStyles.caption
-                            .copyWith(color: AppColors.textMuted),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textMuted,
+                        ),
                       ),
                       if (project.status.isNotEmpty) ...[
                         const SizedBox(width: 8),
@@ -391,7 +402,7 @@ class _ProjectTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  'N${project.budget.toStringAsFixed(2)}',
+                  '${project.budgetCurrency} ${project.formattedBudget}',
                   style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -400,13 +411,17 @@ class _ProjectTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Iconsax.calendar_1,
-                        size: 14, color: AppColors.textMuted),
+                    const Icon(
+                      Iconsax.calendar_1,
+                      size: 14,
+                      color: AppColors.textMuted,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       project.deadline.isEmpty ? '—' : project.deadline,
-                      style: AppTextStyles.caption
-                          .copyWith(color: AppColors.textMuted),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -415,8 +430,11 @@ class _ProjectTile extends StatelessWidget {
             const SizedBox(width: 8),
             IconButton(
               onPressed: onDelete,
-              icon: const Icon(Iconsax.trash,
-                  size: 18, color: AppColors.danger),
+              icon: const Icon(
+                Iconsax.trash,
+                size: 18,
+                color: AppColors.danger,
+              ),
               tooltip: 'Delete',
             ),
           ],

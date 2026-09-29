@@ -2,28 +2,29 @@ import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/input/my_dropdown.dart';
-import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/project_controller.dart';
 
 class AddProjectMemberDialog extends StatefulWidget {
-  const AddProjectMemberDialog({super.key});
+  final int projectId;
+  final List<String> existingEmployeeIds;
+  const AddProjectMemberDialog({
+    super.key,
+    required this.projectId,
+    this.existingEmployeeIds = const [],
+  });
 
   @override
   State<AddProjectMemberDialog> createState() => AddProjectMemberDialogState();
 }
 
 class AddProjectMemberDialogState extends State<AddProjectMemberDialog> {
-  final detailsCtrl = TextEditingController();
+  final ProjectController controller = Get.find<ProjectController>();
   String? _selectedEmployee;
-
-  @override
-  void dispose() {
-    detailsCtrl.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,27 +36,34 @@ class AddProjectMemberDialogState extends State<AddProjectMemberDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSection(
-            title: 'Member details',
+            title: 'Choose employee',
             child: Column(
               children: [
-                MyDropdown(
+                Obx(
+                  () => MyDropdown(
                   hintText: 'Select employee',
                   title: 'Employee',
-                  initialSelection: _selectedEmployee,
-                  items: const [
-                    'John Agbo',
-                    'Emeka Carlos',
-                    'Calistos Mba',
-                  ],
-                  onChanged: (val) =>
-                      setState(() => _selectedEmployee = val),
-                ),
-                const SizedBox(height: 16),
-                MyTextFormField(
-                  controller: detailsCtrl,
-                  maxLines: 4,
-                  hintText: 'Add notes about this assignment...',
-                  title: 'Details',
+                    initialSelection: _selectedEmployee == null
+                        ? null
+                        : controller.employees
+                              .firstWhereOrNull(
+                                (employee) => employee.id == _selectedEmployee,
+                              )
+                              ?.fullName,
+                    items: controller.employees
+                        .where(
+                          (employee) =>
+                              !widget.existingEmployeeIds.contains(employee.id),
+                        )
+                        .map((employee) => employee.fullName)
+                        .toList(),
+                    onChanged: (name) {
+                      final employee = controller.employees.firstWhereOrNull(
+                        (item) => item.fullName == name,
+                      );
+                      setState(() => _selectedEmployee = employee?.id);
+                    },
+                  ),
                 ),
               ],
             ),
@@ -70,11 +78,21 @@ class AddProjectMemberDialogState extends State<AddProjectMemberDialog> {
           textColor: AppColors.textSecondary,
           borderColor: AppColors.borderStrong,
         ),
-        MyElevatedButton(
+        Obx(
+          () => MyElevatedButton(
           width: 140,
           height: 44,
+            isLoading: controller.isActionLoading.value,
           child: 'Save Member',
-          onTap: () {},
+            onTap: _selectedEmployee == null || controller.isActionLoading.value
+                ? null
+                : () => controller.addProjectEmployee(
+                    context,
+                    widget.projectId,
+                    _selectedEmployee!,
+                    widget.existingEmployeeIds,
+                  ),
+          ),
         ),
       ],
     );

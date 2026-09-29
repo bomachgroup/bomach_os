@@ -286,7 +286,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   ),
-                  initialValue: _selectedMetricId,
+                  value: _selectedMetricId,
                   hint: Text(_metrics.isEmpty
                       ? 'No metrics available — click "+ New" above'
                       : 'Select a metric'),
@@ -318,7 +318,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
-                initialValue: _selectedRoleId,
+                value: _selectedRoleId,
                 hint: const Text('Select role'),
                 items: rc.roles
                     .map((r) => DropdownMenuItem(
@@ -348,7 +348,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       ),
-                      initialValue: _trackingMode,
+                      value: _trackingMode,
                       items: RoleKpi.trackingModeOptions
                           .map((t) => DropdownMenuItem(
                               value: t, child: Text(_formatLabel(t))))
@@ -371,7 +371,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       ),
-                      initialValue: _period,
+                      value: _period,
                       items: RoleKpi.periodOptions
                           .map((p) => DropdownMenuItem(
                               value: p, child: Text(_formatLabel(p))))
@@ -443,7 +443,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
               Switch(
                 value: _isActive,
                 onChanged: (v) => setState(() => _isActive = v),
-                activeThumbColor: AppColors.primary,
+                activeColor: AppColors.primary,
               ),
               const SizedBox(width: 8),
               const Text('Active', style: AppTextStyles.bodyMd),

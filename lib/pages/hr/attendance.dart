@@ -116,7 +116,7 @@ class AttendancePageState extends State<AttendancePage> {
             SwitchListTile.adaptive(
               value: enabled,
               onChanged: isEnabling ? null : _setRemindersEnabled,
-              activeThumbColor: AppColors.primary,
+              activeColor: AppColors.primary,
               secondary: Icon(
                 enabled ? Iconsax.notification_bing : Iconsax.notification,
                 color: AppColors.primary,

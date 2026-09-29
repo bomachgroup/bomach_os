@@ -11,8 +11,14 @@ import '../sop_dialog.dart';
 class SopTab extends StatelessWidget {
   final int roleId;
   final int? departmentId;
+  final bool readOnly;
 
-  const SopTab({super.key, required this.roleId, this.departmentId});
+  const SopTab({
+    super.key,
+    required this.roleId,
+    this.departmentId,
+    this.readOnly = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,19 +65,20 @@ class SopTab extends StatelessWidget {
                         style: AppTextStyles.bodyMd
                             .copyWith(color: AppColors.textMuted)),
                     const SizedBox(height: 16),
-                    MyElevatedButton(
-                      height: 40,
-                      child: 'Link SOP',
-                      icon: const Icon(Iconsax.add,
-                          size: 16, color: AppColors.textOnPrimary),
-                      onTap: () => showDialog(
-                        context: context,
-                        builder: (_) => CreateEditSopDialog(
-                            ctrl: ctrl,
-                            presetRoleId: roleId,
-                            departmentId: departmentId),
+                    if (!readOnly)
+                      MyElevatedButton(
+                        height: 40,
+                        child: 'Link SOP',
+                        icon: const Icon(Iconsax.add,
+                            size: 16, color: AppColors.textOnPrimary),
+                        onTap: () => showDialog(
+                          context: context,
+                          builder: (_) => CreateEditSopDialog(
+                              ctrl: ctrl,
+                              presetRoleId: roleId,
+                              departmentId: departmentId),
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -82,10 +89,10 @@ class SopTab extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(24),
-            itemCount: ctrl.sops.length + 1,
+            itemCount: ctrl.sops.length + (readOnly ? 0 : 1),
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
-              if (index == ctrl.sops.length) {
+              if (!readOnly && index == ctrl.sops.length) {
                 return Center(
                   child: TextButton.icon(
                     onPressed: () => showDialog(
@@ -169,27 +176,29 @@ class SopTab extends StatelessWidget {
                             ],
                           ),
                         ),
-                        PopupMenuButton<String>(
-                          onSelected: (action) {
-                            if (action == 'edit') {
-                              showDialog(
-                                context: context,
-                                builder: (_) =>
-                                    CreateEditSopDialog(ctrl: ctrl, sop: s),
-                              );
-                            } else if (action == 'delete') {
-                              ctrl.deleteSop(context, s.id);
-                            }
-                          },
-                          itemBuilder: (_) => [
-                            const PopupMenuItem(
-                                value: 'edit', child: Text('Edit Link')),
-                            const PopupMenuItem(
-                                value: 'delete',
-                                child: Text('Remove Link',
-                                    style: TextStyle(color: AppColors.danger))),
-                          ],
-                        ),
+                        if (!readOnly)
+                          PopupMenuButton<String>(
+                            onSelected: (action) {
+                              if (action == 'edit') {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) =>
+                                      CreateEditSopDialog(ctrl: ctrl, sop: s),
+                                );
+                              } else if (action == 'delete') {
+                                ctrl.deleteSop(context, s.id);
+                              }
+                            },
+                            itemBuilder: (_) => [
+                              const PopupMenuItem(
+                                  value: 'edit', child: Text('Edit Link')),
+                              const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text('Remove Link',
+                                      style:
+                                          TextStyle(color: AppColors.danger))),
+                            ],
+                          ),
                       ],
                     ),
                     const SizedBox(height: 8),

@@ -33,13 +33,16 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
   final categoryCtrl = TextEditingController();
   final departmentCtrl = TextEditingController();
   final priorityCtrl = TextEditingController();
-  final statusCtrl = TextEditingController();
+  final serviceOrderCtrl = TextEditingController();
+  final currencyCtrl = TextEditingController();
+  final clientCtrl = TextEditingController();
 
   String? selectedCategory;
   String? selectedDepartmentId;
-  String? selectedStatus;
   String? selectedPriority;
   String? selectedClientId;
+  String selectedCurrency = 'NGN';
+  final Set<String> selectedEmployeeIds = <String>{};
 
   @override
   void dispose() {
@@ -53,7 +56,9 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
     categoryCtrl.dispose();
     departmentCtrl.dispose();
     priorityCtrl.dispose();
-    statusCtrl.dispose();
+    serviceOrderCtrl.dispose();
+    currencyCtrl.dispose();
+    clientCtrl.dispose();
     super.dispose();
   }
 
@@ -70,7 +75,8 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
             title: 'Project details',
             child: Column(
               children: [
-                Row(children: [
+                Row(
+                  children: [
                   Expanded(
                     child: MyTextFormField(
                       controller: nameCtrl,
@@ -86,9 +92,11 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       hintText: 'PRJ-001',
                     ),
                   ),
-                ]),
+                  ],
+                ),
                 const SizedBox(height: 16),
-                Row(children: [
+                Row(
+                  children: [
                   Expanded(
                     child: MyDropdown(
                       controller: categoryCtrl,
@@ -110,14 +118,17 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Obx(() => MyDropdown(
+                      child: Obx(
+                        () => MyDropdown(
                           controller: departmentCtrl,
                           title: 'Department',
                           hintText: 'Select department',
                           initialSelection: selectedDepartmentId != null
                               ? controller.departments
-                                  .firstWhereOrNull((d) =>
-                                      d.id.toString() == selectedDepartmentId)
+                                  .firstWhereOrNull(
+                                    (d) =>
+                                        d.id.toString() == selectedDepartmentId,
+                                  )
                                   ?.name
                               : null,
                           items: controller.departments
@@ -126,12 +137,15 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                           onChanged: (val) {
                             final dept = controller.departments
                                 .firstWhereOrNull((d) => d.name == val);
-                            setState(() =>
-                                selectedDepartmentId = dept?.id.toString());
+                            setState(
+                              () => selectedDepartmentId = dept?.id.toString(),
+                            );
                           },
-                        )),
                   ),
-                ]),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -140,7 +154,8 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
             title: 'Schedule & budget',
             child: Column(
               children: [
-                Row(children: [
+                Row(
+                  children: [
                   Expanded(
                     child: MyDateField(
                       controller: startDateCtrl,
@@ -154,9 +169,11 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       title: 'Deadline',
                     ),
                   ),
-                ]),
+                  ],
+                ),
                 const SizedBox(height: 16),
-                Row(children: [
+                Row(
+                  children: [
                   Expanded(
                     child: MyTextFormField(
                       controller: locationCtrl,
@@ -171,19 +188,46 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       controller: budgetCtrl,
                       title: 'Budget',
                       hintText: '0.00',
+                        isFormattedNumber: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyDropdown(
+                        controller: currencyCtrl,
+                        title: 'Budget currency',
+                        hintText: selectedCurrency,
+                        initialSelection: selectedCurrency,
+                        items: const ['NGN', 'USD', 'GBP', 'EUR'],
+                        onChanged: (value) =>
+                            setState(() => selectedCurrency = value ?? 'NGN'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: serviceOrderCtrl,
+                        title: 'Service Order ID (optional)',
+                        hintText: 'Enter service order ID',
                       keyboardType: TextInputType.number,
                     ),
                   ),
-                ]),
+                  ],
+                ),
               ],
             ),
           ),
           const SizedBox(height: 16),
           _buildSection(
-            title: 'Status & description',
+            title: 'Ownership & description',
             child: Column(
               children: [
-                Row(children: [
+                Row(
+                  children: [
                   Expanded(
                     child: MyDropdown(
                       controller: priorityCtrl,
@@ -196,17 +240,71 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Expanded(
-                    child: MyDropdown(
-                      controller: statusCtrl,
-                      title: 'Status',
-                      hintText: 'Select status',
-                      initialSelection: selectedStatus,
-                      items: const ['Pending', 'In Progress', 'Completed'],
-                      onChanged: (val) => setState(() => selectedStatus = val),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Obx(
+                  () => MyDropdown(
+                    controller: clientCtrl,
+                    title: 'Client',
+                    hintText: 'Select project client',
+                    initialSelection: selectedClientId == null
+                        ? null
+                        : controller.clients
+                            .firstWhereOrNull(
+                              (client) =>
+                                  client.id.toString() == selectedClientId,
+                            )
+                            ?.fullName,
+                    items: controller.clients
+                        .map((client) => client.fullName)
+                        .toList(),
+                    onChanged: (name) {
+                      final client = controller.clients.firstWhereOrNull(
+                        (item) => item.fullName == name,
+                      );
+                      setState(() => selectedClientId = client?.id.toString());
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Obx(
+                  () => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Project team', style: AppTextStyles.bodyMd),
+                      const SizedBox(height: 8),
+                      if (controller.employees.isEmpty)
+                        const Text('No employees available')
+                      else
+                        SizedBox(
+                          height: 220,
+                          child: ListView(
+                            children: controller.employees
+                                .map(
+                                  (employee) => CheckboxListTile(
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    title: Text(employee.fullName),
+                                    subtitle: Text(employee.role),
+                                    value: selectedEmployeeIds.contains(
+                                      employee.id,
+                                    ),
+                                    onChanged: (selected) => setState(() {
+                                      if (selected == true) {
+                                        selectedEmployeeIds.add(employee.id);
+                                      } else {
+                                        selectedEmployeeIds.remove(employee.id);
+                                      }
+                                    }),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                    ],
                     ),
                   ),
-                ]),
                 const SizedBox(height: 16),
                 MyTextFormField(
                   controller: summaryCtrl,
@@ -227,13 +325,15 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
           textColor: AppColors.textSecondary,
           borderColor: AppColors.borderStrong,
         ),
-        Obx(() => MyElevatedButton(
+        Obx(
+          () => MyElevatedButton(
               width: 140,
               height: 44,
               isLoading: controller.isActionLoading.value,
               child: 'Save Project',
               onTap: _saveProject,
-            )),
+          ),
+        ),
       ],
     );
   }
@@ -260,7 +360,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
   void _saveProject() {
     if (nameCtrl.text.isEmpty) return;
 
-    final dept = selectedDepartmentId != null
+    final department = selectedDepartmentId != null
         ? controller.departments
                 .firstWhereOrNull((d) => d.id == selectedDepartmentId)
                 ?.name ??
@@ -274,17 +374,20 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
       category: categoryCtrl.text.isEmpty
           ? (selectedCategory ?? '')
           : categoryCtrl.text,
-      department: dept,
-      clientId: 1,
+      department: department,
+      departmentId: int.tryParse(selectedDepartmentId ?? ''),
+      clientId:
+          selectedClientId == null ? null : int.tryParse(selectedClientId!),
+      employeeIds: selectedEmployeeIds.toList(),
+      serviceOrderId: int.tryParse(serviceOrderCtrl.text.trim()),
       location: locationCtrl.text,
       priority: priorityCtrl.text.isEmpty
           ? (selectedPriority?.toLowerCase() ?? 'medium')
           : priorityCtrl.text.toLowerCase(),
-      status: statusCtrl.text.isEmpty
-          ? (selectedStatus?.toLowerCase() ?? 'pending')
-          : statusCtrl.text.toLowerCase().replaceAll(' ', '_'),
+      status: '',
       summary: summaryCtrl.text,
-      budget: double.tryParse(budgetCtrl.text) ?? 0.0,
+      budget: double.tryParse(budgetCtrl.text.replaceAll(',', '')) ?? 0.0,
+      budgetCurrency: selectedCurrency,
       progress: 0.0,
       startDate: startDateCtrl.text,
       deadline: deadlineCtrl.text,

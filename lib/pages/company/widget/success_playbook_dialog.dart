@@ -88,7 +88,7 @@ class _CreateEditSuccessPlaybookDialogState
                   style: AppTextStyles.label.copyWith(color: AppColors.textPrimary)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                initialValue: _kind,
+                value: _kind,
                 decoration: _defaultDropdownDecoration,
                 items: RoleSuccessPlaybook.kindOptions
                     .map((k) => DropdownMenuItem(
@@ -113,7 +113,7 @@ class _CreateEditSuccessPlaybookDialogState
                           .copyWith(color: AppColors.textPrimary)),
                   const SizedBox(width: 12),
                   Switch(
-                    activeThumbColor: AppColors.primary,
+                    activeColor: AppColors.primary,
                     value: _isActive,
                     onChanged: (v) => setState(() => _isActive = v),
                   ),

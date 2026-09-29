@@ -101,7 +101,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => BaseEditDialog(
+    return Obx(
+      () => BaseEditDialog(
           title: "Edit Company Profile",
           subtitle:
               'Update company identity, registration details, and contact information.',
@@ -147,28 +148,36 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                     MyTextFormField(
                         controller: nameCtrl,
                         title: 'Company Name*',
-                        hintText: ''),
+                    hintText: '',
+                  ),
                     const SizedBox(height: 20),
                     MyTextFormField(
                         controller: sloganCtrl,
                         title: 'Company Slogan',
                         hintText: '',
                         height: 72,
-                        maxLines: 2),
+                    maxLines: 2,
+                  ),
                     const SizedBox(height: 20),
-                    Row(children: [
+                  Row(
+                    children: [
                       Expanded(
                           child: MyTextFormField(
                               controller: industryCtrl,
                               title: 'Industry',
-                              hintText: '')),
+                          hintText: '',
+                        ),
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                           child: MyTextFormField(
                               controller: rcCtrl,
                               title: 'RC Number',
-                              hintText: 'e.g. RC1234567')),
-                    ]),
+                          hintText: 'e.g. RC1234567',
+                        ),
+                      ),
+                    ],
+                  ),
                   ],
                 ),
               ),
@@ -177,31 +186,39 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 title: 'Communications',
                 child: Column(
                   children: [
-                    Row(children: [
+                  Row(
+                    children: [
                       Expanded(
                           child: MyTextFormField(
                               controller: emailCtrl,
                               title: 'Company Email',
-                              hintText: '')),
+                          hintText: '',
+                        ),
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                           child: MyTextFormField(
                               controller: phoneCtrl,
                               title: 'Company Phone',
-                              hintText: '')),
-                    ]),
+                          hintText: '',
+                        ),
+                      ),
+                    ],
+                  ),
                     const SizedBox(height: 20),
                     MyTextFormField(
                         controller: addressCtrl,
                         title: 'Company Address',
                         hintText: 'Building, street, city, state, country',
-                        maxLines: 3),
+                    maxLines: 3,
+                  ),
                   ],
                 ),
               ),
             ],
           ),
-        ));
+      ),
+    );
   }
 }
 
@@ -221,16 +238,19 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
   String selectedCurrency = "NGN";
   String selectedLanguage = "en-GB";
   String selectedTimezone = "WAT";
+  TimeOfDay selectedPunctualityTime = const TimeOfDay(hour: 9, minute: 0);
 
   String _getCurrencyLabel(String value) {
-    final match = controller.fieldChoices.value?.currencies
-        .firstWhereOrNull((e) => e.value == value);
+    final match = controller.fieldChoices.value?.currencies.firstWhereOrNull(
+      (e) => e.value == value,
+    );
     return match?.label ?? value;
   }
 
   String _getLanguageLabel(String value) {
-    final match = controller.fieldChoices.value?.languages
-        .firstWhereOrNull((e) => e.value == value);
+    final match = controller.fieldChoices.value?.languages.firstWhereOrNull(
+      (e) => e.value == value,
+    );
     return match?.label ?? value;
   }
 
@@ -248,24 +268,36 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
       selectedLanguage = data.languagePreference;
     }
     selectedTimezone = controller.timeZone.value;
+    final parts = data.punctualityTime.split(':');
+    if (parts.length == 2) {
+      selectedPunctualityTime = TimeOfDay(
+        hour: int.tryParse(parts[0]) ?? 9,
+        minute: int.tryParse(parts[1]) ?? 0,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => BaseEditDialog(
+    return Obx(
+      () => BaseEditDialog(
           title: "Edit Global Business Settings",
           subtitle:
               'Control locale defaults, visual branding, approvals, and notifications.',
           isSaving: controller.isSaving.value,
           onCancel: () => Navigator.pop(context),
           onSave: () {
-            controller.updateGlobalBusiness(context,
+          controller.updateGlobalBusiness(
+            context,
                 primaryColor: primaryCtrl.text,
                 secondaryColor: secondaryCtrl.text,
                 currency: selectedCurrency,
                 language: selectedLanguage,
                 timeZoneVal: selectedTimezone,
-                rules: rulesCtrl.text);
+            rules: rulesCtrl.text,
+            punctualityTime:
+                '${selectedPunctualityTime.hour.toString().padLeft(2, '0')}:${selectedPunctualityTime.minute.toString().padLeft(2, '0')}',
+          );
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,31 +306,39 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                 title: 'Brand palette',
                 subtitle:
                     'Use restrained brand colors that align with the main product surfaces.',
-                child: Row(children: [
+              child: Row(
+                children: [
                   Expanded(
                       child: MyTextFormField(
                           controller: primaryCtrl,
                           title: 'Primary Color Code',
-                          hintText: '#000000')),
+                      hintText: '#000000',
+                    ),
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
                       child: MyTextFormField(
                           controller: secondaryCtrl,
                           title: 'Secondary Color Code',
-                          hintText: '#FFFFFF')),
-                ]),
+                      hintText: '#FFFFFF',
+                    ),
+                  ),
+                ],
+              ),
               ),
               const SizedBox(height: 20),
               _buildDialogSection(
                 title: 'Regional defaults',
                 child: Column(
                   children: [
-                    Row(children: [
+                  Row(
+                    children: [
                       Expanded(
                           child: MyDropdown(
                               title: 'Default Currency',
                               hintText: _getCurrencyLabel(selectedCurrency),
-                              items: controller.fieldChoices.value?.currencies
+                          items:
+                              controller.fieldChoices.value?.currencies
                                       .map((e) => e.label)
                                       .toList() ??
                                   const ["NGN", "USD", "EUR"],
@@ -308,25 +348,27 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                                         const [];
                                 for (final option in options) {
                                   if (option.label == v) {
-                                    setState(
-                                        () => selectedCurrency = option.value);
+                                setState(() => selectedCurrency = option.value);
                                     break;
                                   }
                                 }
-                              })),
+                          },
+                        ),
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                           child: MyDropdown(
                               title: 'Language Preference',
                               hintText: _getLanguageLabel(selectedLanguage),
-                              items: controller.fieldChoices.value?.languages
+                          items:
+                              controller.fieldChoices.value?.languages
                                       .map((e) => e.label)
                                       .toList() ??
                                   const [
                                     "English UK",
                                     "English US",
                                     "French",
-                                    "Spanish"
+                                "Spanish",
                                   ],
                               onChanged: (v) {
                                 final options =
@@ -334,20 +376,42 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                                         const [];
                                 for (final option in options) {
                                   if (option.label == v) {
-                                    setState(
-                                        () => selectedLanguage = option.value);
+                                setState(() => selectedLanguage = option.value);
                                     break;
                                   }
                                 }
-                              })),
-                    ]),
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                     const SizedBox(height: 20),
                     MyDropdown(
                         title: 'Time Zone',
                         hintText: selectedTimezone,
                         items: const ["WAT", "GMT", "EST"],
-                        onChanged: (v) =>
-                            setState(() => selectedTimezone = v!)),
+                    onChanged: (v) => setState(() => selectedTimezone = v!),
+                  ),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final selected = await showTimePicker(
+                          context: context,
+                          initialTime: selectedPunctualityTime,
+                          helpText: 'Set punctuality start time',
+                        );
+                        if (selected != null) {
+                          setState(() => selectedPunctualityTime = selected);
+                        }
+                      },
+                      icon: const Icon(Icons.schedule),
+                      label: Text(
+                        'Punctuality time · ${selectedPunctualityTime.format(context)}',
+                      ),
+                    ),
+                  ),
                   ],
                 ),
               ),
@@ -357,15 +421,15 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildToggleSection(
-                      "Approvals",
-                      ["Single-level", "Multi-level"],
-                      controller.approvalType,
-                    ),
+                  _buildToggleSection("Approvals", [
+                    "Single-level",
+                    "Multi-level",
+                  ], controller.approvalType),
                     const SizedBox(height: 20),
-                    const Text("Notifications",
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500)),
+                  const Text(
+                    "Notifications",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -377,9 +441,10 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    const Text("Data Preferences",
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500)),
+                  const Text(
+                    "Data Preferences",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -394,50 +459,67 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                         controller: rulesCtrl,
                         title: 'Business Rules',
                         hintText: '',
-                        maxLines: 4),
+                    maxLines: 4,
+                  ),
                   ],
                 ),
               ),
             ],
           ),
-        ));
+      ),
+    );
   }
 
   Widget _buildToggleSection(
-      String title, List<String> options, RxString currentVal) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(title,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+    String title,
+    List<String> options,
+    RxString currentVal,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
       const SizedBox(height: 8),
-      Obx(() => Row(
+        Obx(
+          () => Row(
             children: options.map((opt) {
               bool isSel = currentVal.value == opt;
               return GestureDetector(
                 onTap: () => currentVal.value = opt,
                 child: Container(
                   margin: const EdgeInsets.only(right: 8),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: isSel ? AppColors.primary : AppColors.surfaceMuted,
                     border: Border.all(
-                        color:
-                            isSel ? AppColors.primary : AppColors.borderSubtle),
+                      color: isSel ? AppColors.primary : AppColors.borderSubtle,
+                    ),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Text(opt,
+                  child: Text(
+                    opt,
                       style: TextStyle(
-                          color:
-                              isSel ? Colors.white : AppColors.textSecondary)),
+                      color: isSel ? Colors.white : AppColors.textSecondary,
+                    ),
+                  ),
                 ),
               );
             }).toList(),
-          ))
-    ]);
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildCheckPill(String label, RxBool val) {
-    return Obx(() => GestureDetector(
+    return Obx(
+      () => GestureDetector(
           onTap: () => val.value = !val.value,
           child: Container(
             margin: const EdgeInsets.only(right: 8),
@@ -445,15 +527,19 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
             decoration: BoxDecoration(
               color: val.value ? AppColors.primary : AppColors.surfaceMuted,
               border: Border.all(
-                  color:
-                      val.value ? AppColors.primary : AppColors.borderSubtle),
+              color: val.value ? AppColors.primary : AppColors.borderSubtle,
+            ),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Text(label,
+          child: Text(
+            label,
                 style: TextStyle(
-                    color: val.value ? Colors.white : AppColors.textSecondary)),
+              color: val.value ? Colors.white : AppColors.textSecondary,
+            ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
@@ -477,8 +563,9 @@ Widget _buildDialogSection({
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style:
-                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
         ],
         const SizedBox(height: 16),

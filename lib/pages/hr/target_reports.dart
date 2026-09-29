@@ -191,7 +191,7 @@ class _TargetReportsPageState extends State<TargetReportsPage> {
                     }
 
                     return DropdownButtonFormField<int>(
-                      initialValue: selectedTargetId,
+                      value: selectedTargetId,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Assigned target',
