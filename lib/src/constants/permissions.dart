@@ -472,6 +472,9 @@ class Perms {
   // Work Locations (employee-submitted workspaces, admin-approved)
   static const workLocationsList = Permission('work_locations', 'list');
   static const workLocationsListOwn = Permission('work_locations', 'list_own');
+  static const workLocationsView = Permission('work_locations', 'view');
+  static const workLocationsRequestExtension =
+      Permission('work_locations', 'request_extension');
   // Administrative approval actions are exposed by the backend under their
   // dedicated resource, separate from employee-owned work locations.
   static const workLocationsApprove =
@@ -482,6 +485,23 @@ class Perms {
       Permission('work_location_approvals', 'update');
   static const workLocationsDelete =
       Permission('work_location_approvals', 'delete');
+  static const workLocationsListPending =
+      Permission('work_location_approvals', 'list_pending');
+  static const workLocationsManage =
+      Permission('work_location_approvals', 'manage');
+  static const workLocationsListExtensions =
+      Permission('work_location_approvals', 'list_extensions');
+  static const workLocationsApproveExtension =
+      Permission('work_location_approvals', 'approve_extension');
+  static const workLocationsRejectExtension =
+      Permission('work_location_approvals', 'reject_extension');
+
+  // System notifications
+  static const notificationsView = Permission('notifications', 'view');
+  static const notificationsList = Permission('notifications', 'list');
+  static const notificationsMarkRead = Permission('notifications', 'mark_read');
+  static const notificationsMarkAllRead =
+      Permission('notifications', 'mark_all_read');
 
   // Misc useful actions
   static const clientInventoryList = Permission('client_inventory', 'list');
@@ -523,7 +543,11 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.workspaceApprovals: [
     Perms.workLocationsApprove,
     Perms.workLocationsReject,
-    Perms.workLocationsList,
+    Perms.workLocationsListPending,
+    Perms.workLocationsManage,
+    Perms.workLocationsListExtensions,
+    Perms.workLocationsApproveExtension,
+    Perms.workLocationsRejectExtension,
   ],
   // Company sub-pages (audit V4 fix): sidebar hid them via resRoles but
   // the router left them unmapped (fail-open). These expose org-wide data

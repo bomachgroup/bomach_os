@@ -271,12 +271,16 @@ class BiometricApiService {
     String token,
     int locationId, {
     int? allowedRadiusMeters,
+    String? expiresAt,
+    bool clearExpiry = false,
   }) async {
     try {
       final data = <String, dynamic>{};
       if (allowedRadiusMeters != null) {
         data['allowed_radius_meters'] = allowedRadiusMeters;
       }
+      if (expiresAt != null) data['expires_at'] = expiresAt;
+      if (clearExpiry) data['expires_at'] = null;
       final response = await _dio.post(
         '/biometric/location/$locationId/approve',
         data: data,
@@ -328,6 +332,8 @@ class BiometricApiService {
     bool? isActive,
     String? expiresAt,
     String? notes,
+    String? reason,
+    bool clearExpiry = false,
   }) async {
     try {
       final data = <String, dynamic>{};
@@ -339,7 +345,9 @@ class BiometricApiService {
       }
       if (isActive != null) data['is_active'] = isActive;
       if (expiresAt != null) data['expires_at'] = expiresAt;
+      if (clearExpiry) data['expires_at'] = null;
       if (notes != null) data['notes'] = notes;
+      if (reason != null) data['reason'] = reason;
 
       final response = await _dio.patch(
         '/biometric/location/whitelisted/$locationId',
@@ -365,6 +373,96 @@ class BiometricApiService {
     } catch (e) {
       throw _handleError(e);
     }
+  }
+
+  Future<Map<String, dynamic>> getWorkspaceDetail(
+      String token, int locationId) async {
+    try {
+      final response = await _dio.get(
+        '/biometric/location/whitelisted/$locationId',
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getWorkspaceHistory(
+      String token, int locationId) async {
+    try {
+      final response = await _dio.get(
+        '/biometric/location/whitelisted/$locationId/history',
+        options: _authOptions(token),
+      );
+      return _asMapList(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getWorkspaceExtensions(
+      String token, int locationId) async {
+    try {
+      final response = await _dio.get(
+        '/biometric/location/whitelisted/$locationId/extensions',
+        options: _authOptions(token),
+      );
+      return _asMapList(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPendingWorkspaceExtensions(
+      String token) async {
+    try {
+      final response = await _dio.get(
+        '/biometric/location/extensions/pending',
+        options: _authOptions(token),
+      );
+      return _asMapList(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> decideWorkspaceExtension(
+    String token,
+    int extensionId, {
+    required bool approve,
+    String? expiresAt,
+    String? reason,
+  }) async {
+    try {
+      final body = <String, dynamic>{};
+      if (expiresAt != null) body['expires_at'] = expiresAt;
+      if (reason != null) body['reason'] = reason;
+      final response = await _dio.post(
+        '/biometric/location/extensions/$extensionId/${approve ? 'approve' : 'reject'}',
+        data: body,
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  List<Map<String, dynamic>> _asMapList(dynamic data) {
+    if (data is List) {
+      return data
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    }
+    if (data is Map && data['items'] is List) {
+      return (data['items'] as List)
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    }
+    return const [];
   }
 
   Future<List<Map<String, dynamic>>> getMyAttendanceRecords(
