@@ -11,6 +11,7 @@ import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/broadcast_model.dart';
@@ -21,6 +22,7 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'controllers/broadcast_controller.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'widget/broadcast_announcement_dialogs.dart';
 import 'widget/broadcast_event_dialogs.dart';
 
@@ -88,30 +90,45 @@ class BroadcastPage extends StatelessWidget {
           ),
         );
       case 'Notifications':
-        return MyOutlinedButton(
-          height: 48,
-          icon: const Icon(Iconsax.tick_circle,
-              color: AppColors.primary, size: 18),
-          child: 'Mark all read',
-          onTap: controller.markAllRead,
-        );
+        return Obx(() {
+          final canMarkAll =
+              Get.find<PermissionService>().has(Perms.notificationsMarkAllRead);
+          final markAll = controller.unreadCount.value > 0 && canMarkAll;
+          return MyOutlinedButton(
+            height: 48,
+            icon: Icon(
+              markAll ? Iconsax.tick_circle : Iconsax.refresh,
+              color: AppColors.primary,
+              size: 18,
+            ),
+            child: markAll ? 'Mark all read' : 'Refresh inbox',
+            disable: controller.isLoadingNotifications.value,
+            onTap: markAll
+                ? controller.markAllRead
+                : () => controller.fetchNotifications(refresh: true),
+          );
+        });
       default:
         return const SizedBox.shrink();
     }
   }
 
   Widget _buildTabBar(BroadcastController controller) {
+    final visibleTabs = _broadcastTabs.where((tab) {
+      return tab != 'Notifications' ||
+          Get.find<PermissionService>().has(Perms.notificationsList);
+    }).toList();
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: AppCard(
         padding: const EdgeInsets.all(6),
         elevation: AppCardElevation.sm,
         child: Row(
-          children: _broadcastTabs.map((tab) {
+          children: visibleTabs.map((tab) {
             final isSelected = controller.currentTab.value == tab;
             return Expanded(
               child: InkWell(
-                onTap: () => controller.currentTab.value = tab,
+                onTap: () => controller.setCurrentTab(tab),
                 borderRadius: BorderRadius.circular(8),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -124,7 +141,8 @@ class BroadcastPage extends StatelessWidget {
                   child: Text(
                     tab,
                     style: AppTextStyles.bodyMd.copyWith(
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
                       color: isSelected
                           ? AppColors.textOnPrimary
                           : AppColors.textSecondary,
@@ -214,8 +232,6 @@ Widget _buildTableCard({
   );
 }
 
-
-
 Widget _tablePaginator(Widget child) {
   return Container(
     padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
@@ -243,8 +259,8 @@ Widget _buildRowActions({
         height: 36,
         width: 80,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        icon: const Icon(Iconsax.edit,
-            size: 16, color: AppColors.textOnPrimary),
+        icon:
+            const Icon(Iconsax.edit, size: 16, color: AppColors.textOnPrimary),
         child: 'Edit',
         onTap: onEdit,
       ),
@@ -338,8 +354,7 @@ class _AnnouncementsTab extends StatelessWidget {
                         child: EmptyState(
                           icon: Iconsax.notification_bing,
                           title: 'No announcements yet',
-                          subtitle:
-                              'Create a new announcement to get started.',
+                          subtitle: 'Create a new announcement to get started.',
                           action: MyOutlinedButton(
                             child: 'New Announcement',
                             icon: const Icon(Iconsax.add_circle,
@@ -367,7 +382,6 @@ class _AnnouncementsTab extends StatelessWidget {
       ],
     );
   }
-
 
   Widget _buildAnnouncementTable(BuildContext context) {
     return Column(
@@ -479,8 +493,8 @@ class _AnnouncementsTab extends StatelessWidget {
                 ),
                 onEdit: () => showDialog(
                   context: context,
-                  builder: (_) => CreateEditAnnouncementDialog(
-                      announcement: announcement),
+                  builder: (_) =>
+                      CreateEditAnnouncementDialog(announcement: announcement),
                 ),
                 onDelete: () =>
                     _confirmDeleteAnnouncement(context, announcement),
@@ -491,7 +505,6 @@ class _AnnouncementsTab extends StatelessWidget {
       ),
     );
   }
-
 
   Future<void> _confirmDeleteAnnouncement(
       BuildContext context, Announcement announcement) async {
@@ -690,7 +703,8 @@ class _EventsTabState extends State<_EventsTab> {
                         onTap: () => showDialog(
                           context: context,
                           builder: (_) => const CreateEditEventDialog(),
-                        ).then((_) => widget.controller.fetchEvents(refresh: true)),
+                        ).then((_) =>
+                            widget.controller.fetchEvents(refresh: true)),
                       ),
                     ],
                   ),
@@ -702,8 +716,7 @@ class _EventsTabState extends State<_EventsTab> {
                     child: EmptyState(
                       icon: Iconsax.calendar_1,
                       title: 'No events on this day',
-                      subtitle:
-                          'Select another day or create a new event.',
+                      subtitle: 'Select another day or create a new event.',
                     ),
                   )
                 else
@@ -756,7 +769,8 @@ class _EventsTabState extends State<_EventsTab> {
     final from = parseApiDateTime(event.eventTimeFrom);
     final to = parseApiDateTime(event.eventTimeTo);
     if (from != null && to != null) {
-      displayTime = '${DateFormat('h:mm a').format(from)} - ${DateFormat('h:mm a').format(to)}';
+      displayTime =
+          '${DateFormat('h:mm a').format(from)} - ${DateFormat('h:mm a').format(to)}';
     } else {
       displayTime = event.eventTimeFrom;
     }
@@ -783,7 +797,8 @@ class _EventsTabState extends State<_EventsTab> {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Iconsax.clock, size: 14, color: AppColors.textSecondary),
+                        const Icon(Iconsax.clock,
+                            size: 14, color: AppColors.textSecondary),
                         const SizedBox(width: 6),
                         Text(
                           displayTime,
@@ -798,7 +813,8 @@ class _EventsTabState extends State<_EventsTab> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Iconsax.location, size: 14, color: AppColors.textSecondary),
+                          const Icon(Iconsax.location,
+                              size: 14, color: AppColors.textSecondary),
                           const SizedBox(width: 6),
                           Text(
                             event.meetingLocation,
@@ -871,7 +887,8 @@ class _EventsTabState extends State<_EventsTab> {
                   const SizedBox(width: 4),
                   IconButton(
                     onPressed: () => _confirmDeleteEvent(context, event),
-                    icon: const Icon(Iconsax.trash, size: 16, color: AppColors.danger),
+                    icon: const Icon(Iconsax.trash,
+                        size: 16, color: AppColors.danger),
                     tooltip: 'Delete',
                     splashRadius: 18,
                     padding: EdgeInsets.zero,
@@ -929,10 +946,9 @@ class _NotificationsTab extends StatelessWidget {
   const _NotificationsTab({required this.controller});
 
   static const List<String> _filters = [
-    'Admin',
-    'Staff',
-    'Associate',
-    'Investor',
+    'All',
+    'Unread',
+    'Read',
   ];
 
   @override
@@ -943,19 +959,61 @@ class _NotificationsTab extends StatelessWidget {
         AppCard(
           padding: const EdgeInsets.all(16),
           elevation: AppCardElevation.sm,
-          child: Obx(() => Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: _filters
-                    .map((label) => _buildFilterChip(
-                        label, controller.notificationFilter.value))
-                    .toList(),
-              )),
+          child: LayoutBuilder(builder: (context, constraints) {
+            final isCompact = constraints.maxWidth < 520;
+            final filters = Obx(() => Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: _filters
+                      .map((label) => _buildFilterChip(
+                          label, controller.notificationFilter.value))
+                      .toList(),
+                ));
+            final refresh = Obx(() => IconButton(
+                  tooltip: 'Refresh inbox',
+                  onPressed: controller.isLoadingNotifications.value
+                      ? null
+                      : () => controller.fetchNotifications(refresh: true),
+                  icon: controller.isLoadingNotifications.value
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Iconsax.refresh, size: 18),
+                ));
+            if (isCompact) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: filters),
+                      refresh,
+                    ],
+                  ),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: filters),
+                refresh,
+              ],
+            );
+          }),
         ),
         const SizedBox(height: 16),
         Obx(() {
           final items = controller.filteredNotifications;
+          if (items.isEmpty && controller.isLoadingNotifications.value) {
+            return AppCard(
+              padding: const EdgeInsets.all(20),
+              elevation: AppCardElevation.md,
+              child: LoadingSkeleton.listRows(count: 5),
+            );
+          }
           if (items.isEmpty) {
             return const AppCard(
               padding: EdgeInsets.zero,
@@ -965,8 +1023,7 @@ class _NotificationsTab extends StatelessWidget {
                 child: EmptyState(
                   icon: Iconsax.notification,
                   title: 'No notifications',
-                  subtitle:
-                      'Notifications matching the selected filter will appear here.',
+                  subtitle: 'There are no notifications in this view.',
                 ),
               ),
             );
@@ -974,7 +1031,8 @@ class _NotificationsTab extends StatelessWidget {
 
           return _buildTableCard(
             title: 'Notifications inbox',
-            subtitle: '${items.length} notifications available',
+            subtitle:
+                '${controller.notificationTotalCount.value} notifications · ${controller.unreadCount.value} unread',
             headerTrailing: Obx(() => StatusChip(
                   label: '${controller.unreadCount.value} unread',
                   tone: controller.unreadCount.value > 0
@@ -985,12 +1043,42 @@ class _NotificationsTab extends StatelessWidget {
             body: Column(
               children: [
                 for (int i = 0; i < items.length; i++) ...[
-                  _buildNotificationRow(items[i]),
+                  _buildNotificationRow(context, items[i]),
                   if (i != items.length - 1)
-                    const Divider(
-                        height: 1, color: AppColors.borderSubtle),
+                    const Divider(height: 1, color: AppColors.borderSubtle),
                 ],
               ],
+            ),
+          );
+        }),
+        Obx(() {
+          if (controller.notificationError.value.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: AppCard(
+              padding: const EdgeInsets.all(14),
+              elevation: AppCardElevation.sm,
+              child: Row(
+                children: [
+                  const Icon(Iconsax.warning_2,
+                      size: 18, color: AppColors.warning),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Inbox could not be refreshed. ${controller.notificationError.value}',
+                      style: AppTextStyles.bodySm
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () =>
+                        controller.fetchNotifications(refresh: true),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           );
         }),
@@ -1028,70 +1116,250 @@ class _NotificationsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildNotificationRow(NotificationItem notification) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: AppColors.primarySubtle,
-              borderRadius: AppRadii.brMd,
-            ),
-            alignment: Alignment.center,
-            child: const Icon(Iconsax.notification,
-                size: 18, color: AppColors.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+  Widget _buildNotificationRow(
+      BuildContext context, NotificationItem notification) {
+    final unread = !notification.isRead;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          controller.markNotificationRead(notification);
+          showDialog<void>(
+            context: context,
+            builder: (_) => _NotificationDetailDialog(item: notification),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          color:
+              unread ? AppColors.primarySubtle.withValues(alpha: 0.28) : null,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color:
+                      unread ? AppColors.primarySubtle : AppColors.surfaceMuted,
+                  borderRadius: AppRadii.brMd,
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  _notificationIcon(
+                      notification.eventType ?? notification.notificationType),
+                  size: 18,
+                  color: unread ? AppColors.primary : AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        notification.title,
-                        style: AppTextStyles.bodyMd.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            notification.title,
+                            style: AppTextStyles.bodyMd.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight:
+                                  unread ? FontWeight.w700 : FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
+                        if (unread)
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                      ],
                     ),
-                    StatusChip(
-                      label: notification.category,
-                      tone: StatusTone.neutral,
-                      dense: true,
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: [
+                        StatusChip(
+                          label: notification.category,
+                          tone: StatusTone.neutral,
+                          dense: true,
+                        ),
+                        if (notification.priority.toLowerCase() != 'normal')
+                          StatusChip(
+                            label: _label(notification.priority),
+                            tone:
+                                notification.priority.toLowerCase() == 'urgent'
+                                    ? StatusTone.danger
+                                    : StatusTone.warning,
+                            dense: true,
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      notification.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodySm.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  notification.subtitle,
-                  style: AppTextStyles.bodySm
-                      .copyWith(color: AppColors.textSecondary),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  notification.description,
-                  style:
-                      AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                _timeAgo(notification.createdAt),
+                style:
+                    AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Text(
-            notification.time,
-            style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
-          ),
-        ],
+        ),
       ),
     );
   }
+
+  IconData _notificationIcon(String raw) {
+    final type = raw.toLowerCase();
+    if (type.contains('work_location')) return Iconsax.location;
+    if (type.contains('attendance')) return Iconsax.clock;
+    if (type.contains('task')) return Iconsax.task_square;
+    if (type.contains('leave')) return Iconsax.calendar;
+    if (type.contains('payment') || type.contains('invoice'))
+      return Iconsax.wallet;
+    return Iconsax.notification;
+  }
+
+  String _timeAgo(String raw) {
+    if (raw.isEmpty) return 'Recently';
+    try {
+      final date = DateTime.parse(raw).toLocal();
+      final diff = DateTime.now().difference(date);
+      if (diff.inDays > 0) return '${diff.inDays}d ago';
+      if (diff.inHours > 0) return '${diff.inHours}h ago';
+      if (diff.inMinutes > 0) return '${diff.inMinutes}m ago';
+      return 'Now';
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  String _label(String value) => value
+      .replaceAll('_', ' ')
+      .split(' ')
+      .map((part) =>
+          part.isEmpty ? part : '${part[0].toUpperCase()}${part.substring(1)}')
+      .join(' ');
+}
+
+class _NotificationDetailDialog extends StatelessWidget {
+  const _NotificationDetailDialog({required this.item});
+  final NotificationItem item;
+
+  @override
+  Widget build(BuildContext context) => DialogScaffold(
+        title: item.title,
+        subtitle: '${item.category} · ${_formatDate(item.createdAt)}',
+        size: DialogSize.md,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(item.description,
+                style: AppTextStyles.bodyMd.copyWith(height: 1.5)),
+            if (item.eventType?.isNotEmpty == true ||
+                item.priority.toLowerCase() != 'normal') ...[
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (item.eventType?.isNotEmpty == true)
+                    StatusChip(
+                      label: _label(item.eventType!),
+                      tone: StatusTone.primary,
+                    ),
+                  if (item.priority.toLowerCase() != 'normal')
+                    StatusChip(
+                      label: _label(item.priority),
+                      tone: item.priority.toLowerCase() == 'urgent'
+                          ? StatusTone.danger
+                          : StatusTone.warning,
+                    ),
+                ],
+              ),
+            ],
+            if (item.metadata.isNotEmpty) ...[
+              const SizedBox(height: 18),
+              const Text('Details', style: AppTextStyles.h4),
+              const SizedBox(height: 8),
+              ...item.metadata.entries.map((entry) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          child: Text(_label(entry.key),
+                              style: AppTextStyles.bodySm
+                                  .copyWith(color: AppColors.textSecondary)),
+                        ),
+                        Expanded(
+                          child: Text('${entry.value}',
+                              style: AppTextStyles.bodySm
+                                  .copyWith(color: AppColors.textPrimary)),
+                        ),
+                      ],
+                    ),
+                  )),
+            ],
+            if (item.entityType.isNotEmpty || item.entityId.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                [
+                  if (item.entityType.isNotEmpty) _label(item.entityType),
+                  if (item.entityId.isNotEmpty) '#${item.entityId}',
+                  if (item.action.isNotEmpty) _label(item.action),
+                ].join(' · '),
+                style:
+                    AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          MyOutlinedButton(
+            child: 'Close',
+            height: 44,
+            onTap: () => Navigator.pop(context),
+            textColor: AppColors.textSecondary,
+            borderColor: AppColors.borderStrong,
+          ),
+        ],
+      );
+
+  static String _formatDate(String raw) {
+    if (raw.isEmpty) return 'Recently';
+    try {
+      return DateFormat('d MMM yyyy, h:mm a')
+          .format(DateTime.parse(raw).toLocal());
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  static String _label(String value) => value
+      .replaceAll('_', ' ')
+      .split(' ')
+      .map((part) =>
+          part.isEmpty ? part : '${part[0].toUpperCase()}${part.substring(1)}')
+      .join(' ');
 }
 
 // Expose the shared tone mapper to dialog files if needed.
