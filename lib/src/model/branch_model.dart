@@ -27,6 +27,9 @@ class Branch {
   final String languagePreference;
   final bool isActive;
   final bool isOperational;
+  final double? latitude;
+  final double? longitude;
+  final int attendanceRadiusMeters;
   final String notes;
   final String createdAt;
   final String updatedAt;
@@ -55,12 +58,21 @@ class Branch {
     required this.languagePreference,
     required this.isActive,
     required this.isOperational,
+    this.latitude,
+    this.longitude,
+    this.attendanceRadiusMeters = 100,
     required this.notes,
     required this.createdAt,
     required this.updatedAt,
   });
 
   factory Branch.fromJson(Map<String, dynamic> json) {
+    double? parseCoordinate(dynamic value) {
+      if (value == null || value.toString().isEmpty) return null;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value.toString());
+    }
+
     return Branch(
       id: json['id'] ?? 0,
       branchName: json['branch_name'] ?? '',
@@ -85,6 +97,12 @@ class Branch {
       languagePreference: json['language_preference'] ?? '',
       isActive: json['is_active'] ?? false,
       isOperational: json['is_operational'] ?? false,
+      latitude: parseCoordinate(json['latitude']),
+      longitude: parseCoordinate(json['longitude']),
+      attendanceRadiusMeters: json['attendance_radius_meters'] is num
+          ? (json['attendance_radius_meters'] as num).toInt()
+          : int.tryParse(json['attendance_radius_meters']?.toString() ?? '') ??
+              100,
       notes: json['notes'] ?? '',
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
@@ -108,6 +126,9 @@ class Branch {
       'default_currency': defaultCurrency,
       'language_preference': languagePreference,
       'is_active': isActive,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      'attendance_radius_meters': attendanceRadiusMeters,
       'notes': notes,
     };
   }
