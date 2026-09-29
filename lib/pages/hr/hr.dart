@@ -49,7 +49,8 @@ class HRPage extends StatelessWidget {
           children: [
             const _QuickNavSection(),
             Obx(() {
-              if (controller.isLoading.value && controller.stats.value == null) {
+              if (controller.isLoading.value &&
+                  controller.stats.value == null) {
                 return const SizedBox(
                   height: 120,
                   child: Center(child: CircularProgressIndicator()),
@@ -175,7 +176,8 @@ class _QuickNavSection extends StatelessWidget {
       required String subtitle,
       required String route,
       required List<String> resources,
-    }) => ModuleShortcutCard(
+    }) =>
+        ModuleShortcutCard(
           icon: icon,
           title: title,
           subtitle: subtitle,
@@ -198,6 +200,13 @@ class _QuickNavSection extends StatelessWidget {
           subtitle: 'Clock-ins and hours',
           route: RouteConstants.attendance,
           resources: const [PermissionConstants.resEmployees],
+        ),
+        card(
+          icon: Iconsax.calendar_1,
+          title: 'Work Calendar',
+          subtitle: 'Public holidays and office closures',
+          route: RouteConstants.attendanceCalendar,
+          resources: const [PermissionConstants.resAttendanceCalendar],
         ),
         card(
           icon: Iconsax.briefcase,

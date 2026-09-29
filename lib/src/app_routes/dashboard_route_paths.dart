@@ -44,7 +44,8 @@ const Set<String> dashboardRoutePaths = {
   '/finance/cashflow', '/finance/serviceorders', '/finance/estatefinance',
   '/finance/reports', '/finance/audit', '/finance/settings',
   // hr admin pages
-  '/hr/job-post', '/hr/attendance', '/hr/leave-request', '/hr/benefits',
+  '/hr/job-post', '/hr/attendance', '/hr/attendance-calendar',
+  '/hr/leave-request', '/hr/benefits',
   '/hr/training-program', '/hr/loans', '/hr/performance-review',
   '/hr/disciplinary-process', '/hr/leaves',
   '/hr/monthly-scorecard', '/hr/awards-recognition',

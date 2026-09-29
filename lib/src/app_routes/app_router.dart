@@ -46,6 +46,7 @@ import 'package:bomach_os/pages/finance/widget/finance_webview.dart';
 import 'package:bomach_os/pages/hr/assets.dart';
 import 'package:bomach_os/pages/hr/associates.dart';
 import 'package:bomach_os/pages/hr/attendance.dart';
+import 'package:bomach_os/pages/hr/attendance_calendar.dart';
 import 'package:bomach_os/pages/marketing/widget/marketing_webview.dart';
 import 'package:bomach_os/pages/hr/hr.dart';
 import 'package:bomach_os/pages/hr/job_post.dart';
@@ -215,6 +216,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.financeSettings: const FinanceWebView(route: '/settings'),
   RouteConstants.jobPost: const JobPostPage(),
   RouteConstants.attendance: const AttendancePage(),
+  RouteConstants.attendanceCalendar: const AttendanceCalendarPage(),
   // RouteConstants.clockIn: const ClockInScreen(),
   RouteConstants.leaveRequest: const LeaveRequestPage(),
   RouteConstants.benefits: const BenefitsPage(),

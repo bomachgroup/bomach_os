@@ -103,6 +103,7 @@ class RouteConstants {
   static const String hr = '/hr';
   static const String jobPost = '/hr/job-post';
   static const String attendance = '/hr/attendance';
+  static const String attendanceCalendar = '/hr/attendance-calendar';
   static const String benefits = '/hr/benefits';
   static const String leaveRequest = '/hr/leave-request';
   static const String trainingProgram = '/hr/training-program';

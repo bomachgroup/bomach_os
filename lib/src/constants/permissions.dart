@@ -100,6 +100,7 @@ class PermissionConstants {
   static const String resKpis = 'kpis';
   static const String resWorkLocations = 'work_locations';
   static const String resWorkLocationApprovals = 'work_location_approvals';
+  static const String resAttendanceCalendar = 'attendance_calendar';
 
   // Actions
   static const String actCreate = 'create';
@@ -151,6 +152,16 @@ class Perms {
   static const employeesUpdate = Permission('employees', 'update');
   static const employeesUpdateOwn = Permission('employees', 'update_own');
   static const employeesExit = Permission('employees', 'exit');
+
+  // Attendance calendar
+  static const attendanceCalendarList =
+      Permission('attendance_calendar', 'list');
+  static const attendanceCalendarCreate =
+      Permission('attendance_calendar', 'create');
+  static const attendanceCalendarUpdate =
+      Permission('attendance_calendar', 'update');
+  static const attendanceCalendarDeactivate =
+      Permission('attendance_calendar', 'deactivate');
 
   // Departments
   static const departmentsCreate = Permission('departments', 'create');
@@ -580,6 +591,7 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.employeeProfile: [Perms.employeesView, Perms.employeesViewOwn],
   RouteConstants.jobPost: [Perms.jobPostingsList],
   RouteConstants.attendance: [Perms.employeesList, Perms.employeesViewOwn],
+  RouteConstants.attendanceCalendar: [Perms.attendanceCalendarList],
   RouteConstants.leaveRequest: [Perms.leaveRequestsList],
   RouteConstants.trainingProgram: [Perms.trainingProgramsList],
   RouteConstants.performanceReview: [Perms.performanceReviewsList],
