@@ -92,7 +92,9 @@ class RouteConstants {
   static const String tasks = '/works/tasks';
   static const String contracts = '/works/contracts';
   static const String worksite = '/works/worksite';
-  static const String engineeringSiteReports = '/works/engineering-site-reports';
+  static const String engineeringSiteReports =
+      '/works/engineering-site-reports';
+  static const String surveySiteReports = '/works/survey-site-reports';
 
   // hr
   static const String employees = '/hr/employees';

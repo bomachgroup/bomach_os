@@ -128,6 +128,21 @@ void main() {
   ];
 
   group('T7: routeRequirements coverage', () {
+    test('Survey Site Reports route is gated by its own permission resource',
+        () {
+      expect(PermissionConstants.resSurveySiteReports, 'survey_site_reports');
+      expect(
+          routeRequirements[RouteConstants.surveySiteReports],
+          containsAll([
+            Perms.surveySiteReportsList,
+            Perms.surveySiteReportsListOwn,
+            Perms.surveySiteReportsView,
+            Perms.surveySiteReportsViewOwn,
+            Perms.surveySiteReportsCreate,
+          ]));
+      expect(dashboardRoutePaths, contains(RouteConstants.surveySiteReports));
+    });
+
     test('every marketing webview route is explicitly mapped', () {
       for (final route in marketingWebviewRoutes) {
         final required = routeRequirements[route];

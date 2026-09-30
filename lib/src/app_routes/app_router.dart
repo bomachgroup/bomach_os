@@ -70,6 +70,7 @@ import 'package:bomach_os/pages/operations/contract.dart';
 import 'package:bomach_os/pages/operations/contract_detail.dart';
 import 'package:bomach_os/pages/operations/each_project.dart';
 import 'package:bomach_os/pages/operations/engineering_site_reports.dart';
+import 'package:bomach_os/pages/operations/survey_site_reports.dart';
 import 'package:bomach_os/pages/operations/operations.dart';
 import 'package:bomach_os/pages/operations/project_detail.dart';
 import 'package:bomach_os/pages/operations/projects.dart';
@@ -155,6 +156,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.eachProjects: const EachProjects(),
   RouteConstants.worksite: const WorkSite(),
   RouteConstants.engineeringSiteReports: const EngineeringSiteReportsPage(),
+  RouteConstants.surveySiteReports: const SurveySiteReportsPage(),
   RouteConstants.tasks: const TaskPage(),
   RouteConstants.realEstate: const RealEstateScreen(),
   RouteConstants.leaves: const LeavesPage(),

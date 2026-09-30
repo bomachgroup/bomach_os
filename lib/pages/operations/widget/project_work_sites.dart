@@ -7,9 +7,12 @@ import 'package:bomach_os/pages/operations/models/models.dart';
 import 'package:bomach_os/pages/operations/widget/project_task_table.dart';
 import 'package:bomach_os/pages/operations/widget/site_equipment_table.dart';
 import 'package:bomach_os/pages/operations/engineering_site_reports.dart';
+import 'package:bomach_os/pages/operations/survey_site_reports.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -137,12 +140,21 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
   }
 
   Widget _buildSubTabs() {
-    const tabs = [
+    final tabs = <({IconData icon, String label})>[
       (icon: Iconsax.people, label: 'Employees'),
       (icon: Iconsax.setting_2, label: 'Site Equipment'),
       (icon: Iconsax.task_square, label: 'Site Tasks'),
       (icon: Iconsax.document_text, label: 'Engineering Reports'),
     ];
+    final canViewSurvey = Get.isRegistered<PermissionService>() &&
+        Get.find<PermissionService>().hasAny(const [
+          Perms.surveySiteReportsCreate,
+          Perms.surveySiteReportsList,
+          Perms.surveySiteReportsListOwn,
+          Perms.surveySiteReportsView,
+          Perms.surveySiteReportsViewOwn,
+        ]);
+    if (canViewSurvey) tabs.add((icon: Iconsax.map, label: 'Survey Reports'));
 
     return Wrap(
       spacing: 8,
@@ -190,7 +202,31 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
           initialWorksiteId: selectedWorksite!.id,
           initialProjectId: widget.projectId);
     }
+    if (selectionStepperState == 4 &&
+        selectionStepperState == _surveyTabIndex()) {
+      if (selectedWorksite == null)
+        return const EmptyState(
+            icon: Iconsax.map,
+            title: 'Select a worksite first',
+            subtitle: 'Choose a worksite to view its survey reports.',
+            compact: true);
+      return SurveySiteReportsPage(
+          initialWorksiteId: selectedWorksite!.id,
+          initialProjectId: widget.projectId);
+    }
     return ProjectTaskTable(projectId: widget.projectId);
+  }
+
+  int _surveyTabIndex() {
+    final canViewSurvey = Get.isRegistered<PermissionService>() &&
+        Get.find<PermissionService>().hasAny(const [
+          Perms.surveySiteReportsCreate,
+          Perms.surveySiteReportsList,
+          Perms.surveySiteReportsListOwn,
+          Perms.surveySiteReportsView,
+          Perms.surveySiteReportsViewOwn,
+        ]);
+    return canViewSurvey ? 4 : -1;
   }
 
   StatusTone _worksiteTone(String status) {

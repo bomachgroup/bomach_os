@@ -10,9 +10,14 @@ import 'package:bomach_os/pages/hr/widget/daily_work_report_dialog.dart';
 import 'package:bomach_os/pages/hr/widget/work_report_review_dialog.dart';
 import 'package:bomach_os/pages/operations/engineering_site_reports.dart';
 import 'package:bomach_os/pages/operations/models/engineering_site_report_model.dart';
+import 'package:bomach_os/pages/operations/models/survey_site_report_model.dart';
+import 'package:bomach_os/pages/operations/survey_site_reports.dart';
 import 'package:bomach_os/src/services/operations/engineering_site_report_service.dart';
+import 'package:bomach_os/src/services/operations/survey_site_report_service.dart';
 import 'package:bomach_os/pages/auth/controller.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -31,6 +36,17 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
 
   String _selectedFilter = 'all';
   List<UnifiedReportSummary> _engineeringReports = [];
+  List<SurveyUnifiedReport> _surveyReports = [];
+
+  PermissionService get _permissions => Get.isRegistered<PermissionService>()
+      ? Get.find<PermissionService>()
+      : PermissionService();
+  bool get _canListSurvey =>
+      _permissions.has(Perms.surveySiteReportsList) ||
+      _permissions.has(Perms.surveySiteReportsListOwn);
+  bool get _canViewSurvey =>
+      _permissions.has(Perms.surveySiteReportsView) ||
+      _permissions.has(Perms.surveySiteReportsViewOwn);
 
   @override
   void initState() {
@@ -42,6 +58,11 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
     final token = await _getToken();
     if (token != null) {
       controller.fetchReports(token);
+      final storedId = await _storage.read(key: 'user_id');
+      final employeeId = (Get.isRegistered<AuthController>()
+              ? Get.find<AuthController>().currentUser.value?.userId
+              : null) ??
+          int.tryParse(storedId ?? '');
       try {
         final reportService = EngineeringSiteReportService();
         final firstPage = await reportService.listUnifiedReports(
@@ -52,11 +73,6 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
               accessToken: token, limit: 100, offset: offset);
           allFeed.addAll(page.items);
         }
-        final storedId = await _storage.read(key: 'user_id');
-        final employeeId = (Get.isRegistered<AuthController>()
-                ? Get.find<AuthController>().currentUser.value?.userId
-                : null) ??
-            int.tryParse(storedId ?? '');
         if (mounted)
           setState(() => _engineeringReports = allFeed
               .where((r) =>
@@ -66,6 +82,28 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
               .toList());
       } catch (_) {
         if (mounted) setState(() => _engineeringReports = []);
+      }
+      if (_canListSurvey) {
+        try {
+          final surveyService = SurveySiteReportService();
+          final surveyPage =
+              await surveyService.listUnifiedReports(token: token, limit: 100);
+          final surveyFeed = [...surveyPage.items];
+          for (var offset = 100; offset < surveyPage.count; offset += 100) {
+            final page = await surveyService.listUnifiedReports(
+                token: token, limit: 100, offset: offset);
+            surveyFeed.addAll(page.items);
+          }
+          if (mounted) {
+            setState(() => _surveyReports = surveyFeed
+                .where((r) => employeeId != null && r.employeeId == employeeId)
+                .toList());
+          }
+        } catch (_) {
+          if (mounted) setState(() => _surveyReports = []);
+        }
+      } else if (mounted) {
+        setState(() => _surveyReports = []);
       }
     }
   }
@@ -106,7 +144,59 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         _buildReportsTable(),
         const SizedBox(height: 18),
         _buildEngineeringReports(),
+        if (_canListSurvey) _buildSurveyReports(),
       ],
+    );
+  }
+
+  Widget _buildSurveyReports() {
+    final reports = _selectedFilter == 'all'
+        ? _surveyReports
+        : _surveyReports
+            .where((r) => r.status.toLowerCase() == _selectedFilter)
+            .toList();
+    return Container(
+      decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.neutral100)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Padding(
+            padding: EdgeInsets.all(18),
+            child: Row(children: [
+              Icon(Iconsax.map, color: AppColors.info),
+              SizedBox(width: 10),
+              Text('Survey Site Reports',
+                  style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.neutral800))
+            ])),
+        const Divider(height: 1),
+        if (reports.isEmpty)
+          const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('No survey site reports in your reports feed.'))
+        else
+          ...reports.map((report) => ListTile(
+                leading:
+                    const Icon(Iconsax.document_text, color: AppColors.info),
+                title: Text(
+                    report.summary.isEmpty
+                        ? 'Survey Site Report'
+                        : report.summary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+                subtitle: Text(
+                    'Survey Site · ${report.employeeName} · ${report.status}'),
+                trailing: const Icon(Iconsax.arrow_right_3),
+                onTap: _canViewSurvey
+                    ? () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) =>
+                            SurveySiteReportsPage(initialReportId: report.id)))
+                    : null,
+              )),
+      ]),
     );
   }
 

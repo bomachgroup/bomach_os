@@ -100,6 +100,10 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
                     _row('Date', formatAppDateValue(e.date, fallback: e.date)),
                     _row('Department', e.department.name),
                     _row('Status', e.status),
+                    if (e.surveyExpenseLineId != null)
+                      _row('Survey expense line', '${e.surveyExpenseLineId}'),
+                    if (e.surveyReportVersion != null)
+                      _row('Survey report version', '${e.surveyReportVersion}'),
                     kSizedBoxSM,
                     Row(
                       children: [

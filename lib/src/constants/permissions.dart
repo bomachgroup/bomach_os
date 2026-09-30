@@ -95,6 +95,7 @@ class PermissionConstants {
   static const String resAwards = 'awards';
   static const String resWorkReports = 'work_reports';
   static const String resEngineeringSiteReports = 'engineering_site_reports';
+  static const String resSurveySiteReports = 'survey_site_reports';
   static const String resDisciplinaryCases = 'disciplinary_cases';
   static const String resMonthlyScorecards = 'monthly_scorecards';
   static const String resEmployeeEvaluations = 'employee_evaluations';
@@ -408,6 +409,28 @@ class Perms {
       Permission('engineering_site_reports', 'reject');
   static const engineeringSiteReportsDelete =
       Permission('engineering_site_reports', 'delete');
+  static const surveySiteReportsCreate =
+      Permission('survey_site_reports', 'create');
+  static const surveySiteReportsView =
+      Permission('survey_site_reports', 'view');
+  static const surveySiteReportsViewOwn =
+      Permission('survey_site_reports', 'view_own');
+  static const surveySiteReportsList =
+      Permission('survey_site_reports', 'list');
+  static const surveySiteReportsListOwn =
+      Permission('survey_site_reports', 'list_own');
+  static const surveySiteReportsUpdate =
+      Permission('survey_site_reports', 'update');
+  static const surveySiteReportsUpdateOwn =
+      Permission('survey_site_reports', 'update_own');
+  static const surveySiteReportsSubmit =
+      Permission('survey_site_reports', 'submit');
+  static const surveySiteReportsApprove =
+      Permission('survey_site_reports', 'approve');
+  static const surveySiteReportsReject =
+      Permission('survey_site_reports', 'reject');
+  static const surveySiteReportsDelete =
+      Permission('survey_site_reports', 'delete');
   static const siteEquipmentCreate = Permission('site_equipment', 'create');
   static const siteEquipmentList = Permission('site_equipment', 'list');
   static const siteEquipmentUpdate = Permission('site_equipment', 'update');
@@ -544,6 +567,13 @@ const Map<String, List<Permission>> routeRequirements = {
     Perms.engineeringSiteReportsView,
     Perms.engineeringSiteReportsViewOwn,
     Perms.engineeringSiteReportsCreate,
+  ],
+  RouteConstants.surveySiteReports: [
+    Perms.surveySiteReportsList,
+    Perms.surveySiteReportsListOwn,
+    Perms.surveySiteReportsView,
+    Perms.surveySiteReportsViewOwn,
+    Perms.surveySiteReportsCreate,
   ],
 
   // Company (admin)

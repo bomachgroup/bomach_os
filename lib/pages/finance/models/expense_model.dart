@@ -27,6 +27,8 @@ class Expense {
   final String? attachment;
   final String createdAt;
   final String updatedAt;
+  final int? surveyExpenseLineId;
+  final int? surveyReportVersion;
 
   Expense({
     required this.id,
@@ -40,6 +42,8 @@ class Expense {
     this.attachment,
     required this.createdAt,
     required this.updatedAt,
+    this.surveyExpenseLineId,
+    this.surveyReportVersion,
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
@@ -57,6 +61,10 @@ class Expense {
       attachment: json['attachment'],
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
+      surveyExpenseLineId:
+          int.tryParse(json['survey_expense_line_id']?.toString() ?? ''),
+      surveyReportVersion:
+          int.tryParse(json['survey_report_version']?.toString() ?? ''),
     );
   }
 

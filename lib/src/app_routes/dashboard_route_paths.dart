@@ -22,6 +22,7 @@ const Set<String> dashboardRoutePaths = {
   '/works/projects', '/works/projects/detail', '/works/worksite',
   '/works/tasks', '/works/contracts', '/hr/meetings',
   '/works/engineering-site-reports',
+  '/works/survey-site-reports',
   '/services/service-order', '/services/land-survey',
   '/services/land-survey/detail',
   '/services/real-estate', '/services/real-estate/detail',

@@ -11,6 +11,7 @@ import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/utils/app_date_format.dart';
 import 'package:bomach_os/pages/operations/engineering_site_reports.dart';
+import 'package:bomach_os/pages/operations/survey_site_reports.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,14 @@ class WorksiteDetailPage extends StatelessWidget {
           Perms.engineeringSiteReportsListOwn,
           Perms.engineeringSiteReportsView,
           Perms.engineeringSiteReportsViewOwn,
+        ]);
+    final canOpenSurveyReports = Get.isRegistered<PermissionService>() &&
+        Get.find<PermissionService>().hasAny(const [
+          Perms.surveySiteReportsCreate,
+          Perms.surveySiteReportsList,
+          Perms.surveySiteReportsListOwn,
+          Perms.surveySiteReportsView,
+          Perms.surveySiteReportsViewOwn,
         ]);
 
     if (ws == null) {
@@ -67,6 +76,18 @@ class WorksiteDetailPage extends StatelessWidget {
                 child: 'Site Reports',
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => EngineeringSiteReportsPage(
+                        initialWorksiteId: ws.id,
+                        initialProjectId:
+                            ws.projectId == 0 ? null : ws.projectId))),
+              ),
+            if (canOpenSurveyReports)
+              MyOutlinedButton(
+                height: 48,
+                icon:
+                    const Icon(Iconsax.map, size: 18, color: AppColors.primary),
+                child: 'Survey Reports',
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => SurveySiteReportsPage(
                         initialWorksiteId: ws.id,
                         initialProjectId:
                             ws.projectId == 0 ? null : ws.projectId))),

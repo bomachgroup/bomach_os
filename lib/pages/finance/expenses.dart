@@ -109,7 +109,20 @@ class ExpensesPage extends StatelessWidget {
             rowBuilder: (expense, index) => DataRow(cells: [
               DataCell(MyText(
                   formatAppDateValue(expense.date, fallback: expense.date))),
-              DataCell(MyText(expense.description)),
+              DataCell(Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  MyText(expense.description),
+                  if (expense.surveyExpenseLineId != null ||
+                      expense.surveyReportVersion != null)
+                    Text(
+                      'Survey report · line ${expense.surveyExpenseLineId ?? '—'} · version ${expense.surveyReportVersion ?? '—'}',
+                      style: const TextStyle(
+                          fontSize: 11, color: AppColors.textSecondary),
+                    ),
+                ],
+              )),
               DataCell(MyText(expense.amount)),
               DataCell(MyText(expense.category)),
               DataCell(StatusChip.fromStatus(expense.status, dense: true)),
