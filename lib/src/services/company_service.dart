@@ -57,7 +57,7 @@ class CompanyService {
           options: _authOptions(accessToken),
         ),
         _dio.get(
-          '/api/v1/company/preferences',
+          '/api/v1/company/company/preferences',
           options: _authOptions(accessToken),
         ),
       ]);
@@ -101,7 +101,7 @@ class CompanyService {
           options: _authOptions(accessToken),
         ),
         _dio.put(
-          '/api/v1/company/preferences',
+          '/api/v1/company/company/preferences',
           data: settings.toPreferencesUpdateJson(),
           options: _authOptions(accessToken),
         ),

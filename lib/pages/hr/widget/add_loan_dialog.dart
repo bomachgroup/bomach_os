@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import '../controller/loans_controller.dart';
 import '../models/loans_model.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddLoanDialog extends StatefulWidget {
   final LoanRequest? loanToEdit;
 
@@ -78,7 +79,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
       lastDate: DateTime(2030),
     );
     if (picked != null) {
-      repaymentDateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+      repaymentDateCtrl.text = formatAppDate(picked);
       setState(() {});
     }
   }
@@ -282,7 +283,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                 const SizedBox(width: 10),
                 Text(
                   value != null
-                      ? DateFormat('MMM d, yyyy').format(value)
+                      ? DateFormat('dd-MM-yyyy').format(value)
                       : 'dd/mm/yyyy',
                   style: AppTextStyles.bodyMd.copyWith(
                     color: value != null

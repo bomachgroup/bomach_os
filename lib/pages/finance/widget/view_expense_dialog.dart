@@ -10,6 +10,7 @@ import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 
 import '../models/expense_model.dart';
 
@@ -78,8 +79,7 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Expense Details',
-                      style: AppTextStyles.displayMd),
+                  const Text('Expense Details', style: AppTextStyles.displayMd),
                   IconButton(
                     icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
@@ -97,7 +97,7 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
                     _row('Amount', e.amount.toNaira(), isBold: true),
                     _row('Category', e.category),
                     _row('Description', e.description),
-                    _row('Date', e.date),
+                    _row('Date', formatAppDateValue(e.date, fallback: e.date)),
                     _row('Department', e.department.name),
                     _row('Status', e.status),
                     kSizedBoxSM,
@@ -123,7 +123,8 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
                   MyOutlinedButton(
                     child: 'Close',
                     height: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     onTap: () => Navigator.pop(context),
                     textColor: AppColors.textSecondary,
                     borderColor: AppColors.borderStrong,
@@ -133,8 +134,10 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
                     Obx(() => MyOutlinedButton(
                           child: 'Reject',
                           height: 40,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          icon: const Icon(Iconsax.close_circle, size: 16, color: AppColors.danger),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
+                          icon: const Icon(Iconsax.close_circle,
+                              size: 16, color: AppColors.danger),
                           onTap: _ctrl.isSaving.value ? () {} : _confirmReject,
                           textColor: AppColors.danger,
                           borderColor: AppColors.danger,
@@ -142,10 +145,12 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
                     kSizedBoxWidth,
                     Obx(() => MyElevatedButton(
                           height: 40,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
                           bgColor: AppColors.success,
                           isLoading: _ctrl.isSaving.value,
-                          icon: const Icon(Iconsax.tick_circle, size: 16, color: AppColors.textOnPrimary),
+                          icon: const Icon(Iconsax.tick_circle,
+                              size: 16, color: AppColors.textOnPrimary),
                           child: 'Approve',
                           onTap: _ctrl.isSaving.value
                               ? () {}
@@ -170,7 +175,8 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
           SizedBox(
             width: 120,
             child: Text(label,
-                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary)),
           ),
           Expanded(
             child: Text(value,

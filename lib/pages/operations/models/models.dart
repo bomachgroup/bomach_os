@@ -56,6 +56,11 @@ class Project {
   final String summary;
   final double budget;
   final String budgetCurrency;
+  final int expenseCount;
+  final double committedExpenseTotal;
+  final double spentExpenseTotal;
+  final double consumedExpenseTotal;
+  final double remainingBudget;
   final double progress;
   final String startDate;
   final String deadline;
@@ -80,6 +85,11 @@ class Project {
     required this.summary,
     required this.budget,
     this.budgetCurrency = 'NGN',
+    this.expenseCount = 0,
+    this.committedExpenseTotal = 0,
+    this.spentExpenseTotal = 0,
+    this.consumedExpenseTotal = 0,
+    this.remainingBudget = 0,
     required this.progress,
     required this.startDate,
     required this.deadline,
@@ -131,6 +141,23 @@ class Project {
       budgetCurrency: json['budget_currency']?.toString() ??
           json['currency']?.toString() ??
           'NGN',
+      expenseCount: int.tryParse(json['expense_count']?.toString() ?? '0') ?? 0,
+      committedExpenseTotal: double.tryParse(
+            json['committed_expense_total']?.toString() ?? '0',
+          ) ??
+          0,
+      spentExpenseTotal: double.tryParse(
+            json['spent_expense_total']?.toString() ?? '0',
+          ) ??
+          0,
+      consumedExpenseTotal: double.tryParse(
+            json['consumed_expense_total']?.toString() ?? '0',
+          ) ??
+          0,
+      remainingBudget: double.tryParse(
+            json['remaining_budget']?.toString() ?? '0',
+          ) ??
+          0,
       progress: double.tryParse(json['progress']?.toString() ?? '0') ?? 0.0,
       startDate: json['start_date']?.toString() ?? '',
       deadline: json['deadline']?.toString() ?? '',
@@ -461,15 +488,19 @@ class SiteEquipment {
   final int id;
   final int worksiteId;
   final String name;
-  final String unitValue;
+  final String unit;
+  final String quantity;
   final String createdAt;
   final String updatedAt;
+
+  String get unitValue => unit;
 
   SiteEquipment({
     required this.id,
     required this.worksiteId,
     required this.name,
-    required this.unitValue,
+    required this.unit,
+    this.quantity = '',
     required this.createdAt,
     required this.updatedAt,
   });
@@ -479,15 +510,25 @@ class SiteEquipment {
       id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       worksiteId: int.tryParse(json['worksite_id']?.toString() ?? '0') ?? 0,
       name: json['name']?.toString() ?? '',
-      unitValue: json['unit_value']?.toString() ?? '',
+      unit: json['unit']?.toString() ?? json['unit_value']?.toString() ?? '',
+      quantity: json['quantity']?.toString() ?? '',
       createdAt: json['created_at']?.toString() ?? '',
       updatedAt: json['updated_at']?.toString() ?? '',
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {'worksite_id': worksiteId, 'name': name, 'unit_value': unitValue};
-  }
+  Map<String, dynamic> toJson() => {
+        'worksite_id': worksiteId,
+        'name': name,
+        'unit': unit,
+        if (quantity.trim().isNotEmpty) 'quantity': quantity,
+      };
+
+  Map<String, dynamic> toUpdateJson() => {
+        'worksite_id': worksiteId,
+        'name': name,
+        'unit': unit,
+      };
 }
 
 class ProjectEmployee {

@@ -368,7 +368,7 @@ class _CompliancePageState extends State<CompliancePage> {
     if (raw.isEmpty) return '—';
     final parsed = DateTime.tryParse(raw);
     if (parsed == null) return raw;
-    return DateFormat('MMM d, yyyy').format(parsed);
+    return DateFormat('dd-MM-yyyy').format(parsed);
   }
 
   String _typeAbbreviation(String type) {

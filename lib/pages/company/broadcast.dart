@@ -382,7 +382,7 @@ class _AnnouncementsTab extends StatelessWidget {
     String displayDate = '';
     try {
       final parsed = DateTime.parse(announcement.publishAt);
-      displayDate = DateFormat('MMM d, yyyy').format(parsed);
+      displayDate = DateFormat('dd-MM-yyyy').format(parsed);
     } catch (_) {
       displayDate = announcement.publishAt;
     }
@@ -668,7 +668,7 @@ class _EventsTabState extends State<_EventsTab> {
                             Text(
                               _selectedDay == null
                                   ? 'Select a date'
-                                  : DateFormat('MMMM d, yyyy')
+                                  : DateFormat('dd-MM-yyyy')
                                       .format(_selectedDay!),
                               style: AppTextStyles.h3,
                             ),

@@ -466,7 +466,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 Expanded(
                   child: Text(
                     date != null
-                        ? DateFormat('MMM dd, yyyy').format(date)
+                        ? DateFormat('dd-MM-yyyy').format(date)
                         : 'Select date',
                     style: AppTextStyles.bodyMd.copyWith(
                       color: date != null

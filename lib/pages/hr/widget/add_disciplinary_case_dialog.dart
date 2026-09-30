@@ -354,7 +354,7 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
                 const SizedBox(width: 10),
                 Text(
                   value != null
-                      ? DateFormat('MMM d, yyyy').format(value)
+                      ? DateFormat('dd-MM-yyyy').format(value)
                       : 'Select date',
                   style: AppTextStyles.bodyMd.copyWith(
                     color: value != null

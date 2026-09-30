@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
-import 'package:intl/intl.dart';
 
 import '../../../src/services/hr/jobposting_service.dart';
 import '../models/job_posting.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class JobPostController extends GetxController {
   final JobPostingService _jobService = JobPostingService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -182,7 +182,7 @@ class JobPostController extends GetxController {
 
     selectedDeadline = job.deadline;
     if (job.deadline != null) {
-      deadlineController.text = DateFormat('yyyy-MM-dd').format(job.deadline!);
+      deadlineController.text = formatAppDate(job.deadline!);
     }
 
     selectedStatus.value = _capitalize(job.status);

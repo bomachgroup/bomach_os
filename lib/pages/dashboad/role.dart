@@ -12,9 +12,9 @@ import 'package:bomach_os/src/model/role_model.dart';
 import 'package:bomach_os/src/services/role_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:iconsax/iconsax.dart';
 
 /// Read-only view of the roles and permissions assigned to the signed-in user.
@@ -261,14 +261,16 @@ class _RoleCardState extends State<_RoleCard> {
                           width: itemWidth,
                           child: _Metadata(
                             label: 'Created',
-                            value: DateFormat.yMMMd().format(role.createdAt),
+                            value:
+                                DateFormat('dd-MM-yyyy').format(role.createdAt),
                           ),
                         ),
                         SizedBox(
                           width: itemWidth,
                           child: _Metadata(
                             label: 'Last updated',
-                            value: DateFormat.yMMMd().format(role.updatedAt),
+                            value:
+                                DateFormat('dd-MM-yyyy').format(role.updatedAt),
                           ),
                         ),
                       ],

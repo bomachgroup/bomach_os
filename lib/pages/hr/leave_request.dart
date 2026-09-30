@@ -359,7 +359,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                     style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
                   ),
                   Text(
-                    '${r.startDate != null ? DateFormat('dd MMM yyyy').format(r.startDate!) : ''} - ${r.endDate != null ? DateFormat('dd MMM yyyy').format(r.endDate!) : ''}',
+                    '${r.startDate != null ? DateFormat('dd-MM-yyyy').format(r.startDate!) : ''} - ${r.endDate != null ? DateFormat('dd-MM-yyyy').format(r.endDate!) : ''}',
                     style: AppTextStyles.bodySm,
                   ),
                 ],

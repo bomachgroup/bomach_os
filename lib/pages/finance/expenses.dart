@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
+
 class ExpensesPage extends StatelessWidget {
   const ExpensesPage({super.key});
 
@@ -105,7 +107,8 @@ class ExpensesPage extends StatelessWidget {
               DataColumn(label: MyText("Action")),
             ],
             rowBuilder: (expense, index) => DataRow(cells: [
-              DataCell(MyText(expense.date)),
+              DataCell(MyText(
+                  formatAppDateValue(expense.date, fallback: expense.date))),
               DataCell(MyText(expense.description)),
               DataCell(MyText(expense.amount)),
               DataCell(MyText(expense.category)),
@@ -117,7 +120,8 @@ class ExpensesPage extends StatelessWidget {
                     if (value == 'view') {
                       showDialog(
                         context: context,
-                        builder: (context) => ViewExpenseDialog(expense: expense),
+                        builder: (context) =>
+                            ViewExpenseDialog(expense: expense),
                       );
                     } else if (value == 'delete') {
                       controller.deleteExpense(context, expense.id);
@@ -132,8 +136,7 @@ class ExpensesPage extends StatelessWidget {
                     const PopupMenuItem(value: 'edit', child: Text('Edit')),
                     const PopupMenuItem(
                         value: 'approve', child: Text('Approve')),
-                    const PopupMenuItem(
-                        value: 'reject', child: Text('Reject')),
+                    const PopupMenuItem(value: 'reject', child: Text('Reject')),
                     const PopupMenuItem(
                         value: 'delete',
                         child: Text('Delete',
@@ -165,8 +168,11 @@ class ExpensesPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      MyText(expense.date,
-                          size: 12, color: AppColors.textSecondary),
+                      MyText(
+                          formatAppDateValue(expense.date,
+                              fallback: expense.date),
+                          size: 12,
+                          color: AppColors.textSecondary),
                       Row(
                         children: [
                           IconButton(

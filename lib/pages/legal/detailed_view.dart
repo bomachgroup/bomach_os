@@ -94,7 +94,7 @@ class DetailsViewPage extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Text(
-          'Created 1/1/2024',
+          'Created 01-01-2024',
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey,

@@ -310,7 +310,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
           Expanded(
             flex: 2,
             child: Text(
-              DateFormat('dd MMM yyyy').format(record.startDate),
+              DateFormat('dd-MM-yyyy').format(record.startDate),
               style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),

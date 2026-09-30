@@ -244,7 +244,7 @@ class AllAttendanceHistoryPage extends StatelessWidget {
   String _prettyDate(String raw) {
     try {
       final dt = DateTime.parse(raw);
-      return DateFormat('EEE, MMM d, yyyy').format(dt);
+      return DateFormat('EEE, dd-MM-yyyy').format(dt);
     } catch (_) {
       return raw;
     }

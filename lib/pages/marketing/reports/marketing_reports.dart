@@ -5,6 +5,8 @@ import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
+
 class MarketingReports extends StatelessWidget {
   const MarketingReports({super.key});
 
@@ -21,7 +23,10 @@ class MarketingReports extends StatelessWidget {
           const SizedBox(height: 4),
           const MyText(
             'Performance reports and audit trails',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.textMuted),
+            style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 15,
+                color: AppColors.textMuted),
           ),
           const SizedBox(height: 16),
           Container(
@@ -80,7 +85,8 @@ class MarketingReports extends StatelessWidget {
           _kpiCard('Leads Generated', data['leads'] ?? '—', AppColors.primary),
           _kpiCard('Conversion Rate', data['conv'] ?? '—', AppColors.success),
           _kpiCard('Pipeline Value', data['pipe'] ?? '—', AppColors.info),
-          _kpiCard('Content Published', data['content'] ?? '—', const Color(0xFF8B5CF6)),
+          _kpiCard('Content Published', data['content'] ?? '—',
+              const Color(0xFF8B5CF6)),
         ],
       );
     });
@@ -92,45 +98,59 @@ class MarketingReports extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2))],
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2))
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Broadcast History', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          const Text('Broadcast History',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Obx(() => Column(
-            children: c.broadcasts.map((b) {
-              final deliveryRate = b.sent > 0 ? ((b.delivered / b.sent) * 100).toStringAsFixed(1) : '0';
-              final responseRate = b.delivered > 0 ? ((b.responses / b.delivered) * 100).toStringAsFixed(1) : '0';
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(b.date, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                          Text(b.audience, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                        ],
-                      ),
+                children: c.broadcasts.map((b) {
+                  final deliveryRate = b.sent > 0
+                      ? ((b.delivered / b.sent) * 100).toStringAsFixed(1)
+                      : '0';
+                  final responseRate = b.delivered > 0
+                      ? ((b.responses / b.delivered) * 100).toStringAsFixed(1)
+                      : '0';
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceMuted,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    _metric('Sent', '${b.sent}'),
-                    _metric('Delivered', '$deliveryRate%'),
-                    _metric('Responses', '$responseRate%'),
-                    _metric('Leads', '${b.generated}'),
-                  ],
-                ),
-              );
-            }).toList(),
-          )),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(formatAppDateValue(b.date, fallback: b.date),
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600)),
+                              Text(b.audience,
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textMuted)),
+                            ],
+                          ),
+                        ),
+                        _metric('Sent', '${b.sent}'),
+                        _metric('Delivered', '$deliveryRate%'),
+                        _metric('Responses', '$responseRate%'),
+                        _metric('Leads', '${b.generated}'),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              )),
         ],
       ),
     );
@@ -143,76 +163,98 @@ class MarketingReports extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: const [BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2))],
+          boxShadow: const [
+            BoxShadow(
+                color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2))
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Open Tickets', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const Text('Open Tickets',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             const SizedBox(height: 12),
             Obx(() => Column(
-              children: c.tickets.map((ticket) {
-                final priorityColor = ticket.priority == 'urgent'
-                    ? AppColors.danger
-                    : ticket.priority == 'high'
-                        ? AppColors.warning
-                        : AppColors.textMuted;
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceMuted,
-                    borderRadius: BorderRadius.circular(8),
-                    border: ticket.priority == 'urgent'
-                        ? Border.all(color: AppColors.danger.withValues(alpha: 0.3))
-                        : null,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: priorityColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          ticket.id,
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: priorityColor),
-                        ),
+                  children: c.tickets.map((ticket) {
+                    final priorityColor = ticket.priority == 'urgent'
+                        ? AppColors.danger
+                        : ticket.priority == 'high'
+                            ? AppColors.warning
+                            : AppColors.textMuted;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceMuted,
+                        borderRadius: BorderRadius.circular(8),
+                        border: ticket.priority == 'urgent'
+                            ? Border.all(
+                                color: AppColors.danger.withValues(alpha: 0.3))
+                            : null,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(ticket.customerName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                            Text(ticket.issue, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                      child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: priorityColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              ticket.priority,
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: priorityColor),
+                              ticket.id,
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: priorityColor),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(ticket.time, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(ticket.customerName,
+                                    style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600)),
+                                Text(ticket.issue,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.textMuted)),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: priorityColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  ticket.priority,
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                      color: priorityColor),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(ticket.time,
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      color: AppColors.textMuted)),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            )),
+                    );
+                  }).toList(),
+                )),
           ],
         ),
       ),
@@ -226,7 +268,8 @@ class MarketingReports extends StatelessWidget {
         children: [
           Icon(Icons.history, size: 48, color: AppColors.textMuted),
           SizedBox(height: 12),
-          Text('Audit Log', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          Text('Audit Log',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           SizedBox(height: 8),
           Text(
             'All team actions and system events will be logged here',
@@ -244,14 +287,20 @@ class MarketingReports extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2))],
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2))
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: color)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 24, fontWeight: FontWeight.w700, color: color)),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+          Text(label,
+              style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
         ],
       ),
     );
@@ -263,8 +312,11 @@ class MarketingReports extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
-          Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(label,
+              style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+          Text(value,
+              style:
+                  const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         ],
       ),
     );

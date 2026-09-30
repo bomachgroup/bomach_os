@@ -311,7 +311,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
             flex: 2,
             child: AppText.bodySm(
               kase.actionDate != null
-                  ? DateFormat('dd MMM yyyy').format(kase.actionDate!)
+                  ? DateFormat('dd-MM-yyyy').format(kase.actionDate!)
                   : '—',
               color: AppColors.textSecondary,
               overflow: TextOverflow.ellipsis,

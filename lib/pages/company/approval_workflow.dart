@@ -536,7 +536,7 @@ class _RequestsTab extends StatelessWidget {
     String displayDate = req.createdAt;
     try {
       final parsed = DateTime.parse(req.createdAt);
-      displayDate = DateFormat('MMM d, yyyy').format(parsed);
+      displayDate = DateFormat('dd-MM-yyyy').format(parsed);
     } catch (_) {}
 
     final isPending = req.status.toLowerCase() == 'pending';

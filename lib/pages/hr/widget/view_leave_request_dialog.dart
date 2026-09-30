@@ -98,7 +98,7 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
 
   String _fmtDate(DateTime? d) {
     if (d == null) return '-';
-    return DateFormat('dd MMM yyyy').format(d);
+    return DateFormat('dd-MM-yyyy').format(d);
   }
 
   String _formatLeaveType(String type) {

@@ -3,8 +3,10 @@ import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/pages/operations/models/models.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class ProjectOverview extends StatelessWidget {
@@ -47,24 +49,23 @@ class ProjectOverview extends StatelessWidget {
         // Progress + Client cards
         LayoutBuilder(
           builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 720;
-          final cardWidth = isWide
-              ? (constraints.maxWidth - 20) / 2
-              : constraints.maxWidth;
-          return Wrap(
-            spacing: 20,
-            runSpacing: 20,
-            children: [
-              SizedBox(
-                width: cardWidth,
-                child: _ProgressCard(project: project, percent: percent),
-              ),
-              SizedBox(
-                width: cardWidth,
-                child: _ClientCard(project: project),
-              ),
-            ],
-          );
+            final isWide = constraints.maxWidth >= 720;
+            final cardWidth =
+                isWide ? (constraints.maxWidth - 20) / 2 : constraints.maxWidth;
+            return Wrap(
+              spacing: 20,
+              runSpacing: 20,
+              children: [
+                SizedBox(
+                  width: cardWidth,
+                  child: _ProgressCard(project: project, percent: percent),
+                ),
+                SizedBox(
+                  width: cardWidth,
+                  child: _ClientCard(project: project),
+                ),
+              ],
+            );
           },
         ),
         const SizedBox(height: 28),
@@ -73,52 +74,79 @@ class ProjectOverview extends StatelessWidget {
         const Text('Financial Overview', style: AppTextStyles.h3),
         const SizedBox(height: 4),
         const Text(
-          'Live tracking of budget, expenses and net position.',
+          'Project budget, committed expenses, spend and remaining balance.',
           style: AppTextStyles.bodySm,
         ),
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 780;
-          const count = 3;
-          final cardWidth = isWide
-              ? (constraints.maxWidth - ((count - 1) * 16)) / count
-              : (constraints.maxWidth >= 520
-                  ? (constraints.maxWidth - 16) / 2
-                  : constraints.maxWidth);
-          return Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              SizedBox(
-                width: cardWidth,
-                child: ProjectExpenseTrack(
-                  label: 'Project Budget',
-                  amount: project.budget,
-                  icon: Iconsax.wallet_money,
-                  color: AppColors.primary,
+            final isWide = constraints.maxWidth >= 780;
+            const count = 3;
+            final cardWidth = isWide
+                ? (constraints.maxWidth - ((count - 1) * 16)) / count
+                : (constraints.maxWidth >= 520
+                    ? (constraints.maxWidth - 16) / 2
+                    : constraints.maxWidth);
+            return Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                SizedBox(
+                  width: cardWidth,
+                  child: ProjectExpenseTrack(
+                    label: 'Project Budget',
+                    value: _formatCurrency(project.budget),
+                    icon: Iconsax.wallet_money,
+                    color: AppColors.primary,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: cardWidth,
-                child: const ProjectExpenseTrack(
-                  label: 'Total Expenses',
-                  amount: 0.00,
-                  icon: Iconsax.card_send,
-                  color: AppColors.danger,
+                SizedBox(
+                  width: cardWidth,
+                  child: ProjectExpenseTrack(
+                    label: 'Committed Expenses',
+                    value: _formatCurrency(project.committedExpenseTotal),
+                    icon: Iconsax.card_send,
+                    color: AppColors.warning,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: cardWidth,
-                child: const ProjectExpenseTrack(
-                  label: 'Net Profit',
-                  amount: 0.00,
-                  icon: Iconsax.money_recive,
-                  color: AppColors.success,
+                SizedBox(
+                  width: cardWidth,
+                  child: ProjectExpenseTrack(
+                    label: 'Spent Expenses',
+                    value: _formatCurrency(project.spentExpenseTotal),
+                    icon: Iconsax.wallet_2,
+                    color: AppColors.danger,
+                  ),
                 ),
-              ),
-            ],
-          );
+                SizedBox(
+                  width: cardWidth,
+                  child: ProjectExpenseTrack(
+                    label: 'Consumed Budget',
+                    value: _formatCurrency(project.consumedExpenseTotal),
+                    icon: Iconsax.chart_2,
+                    color: AppColors.primaryHover,
+                  ),
+                ),
+                SizedBox(
+                  width: cardWidth,
+                  child: ProjectExpenseTrack(
+                    label: 'Remaining Budget',
+                    value: _formatCurrency(project.remainingBudget),
+                    icon: Iconsax.money_recive,
+                    color: AppColors.success,
+                  ),
+                ),
+                SizedBox(
+                  width: cardWidth,
+                  child: ProjectExpenseTrack(
+                    label: 'Expense Count',
+                    value: '${project.expenseCount}',
+                    icon: Iconsax.receipt_item,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            );
           },
         ),
         const SizedBox(height: 28),
@@ -143,6 +171,9 @@ class ProjectOverview extends StatelessWidget {
       ],
     );
   }
+
+  String _formatCurrency(double amount) =>
+      '\u20A6${NumberFormat('#,##0.00').format(amount)}';
 }
 
 class _ProgressCard extends StatelessWidget {
@@ -204,7 +235,7 @@ class _ProgressCard extends StatelessWidget {
         const SizedBox(width: 6),
         Flexible(
           child: Text(
-            date.isEmpty ? 'N/A' : date,
+            date.isEmpty ? 'N/A' : formatAppDateValue(date, fallback: date),
             style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w500,
@@ -246,8 +277,8 @@ class _ClientCard extends StatelessWidget {
                       project.clientName.isNotEmpty
                           ? project.clientName
                           : project.clientId == null
-                          ? 'No client assigned'
-                          : 'Client ${project.clientId}',
+                              ? 'No client assigned'
+                              : 'Client ${project.clientId}',
                       style: AppTextStyles.bodyLg.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -278,14 +309,14 @@ class _ClientCard extends StatelessWidget {
 
 class ProjectExpenseTrack extends StatelessWidget {
   final String label;
-  final double amount;
+  final String value;
   final IconData icon;
   final Color color;
 
   const ProjectExpenseTrack({
     super.key,
     required this.label,
-    required this.amount,
+    required this.value,
     required this.icon,
     required this.color,
   });
@@ -319,7 +350,7 @@ class ProjectExpenseTrack extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            '\u20A6${amount.toStringAsFixed(2)}',
+            value,
             style: AppTextStyles.h2.copyWith(color: color),
           ),
         ],

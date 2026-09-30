@@ -37,7 +37,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+    return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
   }
 
   StatusTone _invoiceStatusTone(ServiceInvoiceStatus status) {
@@ -200,14 +200,14 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
             Expanded(
               child: Text(
                 invoice.clientName,
-                style: AppTextStyles.bodyMd
-                    .copyWith(fontWeight: FontWeight.w600),
+                style:
+                    AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
             if (invoice.leadId.isNotEmpty)
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: const BoxDecoration(
                   color: AppColors.infoSubtle,
                   borderRadius: AppRadii.brPill,
@@ -225,23 +225,22 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
         const SizedBox(height: 8),
         Text(
           invoice.clientEmail ?? 'N/A',
-          style: AppTextStyles.bodySm
-              .copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
         ),
         if (invoice.clientPhone != null) ...[
           const SizedBox(height: 4),
           Text(
             invoice.clientPhone!,
-            style: AppTextStyles.bodySm
-                .copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ],
         if (invoice.clientAddress != null) ...[
           const SizedBox(height: 4),
           Text(
             invoice.clientAddress!,
-            style: AppTextStyles.bodySm
-                .copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ],
       ],
@@ -266,8 +265,8 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
               const SizedBox(height: 4),
               Text(
                 invoice.propertyAddress!,
-                style: AppTextStyles.bodyMd
-                    .copyWith(fontWeight: FontWeight.w600),
+                style:
+                    AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -282,8 +281,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
       children: [
         Text(
           label,
-          style: AppTextStyles.bodySm
-              .copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
         ),
         Text(
           value,
@@ -400,8 +398,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
           label,
           style: isTotal
               ? AppTextStyles.h4
-              : AppTextStyles.bodyMd
-                  .copyWith(color: AppColors.textSecondary),
+              : AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
         ),
         Text(
           value,
@@ -463,8 +460,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
               value: progress,
               minHeight: 8,
               backgroundColor: AppColors.surface,
-              valueColor:
-                  const AlwaysStoppedAnimation(AppColors.warning),
+              valueColor: const AlwaysStoppedAnimation(AppColors.warning),
             ),
           ),
         ],

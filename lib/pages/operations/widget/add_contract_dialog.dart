@@ -14,6 +14,7 @@ import 'package:iconsax/iconsax.dart';
 import '../controllers/contract_controller.dart';
 import '../models/models.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddContractDialog extends StatefulWidget {
   final Contract? contract;
 
@@ -45,8 +46,10 @@ class _AddContractDialogState extends State<AddContractDialog> {
     nameCtrl = TextEditingController(text: c?.name ?? '');
     numberCtrl = TextEditingController(text: c?.contractNumber ?? '');
     valueCtrl = TextEditingController(text: c?.value.toString() ?? '0');
-    startCtrl = TextEditingController(text: c?.startDate ?? '');
-    endCtrl = TextEditingController(text: c?.endDate ?? '');
+    startCtrl = TextEditingController(
+        text: formatAppDateValue(c?.startDate, fallback: c?.startDate ?? ''));
+    endCtrl = TextEditingController(
+        text: formatAppDateValue(c?.endDate, fallback: c?.endDate ?? ''));
     projectIdCtrl = TextEditingController(
         text: (c?.projectId ?? widget.contract?.projectId).toString());
 
@@ -79,8 +82,8 @@ class _AddContractDialogState extends State<AddContractDialog> {
       contractType: selectedType,
       status: selectedStatus,
       value: double.tryParse(valueCtrl.text) ?? 0.0,
-      startDate: startCtrl.text,
-      endDate: endCtrl.text,
+      startDate: appDateToApiDate(startCtrl.text) ?? '',
+      endDate: appDateToApiDate(endCtrl.text) ?? '',
       createdAt: widget.contract?.createdAt ?? '',
       updatedAt: '',
     );

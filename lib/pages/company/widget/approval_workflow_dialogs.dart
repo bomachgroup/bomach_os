@@ -431,7 +431,7 @@ class ViewWorkflowDialog extends StatelessWidget {
     String displayCreated = flow.createdAt;
     try {
       final parsed = DateTime.parse(flow.createdAt);
-      displayCreated = DateFormat('MMMM d, yyyy').format(parsed);
+      displayCreated = DateFormat('dd-MM-yyyy').format(parsed);
     } catch (_) {}
 
     final approvers = flow.approverDisplays.isNotEmpty

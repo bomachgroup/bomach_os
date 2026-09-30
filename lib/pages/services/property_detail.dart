@@ -520,7 +520,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
   }
 
   Widget _buildQuickInfoCard(Property property) {
-    final dateFormat = DateFormat('MMM dd, yyyy');
+    final dateFormat = DateFormat('dd-MM-yyyy');
 
     return AppCard(
       padding: const EdgeInsets.all(20),

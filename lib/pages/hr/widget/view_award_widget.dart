@@ -30,7 +30,7 @@ class ViewAwardDialog extends StatelessWidget {
     final AwardsController controller = Get.find();
 
     final dateLabel = award.dateAwarded != null
-        ? DateFormat('MMMM dd, yyyy').format(award.dateAwarded!)
+        ? DateFormat('dd-MM-yyyy').format(award.dateAwarded!)
         : 'N/A';
 
     return DialogScaffold(

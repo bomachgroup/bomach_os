@@ -465,7 +465,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  DateFormat('dd MMM yyyy').format(date),
+                  DateFormat('dd-MM-yyyy').format(date),
                   style: AppTextStyles.bodyMd,
                 ),
                 const Icon(Iconsax.calendar_1,

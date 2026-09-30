@@ -175,7 +175,7 @@ class TrainingTab extends StatelessWidget {
                           const Icon(Iconsax.calendar,
                               size: 14, color: AppColors.textSecondary),
                           const SizedBox(width: 4),
-                          Text(DateFormat('MMM dd').format(p.startDate!),
+                          Text(DateFormat('dd-MM-yyyy').format(p.startDate!),
                               style: AppTextStyles.bodySm
                                   .copyWith(color: AppColors.textSecondary)),
                           const SizedBox(width: 16),

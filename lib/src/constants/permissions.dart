@@ -94,6 +94,7 @@ class PermissionConstants {
   static const String resAssets = 'assets';
   static const String resAwards = 'awards';
   static const String resWorkReports = 'work_reports';
+  static const String resEngineeringSiteReports = 'engineering_site_reports';
   static const String resDisciplinaryCases = 'disciplinary_cases';
   static const String resMonthlyScorecards = 'monthly_scorecards';
   static const String resEmployeeEvaluations = 'employee_evaluations';
@@ -384,6 +385,34 @@ class Perms {
   static const workReportsUpdateOwn = Permission('work_reports', 'update_own');
   static const workReportsDelete = Permission('work_reports', 'delete');
 
+  // Engineering site reports
+  static const engineeringSiteReportsCreate =
+      Permission('engineering_site_reports', 'create');
+  static const engineeringSiteReportsView =
+      Permission('engineering_site_reports', 'view');
+  static const engineeringSiteReportsViewOwn =
+      Permission('engineering_site_reports', 'view_own');
+  static const engineeringSiteReportsList =
+      Permission('engineering_site_reports', 'list');
+  static const engineeringSiteReportsListOwn =
+      Permission('engineering_site_reports', 'list_own');
+  static const engineeringSiteReportsUpdate =
+      Permission('engineering_site_reports', 'update');
+  static const engineeringSiteReportsUpdateOwn =
+      Permission('engineering_site_reports', 'update_own');
+  static const engineeringSiteReportsSubmit =
+      Permission('engineering_site_reports', 'submit');
+  static const engineeringSiteReportsApprove =
+      Permission('engineering_site_reports', 'approve');
+  static const engineeringSiteReportsReject =
+      Permission('engineering_site_reports', 'reject');
+  static const engineeringSiteReportsDelete =
+      Permission('engineering_site_reports', 'delete');
+  static const siteEquipmentCreate = Permission('site_equipment', 'create');
+  static const siteEquipmentList = Permission('site_equipment', 'list');
+  static const siteEquipmentUpdate = Permission('site_equipment', 'update');
+  static const siteEquipmentDelete = Permission('site_equipment', 'delete');
+
   // Disciplinary / Awards
   static const disciplinaryCasesList = Permission('disciplinary_cases', 'list');
   static const disciplinaryCasesListOwn =
@@ -508,6 +537,13 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.employeeMyReports: [
     Perms.workReportsListOwn,
     Perms.workReportsList,
+  ],
+  RouteConstants.engineeringSiteReports: [
+    Perms.engineeringSiteReportsList,
+    Perms.engineeringSiteReportsListOwn,
+    Perms.engineeringSiteReportsView,
+    Perms.engineeringSiteReportsViewOwn,
+    Perms.engineeringSiteReportsCreate,
   ],
 
   // Company (admin)

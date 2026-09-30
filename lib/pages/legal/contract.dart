@@ -33,8 +33,8 @@ class ContractsPageView extends StatelessWidget {
                       const SizedBox(height: 2),
                       const Text(
                           "Manage contracts, agreements, and legal documents",
-                          style: TextStyle(
-                              fontSize: 13, color: Colors.black54)),
+                          style:
+                              TextStyle(fontSize: 13, color: Colors.black54)),
                       const SizedBox(height: 12),
                       Row(
                         children: [
@@ -44,7 +44,8 @@ class ContractsPageView extends StatelessWidget {
                               onChanged: controller.onSearchChanged,
                               leading: Icon(
                                 Iconsax.search_normal,
-                                color: AppColors.neutral500.withValues(alpha: 0.5),
+                                color:
+                                    AppColors.neutral500.withValues(alpha: 0.5),
                               ),
                             ),
                           ),
@@ -87,7 +88,8 @@ class ContractsPageView extends StatelessWidget {
                                 onChanged: controller.onSearchChanged,
                                 leading: Icon(
                                   Iconsax.search_normal,
-                                  color: AppColors.neutral500.withValues(alpha: 0.5),
+                                  color: AppColors.neutral500
+                                      .withValues(alpha: 0.5),
                                 ),
                               ),
                             ),
@@ -134,7 +136,8 @@ class ContractsPageView extends StatelessWidget {
 class ContractsCard extends StatelessWidget {
   final Contract contract;
   final bool isMobile;
-  const ContractsCard({super.key, required this.contract, this.isMobile = false});
+  const ContractsCard(
+      {super.key, required this.contract, this.isMobile = false});
 
   @override
   Widget build(BuildContext context) {
@@ -159,9 +162,8 @@ class ContractsCard extends StatelessWidget {
 
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => DetailsViewPage(
-                  title: contract.name,
-                  details: contractData),
+              builder: (context) =>
+                  DetailsViewPage(title: contract.name, details: contractData),
             ),
           );
         },
@@ -191,7 +193,8 @@ class ContractsCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       "Created: ${_formatDate(contract.createdAt)}",
-                      style: const TextStyle(color: Colors.black54, fontSize: 12),
+                      style:
+                          const TextStyle(color: Colors.black54, fontSize: 12),
                     ),
                     const SizedBox(height: 8),
                     Text("Effective: ${_formatDate(contract.startDate)}"),
@@ -221,8 +224,7 @@ class ContractsCard extends StatelessWidget {
                               ),
                             );
                           },
-                          icon: const Icon(Iconsax.eye,
-                              color: Colors.black),
+                          icon: const Icon(Iconsax.eye, color: Colors.black),
                           label: const Text("View",
                               style: TextStyle(color: Colors.black)),
                           style: OutlinedButton.styleFrom(
@@ -235,8 +237,7 @@ class ContractsCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         OutlinedButton.icon(
                           onPressed: () {},
-                          icon: const Icon(Iconsax.edit,
-                              color: Colors.black),
+                          icon: const Icon(Iconsax.edit, color: Colors.black),
                           label: const Text("Edit",
                               style: TextStyle(color: Colors.black)),
                           style: OutlinedButton.styleFrom(
@@ -287,7 +288,8 @@ class ContractsCard extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text("Effective: ${_formatDate(contract.startDate)}"),
+                              Text(
+                                  "Effective: ${_formatDate(contract.startDate)}"),
                               Text("Expires: ${_formatDate(contract.endDate)}"),
                             ],
                           ),
@@ -371,9 +373,9 @@ class ContractsCard extends StatelessWidget {
 
   String _formatValue(double value) {
     return value.toStringAsFixed(2).replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (match) => '${match.group(1)},',
-    );
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (match) => '${match.group(1)},',
+        );
   }
 
   String _formatDate(String date) {
@@ -381,12 +383,7 @@ class ContractsCard extends StatelessWidget {
     if (date.length >= 10) {
       final parts = date.substring(0, 10).split('-');
       if (parts.length == 3) {
-        final months = [
-          '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-        ];
-        final month = int.tryParse(parts[1]) ?? 0;
-        return '${int.tryParse(parts[2]) ?? 0} ${months[month]} ${parts[0]}';
+        return '${parts[2]}-${parts[1]}-${parts[0]}';
       }
     }
     return date;

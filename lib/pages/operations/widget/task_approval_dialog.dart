@@ -198,8 +198,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
           const SizedBox(height: 20),
           _buildSection(
             title: 'Your review',
-            subtitle:
-                'Choose an action, then add feedback before submitting.',
+            subtitle: 'Choose an action, then add feedback before submitting.',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -362,7 +361,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                     _buildMetaChip(
                       icon: Iconsax.calendar,
                       label:
-                          '${widget.task.dueDate.day}/${widget.task.dueDate.month}/${widget.task.dueDate.year}',
+                          '${widget.task.dueDate.day.toString().padLeft(2, '0')}-${widget.task.dueDate.month.toString().padLeft(2, '0')}-${widget.task.dueDate.year}',
                     ),
                     _buildMetaChip(
                       icon: Iconsax.clock,
@@ -428,8 +427,8 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppTextStyles.bodySm
-                  .copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),

@@ -273,7 +273,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                       ),
                       Text(
                         program.startDate != null
-                            ? DateFormat('dd MMM yyyy')
+                            ? DateFormat('dd-MM-yyyy')
                                 .format(program.startDate!)
                             : '-',
                         style: AppTextStyles.bodySm,
@@ -290,7 +290,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                       ),
                       Text(
                         program.endDate != null
-                            ? DateFormat('dd MMM yyyy').format(program.endDate!)
+                            ? DateFormat('dd-MM-yyyy').format(program.endDate!)
                             : '-',
                         style: AppTextStyles.bodySm,
                       ),

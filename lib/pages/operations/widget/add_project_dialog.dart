@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import '../controllers/project_controller.dart';
 import '../models/models.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddProjectDialog extends StatefulWidget {
   const AddProjectDialog({super.key});
 
@@ -389,8 +390,8 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
       budget: double.tryParse(budgetCtrl.text.replaceAll(',', '')) ?? 0.0,
       budgetCurrency: selectedCurrency,
       progress: 0.0,
-      startDate: startDateCtrl.text,
-      deadline: deadlineCtrl.text,
+      startDate: appDateToApiDate(startDateCtrl.text) ?? '',
+      deadline: appDateToApiDate(deadlineCtrl.text) ?? '',
       fileUrl: '',
     );
 

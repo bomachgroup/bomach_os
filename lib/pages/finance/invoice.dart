@@ -18,6 +18,8 @@ import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
+
 class InvoicePage extends StatelessWidget {
   const InvoicePage({super.key});
 
@@ -69,10 +71,8 @@ class InvoicePage extends StatelessWidget {
                 ],
               ),
         const SizedBox(height: 24),
-
         Obx(() {
-          if (controller.isLoading.value &&
-              controller.invoiceList.isEmpty) {
+          if (controller.isLoading.value && controller.invoiceList.isEmpty) {
             return const Center(
                 child: Padding(
                     padding: EdgeInsets.all(40),
@@ -126,14 +126,16 @@ class InvoicePage extends StatelessWidget {
               ),
               DataCell(
                 Text(
-                  invoice.issueDate,
+                  formatAppDateValue(invoice.issueDate,
+                      fallback: invoice.issueDate),
                   style: AppTextStyles.bodyMd
                       .copyWith(color: AppColors.textSecondary),
                 ),
               ),
               DataCell(
                 Text(
-                  invoice.dueDate,
+                  formatAppDateValue(invoice.dueDate,
+                      fallback: invoice.dueDate),
                   style: AppTextStyles.bodyMd
                       .copyWith(color: AppColors.textSecondary),
                 ),
@@ -157,8 +159,7 @@ class InvoicePage extends StatelessWidget {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) =>
-                      InvoiceDetailsDialog(invoice: invoice),
+                  builder: (context) => InvoiceDetailsDialog(invoice: invoice),
                 );
               },
               child: Column(
@@ -168,7 +169,8 @@ class InvoicePage extends StatelessWidget {
                     children: [
                       MyText(invoice.invoiceNumber,
                           weight: 700, size: 14, color: AppColors.textPrimary),
-                      StatusChip(label: invoice.status, tone: StatusTone.warning),
+                      StatusChip(
+                          label: invoice.status, tone: StatusTone.warning),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -183,7 +185,9 @@ class InvoicePage extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: MyText(invoice.service.name,
-                            weight: 600, size: 14, color: AppColors.textPrimary),
+                            weight: 600,
+                            size: 14,
+                            color: AppColors.textPrimary),
                       ),
                       MyText(invoice.totalAmount.toNaira(),
                           weight: 700, size: 14, color: AppColors.primary),
@@ -199,7 +203,9 @@ class InvoicePage extends StatelessWidget {
                           const MyText('Due Date',
                               size: 11, color: AppColors.textSecondary),
                           const SizedBox(height: 4),
-                          MyText(invoice.dueDate,
+                          MyText(
+                              formatAppDateValue(invoice.dueDate,
+                                  fallback: invoice.dueDate),
                               size: 13,
                               weight: 600,
                               color: AppColors.textPrimary),

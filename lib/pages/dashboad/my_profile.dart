@@ -588,7 +588,7 @@ class MyProfilePage extends StatelessWidget {
     if (dateStr == null || dateStr.isEmpty) return 'N/A';
     try {
       final date = DateTime.parse(dateStr);
-      return DateFormat('MMM dd, yyyy').format(date);
+      return DateFormat('dd-MM-yyyy').format(date);
     } catch (_) {
       return dateStr;
     }

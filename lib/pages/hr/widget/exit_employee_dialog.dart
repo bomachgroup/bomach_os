@@ -9,11 +9,11 @@ import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:intl/intl.dart';
 
 import '../../../src/model/employees_model.dart';
 import '../controller/employees_controller.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class ExitEmployeeDialog extends StatefulWidget {
   final Employee employee;
 
@@ -33,7 +33,7 @@ class _ExitEmployeeDialogState extends State<ExitEmployeeDialog> {
   @override
   void initState() {
     super.initState();
-    _dateCtrl.text = DateFormat('yyyy-MM-dd').format(_selectedDate);
+    _dateCtrl.text = formatAppDate(_selectedDate);
   }
 
   @override
@@ -53,7 +53,7 @@ class _ExitEmployeeDialogState extends State<ExitEmployeeDialog> {
     if (picked != null) {
       setState(() {
         _selectedDate = picked;
-        _dateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+        _dateCtrl.text = formatAppDate(picked);
       });
     }
   }
@@ -66,7 +66,7 @@ class _ExitEmployeeDialogState extends State<ExitEmployeeDialog> {
     final ok = await controller.exitEmployee(
       context,
       widget.employee.id,
-      exitDate: _dateCtrl.text.trim(),
+      exitDate: appDateToApiDate(_dateCtrl.text.trim()) ?? _dateCtrl.text.trim(),
       reason: _reasonCtrl.text.trim(),
     );
     if (!mounted) return;
@@ -142,7 +142,7 @@ class _ExitEmployeeDialogState extends State<ExitEmployeeDialog> {
               child: IgnorePointer(
                 child: MyTextFormField(
                   controller: _dateCtrl,
-                  hintText: 'YYYY-MM-DD',
+                  hintText: 'DD-MM-YYYY',
                   leading: const Icon(Iconsax.calendar,
                       size: 18, color: AppColors.textMuted),
                   validator: (val) {
@@ -192,4 +192,3 @@ class _ExitEmployeeDialogState extends State<ExitEmployeeDialog> {
     );
   }
 }
-

@@ -94,7 +94,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
 
   String _formatDateDisplay(DateTime? date) {
     if (date == null) return '';
-    return DateFormat('dd/MM/yyyy').format(date);
+    return DateFormat('dd-MM-yyyy').format(date);
   }
 
   String _formatTimeDisplay(TimeOfDay? time) {
@@ -240,7 +240,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                           children: [
                             Expanded(
                               child: MyTextFormField(
-                                hintText: 'DD/MM/YYYY',
+                                hintText: 'DD-MM-YYYY',
                                 spaceBetweenText: 10,
                                 title: 'Start Date*',
                                 readOnly: true,
@@ -272,7 +272,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                           children: [
                             Expanded(
                               child: MyTextFormField(
-                                hintText: 'DD/MM/YYYY',
+                                hintText: 'DD-MM-YYYY',
                                 spaceBetweenText: 10,
                                 title: 'End Date*',
                                 readOnly: true,

@@ -4,12 +4,12 @@ import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:intl/intl.dart';
 import 'dart:async';
 
 import '../../../src/services/hr/leave_request_services.dart';
 import '../models/leave_request_model.dart' show LeaveRequest;
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class LeaveRequestController extends GetxController {
   final LeaveRequestService _service = LeaveRequestService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -246,10 +246,10 @@ class LeaveRequestController extends GetxController {
     selectedStartDate = request.startDate;
     selectedEndDate = request.endDate;
     startDateController.text = request.startDate != null
-        ? DateFormat('yyyy-MM-dd').format(request.startDate!)
+        ? formatAppDate(request.startDate!)
         : '';
     endDateController.text = request.endDate != null
-        ? DateFormat('yyyy-MM-dd').format(request.endDate!)
+        ? formatAppDate(request.endDate!)
         : '';
     selectedLeaveType.value = request.leaveType;
   }
@@ -283,7 +283,7 @@ class LeaveRequestController extends GetxController {
     final date = DateTime(pickedDate.year, pickedDate.month, pickedDate.day);
     if (isStart) {
       selectedStartDate = date;
-      startDateController.text = DateFormat('yyyy-MM-dd').format(date);
+      startDateController.text = formatAppDate(date);
 
       // A later start date makes an earlier end date invalid.
       if (selectedEndDate != null && selectedEndDate!.isBefore(date)) {
@@ -292,7 +292,7 @@ class LeaveRequestController extends GetxController {
       }
     } else {
       selectedEndDate = date;
-      endDateController.text = DateFormat('yyyy-MM-dd').format(date);
+      endDateController.text = formatAppDate(date);
     }
   }
 

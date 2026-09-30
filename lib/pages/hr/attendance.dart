@@ -606,7 +606,8 @@ class AttendancePageState extends State<AttendancePage> {
           lastClockIn == null ? '—' : _relativeTime(lastClockIn.timestamp, now),
       lastClockInExact: lastClockIn == null
           ? 'No records yet'
-          : DateFormat('EEE, MMM d · hh:mm a').format(lastClockIn.timestamp),
+          : DateFormat('EEE, dd-MM-yyyy · hh:mm a')
+              .format(lastClockIn.timestamp),
     );
   }
 
@@ -616,7 +617,7 @@ class AttendancePageState extends State<AttendancePage> {
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return DateFormat('MMM d').format(t);
+    return DateFormat('dd-MM-yyyy').format(t);
   }
 
   // ── Live clock + Clock In/Out card ─────────────────────────────────────
@@ -648,7 +649,7 @@ class AttendancePageState extends State<AttendancePage> {
             },
           ),
           const SizedBox(height: 6),
-          Text(DateFormat('EEEE, MMMM d, yyyy').format(controller.trustedTime),
+          Text(DateFormat('EEEE, dd-MM-yyyy').format(controller.trustedTime),
               style:
                   const TextStyle(color: AppColors.neutral500, fontSize: 15)),
           const SizedBox(height: 24),
@@ -1205,7 +1206,7 @@ class AttendancePageState extends State<AttendancePage> {
   String _shortDate(String raw) {
     try {
       final dt = DateTime.parse(raw).toLocal();
-      return DateFormat('MMM d').format(dt);
+      return DateFormat('dd-MM-yyyy').format(dt);
     } catch (_) {
       return raw;
     }
@@ -1506,7 +1507,7 @@ class AttendancePageState extends State<AttendancePage> {
   String _prettyDate(String raw) {
     try {
       final dt = DateTime.parse(raw);
-      return DateFormat('EEE, MMM d').format(dt);
+      return DateFormat('EEE, dd-MM-yyyy').format(dt);
     } catch (_) {
       return raw;
     }

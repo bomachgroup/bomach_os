@@ -9,6 +9,7 @@ import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -49,15 +50,16 @@ class ContractDetailPage extends StatelessWidget {
           spacing: 12,
           runSpacing: 12,
           children: [
-            _buildStatusAction(context, controller, contract,
-                'Sign', Iconsax.tick_circle, AppColors.success, 'signed'),
-            _buildStatusAction(context, controller, contract,
-                'Renew', Iconsax.refresh, AppColors.primary, 'renewed'),
-            _buildStatusAction(context, controller, contract,
-                'Terminate', Iconsax.close_circle, AppColors.danger, 'terminated'),
+            _buildStatusAction(context, controller, contract, 'Sign',
+                Iconsax.tick_circle, AppColors.success, 'signed'),
+            _buildStatusAction(context, controller, contract, 'Renew',
+                Iconsax.refresh, AppColors.primary, 'renewed'),
+            _buildStatusAction(context, controller, contract, 'Terminate',
+                Iconsax.close_circle, AppColors.danger, 'terminated'),
             MyOutlinedButton(
               height: 48,
-              icon: const Icon(Iconsax.edit, size: 18, color: AppColors.primary),
+              icon:
+                  const Icon(Iconsax.edit, size: 18, color: AppColors.primary),
               child: 'Edit',
               onTap: () => showDialog(
                 context: context,
@@ -118,7 +120,8 @@ class ContractDetailPage extends StatelessWidget {
                   runSpacing: 8,
                   children: [
                     StatusChip(
-                      label: contract.status.isEmpty ? 'Unknown' : contract.status,
+                      label:
+                          contract.status.isEmpty ? 'Unknown' : contract.status,
                       tone: _getStatusTone(contract.status),
                     ),
                     if (contract.contractType.isNotEmpty)
@@ -143,7 +146,8 @@ class ContractDetailPage extends StatelessWidget {
             children: [
               Text(
                 'Contract Value',
-                style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
+                style:
+                    AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
               ),
               const SizedBox(height: 4),
               Text(
@@ -188,8 +192,7 @@ class ContractDetailPage extends StatelessWidget {
                     contract.contractType.isEmpty
                         ? '—'
                         : contract.contractType),
-                _detailRow('Value',
-                    contract.value.toNaira()),
+                _detailRow('Value', contract.value.toNaira()),
                 _detailRowChip(
                   'Status',
                   StatusChip(
@@ -222,13 +225,25 @@ class ContractDetailPage extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
             child: Column(
               children: [
-                _detailRow('Start Date',
-                    contract.startDate.isEmpty ? '—' : contract.startDate),
-                _detailRow('End Date',
-                    contract.endDate.isEmpty ? '—' : contract.endDate),
+                _detailRow(
+                    'Start Date',
+                    contract.startDate.isEmpty
+                        ? '—'
+                        : formatAppDateValue(contract.startDate,
+                            fallback: contract.startDate)),
+                _detailRow(
+                    'End Date',
+                    contract.endDate.isEmpty
+                        ? '—'
+                        : formatAppDateValue(contract.endDate,
+                            fallback: contract.endDate)),
                 _detailRow('Project ID', '#${contract.projectId}'),
-                _detailRow('Created At',
-                    contract.createdAt.isEmpty ? '—' : contract.createdAt),
+                _detailRow(
+                    'Created At',
+                    contract.createdAt.isEmpty
+                        ? '—'
+                        : formatAppDateValue(contract.createdAt,
+                            fallback: contract.createdAt)),
               ],
             ),
           ),
@@ -299,8 +314,8 @@ class ContractDetailPage extends StatelessWidget {
       padding: const EdgeInsets.only(right: 12),
       child: MyOutlinedButton(
         height: 48,
-        icon: Icon(icon, size: 18,
-            color: isActive ? AppColors.textMuted : color),
+        icon:
+            Icon(icon, size: 18, color: isActive ? AppColors.textMuted : color),
         child: label,
         textColor: isActive ? AppColors.textMuted : color,
         borderColor: isActive ? AppColors.borderSubtle : color,

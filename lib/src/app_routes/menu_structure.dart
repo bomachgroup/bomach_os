@@ -121,6 +121,7 @@ enum SubMenuItem {
   project,
   worksite,
   tasks,
+  engineeringSiteReports,
   contracts,
   meetings,
   servicesDashboard,
@@ -580,6 +581,7 @@ const List<SidebarSection> sidebarStructure = [
           PermissionConstants.resTasks,
           PermissionConstants.resContracts,
           PermissionConstants.resWorksites,
+          PermissionConstants.resEngineeringSiteReports,
         ],
         children: [
           SubMenuItemData(
@@ -609,6 +611,13 @@ const List<SidebarSection> sidebarStructure = [
             label: 'Tasks',
             route: RouteConstants.tasks,
             resources: [PermissionConstants.resTasks],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.engineeringSiteReports,
+            icon: Iconsax.document_text,
+            label: 'Engineering Site Reports',
+            route: RouteConstants.engineeringSiteReports,
+            resources: [PermissionConstants.resEngineeringSiteReports],
           ),
           SubMenuItemData(
             id: SubMenuItem.contracts,

@@ -12,13 +12,13 @@ import 'package:flutter/material.dart';
 import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:intl/intl.dart';
 import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 
 import '../../../src/services/auth_service.dart';
 import '../controller/assets_controller.dart';
 import '../models/assets_model.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 // ═══════════════════════════════════════════════════════════════════════
 //  CREATE / EDIT ASSET DIALOG
 // ═══════════════════════════════════════════════════════════════════════
@@ -83,14 +83,14 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
       _selectedAssignedTo = a!.assignedToId.toString();
     }
     _purchaseDateCtrl = TextEditingController(
-        text: a != null ? DateFormat('yyyy-MM-dd').format(a.purchaseDate) : '');
+        text: a != null ? formatAppDate(a.purchaseDate) : '');
     _valueCtrl =
         TextEditingController(text: a != null ? a.value.toString() : '');
     _vendorCtrl = TextEditingController(text: a?.vendor ?? '');
     _invoiceCtrl = TextEditingController(text: a?.invoiceNumber ?? '');
     _warrantyDateCtrl = TextEditingController(
         text: a != null
-            ? DateFormat('yyyy-MM-dd').format(a.warrantyExpiryDate)
+            ? formatAppDate(a.warrantyExpiryDate)
             : '');
     _notesCtrl = TextEditingController(text: a?.notes ?? '');
 
@@ -141,7 +141,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
       lastDate: DateTime(2101),
     );
     if (picked != null) {
-      ctrl.text = DateFormat('yyyy-MM-dd').format(picked);
+      ctrl.text = formatAppDate(picked);
     }
   }
 
@@ -205,11 +205,15 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
       'department_id': (_selectedDepartmentId != null && _selectedDepartmentId!.isNotEmpty)
           ? int.tryParse(_selectedDepartmentId!)
           : null,
-      'purchase_date': _purchaseDateCtrl.text.trim().isNotEmpty ? _purchaseDateCtrl.text.trim() : null,
+      'purchase_date': _purchaseDateCtrl.text.trim().isNotEmpty
+          ? appDateToApiDate(_purchaseDateCtrl.text.trim())
+          : null,
       'value': double.tryParse(_valueCtrl.text.trim()) ?? 0.0,
       'vendor': _vendorCtrl.text.trim().isNotEmpty ? _vendorCtrl.text.trim() : null,
       'invoice_number': _invoiceCtrl.text.trim().isNotEmpty ? _invoiceCtrl.text.trim() : null,
-      'warranty_expiry_date': _warrantyDateCtrl.text.trim().isNotEmpty ? _warrantyDateCtrl.text.trim() : null,
+      'warranty_expiry_date': _warrantyDateCtrl.text.trim().isNotEmpty
+          ? appDateToApiDate(_warrantyDateCtrl.text.trim())
+          : null,
       'status': _selectedStatus ?? 'available',
       'notes': _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
       'documents': _uploadedFiles,
@@ -375,7 +379,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                 children: [
                   MyTextFormField(
                     title: 'Purchase Date',
-                    hintText: 'YYYY-MM-DD',
+                    hintText: 'DD-MM-YYYY',
                     spaceBetweenText: 8,
                     controller: _purchaseDateCtrl,
                     readOnly: true,
@@ -428,7 +432,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                   ),
                   MyTextFormField(
                     title: 'Warranty Expiry Date',
-                    hintText: 'YYYY-MM-DD',
+                    hintText: 'DD-MM-YYYY',
                     spaceBetweenText: 8,
                     controller: _warrantyDateCtrl,
                     readOnly: true,

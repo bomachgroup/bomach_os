@@ -419,7 +419,7 @@ class _MeetingsTab extends StatelessWidget {
     String displayDate = meeting.meetingDate;
     try {
       final parsed = DateTime.parse(meeting.meetingDate);
-      displayDate = DateFormat('MMM d, yyyy').format(parsed);
+      displayDate = DateFormat('dd-MM-yyyy').format(parsed);
     } catch (_) {}
 
     String displayTime = meeting.meetingTime;
@@ -674,7 +674,7 @@ class _ResolutionsTab extends StatelessWidget {
     String displayDate = resolution.resolutionDate;
     try {
       final parsed = DateTime.parse(resolution.resolutionDate);
-      displayDate = DateFormat('MMM d, yyyy').format(parsed);
+      displayDate = DateFormat('dd-MM-yyyy').format(parsed);
     } catch (_) {}
 
     return Container(
@@ -1677,7 +1677,7 @@ class _EmployeeListTab extends StatelessWidget {
   void _showViewDialog(BuildContext context, Employee employee) {
     String joinDate = '—';
     if (employee.startDate != null) {
-      joinDate = DateFormat('MMMM d, yyyy').format(employee.startDate!);
+      joinDate = DateFormat('dd-MM-yyyy').format(employee.startDate!);
     }
 
     final hasPicture = employee.profilePicture != null &&

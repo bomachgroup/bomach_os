@@ -79,6 +79,21 @@ class SiteEquipmentService {
     }
   }
 
+  Future<SiteEquipment> getSiteEquipmentById({
+    required String accessToken,
+    required int equipmentId,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/site-equipment/$equipmentId',
+        options: _authOptions(accessToken),
+      );
+      return SiteEquipment.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<SiteEquipment> updateSiteEquipment({
     required String accessToken,
     required int equipmentId,
@@ -87,7 +102,28 @@ class SiteEquipmentService {
     try {
       final response = await _dio.put(
         '/api/v1/site-equipment/$equipmentId',
-        data: equipment.toJson(),
+        data: equipment.toUpdateJson(),
+        options: _authOptions(accessToken),
+      );
+      return SiteEquipment.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<SiteEquipment> adjustSiteEquipment({
+    required String accessToken,
+    required int equipmentId,
+    required String quantityDelta,
+    required String reason,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/site-equipment/$equipmentId/adjust',
+        data: {
+          'quantity_delta': quantityDelta,
+          'reason': reason.trim(),
+        },
         options: _authOptions(accessToken),
       );
       return SiteEquipment.fromJson(response.data);

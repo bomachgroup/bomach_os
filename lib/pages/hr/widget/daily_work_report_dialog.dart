@@ -535,7 +535,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                     size: 16, color: AppColors.textSecondary),
                 const SizedBox(width: 10),
                 Text(
-                  DateFormat('MMM d, yyyy').format(value),
+                  DateFormat('dd-MM-yyyy').format(value),
                   style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                   ),

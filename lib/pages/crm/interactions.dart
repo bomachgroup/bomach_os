@@ -10,6 +10,8 @@ import 'dialogs/lead_dialog.dart';
 import 'models.dart';
 import 'widgets/widgets.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
+
 class InteractionsPage extends StatelessWidget {
   const InteractionsPage({super.key});
 
@@ -389,7 +391,10 @@ class InteractionDataTable extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: Text(interaction.date, overflow: TextOverflow.ellipsis),
+            child: Text(
+                formatAppDateValue(interaction.date,
+                    fallback: interaction.date),
+                overflow: TextOverflow.ellipsis),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -458,7 +463,10 @@ class InteractionDataTable extends StatelessWidget {
                     backgroundColor: statusColors['bg']!,
                     textColor: statusColors['text']!,
                   ),
-                  _buildMeta(Iconsax.calendar, interaction.date),
+                  _buildMeta(
+                      Iconsax.calendar,
+                      formatAppDateValue(interaction.date,
+                          fallback: interaction.date)),
                   _buildMeta(Iconsax.user, interaction.createdBy),
                 ],
               ),

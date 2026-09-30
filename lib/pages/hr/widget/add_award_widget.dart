@@ -10,11 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:intl/intl.dart';
 
 import '../controller/awards_controller.dart';
 import '../models/awards_model.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddAwardDialog extends StatefulWidget {
   final String token;
   final Award? awardToEdit;
@@ -46,9 +46,7 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
     rankCtrl = TextEditingController(text: a?.rankLevel ?? '');
     descCtrl = TextEditingController(text: a?.description ?? '');
     dateCtrl = TextEditingController(
-      text: a?.dateAwarded != null
-          ? DateFormat('yyyy-MM-dd').format(a!.dateAwarded!)
-          : '',
+      text: a?.dateAwarded != null ? formatAppDate(a!.dateAwarded!) : '',
     );
   }
 
@@ -71,7 +69,7 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
     );
     if (picked != null) {
       setState(() {
-        dateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+        dateCtrl.text = formatAppDate(picked);
       });
     }
   }
@@ -85,7 +83,7 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
       category: categoryCtrl.text,
       rankLevel: rankCtrl.text,
       description: descCtrl.text,
-      dateAwarded: DateTime.tryParse(dateCtrl.text),
+      dateAwarded: parseAppDate(dateCtrl.text),
     );
 
     bool success;
@@ -154,7 +152,7 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
                       MyTextFormField(
                         title: 'Date Awarded',
                         controller: dateCtrl,
-                        hintText: 'YYYY-MM-DD',
+                        hintText: 'DD-MM-YYYY',
                         readOnly: true,
                         trailing: const Icon(Iconsax.calendar_1,
                             size: 18, color: AppColors.textSecondary),

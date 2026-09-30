@@ -53,7 +53,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
     if (r?.resolutionDate != null && r!.resolutionDate.isNotEmpty) {
       try {
         final parsed = DateTime.parse(r.resolutionDate);
-        dateText = DateFormat('MMM d, yyyy').format(parsed);
+        dateText = DateFormat('dd-MM-yyyy').format(parsed);
       } catch (_) {
         dateText = r.resolutionDate;
       }
@@ -249,7 +249,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
     );
     if (picked != null) {
       setState(() {
-        dateCtrl.text = DateFormat('MMM d, yyyy').format(picked);
+        dateCtrl.text = DateFormat('dd-MM-yyyy').format(picked);
       });
     }
   }
@@ -266,7 +266,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
     // Convert display date to API format
     String apiDate = '';
     try {
-      final parsed = DateFormat('MMM d, yyyy').parse(dateCtrl.text);
+      final parsed = DateFormat('dd-MM-yyyy').parse(dateCtrl.text);
       apiDate = DateFormat('yyyy-MM-dd').format(parsed);
     } catch (_) {
       apiDate = dateCtrl.text;
@@ -309,7 +309,7 @@ class ViewResolutionDialog extends StatelessWidget {
     String displayDate = resolution.resolutionDate;
     try {
       final parsed = DateTime.parse(resolution.resolutionDate);
-      displayDate = DateFormat('MMMM d, yyyy').format(parsed);
+      displayDate = DateFormat('dd-MM-yyyy').format(parsed);
     } catch (_) {}
 
     return DialogScaffold(

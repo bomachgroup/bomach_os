@@ -11,7 +11,7 @@ class CampaignDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return DetailPageLayout(
       title: 'PQ1 Land Survey Awareness',
-      subtitle: 'Created 8/15/2023',
+      subtitle: 'Created 15-08-2023',
       actions: [
         MyElevatedButton(
           child: 'Edit',
@@ -30,8 +30,8 @@ class CampaignDetailPage extends StatelessWidget {
           RowText(label: "Type", value: "Social Media"),
           RowText(label: "Status", value: "Active"),
           RowText(label: "Budget (NGN)", value: "₦500,000.00"),
-          RowText(label: "Start Date", value: "9/1/2023"),
-          RowText(label: "End Date", value: "1/31/2024"),
+          RowText(label: "Start Date", value: "01-09-2023"),
+          RowText(label: "End Date", value: "31-01-2024"),
           RowText(
               label: "Target Audience", value: "Property developers in Lagos"),
         ],

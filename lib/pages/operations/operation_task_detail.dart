@@ -12,6 +12,8 @@ import 'package:iconsax/iconsax.dart';
 
 import 'models/models.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
+
 class TaskDetailPage extends StatefulWidget {
   final Task task;
   const TaskDetailPage({super.key, required this.task});
@@ -28,7 +30,8 @@ class TaskDetailPageState extends State<TaskDetailPage> {
     return PageScaffold(
       header: PageHeader(
         title: task.name,
-        subtitle: 'Created ${task.createdAt} • Updated ${task.updatedAt}',
+        subtitle:
+            'Created ${formatAppDateValue(task.createdAt, fallback: task.createdAt)} • Updated ${formatAppDateValue(task.updatedAt, fallback: task.updatedAt)}',
         trailing: Wrap(
           spacing: 12,
           runSpacing: 12,
@@ -36,8 +39,8 @@ class TaskDetailPageState extends State<TaskDetailPage> {
             MyOutlinedButton(
               height: 48,
               child: 'Edit',
-              icon: const Icon(Iconsax.edit, size: 18,
-                  color: AppColors.primary),
+              icon:
+                  const Icon(Iconsax.edit, size: 18, color: AppColors.primary),
               onTap: () {},
             ),
             MyElevatedButton(
@@ -122,7 +125,10 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                 _infoTile(
                   icon: Iconsax.calendar,
                   label: 'Due date',
-                  value: task.dueDate.isEmpty ? '—' : task.dueDate,
+                  value: task.dueDate.isEmpty
+                      ? '—'
+                      : formatAppDateValue(task.dueDate,
+                          fallback: task.dueDate),
                 ),
                 _infoTile(
                   icon: Iconsax.timer_1,
@@ -181,8 +187,7 @@ class TaskDetailPageState extends State<TaskDetailPage> {
               const Text('Assigned to', style: AppTextStyles.h3),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: const BoxDecoration(
                   color: AppColors.primarySubtle,
                   borderRadius: AppRadii.brPill,

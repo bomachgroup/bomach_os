@@ -267,7 +267,7 @@ class PayrollPageState extends State<PayrollPage> {
             flex: 2,
             child: Text(
               payroll.disbursementDate != null
-                  ? DateFormat('dd MMM yyyy').format(payroll.disbursementDate!)
+                  ? DateFormat('dd-MM-yyyy').format(payroll.disbursementDate!)
                   : '—',
               style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,

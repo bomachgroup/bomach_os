@@ -24,14 +24,14 @@ class ViewAssetDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     String displayDate = '';
     try {
-      displayDate = DateFormat('MMM d, yyyy').format(asset.purchaseDate);
+      displayDate = DateFormat('dd-MM-yyyy').format(asset.purchaseDate);
     } catch (_) {
       displayDate = '–';
     }
 
     String warrantyDate = '';
     try {
-      warrantyDate = DateFormat('MMM d, yyyy').format(asset.warrantyExpiryDate);
+      warrantyDate = DateFormat('dd-MM-yyyy').format(asset.warrantyExpiryDate);
     } catch (_) {
       warrantyDate = '–';
     }

@@ -11,11 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:intl/intl.dart';
 
 import '../../../pages/hr/models/training_program_model.dart';
 import '../controller/training_program_controller.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddProgramDialog extends StatefulWidget {
   final String token;
   final TrainingProgram? programToEdit;
@@ -77,13 +77,9 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
     costCtrl = TextEditingController(text: p?.cost.toString() ?? '');
 
     startDateCtrl = TextEditingController(
-        text: p?.startDate != null
-            ? DateFormat('yyyy-MM-dd').format(p!.startDate!)
-            : '');
+        text: p?.startDate != null ? formatAppDate(p!.startDate!) : '');
     endDateCtrl = TextEditingController(
-        text: p?.endDate != null
-            ? DateFormat('yyyy-MM-dd').format(p!.endDate!)
-            : '');
+        text: p?.endDate != null ? formatAppDate(p!.endDate!) : '');
 
     durationCtrl =
         TextEditingController(text: p?.durationDays.toString() ?? '');
@@ -119,7 +115,7 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
       lastDate: DateTime(2101),
     );
     if (picked != null) {
-      ctrl.text = DateFormat('yyyy-MM-dd').format(picked);
+      ctrl.text = formatAppDate(picked);
       _calculateDuration();
       setState(() {});
     }
@@ -128,8 +124,8 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
   void _calculateDuration() {
     if (startDateCtrl.text.isNotEmpty && endDateCtrl.text.isNotEmpty) {
       try {
-        DateTime start = DateTime.parse(startDateCtrl.text);
-        DateTime end = DateTime.parse(endDateCtrl.text);
+        DateTime start = parseAppDate(startDateCtrl.text)!;
+        DateTime end = parseAppDate(endDateCtrl.text)!;
         int days = end.difference(start).inDays + 1;
         if (days > 0) {
           durationCtrl.text = days.toString();
@@ -153,8 +149,8 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
       programName: nameCtrl.text.trim(),
       provider: providerCtrl.text.trim(),
       description: descCtrl.text.trim(),
-      startDate: DateTime.tryParse(startDateCtrl.text),
-      endDate: DateTime.tryParse(endDateCtrl.text),
+      startDate: parseAppDate(startDateCtrl.text),
+      endDate: parseAppDate(endDateCtrl.text),
       cost: int.tryParse(costCtrl.text.replaceAll(',', '')) ?? 0,
       targetAudience: selectedAudience,
       durationDays: int.tryParse(durationCtrl.text) ?? 0,

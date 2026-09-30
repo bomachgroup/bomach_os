@@ -147,7 +147,7 @@ class _MeetingTableState extends State<MeetingTable> {
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('02/02/2025', style: AppTextStyles.bodySm),
+                    Text('02-02-2025', style: AppTextStyles.bodySm),
                     Text('Offline', style: AppTextStyles.bodySm),
                   ],
                 ),
@@ -595,7 +595,7 @@ class MeetingInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final infoItems = [
       {'label': 'Subject of the meeting', 'value': 'O2 Arena Dev'},
-      {'label': 'Date / Time', 'value': '9am, 23rd July, 2024'},
+      {'label': 'Date / Time', 'value': '9am, 23-07-2024'},
       {'label': 'Location', 'value': 'Offline'},
       {'label': 'Address', 'value': 'Amadeo event center Enugu, Nigeria'},
       {'label': 'Attendance', 'value': '23 members'},

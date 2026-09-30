@@ -18,6 +18,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class ProjectMilestone extends StatefulWidget {
   final int projectId;
   const ProjectMilestone({super.key, required this.projectId});
@@ -303,8 +304,10 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
     final m = widget.milestone;
     nameCtrl = TextEditingController(text: m?.name ?? '');
     budgetCtrl = TextEditingController(text: m?.budget ?? '');
-    startDateCtrl = TextEditingController(text: m?.startDate ?? '');
-    endDateCtrl = TextEditingController(text: m?.endDate ?? '');
+    startDateCtrl = TextEditingController(
+        text: formatAppDateValue(m?.startDate, fallback: m?.startDate ?? ''));
+    endDateCtrl = TextEditingController(
+        text: formatAppDateValue(m?.endDate, fallback: m?.endDate ?? ''));
     descCtrl = TextEditingController(text: m?.description ?? '');
     if (m != null) {
       if (m.status.isNotEmpty) selectedStatus = m.status;
@@ -446,8 +449,8 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
       status: selectedStatus,
       budget: budgetCtrl.text,
       progress: widget.milestone?.progress ?? 0,
-      startDate: startDateCtrl.text,
-      endDate: endDateCtrl.text,
+      startDate: appDateToApiDate(startDateCtrl.text) ?? '',
+      endDate: appDateToApiDate(endDateCtrl.text) ?? '',
       createdAt: widget.milestone?.createdAt ?? '',
       updatedAt: '',
     );

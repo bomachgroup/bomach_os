@@ -314,7 +314,7 @@
 //                                               MainAxisAlignment.spaceBetween,
 //                                           children: [
 //                                             MyText(
-//                                               DateFormat('MMM dd, yyyy')
+//                                               DateFormat('dd-MM-yyyy')
 //                                                   .format(_selectedDate),
 //                                               style: AppTextStyles.bodyMd,
 //                                             ),

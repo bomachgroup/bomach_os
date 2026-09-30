@@ -6,7 +6,8 @@ import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/operations/controllers/tasks_controler.dart';
 import 'package:bomach_os/pages/operations/models/models.dart';
 import 'package:bomach_os/pages/operations/models/task_adapter.dart';
-import 'package:bomach_os/pages/operations/models/task_approval_models.dart' as approval;
+import 'package:bomach_os/pages/operations/models/task_approval_models.dart'
+    as approval;
 import 'package:bomach_os/pages/operations/widget/task_approval_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
@@ -16,6 +17,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+
+import 'package:bomach_os/src/utils/app_date_format.dart';
 
 class TaskDetail extends StatefulWidget {
   final Task? task;
@@ -45,18 +48,18 @@ class _TaskDetailState extends State<TaskDetail> {
     final isWideScreen = screenWidth > 900;
 
     return PageScaffold(
-        header: PageHeader(
-          title: task.name,
-          subtitle: 'Comprehensive task overview and analytics',
-          trailing: MyElevatedButton(
-            height: 48,
-            bgColor: AppColors.success,
-            icon: const Icon(Iconsax.tick_circle,
-                size: 18, color: AppColors.textOnPrimary),
-            child: 'Approve',
-            onTap: () => _showApprovalDialog(context, task),
-          ),
+      header: PageHeader(
+        title: task.name,
+        subtitle: 'Comprehensive task overview and analytics',
+        trailing: MyElevatedButton(
+          height: 48,
+          bgColor: AppColors.success,
+          icon: const Icon(Iconsax.tick_circle,
+              size: 18, color: AppColors.textOnPrimary),
+          child: 'Approve',
+          onTap: () => _showApprovalDialog(context, task),
         ),
+      ),
       children: [
         _TaskSummaryCard(task: task),
         if (isWideScreen)
@@ -184,7 +187,10 @@ class _TaskSummaryCard extends StatelessWidget {
                 _InfoTile(
                   icon: Iconsax.calendar,
                   label: 'Due date',
-                  value: task.dueDate.isEmpty ? '—' : task.dueDate,
+                  value: task.dueDate.isEmpty
+                      ? '—'
+                      : formatAppDateValue(task.dueDate,
+                          fallback: task.dueDate),
                 ),
                 _InfoTile(
                   icon: Iconsax.timer_1,
@@ -295,7 +301,8 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
       children: [
         _buildDescriptionCard(),
         const SizedBox(height: 24),
-        _buildStatsGrid(isSmallScreen: isSmallScreen, isMediumScreen: isMediumScreen),
+        _buildStatsGrid(
+            isSmallScreen: isSmallScreen, isMediumScreen: isMediumScreen),
         const SizedBox(height: 24),
         _buildChartCard(isSmallScreen: isSmallScreen),
       ],
@@ -553,8 +560,7 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
           child: Text(
             label,
             style: AppTextStyles.bodyMd.copyWith(
-              color:
-                  isActive ? AppColors.textPrimary : AppColors.textSecondary,
+              color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1077,14 +1083,13 @@ class ProjectCard extends StatelessWidget {
             'Dashboard UI design is a visually engaging and intuitively structured interface tailored to streamline project management.',
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.bodySm
-                .copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(Iconsax.clock,
-                  color: AppColors.warning, size: 14),
+              const Icon(Iconsax.clock, color: AppColors.warning, size: 14),
               const SizedBox(width: 4),
               Text(
                 'Deadline: ',

@@ -99,9 +99,8 @@ class WorkspaceDetailsDialog extends StatelessWidget {
       ),
       actions: [
         Obx(() {
-          final deleting = Get.find<BiometricsController>()
-              .isDeletingWorkspace
-              .value;
+          final deleting =
+              Get.find<BiometricsController>().isDeletingWorkspace.value;
           return MyOutlinedButton(
             child: 'Close',
             height: 44,
@@ -111,9 +110,8 @@ class WorkspaceDetailsDialog extends StatelessWidget {
           );
         }),
         Obx(() {
-          final deleting = Get.find<BiometricsController>()
-              .isDeletingWorkspace
-              .value;
+          final deleting =
+              Get.find<BiometricsController>().isDeletingWorkspace.value;
           return MyElevatedButton(
             width: 140,
             height: 44,
@@ -302,9 +300,7 @@ class WorkspaceDetailsDialog extends StatelessWidget {
     Navigator.of(context).pop();
     AppToast.info(
       context,
-      success
-          ? controller.successMessage.value
-          : controller.errorMessage.value,
+      success ? controller.successMessage.value : controller.errorMessage.value,
     );
   }
 
@@ -337,8 +333,8 @@ class WorkspaceDetailsDialog extends StatelessWidget {
   String _formatDate(String raw) {
     try {
       final dt = DateTime.parse(raw).toLocal();
-      final d = '${dt.day.toString().padLeft(2, '0')}/'
-          '${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+      final d = '${dt.day.toString().padLeft(2, '0')}-'
+          '${dt.month.toString().padLeft(2, '0')}-${dt.year}';
       final t = '${dt.hour.toString().padLeft(2, '0')}:'
           '${dt.minute.toString().padLeft(2, '0')}';
       return '$d, $t';

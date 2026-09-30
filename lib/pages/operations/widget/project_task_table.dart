@@ -11,6 +11,7 @@ import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 
 class ProjectTaskTable extends StatefulWidget {
   final int projectId;
@@ -94,8 +95,7 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
                 child: EmptyState(
                   icon: Iconsax.task_square,
                   title: 'No tasks yet',
-                  subtitle:
-                      'Tasks created for this project will appear here.',
+                  subtitle: 'Tasks created for this project will appear here.',
                 ),
               )
             else
@@ -156,8 +156,11 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                task.dueDate.isEmpty ? '—' : task.dueDate,
-                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                task.dueDate.isEmpty
+                    ? '—'
+                    : formatAppDateValue(task.dueDate, fallback: task.dueDate),
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary),
               ),
               StatusChip(
                 label: task.priority.isEmpty ? '—' : task.priority,
@@ -198,8 +201,7 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
                             task: task, projectId: widget.projectId),
                       );
                     } else if (selected == 'delete') {
-                      controller.deleteTask(
-                          context, task.id, widget.projectId);
+                      controller.deleteTask(context, task.id, widget.projectId);
                     }
                   },
                   onTap: () {},
@@ -222,8 +224,6 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
       ),
     );
   }
-
-
 
   StatusTone _priorityTone(String priority) {
     switch (priority.toLowerCase()) {

@@ -6,22 +6,22 @@ void main() {
     expect(AttendancePeriodLabel.week(3), '3/5');
   });
 
-  test('monthly attendance label uses the calendar month length', () {
+  test('monthly attendance label uses weekdays in the calendar month', () {
     expect(
       AttendancePeriodLabel.month(8, DateTime(2026, 9, 24)),
-      '8/30',
+      '8/22',
     );
     expect(
       AttendancePeriodLabel.month(2, DateTime(2028, 2, 12)),
-      '2/29',
+      '2/21',
     );
     expect(
       AttendancePeriodLabel.month(1, DateTime(2026, 4, 1)),
-      '1/30',
+      '1/22',
     );
     expect(
       AttendancePeriodLabel.month(4, DateTime(2026, 1, 1)),
-      '4/31',
+      '4/22',
     );
   });
 }

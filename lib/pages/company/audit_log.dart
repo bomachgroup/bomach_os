@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 
 import 'controllers/company_controller.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 /// Audit log page — read-only list of every system activity logged for
 /// compliance tracking. Columns: actor (user), activity, audit type,
 /// status, IP, and timestamp.
@@ -51,7 +52,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
   String _formatDate(String iso) {
     try {
       final dt = DateTime.parse(iso).toLocal();
-      return DateFormat('MMM d, yyyy  h:mm a').format(dt);
+      return DateFormat('dd-MM-yyyy  h:mm a').format(dt);
     } catch (_) {
       return iso;
     }
@@ -512,12 +513,16 @@ class _AuditLogFilterBarState extends State<AuditLogFilterBar> {
         OutlinedButton.icon(
           onPressed: () => _pickDate(start: true),
           icon: const Icon(Iconsax.calendar_1, size: 16),
-          label: Text(_startDate ?? 'Start date'),
+          label: Text(_startDate == null
+              ? 'Start date'
+              : formatAppDateValue(_startDate)),
         ),
         OutlinedButton.icon(
           onPressed: () => _pickDate(start: false),
           icon: const Icon(Iconsax.calendar_1, size: 16),
-          label: Text(_endDate ?? 'End date'),
+          label: Text(_endDate == null
+              ? 'End date'
+              : formatAppDateValue(_endDate)),
         ),
         FilledButton.icon(
           onPressed: widget.onApply,

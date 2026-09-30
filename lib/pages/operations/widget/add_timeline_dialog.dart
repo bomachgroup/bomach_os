@@ -14,6 +14,7 @@ import 'package:iconsax/iconsax.dart';
 import '../controllers/timeline_controller.dart';
 import '../models/models.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddTimelineDialog extends StatefulWidget {
   final TimelineModel? timeline;
 
@@ -43,8 +44,10 @@ class _AddTimelineDialogState extends State<AddTimelineDialog> {
     final t = widget.timeline;
     nameCtrl = TextEditingController(text: t?.name ?? '');
     descCtrl = TextEditingController(text: t?.description ?? '');
-    startCtrl = TextEditingController(text: t?.startDate ?? '');
-    endCtrl = TextEditingController(text: t?.endDate ?? '');
+    startCtrl = TextEditingController(
+        text: formatAppDateValue(t?.startDate, fallback: t?.startDate ?? ''));
+    endCtrl = TextEditingController(
+        text: formatAppDateValue(t?.endDate, fallback: t?.endDate ?? ''));
 
     if (t != null && t.status.isNotEmpty) {
       selectedStatus = t.status;
@@ -70,8 +73,8 @@ class _AddTimelineDialogState extends State<AddTimelineDialog> {
       name: nameCtrl.text,
       description: descCtrl.text,
       status: selectedStatus,
-      startDate: startCtrl.text,
-      endDate: endCtrl.text,
+      startDate: appDateToApiDate(startCtrl.text) ?? '',
+      endDate: appDateToApiDate(endCtrl.text) ?? '',
       createdAt: widget.timeline?.createdAt ?? '',
       updatedAt: '',
     );

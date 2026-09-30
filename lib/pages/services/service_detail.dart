@@ -41,7 +41,7 @@ class LandSurveyingWidget extends StatelessWidget {
           ),
         ),
         title: 'Land Surveying',
-        subtitle: 'Created 1/15/2024',
+        subtitle: 'Created 15-01-2024',
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

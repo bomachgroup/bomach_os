@@ -98,7 +98,7 @@ class _AssetsTableCard extends StatelessWidget {
       children: controller.assetList.map((asset) {
         String displayDate = '';
         try {
-          displayDate = DateFormat('MMM d, yyyy').format(asset.purchaseDate);
+          displayDate = DateFormat('dd-MM-yyyy').format(asset.purchaseDate);
         } catch (_) {
           displayDate = '—';
         }
@@ -461,7 +461,7 @@ class _AssetsTableCard extends StatelessWidget {
   Widget _buildRow(BuildContext context, Asset asset) {
     String displayDate = '';
     try {
-      displayDate = DateFormat('MMM d, yyyy').format(asset.purchaseDate);
+      displayDate = DateFormat('dd-MM-yyyy').format(asset.purchaseDate);
     } catch (_) {
       displayDate = '—';
     }

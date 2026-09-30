@@ -5,6 +5,7 @@ import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 
 class ViewPaymentDialog extends StatefulWidget {
   final Payment payment;
@@ -32,8 +33,7 @@ class _ViewPaymentDialogState extends State<ViewPaymentDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Payment Details',
-                      style: AppTextStyles.displayMd),
+                  const Text('Payment Details', style: AppTextStyles.displayMd),
                   IconButton(
                     icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
@@ -52,7 +52,10 @@ class _ViewPaymentDialogState extends State<ViewPaymentDialog> {
                     _row('Invoice ID', p.invoiceId.toString()),
                     _row('Amount', p.amount.toNaira(), isBold: true),
                     _row('Payment Method', p.paymentMethod),
-                    _row('Payment Date', p.paymentDate),
+                    _row(
+                        'Payment Date',
+                        formatAppDateValue(p.paymentDate,
+                            fallback: p.paymentDate)),
                     _row('Transaction Ref', p.transactionReference),
                     if (p.notes.isNotEmpty) _row('Notes', p.notes),
                   ],
@@ -68,7 +71,8 @@ class _ViewPaymentDialogState extends State<ViewPaymentDialog> {
                   MyOutlinedButton(
                     child: 'Close',
                     height: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     onTap: () => Navigator.pop(context),
                     textColor: AppColors.textSecondary,
                     borderColor: AppColors.borderStrong,
@@ -91,7 +95,8 @@ class _ViewPaymentDialogState extends State<ViewPaymentDialog> {
           SizedBox(
             width: 140,
             child: Text(label,
-                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary)),
           ),
           Expanded(
             child: Text(value,

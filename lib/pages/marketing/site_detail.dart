@@ -11,7 +11,7 @@ class SiteDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return DetailPageLayout(
       title: 'Port Harcourt Industrial Site Office',
-      subtitle: 'Created 3/10/2024',
+      subtitle: 'Created 10-03-2024',
       actions: [
         MyElevatedButton(
           child: 'Edit',
@@ -25,14 +25,15 @@ class SiteDetailPage extends StatelessWidget {
       ],
       child: const Column(
         children: [
-          RowText(label: "Site Name", value: "Port Harcourt Industrial Site Office"),
+          RowText(
+              label: "Site Name",
+              value: "Port Harcourt Industrial Site Office"),
           RowText(label: "Worksite Number", value: "WS-003"),
           RowText(
               label: "Location",
               value: "Trans-Amadi Industrial Layout, Port Harcourt"),
           RowText(label: "Status", value: "qualified"),
-          RowText(
-              label: "Notes", value: "Interested in land survey services"),
+          RowText(label: "Notes", value: "Interested in land survey services"),
         ],
       ),
     );

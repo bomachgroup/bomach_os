@@ -30,7 +30,10 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
   late TextEditingController nameCtrl;
   late TextEditingController locationCtrl;
   late TextEditingController descCtrl;
-  String selectedStatus = 'Active';
+  // The API documents `setup` as the default but does not publish the allowed
+  // status values. Use that default for new worksites and preserve existing
+  // backend values when editing.
+  String selectedStatus = 'setup';
   String? selectedClientId;
   String? selectedLeadId;
   final clientCtrl = TextEditingController();
@@ -202,14 +205,15 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
               const SizedBox(height: 20),
                 _buildSection(
                   title: 'Operational status',
-                  subtitle: 'Track the current working state of this site.',
-                  child: MyDropdown(
-                    title: 'Status',
-                    hintText: 'Select Status',
-                    items: const ['Active', 'Paused', 'Closed', 'Hazard'],
-                    initialSelection: selectedStatus,
-                    onChanged: (val) =>
-                        setState(() => selectedStatus = val ?? selectedStatus),
+                  subtitle: isEdit
+                      ? 'Current status from the worksite record.'
+                      : 'New worksites start in Setup status.',
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Status',
+                      border: OutlineInputBorder(),
+                    ),
+                    child: Text(_statusLabel(selectedStatus)),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -284,4 +288,10 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
       ),
     );
   }
+
+  String _statusLabel(String value) => value
+      .split(RegExp(r'[_\s]+'))
+      .where((part) => part.isNotEmpty)
+      .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+      .join(' ');
 }

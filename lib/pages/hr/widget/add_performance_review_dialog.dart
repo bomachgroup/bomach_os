@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import '../controller/performance_review_controller.dart';
 import '../models/performance_review.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddPerformanceReviewDialog extends StatefulWidget {
   final PerformanceReview? reviewToEdit;
 
@@ -46,8 +47,9 @@ class _AddPerformanceReviewDialogState
     employeeIdCtrl = TextEditingController(text: r?.employeeId ?? '');
     reviewerIdCtrl = TextEditingController(text: r?.reviewerId ?? '');
     reviewDateCtrl = TextEditingController(
-        text: r?.reviewDate?.toIso8601String().split('T').first ??
-            now.toIso8601String().split('T').first);
+        text: r?.reviewDate != null
+            ? formatAppDate(r!.reviewDate!)
+            : formatAppDate(now));
     reviewPeriodCtrl = TextEditingController(
         text: r?.reviewPeriod ?? 'Q$currentQuarter ${now.year}');
     ratingCtrl = TextEditingController(text: r?.overallRating.toString() ?? '');
@@ -82,7 +84,7 @@ class _AddPerformanceReviewDialogState
       return;
     }
 
-    final reviewDate = DateTime.tryParse(reviewDateCtrl.text);
+    final reviewDate = parseAppDate(reviewDateCtrl.text);
     if (reviewDateCtrl.text.isEmpty || reviewDate == null) {
       _showError('Review date is required');
       return;
@@ -128,7 +130,7 @@ class _AddPerformanceReviewDialogState
   }
 
   Future<void> _pickReviewDate() async {
-    final current = DateTime.tryParse(reviewDateCtrl.text) ?? DateTime.now();
+    final current = parseAppDate(reviewDateCtrl.text) ?? DateTime.now();
     final selected = await showDatePicker(
       context: context,
       initialDate: current,
@@ -136,7 +138,7 @@ class _AddPerformanceReviewDialogState
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (selected != null) {
-      reviewDateCtrl.text = selected.toIso8601String().split('T').first;
+      reviewDateCtrl.text = formatAppDate(selected);
     }
   }
 
@@ -184,7 +186,7 @@ class _AddPerformanceReviewDialogState
                       child: MyTextFormField(
                         title: 'Review Date',
                         controller: reviewDateCtrl,
-                        hintText: 'YYYY-MM-DD',
+                        hintText: 'DD-MM-YYYY',
                         onTap: _pickReviewDate,
                       ),
                     ),

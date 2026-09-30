@@ -21,6 +21,8 @@ import '../../src/app_routes/app_route_constants.dart';
 import 'controllers/tasks_controler.dart';
 import 'widget/add_task_dialog.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
+
 class TaskPage extends StatefulWidget {
   final int? projectId;
   const TaskPage({super.key, this.projectId});
@@ -66,7 +68,8 @@ class TaskPageState extends State<TaskPage> {
         Obx(() {
           final loading =
               controller.isLoading.value && controller.tasks.isEmpty;
-          final isEmpty = !controller.isLoading.value && controller.tasks.isEmpty;
+          final isEmpty =
+              !controller.isLoading.value && controller.tasks.isEmpty;
 
           return _buildTableCard(
             title: 'Tasks register',
@@ -177,7 +180,9 @@ class TaskPageState extends State<TaskPage> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        children: controller.tasks.map((t) => _buildTaskMobileCard(context, t)).toList(),
+        children: controller.tasks
+            .map((t) => _buildTaskMobileCard(context, t))
+            .toList(),
       ),
     );
   }
@@ -205,7 +210,8 @@ class TaskPageState extends State<TaskPage> {
                   children: [
                     Text(
                       '#${task.id}',
-                      style: AppTextStyles.label.copyWith(color: AppColors.textMuted),
+                      style: AppTextStyles.label
+                          .copyWith(color: AppColors.textMuted),
                     ),
                     StatusChip(
                       label: task.status.isEmpty ? '—' : task.status,
@@ -227,11 +233,16 @@ class TaskPageState extends State<TaskPage> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Iconsax.calendar, size: 14, color: AppColors.textMuted),
+                        const Icon(Iconsax.calendar,
+                            size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 6),
                         Text(
-                          task.dueDate.isEmpty ? '—' : task.dueDate,
-                          style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
+                          task.dueDate.isEmpty
+                              ? '—'
+                              : formatAppDateValue(task.dueDate,
+                                  fallback: task.dueDate),
+                          style: AppTextStyles.bodySm
+                              .copyWith(color: AppColors.textPrimary),
                         ),
                       ],
                     ),
@@ -252,7 +263,8 @@ class TaskPageState extends State<TaskPage> {
                       children: [
                         Text(
                           'Priority: ',
-                          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary),
                         ),
                         StatusChip(
                           label: task.priority.isEmpty ? '—' : task.priority,
@@ -271,12 +283,9 @@ class TaskPageState extends State<TaskPage> {
     );
   }
 
-
-
   Widget _buildActionMenu(BuildContext context, Task task) {
     return PopupMenuButton<String>(
-      icon:
-          const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
+      icon: const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
       shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
       onSelected: (value) async {
         switch (value) {
@@ -340,8 +349,7 @@ class TaskPageState extends State<TaskPage> {
     required String label,
     bool destructive = false,
   }) {
-    final color =
-        destructive ? AppColors.danger : AppColors.textSecondary;
+    final color = destructive ? AppColors.danger : AppColors.textSecondary;
     return PopupMenuItem<String>(
       value: value,
       child: Row(

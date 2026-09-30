@@ -46,7 +46,7 @@ class _AddComplianceDialogState extends State<AddComplianceDialog> {
 
   bool get isEditing => widget.compliance != null;
 
-  static final _displayFormat = DateFormat('MMM d, yyyy');
+  static final _displayFormat = DateFormat('dd-MM-yyyy');
   static final _apiFormat = DateFormat('yyyy-MM-dd');
 
   static const _complianceTypeMap = {

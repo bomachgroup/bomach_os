@@ -17,7 +17,7 @@ class MyDateField extends StatefulWidget {
   final String title;
   final String hintText;
 
-  /// Output format written into [controller]. Defaults to ISO `yyyy-MM-dd`.
+  /// Display format written into [controller]. Defaults to `dd-MM-yyyy`.
   final String format;
 
   final DateTime? firstDate;
@@ -28,8 +28,8 @@ class MyDateField extends StatefulWidget {
     super.key,
     required this.controller,
     required this.title,
-    this.hintText = 'YYYY-MM-DD',
-    this.format = 'yyyy-MM-dd',
+    this.hintText = 'DD-MM-YYYY',
+    this.format = 'dd-MM-yyyy',
     this.firstDate,
     this.lastDate,
     this.initialDate,

@@ -79,7 +79,7 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
     if (m != null && m.meetingDate.isNotEmpty) {
       try {
         final parsed = DateTime.parse(m.meetingDate);
-        dateText = DateFormat('MMM d, yyyy').format(parsed);
+        dateText = DateFormat('dd-MM-yyyy').format(parsed);
       } catch (_) {
         dateText = m.meetingDate;
       }
@@ -157,7 +157,7 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
     );
     if (picked != null) {
       setState(() {
-        dateCtrl.text = DateFormat('MMM d, yyyy').format(picked);
+        dateCtrl.text = DateFormat('dd-MM-yyyy').format(picked);
       });
     }
   }
@@ -217,7 +217,7 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
     // Convert display date to API format
     String apiDate = '';
     try {
-      final parsed = DateFormat('MMM d, yyyy').parse(dateCtrl.text);
+      final parsed = DateFormat('dd-MM-yyyy').parse(dateCtrl.text);
       apiDate = DateFormat('yyyy-MM-dd').format(parsed);
     } catch (_) {
       apiDate = dateCtrl.text;

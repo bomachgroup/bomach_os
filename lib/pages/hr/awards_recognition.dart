@@ -398,7 +398,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
                   children: [
                     Text(
                       award.dateAwarded != null
-                          ? DateFormat('MMM dd, yyyy').format(award.dateAwarded!)
+                          ? DateFormat('dd-MM-yyyy').format(award.dateAwarded!)
                           : '—',
                       style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
                     ),

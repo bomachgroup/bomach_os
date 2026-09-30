@@ -8,6 +8,10 @@ import 'package:bomach_os/pages/hr/controller/work_report_controller.dart';
 import 'package:bomach_os/pages/hr/models/work_report_model.dart';
 import 'package:bomach_os/pages/hr/widget/daily_work_report_dialog.dart';
 import 'package:bomach_os/pages/hr/widget/work_report_review_dialog.dart';
+import 'package:bomach_os/pages/operations/engineering_site_reports.dart';
+import 'package:bomach_os/pages/operations/models/engineering_site_report_model.dart';
+import 'package:bomach_os/src/services/operations/engineering_site_report_service.dart';
+import 'package:bomach_os/pages/auth/controller.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -26,6 +30,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
   final _storage = const FlutterSecureStorage();
 
   String _selectedFilter = 'all';
+  List<UnifiedReportSummary> _engineeringReports = [];
 
   @override
   void initState() {
@@ -37,6 +42,31 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
     final token = await _getToken();
     if (token != null) {
       controller.fetchReports(token);
+      try {
+        final reportService = EngineeringSiteReportService();
+        final firstPage = await reportService.listUnifiedReports(
+            accessToken: token, limit: 100);
+        final allFeed = [...firstPage.items];
+        for (var offset = 100; offset < firstPage.count; offset += 100) {
+          final page = await reportService.listUnifiedReports(
+              accessToken: token, limit: 100, offset: offset);
+          allFeed.addAll(page.items);
+        }
+        final storedId = await _storage.read(key: 'user_id');
+        final employeeId = (Get.isRegistered<AuthController>()
+                ? Get.find<AuthController>().currentUser.value?.userId
+                : null) ??
+            int.tryParse(storedId ?? '');
+        if (mounted)
+          setState(() => _engineeringReports = allFeed
+              .where((r) =>
+                  r.reportType == 'engineering_site' &&
+                  employeeId != null &&
+                  r.employeeId == employeeId)
+              .toList());
+      } catch (_) {
+        if (mounted) setState(() => _engineeringReports = []);
+      }
     }
   }
 
@@ -74,7 +104,58 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         _buildFilterBar(),
         const SizedBox(height: 16),
         _buildReportsTable(),
+        const SizedBox(height: 18),
+        _buildEngineeringReports(),
       ],
+    );
+  }
+
+  Widget _buildEngineeringReports() {
+    final reports = _selectedFilter == 'all'
+        ? _engineeringReports
+        : _engineeringReports
+            .where((r) => r.status.toLowerCase() == _selectedFilter)
+            .toList();
+    return Container(
+      decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.neutral100)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Padding(
+            padding: EdgeInsets.all(18),
+            child: Row(children: [
+              Icon(Iconsax.buildings_2, color: AppColors.info),
+              SizedBox(width: 10),
+              Text('Engineering Site Reports',
+                  style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.neutral800))
+            ])),
+        const Divider(height: 1),
+        if (reports.isEmpty)
+          const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('No engineering site reports in your reports feed.'))
+        else
+          ...reports.map((report) => ListTile(
+                leading:
+                    const Icon(Iconsax.document_text, color: AppColors.info),
+                title: Text(
+                    report.summary.isEmpty
+                        ? 'Engineering Site Report'
+                        : report.summary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+                subtitle: Text(
+                    'Engineering Site · ${report.employeeName} · ${report.status}'),
+                trailing: const Icon(Iconsax.arrow_right_3),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => EngineeringSiteReportsPage(
+                        initialReportId: report.id))),
+              )),
+      ]),
     );
   }
 
@@ -441,7 +522,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                   const SizedBox(width: 6),
                   MyText(
                     report.day != null
-                        ? DateFormat('dd MMM yyyy').format(report.day!)
+                        ? DateFormat('dd-MM-yyyy').format(report.day!)
                         : '-',
                     style: const TextStyle(
                       fontSize: 13,

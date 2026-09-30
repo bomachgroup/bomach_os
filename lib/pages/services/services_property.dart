@@ -193,14 +193,16 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                   ),
                 ),
               ),
-              const Icon(Iconsax.arrow_right_3, size: 16, color: AppColors.textMuted),
+              const Icon(Iconsax.arrow_right_3,
+                  size: 16, color: AppColors.textMuted),
             ],
           ),
           const SizedBox(height: 16),
-          _buildMobileInfoItem('Sub service', 'Development and sales, Buy/Sales'),
+          _buildMobileInfoItem(
+              'Sub service', 'Development and sales, Buy/Sales'),
           _buildMobileInfoItem('Inventory', 'Fortress city, Bethel city'),
           _buildMobileInfoItem('Sales', '10 Orders / sales - 35,00'),
-          _buildMobileInfoItem('Date', '11/02/2024'),
+          _buildMobileInfoItem('Date', '02-11-2024'),
         ],
       ),
     );
@@ -216,7 +218,8 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
             width: 100,
             child: Text(
               label,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
@@ -292,14 +295,14 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
           children: [
             Text(
               '- Development and sales',
-              style: AppTextStyles.bodySm
-                  .copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 2),
             Text(
               '- Buy/Sales of property',
-              style: AppTextStyles.bodySm
-                  .copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -311,14 +314,14 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
           children: [
             Text(
               '- Fortress city Estate',
-              style: AppTextStyles.bodySm
-                  .copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 2),
             Text(
               '- Bethel city Estate',
-              style: AppTextStyles.bodySm
-                  .copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -331,7 +334,7 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
       ),
       DataCell(
         Text(
-          '11/02/2024',
+          '02-11-2024',
           style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
         ),
       ),

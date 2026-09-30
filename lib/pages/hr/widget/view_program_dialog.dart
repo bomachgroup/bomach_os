@@ -278,7 +278,7 @@ class ViewProgramDialog extends StatelessWidget {
 
   String _fmtDate(DateTime? d) {
     if (d == null) return '—';
-    return DateFormat('dd MMM, yyyy').format(d);
+    return DateFormat('dd-MM-yyyy').format(d);
   }
 
   Future<bool?> _showDeleteConfirmation(

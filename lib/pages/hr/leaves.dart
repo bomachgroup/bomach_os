@@ -345,10 +345,10 @@ class _LeavesPageState extends State<LeavesPage> {
       ],
       rowBuilder: (leave, index) {
         final startStr = leave.startDate != null
-            ? DateFormat('dd MMM yyyy').format(leave.startDate!)
+            ? DateFormat('dd-MM-yyyy').format(leave.startDate!)
             : '-';
         final endStr = leave.endDate != null
-            ? DateFormat('dd MMM yyyy').format(leave.endDate!)
+            ? DateFormat('dd-MM-yyyy').format(leave.endDate!)
             : '-';
         final days = leave.durationDays ?? 0;
         final status = (leave.status ?? 'pending');
@@ -421,10 +421,10 @@ class _LeavesPageState extends State<LeavesPage> {
       },
       mobileCardBuilder: (leave, index) {
         final startStr = leave.startDate != null
-            ? DateFormat('dd MMM').format(leave.startDate!)
+            ? DateFormat('dd-MM-yyyy').format(leave.startDate!)
             : '-';
         final endStr = leave.endDate != null
-            ? DateFormat('dd MMM').format(leave.endDate!)
+            ? DateFormat('dd-MM-yyyy').format(leave.endDate!)
             : '-';
         final days = leave.durationDays ?? 0;
         final status = (leave.status ?? 'pending');

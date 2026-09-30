@@ -17,6 +17,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 /// Modern edit-profile dialog. Uses the app's reusable input components so
 /// styling stays consistent with the rest of the product. Backed by
 /// [AuthService.updateMe]; the backend currently accepts username, phone,
@@ -54,7 +55,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     _usernameCtrl = TextEditingController(text: widget.user.username);
     _phoneCtrl = TextEditingController(text: widget.user.phoneNumber ?? '');
     _addressCtrl = TextEditingController(text: widget.user.address ?? '');
-    _dobCtrl = TextEditingController(text: widget.user.dateOfBirth ?? '');
+    _dobCtrl = TextEditingController(
+        text: formatAppDateValue(widget.user.dateOfBirth,
+            fallback: widget.user.dateOfBirth ?? ''));
     _gender = _genders.contains(widget.user.gender) ? widget.user.gender : null;
     _maritalStatus = _maritalStatuses.contains(widget.user.maritalStatus)
         ? widget.user.maritalStatus
@@ -92,8 +95,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
         username: _usernameCtrl.text.trim(),
         phoneNumber: _phoneCtrl.text.trim(),
         address: _addressCtrl.text.trim(),
-        dateOfBirth:
-            _dobCtrl.text.trim().isNotEmpty ? _dobCtrl.text.trim() : null,
+        dateOfBirth: _dobCtrl.text.trim().isEmpty
+            ? null
+            : appDateToApiDate(_dobCtrl.text.trim()),
         gender: _gender,
         maritalStatus: _maritalStatus,
       );

@@ -12,6 +12,7 @@ import '../../../src/services/employees_services.dart';
 import '../../../src/services/hr/loan_service.dart';
 import '../models/loans_model.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class LoanController extends GetxController {
   final LoanService _service = LoanService();
   final EmployeeService _employeeService = EmployeeService();
@@ -187,7 +188,9 @@ class LoanController extends GetxController {
 
       final loan = LoanRequest(
         loanAmount: loanAmountController.text.trim(),
-        repaymentDate: repaymentDateController.text.trim(),
+        repaymentDate:
+            appDateToApiDate(repaymentDateController.text.trim()) ??
+                repaymentDateController.text.trim(),
         reason: reasonController.text.trim(),
         emergencyContactName: emergencyContactNameController.text.trim(),
         emergencyContactPhone: emergencyContactPhoneController.text.trim(),
@@ -288,8 +291,7 @@ class LoanController extends GetxController {
     );
     if (picked != null) {
       selectedRepaymentDate = picked;
-      repaymentDateController.text =
-          '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      repaymentDateController.text = formatAppDate(picked);
     }
   }
 

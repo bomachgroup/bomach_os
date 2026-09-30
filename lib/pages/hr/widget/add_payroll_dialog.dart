@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import '../controller/pay_roll_controller.dart';
 import '../models/payroll_model.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddPayRollDialog extends StatefulWidget {
   final Payroll? payrollToEdit;
   const AddPayRollDialog({super.key, this.payrollToEdit});
@@ -75,7 +76,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
     statusCtrl = TextEditingController(text: p?.status ?? 'pending');
     disbursementDateCtrl = TextEditingController(
         text: p?.disbursementDate != null
-            ? DateFormat('yyyy-MM-dd').format(p!.disbursementDate!)
+            ? formatAppDate(p!.disbursementDate!)
             : '');
 
     if (p?.additions != null) {
@@ -111,7 +112,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
       lastDate: DateTime(2101),
     );
     if (picked != null) {
-      disbursementDateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+      disbursementDateCtrl.text = formatAppDate(picked);
       setState(() {});
     }
   }
@@ -136,7 +137,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
       netSalary: double.tryParse(netSalaryCtrl.text) ?? 0,
       totalDeductions: double.tryParse(totalDeductionsCtrl.text) ?? 0,
       totalAllowances: double.tryParse(totalAllowancesCtrl.text) ?? 0,
-      disbursementDate: DateTime.tryParse(disbursementDateCtrl.text),
+      disbursementDate: parseAppDate(disbursementDateCtrl.text),
       deductions: finalDeductions,
       additions: finalAdditions,
     );
@@ -269,7 +270,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
             title: 'Disbursement',
             child: _buildDateField(
               label: 'Disbursement Date',
-              value: DateTime.tryParse(disbursementDateCtrl.text),
+              value: parseAppDate(disbursementDateCtrl.text),
               onTap: _selectDate,
             ),
           ),
@@ -396,7 +397,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
                 const SizedBox(width: 10),
                 Text(
                   value != null
-                      ? DateFormat('MMM d, yyyy').format(value)
+                      ? DateFormat('dd-MM-yyyy').format(value)
                       : 'Select date',
                   style: AppTextStyles.bodyMd.copyWith(
                     color: value != null

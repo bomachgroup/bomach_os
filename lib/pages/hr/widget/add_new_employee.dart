@@ -1124,7 +1124,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   children: [
                     Text(
                       date != null
-                          ? DateFormat('yyyy-MM-dd').format(date)
+                          ? DateFormat('dd-MM-yyyy').format(date)
                           : 'Select Date',
                       style: AppTextStyles.bodyMd.copyWith(
                         color: date != null

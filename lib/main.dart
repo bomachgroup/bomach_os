@@ -38,6 +38,8 @@ class MyApp extends StatelessWidget {
       data: MediaQuery.of(context)
           .copyWith(textScaler: const TextScaler.linear(1.0)),
       child: GetMaterialApp.router(
+        locale: const Locale('en', 'GB'),
+        supportedLocales: const [Locale('en', 'GB')],
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,

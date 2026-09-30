@@ -61,7 +61,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
     if (m?.meetingDate != null && m!.meetingDate.isNotEmpty) {
       try {
         final parsed = DateTime.parse(m.meetingDate);
-        dateText = DateFormat('MMM d, yyyy').format(parsed);
+        dateText = DateFormat('dd-MM-yyyy').format(parsed);
       } catch (_) {
         dateText = m.meetingDate;
       }
@@ -388,7 +388,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
     );
     if (picked != null) {
       setState(() {
-        dateCtrl.text = DateFormat('MMM d, yyyy').format(picked);
+        dateCtrl.text = DateFormat('dd-MM-yyyy').format(picked);
       });
     }
   }
@@ -399,7 +399,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
     // Convert display date to API format (yyyy-MM-dd)
     String apiDate = '';
     try {
-      final parsed = DateFormat('MMM d, yyyy').parse(dateCtrl.text);
+      final parsed = DateFormat('dd-MM-yyyy').parse(dateCtrl.text);
       apiDate = DateFormat('yyyy-MM-dd').format(parsed);
     } catch (_) {
       apiDate = dateCtrl.text;
@@ -460,7 +460,7 @@ class ViewMeetingDialog extends StatelessWidget {
     String displayDate = meeting.meetingDate;
     try {
       final parsed = DateTime.parse(meeting.meetingDate);
-      displayDate = DateFormat('MMMM d, yyyy').format(parsed);
+      displayDate = DateFormat('dd-MM-yyyy').format(parsed);
     } catch (_) {}
 
     // Format time for display

@@ -15,6 +15,7 @@ import 'package:bomach_os/pages/operations/widget/add_project_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -273,7 +274,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
             Expanded(
               flex: 2,
               child: Text(
-                project.startDate.isEmpty ? '—' : project.startDate,
+                project.startDate.isEmpty
+                    ? '—'
+                    : formatAppDateValue(project.startDate,
+                        fallback: project.startDate),
                 style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                 ),
@@ -283,7 +287,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
             Expanded(
               flex: 2,
               child: Text(
-                project.deadline.isEmpty ? '—' : project.deadline,
+                project.deadline.isEmpty
+                    ? '—'
+                    : formatAppDateValue(project.deadline,
+                        fallback: project.deadline),
                 style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                 ),

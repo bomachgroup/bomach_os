@@ -3,6 +3,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 
 class ViewContractPaymentDialog extends StatefulWidget {
   final String? vendorName;
@@ -63,8 +64,12 @@ class _ViewContractPaymentDialogState extends State<ViewContractPaymentDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _row('Vendor Name', widget.vendorName ?? '—', isBold: true),
-                    _row('Amount Due', '₦${widget.amountDue ?? '0'}', isBold: true),
-                    _row('Due Date', widget.dueDate ?? '—'),
+                    _row('Amount Due', '₦${widget.amountDue ?? '0'}',
+                        isBold: true),
+                    _row(
+                        'Due Date',
+                        formatAppDateValue(widget.dueDate,
+                            fallback: widget.dueDate ?? '—')),
                     _row('Status', widget.status ?? '—'),
                     if (widget.paymentMethod != null)
                       _row('Payment Method', widget.paymentMethod!),
@@ -84,7 +89,8 @@ class _ViewContractPaymentDialogState extends State<ViewContractPaymentDialog> {
                   MyOutlinedButton(
                     child: 'Close',
                     height: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     onTap: () => Navigator.pop(context),
                     textColor: AppColors.textSecondary,
                     borderColor: AppColors.borderStrong,
@@ -107,7 +113,8 @@ class _ViewContractPaymentDialogState extends State<ViewContractPaymentDialog> {
           SizedBox(
             width: 140,
             child: Text(label,
-                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary)),
           ),
           Expanded(
             child: Text(value,

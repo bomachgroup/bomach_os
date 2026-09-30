@@ -9,6 +9,10 @@ import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
+import 'package:bomach_os/pages/operations/engineering_site_reports.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -27,6 +31,14 @@ class WorksiteDetailPage extends StatelessWidget {
 
     final Worksite? ws =
         worksite ?? ModalRoute.of(context)?.settings.arguments as Worksite?;
+    final canOpenReports = Get.isRegistered<PermissionService>() &&
+        Get.find<PermissionService>().hasAny(const [
+          Perms.engineeringSiteReportsCreate,
+          Perms.engineeringSiteReportsList,
+          Perms.engineeringSiteReportsListOwn,
+          Perms.engineeringSiteReportsView,
+          Perms.engineeringSiteReportsViewOwn,
+        ]);
 
     if (ws == null) {
       return const PageScaffold(
@@ -47,9 +59,22 @@ class WorksiteDetailPage extends StatelessWidget {
           spacing: 12,
           runSpacing: 12,
           children: [
+            if (canOpenReports)
+              MyOutlinedButton(
+                height: 48,
+                icon: const Icon(Iconsax.document_text,
+                    size: 18, color: AppColors.primary),
+                child: 'Site Reports',
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => EngineeringSiteReportsPage(
+                        initialWorksiteId: ws.id,
+                        initialProjectId:
+                            ws.projectId == 0 ? null : ws.projectId))),
+              ),
             MyOutlinedButton(
               height: 48,
-              icon: const Icon(Iconsax.edit, size: 18, color: AppColors.primary),
+              icon:
+                  const Icon(Iconsax.edit, size: 18, color: AppColors.primary),
               child: 'Edit',
               onTap: () => showDialog(
                 context: context,
@@ -154,7 +179,12 @@ class WorksiteDetailPage extends StatelessWidget {
                     tone: _getStatusTone(ws.status),
                   ),
                 ),
-                _detailRow('Created At', ws.createdAt.isEmpty ? '—' : ws.createdAt),
+                _detailRow(
+                    'Created At',
+                    ws.createdAt.isEmpty
+                        ? '—'
+                        : formatAppDateValue(ws.createdAt,
+                            fallback: ws.createdAt)),
               ],
             ),
           ),

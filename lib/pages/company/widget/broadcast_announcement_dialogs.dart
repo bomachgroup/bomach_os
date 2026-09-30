@@ -91,7 +91,7 @@ class _CreateEditAnnouncementDialogState
     if (dateStr.isEmpty) return '';
     try {
       final parsed = DateTime.parse(dateStr);
-      return DateFormat('MMM d, yyyy').format(parsed);
+      return DateFormat('dd-MM-yyyy').format(parsed);
     } catch (_) {
       return dateStr;
     }
@@ -564,7 +564,7 @@ class _CreateEditAnnouncementDialogState
         } else {
           selectedExpiresAt = picked;
         }
-        ctrl.text = DateFormat('MMM d, yyyy').format(picked);
+        ctrl.text = DateFormat('dd-MM-yyyy').format(picked);
       });
     }
   }
@@ -585,7 +585,7 @@ class _CreateEditAnnouncementDialogState
       apiPublishAt = selectedPublishAt!.toUtc().toIso8601String();
     } else {
       try {
-        final parsedFrom = DateFormat('MMM d, yyyy').parse(publishAtCtrl.text);
+        final parsedFrom = DateFormat('dd-MM-yyyy').parse(publishAtCtrl.text);
         apiPublishAt = parsedFrom.toUtc().toIso8601String();
       } catch (_) {
         apiPublishAt = publishAtCtrl.text;
@@ -596,7 +596,7 @@ class _CreateEditAnnouncementDialogState
       apiExpiresAt = selectedExpiresAt!.toUtc().toIso8601String();
     } else {
       try {
-        final parsedTo = DateFormat('MMM d, yyyy').parse(expiresAtCtrl.text);
+        final parsedTo = DateFormat('dd-MM-yyyy').parse(expiresAtCtrl.text);
         apiExpiresAt = parsedTo.toUtc().toIso8601String();
       } catch (_) {
         apiExpiresAt = expiresAtCtrl.text;
@@ -1035,7 +1035,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
     if (dateStr.isEmpty) return '-';
     try {
       final parsed = DateTime.parse(dateStr);
-      return DateFormat('MMMM d, yyyy').format(parsed);
+      return DateFormat('dd-MM-yyyy').format(parsed);
     } catch (_) {
       return dateStr;
     }

@@ -11,7 +11,7 @@ class LeadDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return DetailPageLayout(
       title: 'Adebayo Johnson',
-      subtitle: 'Created 1/28/2025',
+      subtitle: 'Created 28-01-2025',
       actions: [
         MyElevatedButton(
           child: 'Edit',
@@ -33,8 +33,7 @@ class LeadDetailPage extends StatelessWidget {
           RowText(label: "Source", value: "LinkedIn"),
           RowText(label: "Status", value: "qualified"),
           RowText(label: "Lead Score", value: "85"),
-          RowText(
-              label: "Notes", value: "Interested in land survey services"),
+          RowText(label: "Notes", value: "Interested in land survey services"),
         ],
       ),
     );

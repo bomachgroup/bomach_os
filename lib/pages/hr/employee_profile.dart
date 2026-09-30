@@ -13,6 +13,7 @@ import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -608,7 +609,9 @@ class _EmployeeDesktopProfileLayoutState
     final role = _controller.getRoleNameForEmployee(employee);
     final designation = employee.designation?.trim();
     if (role.isNotEmpty && role != '—' && role != 'Staff') {
-      if (designation != null && designation.isNotEmpty && designation != role) {
+      if (designation != null &&
+          designation.isNotEmpty &&
+          designation != role) {
         return '$role • $designation';
       }
       return role;
@@ -702,8 +705,7 @@ class _EmployeeDesktopProfileLayoutState
             children: [
               Text(employee.fullName, style: AppTextStyles.h2),
               const SizedBox(height: 8),
-              _headerDetail(
-                  Iconsax.briefcase, _getRoleOrDesignation(employee)),
+              _headerDetail(Iconsax.briefcase, _getRoleOrDesignation(employee)),
               const SizedBox(height: 6),
               _headerDetail(Iconsax.sms, employee.email),
               const SizedBox(height: 8),
@@ -875,7 +877,8 @@ class _EmployeeDesktopProfileLayoutState
           backgroundColor: AppColors.surfaceMuted,
           child: Icon(Iconsax.activity, color: AppColors.primary, size: 18),
         ),
-        title: Text(item.activity.isEmpty ? 'Employee activity' : item.activity),
+        title:
+            Text(item.activity.isEmpty ? 'Employee activity' : item.activity),
         subtitle: Text(
           [item.auditTypeDisplay, item.auditStatusDisplay, item.createdAt]
               .where((part) => part.trim().isNotEmpty)
@@ -901,9 +904,13 @@ class _EmployeeDesktopProfileLayoutState
         ),
         title: Text(task.name),
         subtitle: Text(
-          [task.status, task.priority, task.dueDate]
-              .where((part) => part.trim().isNotEmpty)
-              .join(' • '),
+          [
+            task.status,
+            task.priority,
+            task.dueDate.isNotEmpty
+                ? formatAppDateValue(task.dueDate, fallback: task.dueDate)
+                : ''
+          ].where((part) => part.trim().isNotEmpty).join(' • '),
         ),
       ),
     );
@@ -926,7 +933,7 @@ class _EmployeeDesktopProfileLayoutState
         title: Text(
           report.day == null
               ? 'Work report'
-              : DateFormat('MMM dd, yyyy').format(report.day!),
+              : DateFormat('dd-MM-yyyy').format(report.day!),
         ),
         subtitle: Text(
           [
@@ -1039,9 +1046,11 @@ class _EmployeeDesktopProfileLayoutState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _reportDetail('Date', report.day == null
-                      ? '—'
-                      : DateFormat('MMM dd, yyyy').format(report.day!)),
+                  _reportDetail(
+                      'Date',
+                      report.day == null
+                          ? '—'
+                          : DateFormat('dd-MM-yyyy').format(report.day!)),
                   _reportDetail('Hours', '${report.hoursWorked}'),
                   _reportDetail('Operational base', report.operationalBase),
                   _reportDetail('Activities', report.workActivities),
@@ -1151,7 +1160,7 @@ class _EmployeeDesktopProfileLayoutState
         'Date of Birth',
         employee.dateOfBirth == null
             ? null
-            : DateFormat('MMM dd, yyyy').format(employee.dateOfBirth!),
+            : DateFormat('dd-MM-yyyy').format(employee.dateOfBirth!),
       ),
       _DesktopInfoField('Marital Status', employee.maritalStatus),
       _DesktopInfoField('Email', employee.email),
@@ -1183,12 +1192,11 @@ class _EmployeeDesktopProfileLayoutState
         'Joining Date',
         employee.startDate == null
             ? null
-            : DateFormat('MMM dd, yyyy').format(employee.startDate!),
+            : DateFormat('dd-MM-yyyy').format(employee.startDate!),
       ),
       _DesktopInfoField('Work Schedule', employee.workSchedule),
     ]);
   }
-
 }
 
 class _DesktopInfoField {
@@ -1296,8 +1304,7 @@ class _ProfileTab extends StatelessWidget {
                 _DataField(
                     label: 'Date of Birth',
                     value: employee.dateOfBirth != null
-                        ? DateFormat('MMM dd, yyyy')
-                            .format(employee.dateOfBirth!)
+                        ? DateFormat('dd-MM-yyyy').format(employee.dateOfBirth!)
                         : '—'),
                 _DataField(label: 'Gender', value: employee.gender ?? '—'),
                 _DataField(
@@ -1435,7 +1442,7 @@ class _ProfileTab extends StatelessWidget {
                 _DataField(
                     label: 'Joining Date',
                     value: employee.startDate != null
-                        ? DateFormat('MMM dd, yyyy').format(employee.startDate!)
+                        ? DateFormat('dd-MM-yyyy').format(employee.startDate!)
                         : '—'),
                 _DataField(
                     label: 'Probation Period',

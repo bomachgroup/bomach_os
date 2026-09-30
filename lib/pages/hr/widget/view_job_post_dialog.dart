@@ -20,7 +20,7 @@ class ViewJobPostDialog extends StatelessWidget {
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'N/A';
-    return DateFormat('yyyy-MM-dd').format(date);
+    return DateFormat('dd-MM-yyyy').format(date);
   }
 
   String _formatEnum(String text) {

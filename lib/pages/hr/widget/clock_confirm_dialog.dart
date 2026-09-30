@@ -48,7 +48,7 @@ class ClockConfirmDialog extends StatelessWidget {
     final displayTime =
         currentTime != null ? WatTime.toWat(currentTime!) : WatTime.now();
     final timeStr = DateFormat('hh:mm a').format(displayTime);
-    final dateStr = DateFormat('EEEE, MMM d, yyyy').format(displayTime);
+    final dateStr = DateFormat('EEEE, dd-MM-yyyy').format(displayTime);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

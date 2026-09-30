@@ -213,7 +213,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
 
   Widget _buildSummaryBanner() {
     final dayLabel = widget.report.day != null
-        ? DateFormat('MMM d, yyyy').format(widget.report.day!)
+        ? DateFormat('dd-MM-yyyy').format(widget.report.day!)
         : '—';
     return Container(
       padding: const EdgeInsets.all(16),
@@ -445,7 +445,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
       return 'Reviewer ID: ${widget.report.reviewedById}';
     }
     if (widget.report.reviewedAt != null) {
-      return DateFormat('MMM d, yyyy HH:mm').format(widget.report.reviewedAt!);
+      return DateFormat('dd-MM-yyyy HH:mm').format(widget.report.reviewedAt!);
     }
     return null;
   }

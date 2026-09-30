@@ -46,7 +46,7 @@ class ViewPayrollDialog extends StatelessWidget {
               _detailRow(
                 'Disbursement Date',
                 payroll.disbursementDate != null
-                    ? DateFormat('MMM d, yyyy')
+                    ? DateFormat('dd-MM-yyyy')
                         .format(payroll.disbursementDate!)
                     : 'N/A',
               ),

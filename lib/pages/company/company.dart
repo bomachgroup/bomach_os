@@ -1498,7 +1498,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
         ? null
         : DateTime.tryParse(rawDate);
     if (parsed == null) return 'Not set';
-    return DateFormat('d MMM yyyy').format(parsed.toLocal());
+    return DateFormat('dd-MM-yyyy').format(parsed.toLocal());
   }
 
   static const _avatarColors = [

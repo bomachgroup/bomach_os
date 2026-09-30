@@ -280,7 +280,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                         title: 'Due Date *',
                         readOnly: true,
                         controller: TextEditingController(
-                          text: DateFormat('MMM dd, yyyy').format(_dueDate),
+                          text: DateFormat('dd-MM-yyyy').format(_dueDate),
                         ),
                         trailing: const Icon(
                           Iconsax.calendar_1,
@@ -342,7 +342,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                         tone: _statusTone(_selectedStatus),
                       ),
                     StatusChip(
-                      label: DateFormat('MMM dd, yyyy').format(_dueDate),
+                      label: DateFormat('dd-MM-yyyy').format(_dueDate),
                       tone: StatusTone.neutral,
                       icon: Iconsax.calendar,
                     ),

@@ -14,6 +14,7 @@ import 'package:bomach_os/src/helper/screen_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bomach_os/src/helper/date_picker_helper.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -755,7 +756,7 @@ class _BranchPageState extends State<BranchPage> {
                             );
                             if (picked != null) {
                               startDateController2.text =
-                                  picked.toLocal().toString().split(' ')[0];
+                                  formatAppDate(picked.toLocal());
                             }
                           },
                         ),
@@ -775,7 +776,7 @@ class _BranchPageState extends State<BranchPage> {
                             );
                             if (picked != null) {
                               startDateController2.text =
-                                  picked.toLocal().toString().split(' ')[0];
+                                  formatAppDate(picked.toLocal());
                             }
                           },
                         ),

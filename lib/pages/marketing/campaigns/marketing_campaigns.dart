@@ -6,6 +6,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 
 class MarketingCampaigns extends StatelessWidget {
   const MarketingCampaigns({super.key});
@@ -67,7 +68,10 @@ class MarketingCampaigns extends StatelessWidget {
               SizedBox(height: 4),
               MyText(
                 'Plan, launch, and track multi-channel campaigns',
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.textMuted),
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                    color: AppColors.textMuted),
               ),
             ],
           ),
@@ -84,8 +88,12 @@ class MarketingCampaigns extends StatelessWidget {
           const MyText('Active Campaigns', style: AppTextStyles.h2),
           const SizedBox(height: 12),
           Obx(() {
-            final active = c.campaigns.where((c) => c.status == CampaignStatus.active).toList();
-            final draft = c.campaigns.where((c) => c.status == CampaignStatus.draft).toList();
+            final active = c.campaigns
+                .where((c) => c.status == CampaignStatus.active)
+                .toList();
+            final draft = c.campaigns
+                .where((c) => c.status == CampaignStatus.draft)
+                .toList();
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -105,7 +113,8 @@ class MarketingCampaigns extends StatelessWidget {
   }
 
   Widget _buildCampaignCard(MarketingCampaignV2 camp) {
-    final progress = camp.budget > 0 ? (camp.spent / camp.budget).clamp(0.0, 1.0) : 0.0;
+    final progress =
+        camp.budget > 0 ? (camp.spent / camp.budget).clamp(0.0, 1.0) : 0.0;
     final isDraft = camp.status == CampaignStatus.draft;
 
     return Container(
@@ -116,7 +125,8 @@ class MarketingCampaigns extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.borderSubtle),
         boxShadow: const [
-          BoxShadow(color: Color(0x05000000), blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+              color: Color(0x05000000), blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -133,15 +143,19 @@ class MarketingCampaigns extends StatelessWidget {
                         Flexible(
                           child: Text(
                             camp.name,
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w600),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: isDraft ? AppColors.surfaceMuted : AppColors.successSubtle,
+                            color: isDraft
+                                ? AppColors.surfaceMuted
+                                : AppColors.successSubtle,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -149,7 +163,9 @@ class MarketingCampaigns extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: isDraft ? AppColors.textMuted : AppColors.success,
+                              color: isDraft
+                                  ? AppColors.textMuted
+                                  : AppColors.success,
                             ),
                           ),
                         ),
@@ -158,7 +174,8 @@ class MarketingCampaigns extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       camp.channels,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textMuted),
                     ),
                   ],
                 ),
@@ -168,11 +185,13 @@ class MarketingCampaigns extends StatelessWidget {
                 children: [
                   Text(
                     '₦${(camp.spent / 1000).toStringAsFixed(0)}K',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                   Text(
                     'of ₦${(camp.budget / 1000).toStringAsFixed(0)}K',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                    style: const TextStyle(
+                        fontSize: 11, color: AppColors.textMuted),
                   ),
                 ],
               ),
@@ -209,7 +228,8 @@ class MarketingCampaigns extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+        Text(label,
+            style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
         Text(
           value,
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
@@ -225,7 +245,8 @@ class MarketingCampaigns extends StatelessWidget {
         children: [
           Icon(Icons.inbox_outlined, size: 48, color: AppColors.textMuted),
           SizedBox(height: 12),
-          Text('No pending campaign requests', style: TextStyle(color: AppColors.textMuted)),
+          Text('No pending campaign requests',
+              style: TextStyle(color: AppColors.textMuted)),
           SizedBox(height: 8),
           Text(
             'Campaign requests from team members will appear here for approval',
@@ -260,17 +281,20 @@ class MarketingCampaigns extends StatelessWidget {
                     color: AppColors.primarySubtle,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.campaign, size: 20, color: AppColors.primary),
+                  child: const Icon(Icons.campaign,
+                      size: 20, color: AppColors.primary),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   t.name,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   t.description,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style:
+                      const TextStyle(fontSize: 12, color: AppColors.textMuted),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -316,12 +340,48 @@ class MarketingCampaigns extends StatelessWidget {
       ),
       child: const Row(
         children: [
-          Expanded(flex: 2, child: Text('Date', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted))),
-          Expanded(flex: 3, child: Text('Audience', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted))),
-          Expanded(flex: 2, child: Text('Sent', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted))),
-          Expanded(flex: 2, child: Text('Delivered', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted))),
-          Expanded(flex: 2, child: Text('Responses', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted))),
-          Expanded(flex: 2, child: Text('Leads', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted))),
+          Expanded(
+              flex: 2,
+              child: Text('Date',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMuted))),
+          Expanded(
+              flex: 3,
+              child: Text('Audience',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMuted))),
+          Expanded(
+              flex: 2,
+              child: Text('Sent',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMuted))),
+          Expanded(
+              flex: 2,
+              child: Text('Delivered',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMuted))),
+          Expanded(
+              flex: 2,
+              child: Text('Responses',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMuted))),
+          Expanded(
+              flex: 2,
+              child: Text('Leads',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMuted))),
         ],
       ),
     );
@@ -335,12 +395,37 @@ class MarketingCampaigns extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(flex: 2, child: Text(b.date, style: const TextStyle(fontSize: 13))),
-          Expanded(flex: 3, child: Text(b.audience, style: const TextStyle(fontSize: 13))),
-          Expanded(flex: 2, child: Text('${b.sent}', style: const TextStyle(fontSize: 13, fontFeatures: [FontFeature.tabularFigures()]))),
-          Expanded(flex: 2, child: Text('${b.delivered}', style: const TextStyle(fontSize: 13, fontFeatures: [FontFeature.tabularFigures()]))),
-          Expanded(flex: 2, child: Text('${b.responses}', style: const TextStyle(fontSize: 13, fontFeatures: [FontFeature.tabularFigures()]))),
-          Expanded(flex: 2, child: Text('${b.generated}', style: const TextStyle(fontSize: 13, fontFeatures: [FontFeature.tabularFigures()]))),
+          Expanded(
+              flex: 2,
+              child: Text(formatAppDateValue(b.date, fallback: b.date),
+                  style: const TextStyle(fontSize: 13))),
+          Expanded(
+              flex: 3,
+              child: Text(b.audience, style: const TextStyle(fontSize: 13))),
+          Expanded(
+              flex: 2,
+              child: Text('${b.sent}',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontFeatures: [FontFeature.tabularFigures()]))),
+          Expanded(
+              flex: 2,
+              child: Text('${b.delivered}',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontFeatures: [FontFeature.tabularFigures()]))),
+          Expanded(
+              flex: 2,
+              child: Text('${b.responses}',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontFeatures: [FontFeature.tabularFigures()]))),
+          Expanded(
+              flex: 2,
+              child: Text('${b.generated}',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontFeatures: [FontFeature.tabularFigures()]))),
         ],
       ),
     );

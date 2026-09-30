@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import '../controllers/legal_case_controller.dart';
 import '../models/legal_case_model.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class CreateNewLegalCaseDialog extends StatefulWidget {
   final LegalCase? caseToEdit;
 
@@ -51,11 +52,15 @@ class _CreateNewLegalCaseDialogState
     final c = widget.caseToEdit;
     nameCtrl = TextEditingController(text: c?.caseName ?? '');
     exposureCtrl = TextEditingController(text: c?.exposure ?? '');
-    hearingCtrl = TextEditingController(text: c?.nextHearing ?? '');
+    hearingCtrl = TextEditingController(
+        text: formatAppDateValue(c?.nextHearing,
+            fallback: c?.nextHearing ?? ''));
     numberCtrl = TextEditingController(text: c?.caseNumber ?? '');
     descriptionCtrl = TextEditingController(text: c?.description ?? '');
-    dateFiledCtrl = TextEditingController(text: c?.dateFiled ?? '');
-    dateClosedCtrl = TextEditingController(text: c?.dateClosed ?? '');
+    dateFiledCtrl = TextEditingController(
+        text: formatAppDateValue(c?.dateFiled, fallback: c?.dateFiled ?? ''));
+    dateClosedCtrl = TextEditingController(
+        text: formatAppDateValue(c?.dateClosed, fallback: c?.dateClosed ?? ''));
     if (c != null) {
       if (c.caseType.isNotEmpty) selectedCaseType = c.caseType;
       if (c.status.isNotEmpty) selectedStatus = c.status;
@@ -82,15 +87,18 @@ class _CreateNewLegalCaseDialogState
       if (exposureCtrl.text.trim().isNotEmpty)
         'exposure': exposureCtrl.text.trim(),
       if (hearingCtrl.text.trim().isNotEmpty)
-        'next_hearing': hearingCtrl.text.trim(),
+        'next_hearing': appDateToApiDate(hearingCtrl.text.trim()) ??
+            hearingCtrl.text.trim(),
       if (numberCtrl.text.trim().isNotEmpty)
         'case_number': numberCtrl.text.trim(),
       if (descriptionCtrl.text.trim().isNotEmpty)
         'description': descriptionCtrl.text.trim(),
       if (dateFiledCtrl.text.trim().isNotEmpty)
-        'date_filed': dateFiledCtrl.text.trim(),
+        'date_filed': appDateToApiDate(dateFiledCtrl.text.trim()) ??
+            dateFiledCtrl.text.trim(),
       if (dateClosedCtrl.text.trim().isNotEmpty)
-        'date_closed': dateClosedCtrl.text.trim(),
+        'date_closed': appDateToApiDate(dateClosedCtrl.text.trim()) ??
+            dateClosedCtrl.text.trim(),
     };
   }
 
@@ -183,7 +191,7 @@ class _CreateNewLegalCaseDialogState
                   child: MyTextFormField(
                     controller: dateFiledCtrl,
                     title: 'Date Filed',
-                    hintText: 'YYYY-MM-DD',
+                    hintText: 'DD-MM-YYYY',
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -191,7 +199,7 @@ class _CreateNewLegalCaseDialogState
                   child: MyTextFormField(
                     controller: dateClosedCtrl,
                     title: 'Date Closed',
-                    hintText: 'YYYY-MM-DD',
+                    hintText: 'DD-MM-YYYY',
                   ),
                 ),
               ],
@@ -200,7 +208,7 @@ class _CreateNewLegalCaseDialogState
             MyTextFormField(
               controller: hearingCtrl,
               title: 'Next Hearing',
-              hintText: 'e.g 2024-12-15',
+              hintText: 'DD-MM-YYYY',
             ),
             const SizedBox(height: 16),
             MyTextFormField(

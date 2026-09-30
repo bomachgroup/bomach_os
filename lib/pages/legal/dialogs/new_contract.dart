@@ -105,7 +105,7 @@ class CreateNewContractDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       _buildFormLabel('Effective Date'),
-                      _buildDateInput(date: '09/13/2025', context: context),
+                      _buildDateInput(date: '13-09-2025', context: context),
                     ],
                   ),
                 ),
@@ -115,7 +115,7 @@ class CreateNewContractDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       _buildFormLabel('Expiration Date'),
-                      _buildDateInput(date: '09/13/2025', context: context),
+                      _buildDateInput(date: '13-09-2025', context: context),
                     ],
                   ),
                 ),

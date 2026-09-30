@@ -318,7 +318,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             flex: 2,
             child: Text(
               report.day != null
-                  ? DateFormat('dd MMM yyyy').format(report.day!)
+                  ? DateFormat('dd-MM-yyyy').format(report.day!)
                   : '—',
               style:
                   AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
@@ -338,7 +338,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             flex: 2,
             child: Text(
               report.createdAt != null
-                  ? DateFormat('dd MMM yyyy HH:mm').format(report.createdAt!)
+                  ? DateFormat('dd-MM-yyyy HH:mm').format(report.createdAt!)
                   : '—',
               style:
                   AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
@@ -349,7 +349,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             flex: 2,
             child: Text(
               report.updatedAt != null
-                  ? DateFormat('dd MMM yyyy HH:mm').format(report.updatedAt!)
+                  ? DateFormat('dd-MM-yyyy HH:mm').format(report.updatedAt!)
                   : '—',
               style:
                   AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),

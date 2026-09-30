@@ -2,6 +2,7 @@ import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/marketing/controllers/marketing_module_controller.dart';
 import 'package:bomach_os/pages/marketing/models/marketing_content.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -43,7 +44,10 @@ class MarketingCalendar extends StatelessWidget {
               SizedBox(height: 4),
               MyText(
                 'Weekly content schedule across all channels',
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.textMuted),
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                    color: AppColors.textMuted),
               ),
             ],
           ),
@@ -53,7 +57,9 @@ class MarketingCalendar extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: pending > 0 ? AppColors.warningSubtle : AppColors.successSubtle,
+              color: pending > 0
+                  ? AppColors.warningSubtle
+                  : AppColors.successSubtle,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -80,7 +86,8 @@ class MarketingCalendar extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2)),
+          BoxShadow(
+              color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -117,7 +124,9 @@ class MarketingCalendar extends StatelessWidget {
                     child: Container(
                       margin: EdgeInsets.only(right: dayIndex < 6 ? 6 : 0),
                       decoration: BoxDecoration(
-                        color: dates[dayIndex] == 14 ? AppColors.primarySubtle : AppColors.surfaceMuted,
+                        color: dates[dayIndex] == 14
+                            ? AppColors.primarySubtle
+                            : AppColors.surfaceMuted,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
@@ -131,7 +140,9 @@ class MarketingCalendar extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
-                                    color: dates[dayIndex] == 14 ? AppColors.primary : AppColors.textMuted,
+                                    color: dates[dayIndex] == 14
+                                        ? AppColors.primary
+                                        : AppColors.textMuted,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -140,7 +151,9 @@ class MarketingCalendar extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: dates[dayIndex] == 14 ? AppColors.primary : AppColors.textPrimary,
+                                    color: dates[dayIndex] == 14
+                                        ? AppColors.primary
+                                        : AppColors.textPrimary,
                                   ),
                                 ),
                               ],
@@ -148,7 +161,8 @@ class MarketingCalendar extends StatelessWidget {
                           ),
                           Expanded(
                             child: ListView.builder(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
                               itemCount: dayItems.length,
                               itemBuilder: (context, index) {
                                 return _buildCalendarItem(dayItems[index]);
@@ -210,7 +224,8 @@ class MarketingCalendar extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2)),
+          BoxShadow(
+              color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -220,13 +235,16 @@ class MarketingCalendar extends StatelessWidget {
           const SizedBox(height: 12),
           Obx(() {
             final upcoming = c.contentItems
-                .where((i) => i.status != ContentStatus.published && i.status != ContentStatus.overdue)
+                .where((i) =>
+                    i.status != ContentStatus.published &&
+                    i.status != ContentStatus.overdue)
                 .toList();
             if (upcoming.isEmpty) {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.all(24),
-                  child: Text('All caught up!', style: TextStyle(color: AppColors.textMuted)),
+                  child: Text('All caught up!',
+                      style: TextStyle(color: AppColors.textMuted)),
                 ),
               );
             }
@@ -256,27 +274,33 @@ class MarketingCalendar extends StatelessWidget {
                           children: [
                             Text(
                               item.title,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.w600),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${item.format} · ${item.platform} · Due ${item.dueDate}',
-                              style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                              '${item.format} · ${item.platform} · Due ${formatAppDateValue(item.dueDate, fallback: item.dueDate)}',
+                              style: const TextStyle(
+                                  fontSize: 10, color: AppColors.textMuted),
                             ),
                           ],
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: item.status.bgColor,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           item.status.label,
-                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w500, color: item.status.textColor),
+                          style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w500,
+                              color: item.status.textColor),
                         ),
                       ),
                     ],

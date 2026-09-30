@@ -10,11 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:intl/intl.dart';
 
 import '../controller/jobposting_control.dart';
 import '../models/job_posting.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddJobPostDialog extends StatefulWidget {
   final JobPosting? job;
   const AddJobPostDialog({super.key, this.job});
@@ -33,7 +33,7 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
       controller.populateForm(widget.job!);
       if (widget.job!.deadline != null) {
         controller.deadlineController.text =
-            DateFormat('yyyy-MM-dd').format(widget.job!.deadline!);
+            formatAppDate(widget.job!.deadline!);
       }
     } else {
       controller.clearForm();
@@ -52,7 +52,7 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
       setState(() {
         controller.selectedDeadline = picked;
         controller.deadlineController.text =
-            DateFormat('yyyy-MM-dd').format(picked);
+            formatAppDate(picked);
       });
     }
   }

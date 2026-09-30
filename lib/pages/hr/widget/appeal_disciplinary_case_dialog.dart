@@ -58,7 +58,7 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
               _detailRow(
                 'Action Date',
                 kase.actionDate != null
-                    ? DateFormat('MMM d, yyyy').format(kase.actionDate!)
+                    ? DateFormat('dd-MM-yyyy').format(kase.actionDate!)
                     : '—',
               ),
             ],

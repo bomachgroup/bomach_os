@@ -11,10 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:intl/intl.dart';
 
 import '../controller/biometrics_controller.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 class AddAttendanceDialog extends StatefulWidget {
   final String token;
   const AddAttendanceDialog({super.key, required this.token});
@@ -120,7 +120,7 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
                         hintText: 'Select date',
                         spaceBetweenText: 8,
                         controller: TextEditingController(
-                          text: DateFormat('yyyy-MM-dd').format(_selectedDate),
+                          text: formatAppDate(_selectedDate),
                         ),
                         readOnly: true,
                         trailing: const Icon(

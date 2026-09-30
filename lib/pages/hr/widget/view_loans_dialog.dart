@@ -13,6 +13,8 @@ import 'package:iconsax/iconsax.dart';
 import '../controller/loans_controller.dart';
 import '../models/loans_model.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
+
 class ViewLoanDialog extends StatelessWidget {
   final LoanRequest loan;
 
@@ -38,7 +40,10 @@ class ViewLoanDialog extends StatelessWidget {
               _detailRow('Loan Amount', loan.loanAmount.toNaira()),
               _detailRow(
                   'Repayment Date',
-                  loan.repaymentDate.isNotEmpty ? loan.repaymentDate : '—'),
+                  loan.repaymentDate.isNotEmpty
+                      ? formatAppDateValue(loan.repaymentDate,
+                          fallback: loan.repaymentDate)
+                      : '—'),
               _detailRow(
                 'Status',
                 loan.status.isNotEmpty
@@ -176,9 +181,8 @@ class ViewLoanDialog extends StatelessWidget {
   }
 
   Widget _buildSummaryBanner(LoanRequest loan) {
-    final initial = loan.employeeName.isNotEmpty
-        ? loan.employeeName[0].toUpperCase()
-        : '?';
+    final initial =
+        loan.employeeName.isNotEmpty ? loan.employeeName[0].toUpperCase() : '?';
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

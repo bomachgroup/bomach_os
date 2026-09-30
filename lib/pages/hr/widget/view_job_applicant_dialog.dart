@@ -9,6 +9,7 @@ import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:bomach_os/src/helper/date_picker_helper.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -219,8 +220,9 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
     final initial = widget.applicant.firstName.isNotEmpty
         ? widget.applicant.firstName[0].toUpperCase()
         : '?';
-    final appliedDate =
-        widget.applicant.createdAt?.toString().split(' ')[0] ?? '-';
+    final appliedDate = widget.applicant.createdAt == null
+        ? '-'
+        : formatAppDate(widget.applicant.createdAt!);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -333,8 +335,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
             Text(
               title,
               style: AppTextStyles.bodyMd.copyWith(
-                color:
-                    isActive ? AppColors.primary : AppColors.textSecondary,
+                color: isActive ? AppColors.primary : AppColors.textSecondary,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
@@ -391,8 +392,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
           title: 'Notes',
           children: [
             Text(
-              widget.applicant.notes == null ||
-                      widget.applicant.notes!.isEmpty
+              widget.applicant.notes == null || widget.applicant.notes!.isEmpty
                   ? 'No notes available.'
                   : widget.applicant.notes!,
               style: AppTextStyles.bodyMd.copyWith(
@@ -524,8 +524,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
             Navigator.pop(context);
             showDialog(
               context: context,
-              builder: (_) =>
-                  AddCandidateDialog(applicant: widget.applicant),
+              builder: (_) => AddCandidateDialog(applicant: widget.applicant),
             );
           },
         ),
@@ -659,7 +658,8 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                   const SizedBox(height: 4),
                   Text(
                     interview.meetingLink!,
-                    style: AppTextStyles.bodySm.copyWith(color: AppColors.primary),
+                    style:
+                        AppTextStyles.bodySm.copyWith(color: AppColors.primary),
                   ),
                 ],
                 if (interview.feedback?.isNotEmpty == true) ...[
@@ -770,7 +770,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                 ),
                 if (offer.startDate.isNotEmpty)
                   Text(
-                    'Start: ${offer.startDate}',
+                    'Start: ${formatAppDateValue(offer.startDate, fallback: offer.startDate)}',
                     style: AppTextStyles.bodySm
                         .copyWith(color: AppColors.textSecondary),
                   ),
@@ -809,7 +809,8 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -849,8 +850,8 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
             width: 140,
             child: Text(
               label,
-              style: AppTextStyles.bodySm
-                  .copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
@@ -1012,7 +1013,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
                     icon: Iconsax.calendar_1,
                     label: _scheduledDate == null
                         ? 'Pick Date'
-                        : '${_scheduledDate!.day}/${_scheduledDate!.month}/${_scheduledDate!.year}',
+                        : '${_scheduledDate!.day.toString().padLeft(2, '0')}-${_scheduledDate!.month.toString().padLeft(2, '0')}-${_scheduledDate!.year}',
                     onTap: _pickDate,
                   ),
                 ),
@@ -1224,7 +1225,7 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
               icon: Iconsax.calendar_1,
               label: _startDate == null
                   ? 'Pick Start Date'
-                  : '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}',
+                  : '${_startDate!.day.toString().padLeft(2, '0')}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.year}',
               onTap: _pickStartDate,
             ),
             const SizedBox(height: 16),

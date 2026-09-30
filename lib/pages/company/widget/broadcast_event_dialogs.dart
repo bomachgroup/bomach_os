@@ -118,7 +118,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
     if (dateStr.isEmpty) return '';
     final parsed = parseApiDateTime(dateStr);
     if (parsed != null) {
-      return DateFormat('MM-dd-yyyy, hh:mma').format(parsed);
+      return DateFormat('dd-MM-yyyy, hh:mma').format(parsed);
     }
     return dateStr;
   }
@@ -468,7 +468,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
       } else {
         selectedTo = combined;
       }
-      ctrl.text = DateFormat('MM-dd-yyyy, hh:mma').format(combined);
+      ctrl.text = DateFormat('dd-MM-yyyy, hh:mma').format(combined);
     });
   }
 
@@ -488,7 +488,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
     } else {
       try {
         final parsedFrom =
-            DateFormat('MM-dd-yyyy, hh:mma').parse(dateFromCtrl.text);
+            DateFormat('dd-MM-yyyy, hh:mma').parse(dateFromCtrl.text);
         apiFromDt = parsedFrom.toUtc().toIso8601String();
       } catch (_) {
         apiFromDt = dateFromCtrl.text;
@@ -500,7 +500,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
     } else {
       try {
         final parsedTo =
-            DateFormat('MM-dd-yyyy, hh:mma').parse(dateToCtrl.text);
+            DateFormat('dd-MM-yyyy, hh:mma').parse(dateToCtrl.text);
         apiToDt = parsedTo.toUtc().toIso8601String();
       } catch (_) {
         apiToDt = dateToCtrl.text;
@@ -642,7 +642,7 @@ class ViewEventDialog extends StatelessWidget {
     if (dateStr.isEmpty) return '–';
     final parsed = parseApiDateTime(dateStr);
     if (parsed != null) {
-      return DateFormat('MMMM d, yyyy – h:mm a').format(parsed);
+      return DateFormat('dd-MM-yyyy – h:mm a').format(parsed);
     }
     return dateStr;
   }

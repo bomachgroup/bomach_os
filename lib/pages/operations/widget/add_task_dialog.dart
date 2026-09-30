@@ -21,6 +21,7 @@ import 'package:iconsax/iconsax.dart';
 
 import '../controllers/tasks_controler.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
 // Maps display label → API value
 const _statusItems = {
   'Pending': 'pending',
@@ -98,7 +99,8 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         text: t != null && t.estimatedHours > 0
             ? t.estimatedHours.toString()
             : '');
-    dateCtrl = TextEditingController(text: t?.dueDate ?? '');
+    dateCtrl = TextEditingController(
+        text: formatAppDateValue(t?.dueDate, fallback: t?.dueDate ?? ''));
     selectedMilestoneId = t?.milestoneId;
     selectedEmployeeIds = List<String>.from(t?.assignedTo ?? []);
 
@@ -344,7 +346,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       status: _statusItems[selectedStatusLabel] ?? 'pending',
       priority: _priorityItems[selectedPriorityLabel] ?? 'medium',
       assignedTo: selectedEmployeeIds,
-      dueDate: dateCtrl.text,
+      dueDate: appDateToApiDate(dateCtrl.text) ?? '',
       estimatedHours: double.tryParse(hoursCtrl.text) ?? 0.0,
       createdAt: widget.task?.createdAt ?? '',
       updatedAt: '',

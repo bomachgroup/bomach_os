@@ -5,6 +5,7 @@ import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:bomach_os/src/utils/app_date_format.dart';
 
 class InvoiceDetailsDialog extends StatefulWidget {
   final ServiceInvoice invoice;
@@ -70,18 +71,24 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                       _row('Invoice #', inv.invoiceNumber, isBold: true),
                       _row('Service', inv.service.name),
                       _row('Client ID', inv.clientId.toString()),
-                      _row('Issue Date', inv.issueDate),
-                      _row('Due Date', inv.dueDate),
+                      _row(
+                          'Issue Date',
+                          formatAppDateValue(inv.issueDate,
+                              fallback: inv.issueDate)),
+                      _row(
+                          'Due Date',
+                          formatAppDateValue(inv.dueDate,
+                              fallback: inv.dueDate)),
                       _row('Status', inv.status),
                       if (inv.order != null)
                         _row('Order', inv.order!.orderNumber),
                       if (inv.lead != null) _row('Lead', inv.lead!.name),
                       const Divider(height: 24),
-                      const Text('Financial Summary',
-                          style: AppTextStyles.h4),
+                      const Text('Financial Summary', style: AppTextStyles.h4),
                       const SizedBox(height: 12),
                       _row('Subtotal', inv.subtotal.toNaira()),
-                      _row('Tax (${inv.taxRate.toCommas()}%)', inv.taxAmount.toNaira()),
+                      _row('Tax (${inv.taxRate.toCommas()}%)',
+                          inv.taxAmount.toNaira()),
                       _row('Total', inv.totalAmount.toNaira(), isBold: true),
                       _row('Amount Paid', inv.amountPaid.toNaira()),
                       _row('Balance', inv.balance.toNaira(),
@@ -91,8 +98,8 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                         const Text('Notes', style: AppTextStyles.h4),
                         const SizedBox(height: 8),
                         Text(inv.notes,
-                            style: AppTextStyles.bodyMd.copyWith(
-                                color: AppColors.textPrimary)),
+                            style: AppTextStyles.bodyMd
+                                .copyWith(color: AppColors.textPrimary)),
                       ],
                       if (inv.items.isNotEmpty) ...[
                         const Divider(height: 24),
@@ -108,9 +115,10 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                     Expanded(
                                         child: Text(item.description,
                                             style: AppTextStyles.bodyMd)),
-                                    Text('${item.quantity.toCount()} × ${item.unitPrice.toNaira()}',
-                                        style: AppTextStyles.bodySm
-                                            .copyWith(color: AppColors.textSecondary)),
+                                    Text(
+                                        '${item.quantity.toCount()} × ${item.unitPrice.toNaira()}',
+                                        style: AppTextStyles.bodySm.copyWith(
+                                            color: AppColors.textSecondary)),
                                     const SizedBox(width: 12),
                                     Text(item.total.toNaira(),
                                         style: AppTextStyles.bodyMd.copyWith(
@@ -134,7 +142,8 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                   MyOutlinedButton(
                     child: 'Close',
                     height: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     onTap: () => Navigator.pop(context),
                     textColor: AppColors.textSecondary,
                     borderColor: AppColors.borderStrong,
@@ -158,7 +167,8 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
           SizedBox(
             width: 140,
             child: Text(label,
-                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary)),
           ),
           Expanded(
             child: Text(value,

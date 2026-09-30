@@ -6,6 +6,7 @@ import 'package:bomach_os/pages/operations/controllers/work_site_controller.dart
 import 'package:bomach_os/pages/operations/models/models.dart';
 import 'package:bomach_os/pages/operations/widget/project_task_table.dart';
 import 'package:bomach_os/pages/operations/widget/site_equipment_table.dart';
+import 'package:bomach_os/pages/operations/engineering_site_reports.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
@@ -140,6 +141,7 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
       (icon: Iconsax.people, label: 'Employees'),
       (icon: Iconsax.setting_2, label: 'Site Equipment'),
       (icon: Iconsax.task_square, label: 'Site Tasks'),
+      (icon: Iconsax.document_text, label: 'Engineering Reports'),
     ];
 
     return Wrap(
@@ -176,6 +178,17 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
         );
       }
       return SiteEquipmentTable(worksiteId: selectedWorksite!.id);
+    }
+    if (selectionStepperState == 3) {
+      if (selectedWorksite == null)
+        return const EmptyState(
+            icon: Iconsax.document_text,
+            title: 'Select a worksite first',
+            subtitle: 'Choose a worksite to view its engineering reports.',
+            compact: true);
+      return EngineeringSiteReportsPage(
+          initialWorksiteId: selectedWorksite!.id,
+          initialProjectId: widget.projectId);
     }
     return ProjectTaskTable(projectId: widget.projectId);
   }
@@ -236,8 +249,7 @@ class _SubTabChip extends StatelessWidget {
                 label,
                 style: AppTextStyles.bodyMd.copyWith(
                   color: fg,
-                  fontWeight:
-                      isActive ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
             ],

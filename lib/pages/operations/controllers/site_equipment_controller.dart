@@ -72,10 +72,63 @@ class SiteEquipmentController extends GetxController {
       _showSuccess(context, "Equipment added successfully");
       Navigator.of(context).pop();
 
-      fetchEquipment(context,
-          worksiteId: item.worksiteId != 0 ? item.worksiteId : null);
+      await fetchEquipment(
+        context,
+        worksiteId: item.worksiteId != 0 ? item.worksiteId : null,
+      );
     } catch (e) {
       _showError(context, "Failed to add equipment: ${e.toString()}");
+    } finally {
+      isActionLoading.value = false;
+    }
+  }
+
+  Future<void> updateEquipment(BuildContext context, SiteEquipment item) async {
+    try {
+      isActionLoading.value = true;
+      final token = await _getToken(context);
+      if (token == null) throw Exception("Authentication token not found");
+
+      await _service.updateSiteEquipment(
+        accessToken: token,
+        equipmentId: item.id,
+        equipment: item,
+      );
+
+      _showSuccess(context, "Equipment details updated");
+      Navigator.of(context).pop();
+      await fetchEquipment(context, worksiteId: item.worksiteId);
+    } catch (e) {
+      _showError(context, "Failed to update equipment: ${e.toString()}");
+    } finally {
+      isActionLoading.value = false;
+    }
+  }
+
+  Future<void> adjustEquipment(
+    BuildContext context, {
+    required int equipmentId,
+    required int worksiteId,
+    required String quantityDelta,
+    required String reason,
+  }) async {
+    try {
+      isActionLoading.value = true;
+      final token = await _getToken(context);
+      if (token == null) throw Exception("Authentication token not found");
+
+      await _service.adjustSiteEquipment(
+        accessToken: token,
+        equipmentId: equipmentId,
+        quantityDelta: quantityDelta,
+        reason: reason,
+      );
+
+      _showSuccess(context, "Inventory quantity adjusted");
+      Navigator.of(context).pop();
+      await fetchEquipment(context, worksiteId: worksiteId);
+    } catch (e) {
+      _showError(context, "Failed to adjust quantity: ${e.toString()}");
     } finally {
       isActionLoading.value = false;
     }
@@ -92,7 +145,7 @@ class SiteEquipmentController extends GetxController {
 
       _showSuccess(context, "Equipment deleted successfully");
 
-      fetchEquipment(context, worksiteId: worksiteId);
+      await fetchEquipment(context, worksiteId: worksiteId);
     } catch (e) {
       _showError(context, "Failed to delete equipment: ${e.toString()}");
     } finally {

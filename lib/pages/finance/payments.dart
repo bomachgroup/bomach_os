@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
+import 'package:bomach_os/src/utils/app_date_format.dart';
+
 class PaymentsPage extends StatelessWidget {
   const PaymentsPage({super.key});
 
@@ -106,7 +108,8 @@ class PaymentsPage extends StatelessWidget {
               DataCell(MyText(payment.invoiceId.toString())),
               DataCell(MyText(payment.amount)),
               DataCell(MyText(payment.paymentMethod)),
-              DataCell(MyText(payment.paymentDate)),
+              DataCell(MyText(formatAppDateValue(payment.paymentDate,
+                  fallback: payment.paymentDate))),
               DataCell(
                 PopupMenuButton<String>(
                   icon: const Icon(Iconsax.more),
@@ -122,8 +125,7 @@ class PaymentsPage extends StatelessWidget {
                     }
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
-                        value: 'view', child: Text('View')),
+                    const PopupMenuItem(value: 'view', child: Text('View')),
                     const PopupMenuItem(
                         value: 'delete',
                         child: Text('Delete',
@@ -180,8 +182,11 @@ class PaymentsPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      MyText(payment.paymentDate,
-                          size: 12, color: AppColors.textSecondary),
+                      MyText(
+                          formatAppDateValue(payment.paymentDate,
+                              fallback: payment.paymentDate),
+                          size: 12,
+                          color: AppColors.textSecondary),
                       IconButton(
                         onPressed: () {
                           controller.deletePayment(context, payment.id);

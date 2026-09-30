@@ -226,7 +226,7 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
           MyText("002"),
         ),
         const DataCell(
-          MyText("27/09/2024"),
+          MyText("27-09-2024"),
         ),
         DataCell(
           Row(
@@ -488,7 +488,7 @@ class ClientInfoCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     MyText(
-                      'Last login: 23:01, 1/10/2024',
+                      'Last login: 23:01, 10-01-2024',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w400,
@@ -759,7 +759,7 @@ class InvoiceContent extends StatelessWidget {
                           children: [
                             Expanded(
                               child: MyText(
-                                'Bill date: 02.08.2024',
+                                'Bill date: 02-08-2024',
                                 maxLines: 3,
                                 // overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -782,7 +782,7 @@ class InvoiceContent extends StatelessWidget {
                             SizedBox(width: 4),
                             Expanded(
                               child: MyText(
-                                'Due: 12.08.2024',
+                                'Due: 12-08-2024',
                                 maxLines: 3,
                                 // overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
