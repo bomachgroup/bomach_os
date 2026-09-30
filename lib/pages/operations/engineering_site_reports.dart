@@ -1,4 +1,7 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/input/my_date_field.dart';
+import 'package:bomach_os/components/input/searchable_dropdown_form_field.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/auth/controller.dart';
@@ -8,7 +11,10 @@ import 'package:bomach_os/pages/operations/controllers/site_equipment_controller
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
+import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/model/employees_model.dart';
+import 'package:bomach_os/src/services/employees_services.dart';
 import 'package:bomach_os/src/services/operations/engineering_site_report_service.dart';
 import 'package:bomach_os/src/services/operations/site_equipment_services.dart';
 import 'package:bomach_os/src/services/operations/works_services.dart';
@@ -21,6 +27,8 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 import 'package:bomach_os/src/utils/app_date_format.dart';
+import 'widget/report_editor_section.dart';
+
 class EngineeringSiteReportsPage extends StatefulWidget {
   const EngineeringSiteReportsPage(
       {super.key,
@@ -39,17 +47,22 @@ class _EngineeringSiteReportsPageState
     extends State<EngineeringSiteReportsPage> {
   final _service = EngineeringSiteReportService();
   final _inventory = SiteEquipmentService(baseUrl: ApiConstants.baseUrl);
+  final _employeeService = EmployeeService();
+  final _worksiteService = WorksiteService(baseUrl: ApiConstants.baseUrl);
+  final _projectService = DashboardService(baseUrl: ApiConstants.baseUrl);
   final _storage = const FlutterSecureStorage();
   List<EngineeringSiteReport> _reports = [];
+  List<Employee> _employees = [];
+  List<Worksite> _worksites = [];
+  List<Project> _projects = [];
   int _count = 0, _offset = 0;
   bool _loading = true;
+  bool _employeesLoaded = false;
+  bool _referencesLoaded = false;
   bool _didAutoOpen = false;
   String _status = 'all';
-  final _employee = TextEditingController(),
-      _worksite = TextEditingController(),
-      _project = TextEditingController(),
-      _from = TextEditingController(),
-      _to = TextEditingController();
+  int? _employeeId, _worksiteId, _projectId;
+  final _from = TextEditingController(), _to = TextEditingController();
   String? _token;
   int get _userId => Get.isRegistered<AuthController>()
       ? Get.find<AuthController>().currentUser.value?.userId ?? 0
@@ -61,16 +74,14 @@ class _EngineeringSiteReportsPageState
   @override
   void initState() {
     super.initState();
-    if (widget.initialWorksiteId != null)
-      _worksite.text = '${widget.initialWorksiteId}';
-    if (widget.initialProjectId != null)
-      _project.text = '${widget.initialProjectId}';
+    _worksiteId = widget.initialWorksiteId;
+    _projectId = widget.initialProjectId;
     _load();
   }
 
   @override
   void dispose() {
-    for (final c in [_employee, _worksite, _project, _from, _to]) {
+    for (final c in [_from, _to]) {
       c.dispose();
     }
     super.dispose();
@@ -86,13 +97,42 @@ class _EngineeringSiteReportsPageState
       if (_token == null) throw Exception('Authentication token not found');
       final mayList =
           _can('list') || _can('list_own') || _can('view') || _can('view_own');
+      if (mayList && !_referencesLoaded) {
+        try {
+          final references = await Future.wait([
+            _loadAllWorksites(_token!),
+            _loadAllProjects(_token!),
+          ]);
+          _worksites = references[0] as List<Worksite>;
+          _projects = references[1] as List<Project>;
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Could not load worksite/project filters: $e')));
+          }
+        } finally {
+          _referencesLoaded = true;
+        }
+      }
+      if (mayList && !_employeesLoaded) {
+        try {
+          _employees = await _loadAllEmployees(_token!);
+          _employeesLoaded = true;
+        } catch (e) {
+          _employeesLoaded = true;
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Could not load employee filter options: $e')));
+          }
+        }
+      }
       final page = mayList
           ? await _service.listReports(
               accessToken: _token!,
               status: _status,
-              employeeId: int.tryParse(_employee.text),
-              worksiteId: int.tryParse(_worksite.text),
-              projectId: int.tryParse(_project.text),
+              employeeId: _employeeId,
+              worksiteId: _worksiteId,
+              projectId: _projectId,
               dateFrom: appDateToApiDate(_from.text) ?? _from.text,
               dateTo: appDateToApiDate(_to.text) ?? _to.text,
               limit: 20,
@@ -118,6 +158,54 @@ class _EngineeringSiteReportsPageState
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<List<Employee>> _loadAllEmployees(String token) async {
+    final employees = <Employee>[];
+    var offset = 0;
+    while (true) {
+      final page = await _employeeService.getEmployees(
+        token,
+        limit: 100,
+        offset: offset,
+      );
+      employees.addAll(page.list);
+      if (employees.length >= page.count || page.list.isEmpty) break;
+      offset += page.list.length;
+    }
+    return employees;
+  }
+
+  Future<List<Worksite>> _loadAllWorksites(String token) async {
+    final worksites = <Worksite>[];
+    var offset = 0;
+    while (true) {
+      final page = await _worksiteService.getWorksites(
+        accessToken: token,
+        limit: 100,
+        offset: offset,
+      );
+      worksites.addAll(page.items);
+      if (worksites.length >= page.count || page.items.isEmpty) break;
+      offset += page.items.length;
+    }
+    return worksites;
+  }
+
+  Future<List<Project>> _loadAllProjects(String token) async {
+    final projects = <Project>[];
+    var offset = 0;
+    while (true) {
+      final page = await _projectService.getProjects(
+        accessToken: token,
+        limit: 100,
+        offset: offset,
+      );
+      projects.addAll(page.items);
+      if (projects.length >= page.count || page.items.isEmpty) break;
+      offset += page.items.length;
+    }
+    return projects;
   }
 
   bool _can(String action) => _permissions
@@ -160,11 +248,107 @@ class _EngineeringSiteReportsPageState
                                     _offset = 0;
                                     _load();
                                   })),
-                          _filterField(_employee, 'Employee ID'),
-                          _filterField(_worksite, 'Worksite ID'),
-                          _filterField(_project, 'Project ID'),
-                          _filterField(_from, 'Date from (DD-MM-YYYY)'),
-                          _filterField(_to, 'Date to (DD-MM-YYYY)'),
+                          SizedBox(
+                            width: 190,
+                            child: SearchableDropdownFormField<int>(
+                              value: _employeeId ?? 0,
+                              decoration: const InputDecoration(
+                                labelText: 'Employee',
+                                isDense: true,
+                              ),
+                              options: [
+                                const SearchableDropdownOption(
+                                    value: 0, label: 'All employees'),
+                                ..._employees
+                                    .where((employee) =>
+                                        int.tryParse(employee.id) != null)
+                                    .map((employee) =>
+                                        SearchableDropdownOption<int>(
+                                          value: int.parse(employee.id),
+                                          label:
+                                              employee.fullName.trim().isEmpty
+                                                  ? employee.email
+                                                  : employee.fullName.trim(),
+                                        )),
+                              ],
+                              onChanged: (value) {
+                                setState(() =>
+                                    _employeeId = value == 0 ? null : value);
+                                _offset = 0;
+                                _load();
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            width: 190,
+                            child: SearchableDropdownFormField<int>(
+                              value: _worksites.any(
+                                      (worksite) => worksite.id == _worksiteId)
+                                  ? _worksiteId
+                                  : 0,
+                              decoration: const InputDecoration(
+                                labelText: 'Worksite',
+                                isDense: true,
+                              ),
+                              options: [
+                                const SearchableDropdownOption(
+                                    value: 0, label: 'All worksites'),
+                                ..._worksites.map((worksite) =>
+                                    SearchableDropdownOption<int>(
+                                        value: worksite.id,
+                                        label: worksite.name)),
+                              ],
+                              onChanged: (value) {
+                                setState(() =>
+                                    _worksiteId = value == 0 ? null : value);
+                                _offset = 0;
+                                _load();
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            width: 190,
+                            child: SearchableDropdownFormField<int>(
+                              value: _projects.any(
+                                      (project) => project.id == _projectId)
+                                  ? _projectId
+                                  : 0,
+                              decoration: const InputDecoration(
+                                labelText: 'Project',
+                                isDense: true,
+                              ),
+                              options: [
+                                const SearchableDropdownOption(
+                                    value: 0, label: 'All projects'),
+                                ..._projects.map((project) =>
+                                    SearchableDropdownOption<int>(
+                                        value: project.id,
+                                        label: project.name)),
+                              ],
+                              onChanged: (value) {
+                                setState(() =>
+                                    _projectId = value == 0 ? null : value);
+                                _offset = 0;
+                                _load();
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            width: 190,
+                            child: MyDateField(
+                              controller: _from,
+                              title: 'Date from (DD-MM-YYYY)',
+                              compact: true,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 190,
+                            child: MyDateField(
+                              controller: _to,
+                              title: 'Date to (DD-MM-YYYY)',
+                              compact: true,
+                            ),
+                          ),
                           OutlinedButton.icon(
                               onPressed: () {
                                 _offset = 0;
@@ -217,12 +401,6 @@ class _EngineeringSiteReportsPageState
           icon: const Icon(Iconsax.add, size: 18, color: Colors.white),
           onTap: () => _edit())
       : const SizedBox.shrink();
-  Widget _filterField(TextEditingController c, String label) => SizedBox(
-      width: 190,
-      child: TextField(
-          controller: c,
-          decoration: InputDecoration(labelText: label, isDense: true)));
-
   Widget _reportTile(EngineeringSiteReport r) => Card(
       margin: const EdgeInsets.only(top: 10),
       child: ListTile(
@@ -410,9 +588,8 @@ class _EngineeringSiteReportsPageState
         .replaceAll('"', '')
         .trim();
     if (_token == null || _token!.isEmpty) return;
-    final worksiteId = report?.worksiteId ??
-        int.tryParse(_worksite.text) ??
-        widget.initialWorksiteId;
+    final worksiteId =
+        report?.worksiteId ?? _worksiteId ?? widget.initialWorksiteId;
     final result = await showDialog<bool>(
         context: context,
         builder: (ctx) => EngineeringReportEditor(
@@ -653,190 +830,288 @@ class _EngineeringReportEditorState extends State<EngineeringReportEditor> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-          title: Text(widget.report == null
-              ? 'New Engineering Report'
-              : 'Edit Engineering Report'),
-          content: SizedBox(
-            width: 720,
-            child: Form(
-                key: _form,
-                child: SingleChildScrollView(
-                    child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                      if (_loadingReferences)
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 12),
-                          child: LinearProgressIndicator(),
-                        ),
-                      DropdownButtonFormField<int>(
-                        value: _worksites.any((worksite) =>
-                                worksite.id == _selectedWorksiteId)
-                            ? _selectedWorksiteId
-                            : null,
-                        decoration: const InputDecoration(
-                          labelText: 'Worksite*',
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                        ),
-                        items: _worksites
-                            .map((worksite) => DropdownMenuItem(
-                                  value: worksite.id,
-                                  child: Text(worksite.name),
-                                ))
-                            .toList(),
-                        validator: (value) =>
-                            value == null ? 'Select a worksite' : null,
-                        onChanged: _loadingReferences
-                            ? null
-                            : (value) async {
-                                final worksite = _worksiteById(value);
-                                setState(() {
-                                  _selectedWorksiteId = value;
-                                  _selectedProjectId = worksite?.projectId == 0
-                                      ? null
-                                      : worksite?.projectId;
-                                  _selectedTaskId = null;
-                                  _tasks = [];
-                                  _inventory = [];
-                                });
-                                await Future.wait(
-                                    [_loadInventory(), _loadTasks()]);
-                              },
-                      ),
-                      const SizedBox(height: 10),
-                      Row(children: [
-                        Expanded(
-                          child: DropdownButtonFormField<int>(
-                            value: _selectableProjects.any((project) =>
-                                    project.id == _selectedProjectId)
-                                ? _selectedProjectId
-                                : null,
-                            decoration: const InputDecoration(
-                              labelText: 'Project (optional)',
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            items: _selectableProjects
-                                .map((project) => DropdownMenuItem(
-                                    value: project.id,
-                                    child: Text(project.name)))
-                                .toList(),
-                            onChanged: _loadingReferences ||
-                                    (_selectedWorksite?.projectId ?? 0) != 0
-                                ? null
-                                : (value) async {
-                                    setState(() {
-                                      _selectedProjectId = value;
-                                      _selectedTaskId = null;
-                                      _tasks = [];
-                                    });
-                                    await _loadTasks();
-                                  },
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: DropdownButtonFormField<int>(
-                            value:
-                                _tasks.any((task) => task.id == _selectedTaskId)
-                                    ? _selectedTaskId
-                                    : null,
-                            decoration: const InputDecoration(
-                              labelText: 'Task (optional)',
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            items: _tasks
-                                .map((task) => DropdownMenuItem(
-                                    value: task.id, child: Text(task.name)))
-                                .toList(),
-                            onChanged: _loadingReferences
-                                ? null
-                                : (value) =>
-                                    setState(() => _selectedTaskId = value),
-                          ),
-                        )
-                      ]),
-                      _field(_date, 'Date (DD-MM-YYYY)*',
-                          validator: (value) =>
-                              parseAppDate(value) == null
-                                  ? 'Enter a valid date'
-                                  : null),
-                      const _SectionTitle('Activities'),
-                      ..._activities
-                          .asMap()
-                          .entries
-                          .map((entry) => _activityRow(entry.key, entry.value)),
-                      TextButton.icon(
-                          onPressed: () => setState(() => _activities
-                              .add(_ActivityInput('concrete_work', ''))),
-                          icon: const Icon(Iconsax.add),
-                          label: const Text('Add activity')),
-                      const _SectionTitle('Expenses'),
-                      ..._expenses
-                          .asMap()
-                          .entries
-                          .map((entry) => _expenseRow(entry.key, entry.value)),
-                      TextButton.icon(
-                          onPressed: () => setState(() => _expenses
-                              .add(_ExpenseInput('labour', '', '', ''))),
-                          icon: const Icon(Iconsax.add),
-                          label: const Text('Add expense')),
-                      const _SectionTitle('Materials used'),
-                      if (_inventory.isEmpty)
-                        const Text(
-                            'No inventory found for the selected worksite.'),
-                      ..._materials
-                          .asMap()
-                          .entries
-                          .map((entry) => _materialRow(entry.key, entry.value)),
-                      TextButton.icon(
-                          onPressed: _inventory.isEmpty
-                              ? null
-                              : () => setState(() => _materials.add(
-                                  _MaterialInput(_inventory.first.id, ''))),
-                          icon: const Icon(Iconsax.add),
-                          label: const Text('Add material')),
-                      _field(_tomorrow, 'Tomorrow activities'),
-                      _field(_comments, 'Comments and suggestions',
-                          maxLines: 3),
-                      TextFormField(
-                          controller: _attachment,
-                          maxLines: 3,
-                          keyboardType: TextInputType.multiline,
-                          decoration: const InputDecoration(
-                              labelText:
-                                  'Attachment URLs (optional, one per line)'),
-                          validator: (value) {
-                            final urls = (value ?? '')
-                                .split('\n')
-                                .map((url) => url.trim())
-                                .where((url) => url.isNotEmpty);
-                            for (final url in urls) {
-                              if (!isValidEngineeringAttachmentUrl(url))
-                                return 'Enter valid HTTP or HTTPS URLs';
-                            }
-                            return null;
-                          }),
-                    ]))),
+  Widget build(BuildContext context) {
+    final inputTheme = Theme.of(context).inputDecorationTheme.copyWith(
+          filled: true,
+          fillColor: AppColors.surface,
+          isDense: true,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          border: const OutlineInputBorder(borderRadius: AppRadii.brMd),
+          enabledBorder: const OutlineInputBorder(
+            borderRadius: AppRadii.brMd,
+            borderSide: BorderSide(color: AppColors.borderSubtle),
           ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel')),
-            FilledButton(
-                onPressed: _saving ? null : _save,
-                child: _saving
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Text(
-                        widget.report == null ? 'Save Draft' : 'Save Changes'))
-          ]);
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: AppRadii.brMd,
+            borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+          ),
+        );
+
+    return DialogScaffold(
+      title: widget.report == null
+          ? 'New Engineering Report'
+          : 'Edit Engineering Report',
+      subtitle: 'Capture work completed, costs, and materials used on site.',
+      size: DialogSize.xl,
+      showCloseButton: true,
+      scrollable: true,
+      body: Theme(
+        data: Theme.of(context).copyWith(inputDecorationTheme: inputTheme),
+        child: Form(
+          key: _form,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_loadingReferences) ...[
+                const LinearProgressIndicator(),
+                const SizedBox(height: 16),
+              ],
+              ReportEditorSection(
+                title: 'Site and schedule',
+                description: 'Choose where and when this work was carried out.',
+                icon: Iconsax.location,
+                child: Column(
+                  children: [
+                    SearchableDropdownFormField<int>(
+                      value: _worksites.any(
+                              (worksite) => worksite.id == _selectedWorksiteId)
+                          ? _selectedWorksiteId
+                          : null,
+                      decoration: const InputDecoration(labelText: 'Worksite*'),
+                      options: _worksites
+                          .map((worksite) => SearchableDropdownOption<int>(
+                              value: worksite.id, label: worksite.name))
+                          .toList(),
+                      hint: const Text('Select a worksite'),
+                      validator: (value) =>
+                          value == null ? 'Select a worksite' : null,
+                      enabled: !_loadingReferences,
+                      onChanged: (value) async {
+                        final worksite = _worksiteById(value);
+                        setState(() {
+                          _selectedWorksiteId = value;
+                          _selectedProjectId = worksite?.projectId == 0
+                              ? null
+                              : worksite?.projectId;
+                          _selectedTaskId = null;
+                          _tasks = [];
+                          _inventory = [];
+                        });
+                        await Future.wait([_loadInventory(), _loadTasks()]);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    LayoutBuilder(builder: (context, constraints) {
+                      final fields = [
+                        SearchableDropdownFormField<int>(
+                          value: _selectableProjects.any(
+                                  (project) => project.id == _selectedProjectId)
+                              ? _selectedProjectId
+                              : null,
+                          decoration: const InputDecoration(
+                              labelText: 'Project (optional)'),
+                          options: _selectableProjects
+                              .map((project) => SearchableDropdownOption<int>(
+                                  value: project.id, label: project.name))
+                              .toList(),
+                          hint: const Text('Select a project'),
+                          enabled: !_loadingReferences &&
+                              (_selectedWorksite?.projectId ?? 0) == 0,
+                          onChanged: (value) async {
+                            setState(() {
+                              _selectedProjectId = value;
+                              _selectedTaskId = null;
+                              _tasks = [];
+                            });
+                            await _loadTasks();
+                          },
+                        ),
+                        SearchableDropdownFormField<int>(
+                          value:
+                              _tasks.any((task) => task.id == _selectedTaskId)
+                                  ? _selectedTaskId
+                                  : null,
+                          decoration: const InputDecoration(
+                              labelText: 'Task (optional)'),
+                          options: _tasks
+                              .map((task) => SearchableDropdownOption<int>(
+                                  value: task.id, label: task.name))
+                              .toList(),
+                          hint: const Text('Select a task'),
+                          enabled: !_loadingReferences,
+                          onChanged: (value) =>
+                              setState(() => _selectedTaskId = value),
+                        ),
+                      ];
+                      if (constraints.maxWidth < 560) {
+                        return Column(children: [
+                          fields[0],
+                          const SizedBox(height: 12),
+                          fields[1],
+                        ]);
+                      }
+                      return Row(children: [
+                        Expanded(child: fields[0]),
+                        const SizedBox(width: 12),
+                        Expanded(child: fields[1]),
+                      ]);
+                    }),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: MyDateField(
+                        controller: _date,
+                        title: 'Date (DD-MM-YYYY)*',
+                        validator: (value) => parseAppDate(value) == null
+                            ? 'Enter a valid date'
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: 'Activities',
+                description: 'At least one completed activity is required.',
+                icon: Iconsax.task_square,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ..._activities.asMap().entries.map((entry) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _activityRow(entry.key, entry.value),
+                        )),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: () => setState(() => _activities
+                            .add(_ActivityInput('concrete_work', ''))),
+                        icon: const Icon(Iconsax.add),
+                        label: const Text('Add activity'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: 'Expenses',
+                description: 'Add any costs associated with this report.',
+                icon: Iconsax.wallet_3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_expenses.isEmpty)
+                      const Text('No expenses added.',
+                          style: TextStyle(color: AppColors.textSecondary)),
+                    ..._expenses
+                        .asMap()
+                        .entries
+                        .map((entry) => _expenseRow(entry.key, entry.value)),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: () => setState(() =>
+                            _expenses.add(_ExpenseInput('labour', '', '', ''))),
+                        icon: const Icon(Iconsax.add),
+                        label: const Text('Add expense'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: 'Materials used',
+                description:
+                    'Materials are selected from this worksite inventory.',
+                icon: Iconsax.box,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_inventory.isEmpty)
+                      const Text(
+                          'No inventory found for the selected worksite.',
+                          style: TextStyle(color: AppColors.textSecondary)),
+                    ..._materials.asMap().entries.map((entry) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _materialRow(entry.key, entry.value),
+                        )),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: _inventory.isEmpty
+                            ? null
+                            : () => setState(() => _materials
+                                .add(_MaterialInput(_inventory.first.id, ''))),
+                        icon: const Icon(Iconsax.add),
+                        label: const Text('Add material'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: 'Notes and attachments',
+                description:
+                    'Add follow-up plans, comments, or supporting links.',
+                icon: Iconsax.document_text,
+                child: Column(
+                  children: [
+                    _field(_tomorrow, 'Tomorrow activities'),
+                    _field(_comments, 'Comments and suggestions', maxLines: 3),
+                    TextFormField(
+                      controller: _attachment,
+                      maxLines: 3,
+                      keyboardType: TextInputType.multiline,
+                      decoration: const InputDecoration(
+                        labelText: 'Attachment URLs',
+                        hintText: 'Paste one HTTP or HTTPS URL per line',
+                        alignLabelWithHint: true,
+                      ),
+                      validator: (value) {
+                        final urls = (value ?? '')
+                            .split('\n')
+                            .map((url) => url.trim())
+                            .where((url) => url.isNotEmpty);
+                        for (final url in urls) {
+                          if (!isValidEngineeringAttachmentUrl(url)) {
+                            return 'Enter valid HTTP or HTTPS URLs';
+                          }
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        OutlinedButton(
+          onPressed: _saving ? null : () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton.icon(
+          onPressed: _saving ? null : _save,
+          icon: _saving
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Iconsax.document_download, size: 17),
+          label: Text(widget.report == null ? 'Save Draft' : 'Save Changes'),
+        ),
+      ],
+    );
+  }
+
   Widget _field(TextEditingController c, String label,
           {bool numeric = false,
           int maxLines = 1,
@@ -852,7 +1127,7 @@ class _EngineeringReportEditorState extends State<EngineeringReportEditor> {
               onChanged: onChanged,
               decoration: InputDecoration(
                   labelText: label,
-                  border: const OutlineInputBorder(),
+                  border: const OutlineInputBorder(borderRadius: AppRadii.brMd),
                   isDense: true)));
   Widget _activityRow(int i, _ActivityInput a) =>
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -882,6 +1157,7 @@ class _EngineeringReportEditorState extends State<EngineeringReportEditor> {
             icon: const Icon(Iconsax.trash, color: Colors.red))
       ]);
   Widget _expenseRow(int i, _ExpenseInput e) => Card(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(children: [
@@ -919,6 +1195,7 @@ class _EngineeringReportEditorState extends State<EngineeringReportEditor> {
                       setState(() => _expenses.removeAt(i).dispose()),
                   icon: const Icon(Iconsax.trash, color: Colors.red)),
             ]),
+            const SizedBox(height: 12),
             TextFormField(
                 controller: e.description,
                 decoration:
@@ -928,15 +1205,16 @@ class _EngineeringReportEditorState extends State<EngineeringReportEditor> {
           ])));
   Widget _materialRow(int i, _MaterialInput m) => Row(children: [
         Expanded(
-            child: DropdownButtonFormField<int>(
+            child: SearchableDropdownFormField<int>(
                 value: _inventory.any((x) => x.id == m.id) ? m.id : null,
                 decoration:
                     const InputDecoration(labelText: 'Site inventory item'),
-                items: _inventory
-                    .map((x) => DropdownMenuItem(
+                options: _inventory
+                    .map((x) => SearchableDropdownOption<int>(
                         value: x.id,
-                        child: Text('${x.name} (${x.quantity} ${x.unit})')))
+                        label: '${x.name} (${x.quantity} ${x.unit})'))
                     .toList(),
+                hint: const Text('Select an inventory item'),
                 onChanged: (v) => m.id = v ?? m.id)),
         const SizedBox(width: 8),
         SizedBox(
@@ -1052,13 +1330,4 @@ class _MaterialInput {
   int id;
   final TextEditingController quantity;
   void dispose() => quantity.dispose();
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.title);
-  final String title;
-  @override
-  Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Text(title, style: AppTextStyles.h3));
 }

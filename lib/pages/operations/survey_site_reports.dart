@@ -1,3 +1,6 @@
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/input/my_date_field.dart';
+import 'package:bomach_os/components/input/searchable_dropdown_form_field.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/auth/controller.dart';
@@ -7,7 +10,10 @@ import 'package:bomach_os/pages/operations/controllers/site_equipment_controller
 import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
+import 'package:bomach_os/src/model/employees_model.dart';
+import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/services/auth_service.dart';
+import 'package:bomach_os/src/services/employees_services.dart';
 import 'package:bomach_os/src/services/operations/operations_services.dart';
 import 'package:bomach_os/src/services/operations/site_equipment_services.dart';
 import 'package:bomach_os/src/services/operations/survey_site_report_service.dart';
@@ -20,6 +26,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+
+import 'widget/report_editor_section.dart';
 
 class SurveySiteReportsPage extends StatefulWidget {
   const SurveySiteReportsPage(
@@ -35,13 +43,14 @@ class SurveySiteReportsPage extends StatefulWidget {
 class _SurveySiteReportsPageState extends State<SurveySiteReportsPage> {
   final _service = SurveySiteReportService();
   final _storage = const FlutterSecureStorage();
+  final _employeeService = EmployeeService();
   final _worksiteService = WorksiteService(baseUrl: ApiConstants.baseUrl);
   final _projectService = DashboardService(baseUrl: ApiConstants.baseUrl);
-  final _worksiteFilter = TextEditingController(),
-      _projectFilter = TextEditingController(),
-      _employeeFilter = TextEditingController(),
-      _fromFilter = TextEditingController(),
+  final _fromFilter = TextEditingController(),
       _toFilter = TextEditingController();
+  int? _employeeId, _worksiteFilterId, _projectFilterId;
+  List<Employee> _employees = [];
+  bool _employeesLoaded = false;
   String _status = 'all', _format = 'all';
   int _offset = 0, _count = 0;
   bool _loading = true, _openedInitial = false;
@@ -62,22 +71,14 @@ class _SurveySiteReportsPageState extends State<SurveySiteReportsPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialWorksiteId != null)
-      _worksiteFilter.text = '${widget.initialWorksiteId}';
-    if (widget.initialProjectId != null)
-      _projectFilter.text = '${widget.initialProjectId}';
+    _worksiteFilterId = widget.initialWorksiteId;
+    _projectFilterId = widget.initialProjectId;
     _load();
   }
 
   @override
   void dispose() {
-    for (final c in [
-      _worksiteFilter,
-      _projectFilter,
-      _employeeFilter,
-      _fromFilter,
-      _toFilter
-    ]) {
+    for (final c in [_fromFilter, _toFilter]) {
       c.dispose();
     }
     super.dispose();
@@ -97,23 +98,30 @@ class _SurveySiteReportsPageState extends State<SurveySiteReportsPage> {
       final mayList = _can('list') || _can('list_own');
       if (mayList || _can('create')) {
         if (_worksites.isEmpty) {
-          _worksites = (await _worksiteService.getWorksites(
-                  accessToken: token, limit: 500))
-              .items;
+          _worksites = await _loadAllWorksites(token);
         }
         if (_projects.isEmpty) {
-          _projects = (await _projectService.getProjects(
-                  accessToken: token, limit: 500))
-              .items;
+          _projects = await _loadAllProjects(token);
+        }
+      }
+      if (mayList && !_employeesLoaded) {
+        try {
+          _employees = await _loadAllEmployees(token);
+          _employeesLoaded = true;
+        } catch (e) {
+          _employeesLoaded = true;
+          if (mounted) {
+            _toast('Could not load employee filter options: $e');
+          }
         }
       }
       final page = mayList
           ? await _service.listReports(
               token: token,
               status: _status,
-              employeeId: int.tryParse(_employeeFilter.text),
-              worksiteId: int.tryParse(_worksiteFilter.text),
-              projectId: int.tryParse(_projectFilter.text),
+              employeeId: _employeeId,
+              worksiteId: _worksiteFilterId,
+              projectId: _projectFilterId,
               workDataType: _format,
               dateFrom: appDateToApiDate(_fromFilter.text) ?? _fromFilter.text,
               dateTo: appDateToApiDate(_toFilter.text) ?? _toFilter.text,
@@ -148,6 +156,54 @@ class _SurveySiteReportsPageState extends State<SurveySiteReportsPage> {
     }
   }
 
+  Future<List<Worksite>> _loadAllWorksites(String token) async {
+    final items = <Worksite>[];
+    var offset = 0;
+    while (true) {
+      final page = await _worksiteService.getWorksites(
+        accessToken: token,
+        limit: 100,
+        offset: offset,
+      );
+      items.addAll(page.items);
+      if (items.length >= page.count || page.items.isEmpty) break;
+      offset += page.items.length;
+    }
+    return items;
+  }
+
+  Future<List<Project>> _loadAllProjects(String token) async {
+    final items = <Project>[];
+    var offset = 0;
+    while (true) {
+      final page = await _projectService.getProjects(
+        accessToken: token,
+        limit: 100,
+        offset: offset,
+      );
+      items.addAll(page.items);
+      if (items.length >= page.count || page.items.isEmpty) break;
+      offset += page.items.length;
+    }
+    return items;
+  }
+
+  Future<List<Employee>> _loadAllEmployees(String token) async {
+    final employees = <Employee>[];
+    var offset = 0;
+    while (true) {
+      final page = await _employeeService.getEmployees(
+        token,
+        limit: 100,
+        offset: offset,
+      );
+      employees.addAll(page.list);
+      if (employees.length >= page.count || page.list.isEmpty) break;
+      offset += page.list.length;
+    }
+    return employees;
+  }
+
   @override
   Widget build(BuildContext context) => PageScaffold(
           maxContentWidth: 1440,
@@ -173,6 +229,7 @@ class _SurveySiteReportsPageState extends State<SurveySiteReportsPage> {
                                 width: 145,
                                 child: DropdownButtonFormField<String>(
                                     value: _status,
+                                    isExpanded: true,
                                     decoration: const InputDecoration(
                                         labelText: 'Status'),
                                     items: [
@@ -194,6 +251,7 @@ class _SurveySiteReportsPageState extends State<SurveySiteReportsPage> {
                                 width: 175,
                                 child: DropdownButtonFormField<String>(
                                     value: _format,
+                                    isExpanded: true,
                                     decoration: const InputDecoration(
                                         labelText: 'Survey format'),
                                     items: const [
@@ -205,18 +263,106 @@ class _SurveySiteReportsPageState extends State<SurveySiteReportsPage> {
                                       ('site_points_xyz', 'XYZ site points')
                                     ]
                                         .map((x) => DropdownMenuItem(
-                                            value: x.$1, child: Text(x.$2)))
+                                            value: x.$1,
+                                            child: Text(x.$2,
+                                                maxLines: 1,
+                                                overflow:
+                                                    TextOverflow.ellipsis)))
                                         .toList(),
                                     onChanged: (v) {
                                       _format = v ?? 'all';
                                       _offset = 0;
                                       _load();
                                     })),
-                            _filter(_employeeFilter, 'Employee ID'),
-                            _filter(_worksiteFilter, 'Worksite ID'),
-                            _filter(_projectFilter, 'Project ID'),
-                            _filter(_fromFilter, 'Date from (DD-MM-YYYY)'),
-                            _filter(_toFilter, 'Date to (DD-MM-YYYY)'),
+                            SizedBox(
+                                width: 190,
+                                child: SearchableDropdownFormField<int>(
+                                  value: _employeeId ?? 0,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Employee', isDense: true),
+                                  options: [
+                                    const SearchableDropdownOption(
+                                        value: 0, label: 'All employees'),
+                                    ..._employees
+                                        .where((employee) =>
+                                            int.tryParse(employee.id) != null)
+                                        .map((employee) =>
+                                            SearchableDropdownOption<int>(
+                                              value: int.parse(employee.id),
+                                              label: employee.fullName
+                                                      .trim()
+                                                      .isEmpty
+                                                  ? employee.email
+                                                  : employee.fullName.trim(),
+                                            )),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() => _employeeId =
+                                        value == 0 ? null : value);
+                                    _offset = 0;
+                                    _load();
+                                  },
+                                )),
+                            SizedBox(
+                                width: 190,
+                                child: SearchableDropdownFormField<int>(
+                                  value: _worksites.any((worksite) =>
+                                          worksite.id == _worksiteFilterId)
+                                      ? _worksiteFilterId
+                                      : 0,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Worksite', isDense: true),
+                                  options: [
+                                    const SearchableDropdownOption(
+                                        value: 0, label: 'All worksites'),
+                                    ..._worksites.map((worksite) =>
+                                        SearchableDropdownOption<int>(
+                                            value: worksite.id,
+                                            label: worksite.name)),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() => _worksiteFilterId =
+                                        value == 0 ? null : value);
+                                    _offset = 0;
+                                    _load();
+                                  },
+                                )),
+                            SizedBox(
+                                width: 190,
+                                child: SearchableDropdownFormField<int>(
+                                  value: _projects.any((project) =>
+                                          project.id == _projectFilterId)
+                                      ? _projectFilterId
+                                      : 0,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Project', isDense: true),
+                                  options: [
+                                    const SearchableDropdownOption(
+                                        value: 0, label: 'All projects'),
+                                    ..._projects.map((project) =>
+                                        SearchableDropdownOption<int>(
+                                            value: project.id,
+                                            label: project.name)),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() => _projectFilterId =
+                                        value == 0 ? null : value);
+                                    _offset = 0;
+                                    _load();
+                                  },
+                                )),
+                            SizedBox(
+                                width: 190,
+                                child: MyDateField(
+                                    controller: _fromFilter,
+                                    title: 'Date from (DD-MM-YYYY)',
+                                    compact: true)),
+                            SizedBox(
+                                width: 190,
+                                child: MyDateField(
+                                    controller: _toFilter,
+                                    title: 'Date to (DD-MM-YYYY)',
+                                    compact: true)),
                             OutlinedButton.icon(
                                 onPressed: () {
                                   _offset = 0;
@@ -262,11 +408,6 @@ class _SurveySiteReportsPageState extends State<SurveySiteReportsPage> {
                         ])))
           ]);
 
-  Widget _filter(TextEditingController c, String label) => SizedBox(
-      width: 170,
-      child: TextField(
-          controller: c,
-          decoration: InputDecoration(labelText: label, isDense: true)));
   Widget _tile(SurveySiteReport r) => Card(
       margin: const EdgeInsets.only(top: 8),
       child: ListTile(
@@ -629,17 +770,49 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
   Future<void> _loadRefs() async {
     try {
       final results = await Future.wait([
-        _worksitesService.getWorksites(accessToken: widget.token, limit: 500),
-        _projectsService.getProjects(accessToken: widget.token, limit: 500)
+        _loadAllWorksites(),
+        _loadAllProjects(),
       ]);
-      _worksites = results[0].items as List<Worksite>;
-      _projects = results[1].items as List<Project>;
+      _worksites = results[0] as List<Worksite>;
+      _projects = results[1] as List<Project>;
       if (_worksiteId != null) await _loadContext();
     } catch (e) {
       _toast('Could not load survey references: $e');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<List<Worksite>> _loadAllWorksites() async {
+    final items = <Worksite>[];
+    var offset = 0;
+    while (true) {
+      final page = await _worksitesService.getWorksites(
+        accessToken: widget.token,
+        limit: 100,
+        offset: offset,
+      );
+      items.addAll(page.items);
+      if (items.length >= page.count || page.items.isEmpty) break;
+      offset += page.items.length;
+    }
+    return items;
+  }
+
+  Future<List<Project>> _loadAllProjects() async {
+    final items = <Project>[];
+    var offset = 0;
+    while (true) {
+      final page = await _projectsService.getProjects(
+        accessToken: widget.token,
+        limit: 100,
+        offset: offset,
+      );
+      items.addAll(page.items);
+      if (items.length >= page.count || page.items.isEmpty) break;
+      offset += page.items.length;
+    }
+    return items;
   }
 
   Future<void> _loadContext() async {
@@ -672,78 +845,142 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-          title: Text(widget.report == null
-              ? 'New Survey Site Report'
-              : 'Edit Survey Site Report'),
-          content: SizedBox(
-              width: 860,
-              child: Form(
-                  key: _form,
-                  child: SingleChildScrollView(
-                      child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                        if (_loading) const LinearProgressIndicator(),
-                        DropdownButtonFormField<int>(
-                            value: _worksites.any((x) => x.id == _worksiteId)
-                                ? _worksiteId
-                                : null,
-                            decoration:
-                                const InputDecoration(labelText: 'Worksite*'),
-                            items: _worksites
-                                .map((x) => DropdownMenuItem(
-                                    value: x.id, child: Text(x.name)))
-                                .toList(),
-                            validator: (v) =>
-                                v == null ? 'Select a worksite' : null,
-                            onChanged: _loading
-                                ? null
-                                : (v) async {
-                                    setState(() => _worksiteId = v);
-                                    await _loadContext();
-                                  }),
-                        Row(children: [
-                          Expanded(
-                              child: InputDecorator(
-                                  decoration: const InputDecoration(
-                                      labelText:
-                                          'Project (derived from worksite)'),
-                                  child: Text(_selectedWorksite == null
-                                      ? 'Select a worksite to see its project'
-                                      : _selectedWorksite!.projectId == 0
-                                          ? 'Standalone worksite'
-                                          : _projects
-                                                  .where((p) =>
-                                                      p.id ==
-                                                      _selectedWorksite!
-                                                          .projectId)
-                                                  .map((p) => p.name)
-                                                  .firstOrNull ??
-                                              'Project ${_selectedWorksite!.projectId}'))),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child: DropdownButtonFormField<int>(
-                                  value: _tasks.any((x) => x.id == _taskId)
-                                      ? _taskId
-                                      : null,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Task (optional)'),
-                                  items: _tasks
-                                      .map((x) => DropdownMenuItem(
-                                          value: x.id, child: Text(x.name)))
-                                      .toList(),
-                                  onChanged: _projectId == null
-                                      ? null
-                                      : (v) => setState(() => _taskId = v)))
-                        ]),
-                        _text(_date, 'Date (DD-MM-YYYY)*',
-                            validator: (v) => parseAppDate(v) == null
-                                ? 'Enter a valid date'
-                                : null),
-                        if (widget.report == null)
-                          DropdownButtonFormField<String>(
+  Widget build(BuildContext context) {
+    final inputTheme = Theme.of(context).inputDecorationTheme.copyWith(
+          filled: true,
+          fillColor: AppColors.surface,
+          isDense: true,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          border: const OutlineInputBorder(borderRadius: AppRadii.brMd),
+          enabledBorder: const OutlineInputBorder(
+            borderRadius: AppRadii.brMd,
+            borderSide: BorderSide(color: AppColors.borderSubtle),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: AppRadii.brMd,
+            borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+          ),
+        );
+
+    return DialogScaffold(
+      title: widget.report == null
+          ? 'New Survey Site Report'
+          : 'Edit Survey Site Report',
+      subtitle: 'Capture survey data and site activity for review.',
+      size: DialogSize.xl,
+      showCloseButton: true,
+      scrollable: true,
+      body: Theme(
+        data: Theme.of(context).copyWith(inputDecorationTheme: inputTheme),
+        child: Form(
+          key: _form,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_loading) ...[
+                const LinearProgressIndicator(),
+                const SizedBox(height: 16),
+              ],
+              ReportEditorSection(
+                title: 'Site and schedule',
+                description: 'Choose the worksite and reporting date.',
+                icon: Iconsax.location,
+                child: Column(
+                  children: [
+                    SearchableDropdownFormField<int>(
+                      value: _worksites.any((x) => x.id == _worksiteId)
+                          ? _worksiteId
+                          : null,
+                      decoration: const InputDecoration(labelText: 'Worksite*'),
+                      options: _worksites
+                          .map((x) => SearchableDropdownOption<int>(
+                              value: x.id, label: x.name))
+                          .toList(),
+                      hint: const Text('Select a worksite'),
+                      validator: (v) => v == null ? 'Select a worksite' : null,
+                      enabled: !_loading,
+                      onChanged: (v) async {
+                        setState(() => _worksiteId = v);
+                        await _loadContext();
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    LayoutBuilder(builder: (context, constraints) {
+                      final fields = [
+                        InputDecorator(
+                          decoration: const InputDecoration(
+                              labelText: 'Project (from worksite)'),
+                          child: Text(
+                            _selectedWorksite == null
+                                ? 'Select a worksite first'
+                                : _selectedWorksite!.projectId == 0
+                                    ? 'Standalone worksite'
+                                    : _projects
+                                            .where((p) =>
+                                                p.id ==
+                                                _selectedWorksite!.projectId)
+                                            .map((p) => p.name)
+                                            .firstOrNull ??
+                                        'Project ${_selectedWorksite!.projectId}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SearchableDropdownFormField<int>(
+                          value: _tasks.any((x) => x.id == _taskId)
+                              ? _taskId
+                              : null,
+                          decoration: const InputDecoration(
+                              labelText: 'Task (optional)'),
+                          options: _tasks
+                              .map((x) => SearchableDropdownOption<int>(
+                                  value: x.id, label: x.name))
+                              .toList(),
+                          hint: const Text('Select a task'),
+                          enabled: _projectId != null && !_loading,
+                          onChanged: (v) => setState(() => _taskId = v),
+                        ),
+                      ];
+                      if (constraints.maxWidth < 560) {
+                        return Column(children: [
+                          fields[0],
+                          const SizedBox(height: 12),
+                          fields[1],
+                        ]);
+                      }
+                      return Row(children: [
+                        Expanded(child: fields[0]),
+                        const SizedBox(width: 12),
+                        Expanded(child: fields[1]),
+                      ]);
+                    }),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: MyDateField(
+                        controller: _date,
+                        title: 'Date (DD-MM-YYYY)*',
+                        validator: (value) => parseAppDate(value) == null
+                            ? 'Enter a valid date'
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: 'Survey method and reference',
+                description:
+                    'Choose a measurement format, then add coordinate details.',
+                icon: Iconsax.ruler,
+                child: Column(
+                  children: [
+                    LayoutBuilder(builder: (context, constraints) {
+                      final formatField = widget.report == null
+                          ? DropdownButtonFormField<String>(
+                              isExpanded: true,
                               value: _dataType,
                               decoration: const InputDecoration(
                                   labelText: 'Survey format*'),
@@ -752,151 +989,282 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
                                 ('site_points_xyz', 'XYZ / NEZ site points')
                               ]
                                   .map((x) => DropdownMenuItem(
-                                      value: x.$1, child: Text(x.$2)))
+                                        value: x.$1,
+                                        child: Text(x.$2,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis),
+                                      ))
                                   .toList(),
                               onChanged: (v) =>
-                                  setState(() => _dataType = v ?? _dataType))
-                        else
-                          InputDecorator(
+                                  setState(() => _dataType = v ?? _dataType),
+                            )
+                          : InputDecorator(
                               decoration: const InputDecoration(
                                   labelText: 'Survey format (fixed)'),
-                              child: Text(_dataType == 'bearing_distance'
-                                  ? 'Bearing and distance'
-                                  : 'XYZ / NEZ site points')),
-                        DropdownButtonFormField<String>(
-                            value: _unit,
-                            decoration: const InputDecoration(
-                                labelText: 'Measurement unit'),
-                            items: const [
-                              ('metres', 'Metres'),
-                              ('feet', 'Feet')
-                            ]
-                                .map((x) => DropdownMenuItem(
-                                    value: x.$1, child: Text(x.$2)))
-                                .toList(),
-                            onChanged: (v) =>
-                                setState(() => _unit = v ?? 'metres')),
-                        Row(children: [
-                          Expanded(
-                              child: _text(
-                                  _system, 'Coordinate system (optional)')),
-                          const SizedBox(width: 8),
-                          Expanded(child: _text(_datum, 'Datum (optional)')),
-                          const SizedBox(width: 8),
-                          Expanded(
-                              child: _text(_zone, 'Coordinate zone (optional)'))
-                        ]),
-                        Row(children: [
-                          Expanded(
-                              child: _text(_lat, 'GPS latitude (optional)',
-                                  numeric: true)),
-                          const SizedBox(width: 8),
-                          Expanded(
-                              child: _text(_lng, 'GPS longitude (optional)',
-                                  numeric: true))
-                        ]),
-                        const _SurveySection('Activities'),
-                        ..._activities
-                            .asMap()
-                            .entries
-                            .map((e) => Row(children: [
-                                  Expanded(
-                                      child: TextFormField(
-                                          controller: e.value,
-                                          decoration: InputDecoration(
-                                              labelText:
-                                                  'Activity ${e.key + 1} description*'),
-                                          validator: (v) =>
-                                              v == null || v.trim().isEmpty
-                                                  ? 'Required'
-                                                  : null)),
-                                  IconButton(
-                                      onPressed: _activities.length == 1
-                                          ? null
-                                          : () => setState(() => _activities
-                                              .removeAt(e.key)
-                                              .dispose()),
-                                      icon: const Icon(Iconsax.trash,
-                                          color: Colors.red))
-                                ])),
-                        TextButton.icon(
-                            onPressed: () => setState(
-                                () => _activities.add(TextEditingController())),
-                            icon: const Icon(Iconsax.add),
-                            label: const Text('Add activity')),
-                        if (_dataType == 'bearing_distance') ...[
-                          _pointHeader('Bearing and distance points'),
-                          ..._bearings
-                              .asMap()
-                              .entries
-                              .map((e) => _bearingRow(e.key, e.value)),
-                          TextButton.icon(
-                              onPressed: () => setState(
-                                  () => _bearings.add(_BearingInput())),
-                              icon: const Icon(Iconsax.add),
-                              label: const Text('Add point'))
-                        ] else ...[
-                          _pointHeader('XYZ / NEZ points'),
-                          ..._xyz
-                              .asMap()
-                              .entries
-                              .map((e) => _xyzRow(e.key, e.value)),
-                          TextButton.icon(
-                              onPressed: () =>
-                                  setState(() => _xyz.add(_XyzInput())),
-                              icon: const Icon(Iconsax.add),
-                              label: const Text('Add point'))
+                              child: Text(
+                                _dataType == 'bearing_distance'
+                                    ? 'Bearing and distance'
+                                    : 'XYZ / NEZ site points',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                      final unitField = DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value: _unit,
+                        decoration: const InputDecoration(
+                            labelText: 'Measurement unit'),
+                        items: const [('metres', 'Metres'), ('feet', 'Feet')]
+                            .map((x) => DropdownMenuItem(
+                                value: x.$1, child: Text(x.$2)))
+                            .toList(),
+                        onChanged: (v) => setState(() => _unit = v ?? 'metres'),
+                      );
+                      if (constraints.maxWidth < 560) {
+                        return Column(children: [
+                          formatField,
+                          const SizedBox(height: 12),
+                          unitField,
+                        ]);
+                      }
+                      return Row(children: [
+                        Expanded(child: formatField),
+                        const SizedBox(width: 12),
+                        Expanded(child: unitField),
+                      ]);
+                    }),
+                    const SizedBox(height: 12),
+                    LayoutBuilder(builder: (context, constraints) {
+                      final fields = [
+                        _text(_system, 'Coordinate system (optional)'),
+                        _text(_datum, 'Datum (optional)'),
+                        _text(_zone, 'Coordinate zone (optional)'),
+                      ];
+                      if (constraints.maxWidth < 650) {
+                        return Column(children: [
+                          for (var i = 0; i < fields.length; i++) ...[
+                            if (i > 0) const SizedBox(height: 12),
+                            fields[i],
+                          ],
+                        ]);
+                      }
+                      return Row(children: [
+                        for (var i = 0; i < fields.length; i++) ...[
+                          if (i > 0) const SizedBox(width: 12),
+                          Expanded(child: fields[i]),
                         ],
-                        const _SurveySection('Expenses'),
-                        ..._expenses
-                            .asMap()
-                            .entries
-                            .map((e) => _expenseRow(e.key, e.value)),
-                        TextButton.icon(
+                      ]);
+                    }),
+                    const SizedBox(height: 12),
+                    LayoutBuilder(builder: (context, constraints) {
+                      final latitude =
+                          _text(_lat, 'GPS latitude (optional)', numeric: true);
+                      final longitude = _text(_lng, 'GPS longitude (optional)',
+                          numeric: true);
+                      if (constraints.maxWidth < 560) {
+                        return Column(children: [
+                          latitude,
+                          const SizedBox(height: 12),
+                          longitude,
+                        ]);
+                      }
+                      return Row(children: [
+                        Expanded(child: latitude),
+                        const SizedBox(width: 12),
+                        Expanded(child: longitude),
+                      ]);
+                    }),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: 'Activities',
+                description: 'Describe the survey work completed on site.',
+                icon: Iconsax.task_square,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ..._activities.asMap().entries.map((e) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(children: [
+                            Expanded(
+                                child: TextFormField(
+                                    controller: e.value,
+                                    decoration: InputDecoration(
+                                        labelText:
+                                            'Activity ${e.key + 1} description*'),
+                                    validator: (v) =>
+                                        v == null || v.trim().isEmpty
+                                            ? 'Required'
+                                            : null)),
+                            IconButton(
+                                tooltip: 'Remove activity',
+                                onPressed: _activities.length == 1
+                                    ? null
+                                    : () => setState(() =>
+                                        _activities.removeAt(e.key).dispose()),
+                                icon: const Icon(Iconsax.trash,
+                                    color: AppColors.danger)),
+                          ]),
+                        )),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                          onPressed: () => setState(
+                              () => _activities.add(TextEditingController())),
+                          icon: const Icon(Iconsax.add),
+                          label: const Text('Add activity')),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: _dataType == 'bearing_distance'
+                    ? 'Bearing and distance points'
+                    : 'XYZ / NEZ survey points',
+                description: _dataType == 'bearing_distance'
+                    ? 'Enter a bearing and distance for each sequential point.'
+                    : 'Enter northing, easting, and elevation for each point.',
+                icon: Iconsax.map_1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_dataType == 'bearing_distance') ...[
+                      ..._bearings
+                          .asMap()
+                          .entries
+                          .map((e) => _bearingRow(e.key, e.value)),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
                             onPressed: () =>
-                                setState(() => _expenses.add(_ExpenseInput())),
+                                setState(() => _bearings.add(_BearingInput())),
                             icon: const Icon(Iconsax.add),
-                            label: const Text('Add expense')),
-                        const _SurveySection('Materials used'),
-                        if (_inventory.isEmpty)
-                          const Text(
-                              'No inventory found for the selected worksite.'),
-                        ..._materials
-                            .asMap()
-                            .entries
-                            .map((e) => _materialRow(e.key, e.value)),
-                        TextButton.icon(
-                            onPressed: _inventory.isEmpty
-                                ? null
-                                : () => setState(() => _materials
-                                    .add(_MaterialInput(_inventory.first.id))),
+                            label: const Text('Add survey point')),
+                      ),
+                    ] else ...[
+                      ..._xyz
+                          .asMap()
+                          .entries
+                          .map((e) => _xyzRow(e.key, e.value)),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                            onPressed: () =>
+                                setState(() => _xyz.add(_XyzInput())),
                             icon: const Icon(Iconsax.add),
-                            label: const Text('Add material')),
-                        const _SurveySection('Attachments'),
-                        ..._attachments
-                            .asMap()
-                            .entries
-                            .map((e) => _attachmentRow(e.key, e.value)),
-                        TextButton.icon(
-                            onPressed: () => setState(
-                                () => _attachments.add(_AttachmentInput())),
-                            icon: const Icon(Iconsax.add),
-                            label: const Text('Add attachment URL')),
-                      ])))),
-          actions: [
-            TextButton(
-                onPressed: _saving ? null : () => Navigator.pop(context, false),
-                child: const Text('Cancel')),
-            FilledButton(
-                onPressed: _saving ? null : _save,
-                child: _saving
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Text(
-                        widget.report == null ? 'Save Draft' : 'Save Changes'))
-          ]);
+                            label: const Text('Add survey point')),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: 'Expenses',
+                description: 'Add any costs related to this survey report.',
+                icon: Iconsax.wallet_3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_expenses.isEmpty)
+                      const Text('No expenses added.',
+                          style: TextStyle(color: AppColors.textSecondary)),
+                    ..._expenses
+                        .asMap()
+                        .entries
+                        .map((e) => _expenseRow(e.key, e.value)),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                          onPressed: () =>
+                              setState(() => _expenses.add(_ExpenseInput())),
+                          icon: const Icon(Iconsax.add),
+                          label: const Text('Add expense')),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: 'Materials used',
+                description: 'Materials are selected from site inventory.',
+                icon: Iconsax.box,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_inventory.isEmpty)
+                      const Text(
+                          'No inventory found for the selected worksite.',
+                          style: TextStyle(color: AppColors.textSecondary)),
+                    ..._materials
+                        .asMap()
+                        .entries
+                        .map((e) => _materialRow(e.key, e.value)),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                          onPressed: _inventory.isEmpty
+                              ? null
+                              : () => setState(() => _materials
+                                  .add(_MaterialInput(_inventory.first.id))),
+                          icon: const Icon(Iconsax.add),
+                          label: const Text('Add material')),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ReportEditorSection(
+                title: 'Attachments',
+                description: 'Add links or upload supporting files.',
+                icon: Iconsax.document_upload,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_attachments.isEmpty)
+                      const Text('No attachments added.',
+                          style: TextStyle(color: AppColors.textSecondary)),
+                    ..._attachments
+                        .asMap()
+                        .entries
+                        .map((e) => _attachmentRow(e.key, e.value)),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                          onPressed: () => setState(
+                              () => _attachments.add(_AttachmentInput())),
+                          icon: const Icon(Iconsax.add),
+                          label: const Text('Add attachment')),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        OutlinedButton(
+          onPressed: _saving ? null : () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton.icon(
+          onPressed: _saving ? null : _save,
+          icon: _saving
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Iconsax.document_download, size: 17),
+          label: Text(widget.report == null ? 'Save Draft' : 'Save Changes'),
+        ),
+      ],
+    );
+  }
 
   Widget _text(TextEditingController c, String label,
           {bool numeric = false, String? Function(String?)? validator}) =>
@@ -917,15 +1285,20 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
                       : null),
               decoration: InputDecoration(
                   labelText: label,
-                  border: const OutlineInputBorder(),
+                  border: const OutlineInputBorder(borderRadius: AppRadii.brMd),
                   isDense: true)));
-  Widget _pointHeader(String title) => _SurveySection(title);
   Widget _bearingRow(int i, _BearingInput p) => Card(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
           padding: const EdgeInsets.all(8),
-          child: Column(children: [
-            Text('Point ${i + 1}',
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Point ${i + 1}',
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+            ),
+            const SizedBox(height: 10),
             Row(children: [
               Expanded(
                   child: _numeric(p.degrees, 'Degrees',
@@ -945,6 +1318,7 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
             ])
           ])));
   Widget _xyzRow(int i, _XyzInput p) => Card(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
           padding: const EdgeInsets.all(8),
           child: Row(children: [
@@ -968,7 +1342,10 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
               controller: c,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: label),
+              decoration: InputDecoration(
+                  labelText: label,
+                  border:
+                      const OutlineInputBorder(borderRadius: AppRadii.brMd)),
               validator: (v) {
                 final value = double.tryParse(v ?? '');
                 if (value == null) return 'Required number';
@@ -980,6 +1357,7 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
                 return null;
               }));
   Widget _expenseRow(int i, _ExpenseInput e) => Card(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
           padding: const EdgeInsets.all(8),
           child: Column(children: [
@@ -1018,22 +1396,26 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
                       setState(() => _expenses.removeAt(i).dispose()),
                   icon: const Icon(Iconsax.trash, color: Colors.red))
             ]),
+            const SizedBox(height: 12),
             TextFormField(
                 controller: e.description,
                 decoration:
                     const InputDecoration(labelText: 'Expense description*'),
                 validator: _required)
           ])));
-  Widget _materialRow(int i, _MaterialInput m) => Row(children: [
+  Widget _materialRow(int i, _MaterialInput m) => Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(children: [
         Expanded(
-            child: DropdownButtonFormField<int>(
+            child: SearchableDropdownFormField<int>(
                 value: _inventory.any((x) => x.id == m.id) ? m.id : null,
                 decoration: const InputDecoration(labelText: 'Inventory item'),
-                items: _inventory
-                    .map((x) => DropdownMenuItem(
+                options: _inventory
+                    .map((x) => SearchableDropdownOption<int>(
                         value: x.id,
-                        child: Text('${x.name} (${x.quantity} ${x.unit})')))
+                        label: '${x.name} (${x.quantity} ${x.unit})'))
                     .toList(),
+                hint: const Text('Select an inventory item'),
                 validator: (v) => v == null ? 'Select inventory item' : null,
                 onChanged: (v) => m.id = v ?? m.id)),
         SizedBox(
@@ -1059,8 +1441,9 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
         IconButton(
             onPressed: () => setState(() => _materials.removeAt(i).dispose()),
             icon: const Icon(Iconsax.trash, color: Colors.red))
-      ]);
+      ]));
   Widget _attachmentRow(int i, _AttachmentInput a) => Card(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
           padding: const EdgeInsets.all(8),
           child: Column(children: [
@@ -1083,6 +1466,7 @@ class _SurveyReportEditorState extends State<_SurveyReportEditor> {
                 validator: (v) => v == null || !isValidSurveyAttachmentUrl(v)
                     ? 'Enter a valid HTTP or HTTPS URL'
                     : null),
+            const SizedBox(height: 12),
             TextFormField(
                 controller: a.description,
                 decoration: const InputDecoration(labelText: 'Description'))

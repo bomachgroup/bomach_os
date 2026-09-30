@@ -16,6 +16,8 @@ class MyDateField extends StatefulWidget {
   final TextEditingController controller;
   final String title;
   final String hintText;
+  final FormFieldValidator<String>? validator;
+  final bool compact;
 
   /// Display format written into [controller]. Defaults to `dd-MM-yyyy`.
   final String format;
@@ -29,6 +31,8 @@ class MyDateField extends StatefulWidget {
     required this.controller,
     required this.title,
     this.hintText = 'DD-MM-YYYY',
+    this.validator,
+    this.compact = false,
     this.format = 'dd-MM-yyyy',
     this.firstDate,
     this.lastDate,
@@ -82,8 +86,7 @@ class _MyDateFieldState extends State<MyDateField> {
                   headerStyle: HeaderStyle(
                     formatButtonVisible: false,
                     titleCentered: true,
-                    leftChevronIcon:
-                        const Icon(Iconsax.arrow_left_2, size: 16),
+                    leftChevronIcon: const Icon(Iconsax.arrow_left_2, size: 16),
                     rightChevronIcon:
                         const Icon(Iconsax.arrow_right_3, size: 16),
                     titleTextStyle: AppTextStyles.bodyMd
@@ -150,11 +153,29 @@ class _MyDateFieldState extends State<MyDateField> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.compact) {
+      return _popover.anchor(
+        TextFormField(
+          controller: widget.controller,
+          readOnly: true,
+          onTap: () => _openPicker(context),
+          validator: widget.validator,
+          decoration: InputDecoration(
+            labelText: widget.title,
+            hintText: widget.hintText,
+            isDense: true,
+            suffixIcon: const Icon(Iconsax.calendar_1, size: 18),
+          ),
+        ),
+      );
+    }
+
     return _popover.anchor(
       MyTextFormField(
         controller: widget.controller,
         title: widget.title,
         hintText: widget.hintText,
+        validator: widget.validator,
         readOnly: true,
         trailing: const Icon(Iconsax.calendar_1, size: 18),
         onTap: () => _openPicker(context),
