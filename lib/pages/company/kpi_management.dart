@@ -48,7 +48,7 @@ class _KpiManagementPageState extends State<KpiManagementPage> {
         title: 'KPI Management',
         subtitle: 'Define and manage role-level Key Performance Indicators.',
         trailing: PermissionGate(
-          require: Perms.rolesUpdate,
+          allOf: const [Perms.roleKpisCreate, Perms.kpisList],
           child: MyElevatedButton(
             height: 48,
             icon: const Icon(Iconsax.add_circle,
@@ -57,7 +57,7 @@ class _KpiManagementPageState extends State<KpiManagementPage> {
             onTap: () => showDialog(
               context: context,
               builder: (_) => CreateEditKpiDialog(ctrl: ctrl),
-            ).then((_) => ctrl.fetchAllKpis(refresh: true)),
+            ),
           ),
         ),
       ),
@@ -84,9 +84,19 @@ class _KpiManagementPageState extends State<KpiManagementPage> {
           if (ctrl.errorMessage.value.isNotEmpty) {
             return AppCard(
               padding: const EdgeInsets.all(24),
-              child: Text(
-                'Error loading KPIs: ${ctrl.errorMessage.value}',
-                style: const TextStyle(color: AppColors.danger),
+              child: Column(
+                children: [
+                  Text(
+                    ctrl.errorMessage.value,
+                    style: const TextStyle(color: AppColors.danger),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton.icon(
+                    onPressed: () => ctrl.fetchAllKpis(refresh: true),
+                    icon: const Icon(Iconsax.refresh),
+                    label: const Text('Retry'),
+                  ),
+                ],
               ),
             );
           }
@@ -101,7 +111,15 @@ class _KpiManagementPageState extends State<KpiManagementPage> {
               ),
             );
           }
-          return _KpiGrid(ctrl: ctrl);
+          return Column(
+            children: [
+              _KpiGrid(ctrl: ctrl),
+              if (ctrl.totalCount > ctrl.limit) ...[
+                const SizedBox(height: 16),
+                _KpiPagination(ctrl: ctrl),
+              ],
+            ],
+          );
         }),
       ],
     );
@@ -151,6 +169,8 @@ class _KpiCard extends StatelessWidget {
         : '—';
     final weight =
         kpi.weight?.toStringAsFixed(kpi.weight! % 1 == 0 ? 0 : 1) ?? '—';
+    final periodLabel =
+        kpi.period == 'yearly' ? 'Annual' : _formatLabel(kpi.period);
 
     return AppCard(
       padding: const EdgeInsets.all(16),
@@ -194,7 +214,7 @@ class _KpiCard extends StatelessWidget {
             runSpacing: 6,
             children: [
               _InfoChip(label: 'Target', value: target),
-              _InfoChip(label: 'Period', value: kpi.period),
+              _InfoChip(label: 'Period', value: periodLabel),
               _InfoChip(label: 'Tracking', value: kpi.trackingMode),
               _InfoChip(label: 'Weight', value: weight),
             ],
@@ -202,12 +222,15 @@ class _KpiCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              _Badge(kpi.period, _periodColors),
+              _Badge(
+                kpi.period == 'yearly' ? 'annual' : kpi.period,
+                _periodColors,
+              ),
               const SizedBox(width: 6),
               _Badge(kpi.trackingMode, _trackingColors),
               const Spacer(),
               PermissionGate(
-                require: Perms.rolesUpdate,
+                allOf: const [Perms.roleKpisUpdate, Perms.kpisList],
                 child: IconButton(
                   icon: const Icon(Iconsax.edit_2,
                       size: 18, color: AppColors.primary),
@@ -217,11 +240,11 @@ class _KpiCard extends StatelessWidget {
                 ),
               ),
               PermissionGate(
-                require: Perms.rolesUpdate,
+                require: Perms.roleKpisDelete,
                 child: IconButton(
                   icon: const Icon(Iconsax.trash,
                       size: 18, color: AppColors.danger),
-                  onPressed: () => _confirmDelete(context, kpi.id!),
+                  onPressed: () => _confirmDelete(context, kpi),
                   tooltip: 'Delete KPI',
                   visualDensity: VisualDensity.compact,
                 ),
@@ -239,10 +262,10 @@ class _KpiCard extends StatelessWidget {
       context: context,
       builder: (_) =>
           CreateEditKpiDialog(ctrl: ctrl, kpi: kpi, presetRoleId: kpi.roleId),
-    ).then((_) => ctrl.fetchAllKpis(refresh: true));
+    );
   }
 
-  void _confirmDelete(BuildContext context, int id) {
+  void _confirmDelete(BuildContext context, dynamic kpi) {
     final ctrl = Get.find<RoleKpiController>(tag: 'kpi_management');
     showDialog(
       context: context,
@@ -258,14 +281,46 @@ class _KpiCard extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              await ctrl.deleteKpi(id);
-              ctrl.fetchAllKpis(refresh: true);
+              await ctrl.deleteKpi(roleId: kpi.roleId, id: kpi.id!);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
             child: const Text('Delete'),
           ),
         ],
       ),
+    );
+  }
+
+  String _formatLabel(String value) => value
+      .split('_')
+      .map((part) =>
+          part.isEmpty ? part : '${part[0].toUpperCase()}${part.substring(1)}')
+      .join(' ');
+}
+
+class _KpiPagination extends StatelessWidget {
+  final RoleKpiController ctrl;
+  const _KpiPagination({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    final page = ctrl.offset ~/ ctrl.limit + 1;
+    final pages = (ctrl.totalCount / ctrl.limit).ceil();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          tooltip: 'Previous page',
+          onPressed: page > 1 ? () => ctrl.setAllKpisPage(page - 2) : null,
+          icon: const Icon(Iconsax.arrow_left_2),
+        ),
+        Text('Page $page of $pages'),
+        IconButton(
+          tooltip: 'Next page',
+          onPressed: page < pages ? () => ctrl.setAllKpisPage(page) : null,
+          icon: const Icon(Iconsax.arrow_right_3),
+        ),
+      ],
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -16,11 +17,18 @@ class KpiTab extends StatelessWidget {
 
   const KpiTab({super.key, required this.roleId, this.readOnly = false});
 
-  String _fmt(String s) =>
-      s.split('_').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
+  String _fmt(String s) => s == 'yearly'
+      ? 'Annual'
+      : s
+          .split('_')
+          .map((w) => w.isEmpty ? w : w[0].toUpperCase() + w.substring(1))
+          .join(' ');
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.find<PermissionService>().has(Perms.roleKpisList)) {
+      return const Center(child: Text('You do not have access to role KPIs.'));
+    }
     final tag = 'role_detail_$roleId';
     if (!Get.isRegistered<RoleKpiController>(tag: tag)) {
       Get.put(RoleKpiController(), tag: tag)
@@ -34,6 +42,24 @@ class KpiTab extends StatelessWidget {
         return Obx(() {
           if (ctrl.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
+          }
+          if (ctrl.errorMessage.value.isNotEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(ctrl.errorMessage.value),
+                  TextButton.icon(
+                    onPressed: () => ctrl.fetchKpis(
+                      refresh: true,
+                      roleId: roleId,
+                    ),
+                    icon: const Icon(Iconsax.refresh),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
           }
           final roleKpis = ctrl.kpis.where((k) => k.roleId == roleId).toList();
 
@@ -53,7 +79,7 @@ class KpiTab extends StatelessWidget {
                     const SizedBox(height: 16),
                     if (!readOnly)
                       PermissionGate(
-                        require: Perms.rolesUpdate,
+                        allOf: const [Perms.roleKpisCreate, Perms.kpisList],
                         child: MyElevatedButton(
                           height: 40,
                           child: 'Add KPI',
@@ -82,7 +108,7 @@ class KpiTab extends StatelessWidget {
               if (!readOnly && index == roleKpis.length) {
                 return Center(
                   child: PermissionGate(
-                    require: Perms.rolesUpdate,
+                    allOf: const [Perms.roleKpisCreate, Perms.kpisList],
                     child: TextButton.icon(
                       onPressed: () => showDialog(
                         context: context,
@@ -99,6 +125,12 @@ class KpiTab extends StatelessWidget {
               final k = roleKpis[index];
               final name = k.metric?.name ?? '';
               final unit = k.metric?.unit ?? '';
+              final permissions = Get.find<PermissionService>();
+              final canEditKpi = permissions.hasAll([
+                Perms.roleKpisUpdate,
+                Perms.kpisList,
+              ]);
+              final canDeleteKpi = permissions.has(Perms.roleKpisDelete);
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -136,27 +168,26 @@ class KpiTab extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (!readOnly)
-                      PermissionGate(
-                        require: Perms.rolesUpdate,
-                        child: PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert,
-                              size: 18, color: AppColors.textMuted),
-                          onSelected: (val) {
-                            if (val == 'edit') {
-                              showDialog(
-                                context: context,
-                                builder: (_) => CreateEditKpiDialog(
-                                  ctrl: ctrl,
-                                  kpi: k,
-                                  presetRoleId: roleId,
-                                ),
-                              );
-                            } else if (val == 'delete' && k.id != null) {
-                              _showDeleteConfirm(context, ctrl, k.id!);
-                            }
-                          },
-                          itemBuilder: (_) => [
+                    if (!readOnly && (canEditKpi || canDeleteKpi))
+                      PopupMenuButton<String>(
+                        icon: const Icon(Icons.more_vert,
+                            size: 18, color: AppColors.textMuted),
+                        onSelected: (val) {
+                          if (val == 'edit') {
+                            showDialog(
+                              context: context,
+                              builder: (_) => CreateEditKpiDialog(
+                                ctrl: ctrl,
+                                kpi: k,
+                                presetRoleId: roleId,
+                              ),
+                            );
+                          } else if (val == 'delete' && k.id != null) {
+                            _showDeleteConfirm(context, ctrl, roleId, k.id!);
+                          }
+                        },
+                        itemBuilder: (_) => [
+                          if (canEditKpi)
                             const PopupMenuItem(
                               value: 'edit',
                               child: Row(
@@ -168,6 +199,7 @@ class KpiTab extends StatelessWidget {
                                 ],
                               ),
                             ),
+                          if (canDeleteKpi)
                             const PopupMenuItem(
                               value: 'delete',
                               child: Row(
@@ -181,8 +213,7 @@ class KpiTab extends StatelessWidget {
                                 ],
                               ),
                             ),
-                          ],
-                        ),
+                        ],
                       ),
                   ],
                 ),
@@ -195,7 +226,7 @@ class KpiTab extends StatelessWidget {
   }
 
   void _showDeleteConfirm(
-      BuildContext context, RoleKpiController ctrl, int kpiId) {
+      BuildContext context, RoleKpiController ctrl, int roleId, int kpiId) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -210,7 +241,7 @@ class KpiTab extends StatelessWidget {
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () async {
               Navigator.pop(ctx);
-              await ctrl.deleteKpi(kpiId);
+              await ctrl.deleteKpi(roleId: roleId, id: kpiId);
             },
             child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),

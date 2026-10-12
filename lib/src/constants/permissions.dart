@@ -166,6 +166,17 @@ class Perms {
   static const rolesList = Permission('roles', 'list');
   static const rolesUpdate = Permission('roles', 'update');
   static const rolesDelete = Permission('roles', 'delete');
+  static const roleDescriptionsView = Permission('role_descriptions', 'view');
+  static const roleDescriptionsCreate =
+      Permission('role_descriptions', 'create');
+  static const roleDescriptionsUpdate =
+      Permission('role_descriptions', 'update');
+
+  // Role KPI assignments
+  static const roleKpisList = Permission('role_kpis', 'list');
+  static const roleKpisCreate = Permission('role_kpis', 'create');
+  static const roleKpisUpdate = Permission('role_kpis', 'update');
+  static const roleKpisDelete = Permission('role_kpis', 'delete');
 
   // Branches
   static const branchesCreate = Permission('branches', 'create');
@@ -518,8 +529,9 @@ class Perms {
   static const ordersList = Permission('orders', 'list');
   static const quotesList = Permission('quotes', 'list');
 
-  // KPIs (sidebar uses resKpis; typed constant needed by route gates)
+  // KPI catalog
   static const kpisList = Permission('kpis', 'list');
+  static const kpisCreate = Permission('kpis', 'create');
 
   // Work Locations (employee-submitted workspaces, admin-approved)
   static const workLocationsList = Permission('work_locations', 'list');
@@ -596,7 +608,7 @@ const Map<String, List<Permission>> routeRequirements = {
   // (hierarchy, KPIs, compliance), so they require the ADMIN list action —
   // default employees' roles:view_own must not open them.
   RouteConstants.orgChart: [Perms.rolesList],
-  RouteConstants.kpiManagement: [Perms.rolesList],
+  RouteConstants.kpiManagement: [Perms.roleKpisList],
   RouteConstants.okrBoard: [Perms.rolesList],
   RouteConstants.complianceDashboard: [Perms.complianceRecordsList],
   RouteConstants.knowledgeBase: [Perms.rolesList],

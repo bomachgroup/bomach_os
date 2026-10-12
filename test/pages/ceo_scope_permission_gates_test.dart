@@ -42,6 +42,8 @@ void main() {
   test('KPI mutations are permission-gated', () {
     final source =
         File('lib/pages/company/kpi_management.dart').readAsStringSync();
+    final permissionSource =
+        File('lib/src/constants/permissions.dart').readAsStringSync();
 
     expect(
       source,
@@ -49,7 +51,10 @@ void main() {
           "import 'package:bomach_os/components/permission/permission_gate.dart';"),
     );
     expect(source, contains('PermissionGate('));
-    expect(source, contains('Perms.rolesUpdate'));
+    expect(source, contains('Perms.roleKpisCreate'));
+    expect(source, contains('Perms.kpisList'));
+    expect(permissionSource,
+        contains('RouteConstants.kpiManagement: [Perms.roleKpisList]'));
   });
 
   test('role-detail KPI mutations are permission-gated', () {
@@ -58,7 +63,11 @@ void main() {
     ).readAsStringSync();
 
     expect(source, contains('PermissionGate('));
-    expect(source, contains('Perms.rolesUpdate'));
+    expect(source, contains('Perms.roleKpisList'));
+    expect(source, contains('Perms.roleKpisCreate'));
+    expect(source, contains('Perms.roleKpisUpdate'));
+    expect(source, contains('Perms.roleKpisDelete'));
+    expect(source, contains('Perms.kpisList'));
   });
 
   test('employee profile mutations are permission-gated', () {

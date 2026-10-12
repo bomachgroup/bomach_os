@@ -11,12 +11,15 @@ class KPIMetricMinimal {
     required this.unit,
   });
 
-  factory KPIMetricMinimal.fromJson(Map<String, dynamic> json) => KPIMetricMinimal(
-    id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
-    name: json['name'] ?? '',
-    description: json['description'] ?? '',
-    unit: json['unit'] ?? 'percentage',
-  );
+  factory KPIMetricMinimal.fromJson(Map<String, dynamic> json) =>
+      KPIMetricMinimal(
+        id: json['id'] is int
+            ? json['id']
+            : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+        name: json['name'] ?? '',
+        description: json['description'] ?? '',
+        unit: json['unit'] ?? 'percentage',
+      );
 }
 
 class RoleKpi {
@@ -49,32 +52,66 @@ class RoleKpi {
   });
 
   factory RoleKpi.fromJson(Map<String, dynamic> json) => RoleKpi(
-    id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? ''),
-    roleId: json['role_id'] is int ? json['role_id'] : int.tryParse(json['role_id']?.toString() ?? '0') ?? 0,
-    metricId: json['metric_id'] is int ? json['metric_id'] : int.tryParse(json['metric_id']?.toString() ?? '0') ?? 0,
-    metric: json['metric'] != null ? KPIMetricMinimal.fromJson(json['metric']) : null,
-    trackingMode: json['tracking_mode'] ?? '',
-    targetValue: json['target_value'] != null ? double.tryParse(json['target_value'].toString()) : null,
-    weight: json['weight'] != null ? double.tryParse(json['weight'].toString()) : null,
-    period: json['period'] ?? '',
-    sequence: json['sequence'] is int ? json['sequence'] : int.tryParse(json['sequence']?.toString() ?? ''),
-    isActive: json['is_active'] ?? true,
-    createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-    updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
-  );
+        id: json['id'] is int
+            ? json['id']
+            : int.tryParse(json['id']?.toString() ?? ''),
+        roleId: json['role_id'] is int
+            ? json['role_id']
+            : int.tryParse(json['role_id']?.toString() ?? '0') ?? 0,
+        metricId: json['metric_id'] is int
+            ? json['metric_id']
+            : int.tryParse(json['metric_id']?.toString() ?? '0') ?? 0,
+        metric: json['metric'] != null
+            ? KPIMetricMinimal.fromJson(json['metric'])
+            : null,
+        trackingMode: json['tracking_mode'] ?? '',
+        targetValue: json['target_value'] != null
+            ? double.tryParse(json['target_value'].toString())
+            : null,
+        weight: json['weight'] != null
+            ? double.tryParse(json['weight'].toString())
+            : null,
+        period: json['period'] ?? '',
+        sequence: json['sequence'] is int
+            ? json['sequence']
+            : int.tryParse(json['sequence']?.toString() ?? ''),
+        isActive: json['is_active'] ?? true,
+        createdAt: json['created_at'] != null
+            ? DateTime.tryParse(json['created_at'])
+            : null,
+        updatedAt: json['updated_at'] != null
+            ? DateTime.tryParse(json['updated_at'])
+            : null,
+      );
 
   Map<String, dynamic> toJson() => {
-    if (id != null) 'id': id,
-    'role_id': roleId,
-    'metric_id': metricId,
-    'tracking_mode': trackingMode,
-    if (targetValue != null) 'target_value': targetValue,
-    if (weight != null) 'weight': weight,
-    'period': period,
-    if (sequence != null) 'sequence': sequence,
-    'is_active': isActive,
-  };
+        if (id != null) 'id': id,
+        'role_id': roleId,
+        'metric_id': metricId,
+        'tracking_mode': trackingMode,
+        if (targetValue != null) 'target_value': targetValue,
+        if (weight != null) 'weight': weight,
+        'period': period,
+        if (sequence != null) 'sequence': sequence,
+        'is_active': isActive,
+      };
 
-  static const List<String> trackingModeOptions = ['manual', 'automatic', 'semi_automatic'];
-  static const List<String> periodOptions = ['weekly', 'monthly', 'quarterly', 'semi_annual', 'annual'];
+  static const List<String> trackingModeOptions = [
+    'manual',
+    'system',
+    'automatic',
+    'semi_automatic',
+  ];
+  static const List<String> periodOptions = [
+    'daily',
+    'weekly',
+    'monthly',
+    'quarterly',
+    'semi_annual',
+    'annual',
+    'custom',
+  ];
+
+  static String editablePeriod(String value) =>
+      value == 'yearly' ? 'annual' : value;
 }
