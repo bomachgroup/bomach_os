@@ -95,11 +95,12 @@ class RolesController extends GetxController {
   Future<Map<String, dynamic>?> fetchRoleDescription(int roleId) async {
     try {
       final token = await _getToken();
-      if (token == null) return null;
+      if (token == null) throw Exception('Authentication required');
       return await _roleService.getRoleDescription(token, roleId);
     } catch (e) {
       log('Error fetching role description: $e');
-      return null;
+      if (e.toString().contains('API Error: 404')) return null;
+      rethrow;
     }
   }
 
@@ -110,9 +111,13 @@ class RolesController extends GetxController {
   }
 
   Future<void> _loadRoleDescription(int roleId) async {
-    final description = await fetchRoleDescription(roleId);
-    if (description != null && !roleDescriptions.containsKey(roleId)) {
-      roleDescriptions[roleId] = description;
+    try {
+      final description = await fetchRoleDescription(roleId);
+      if (description != null && !roleDescriptions.containsKey(roleId)) {
+        roleDescriptions[roleId] = description;
+      }
+    } catch (e) {
+      log('Could not cache role description for role $roleId: $e');
     }
   }
 
@@ -179,9 +184,9 @@ class RolesController extends GetxController {
   Future<bool> createRole(
     BuildContext context, {
     required String name,
-    String mission = '',
-    String jobDescription = '',
-    String responsibilities = '',
+    String? mission,
+    String? jobDescription,
+    String? responsibilities,
     required List<int> branchIds,
     required Map<String, List<String>> permissions,
     int? reportsToRoleId,
@@ -200,25 +205,29 @@ class RolesController extends GetxController {
 
       await fetchRoles();
 
-      try {
-        final description = await _roleService.createRoleDescription(
-          token,
-          role.id,
-          purpose: mission,
-          jobDescription: jobDescription,
-          responsibilities: responsibilities,
-        );
-        _storeRoleDescription(role.id, description);
-      } catch (e) {
-        _pendingDescriptionSave.value = _PendingRoleDescriptionSave(
-          roleId: role.id,
-          purpose: mission,
-          jobDescription: jobDescription,
-          responsibilities: responsibilities,
-        );
-        _showError(context,
-            'Role created, but its description could not be saved. Retry the description save.');
-        return false;
+      if (mission != null &&
+          jobDescription != null &&
+          responsibilities != null) {
+        try {
+          final description = await _roleService.createRoleDescription(
+            token,
+            role.id,
+            purpose: mission,
+            jobDescription: jobDescription,
+            responsibilities: responsibilities,
+          );
+          _storeRoleDescription(role.id, description);
+        } catch (e) {
+          _pendingDescriptionSave.value = _PendingRoleDescriptionSave(
+            roleId: role.id,
+            purpose: mission,
+            jobDescription: jobDescription,
+            responsibilities: responsibilities,
+          );
+          _showError(context,
+              'Role created, but its description could not be saved. Retry the description save.');
+          return false;
+        }
       }
 
       await fetchRoles();
@@ -270,25 +279,29 @@ class RolesController extends GetxController {
 
       await fetchRoles();
 
-      try {
-        final description = await _roleService.saveRoleDescription(
-          token,
-          roleId,
-          purpose: mission ?? '',
-          jobDescription: jobDescription ?? '',
-          responsibilities: responsibilities ?? '',
-        );
-        _storeRoleDescription(roleId, description);
-      } catch (e) {
-        _pendingDescriptionSave.value = _PendingRoleDescriptionSave(
-          roleId: roleId,
-          purpose: mission ?? '',
-          jobDescription: jobDescription ?? '',
-          responsibilities: responsibilities ?? '',
-        );
-        _showError(context,
-            'Role updated, but its description could not be saved. Retry the description save.');
-        return false;
+      if (mission != null &&
+          jobDescription != null &&
+          responsibilities != null) {
+        try {
+          final description = await _roleService.saveRoleDescription(
+            token,
+            roleId,
+            purpose: mission,
+            jobDescription: jobDescription,
+            responsibilities: responsibilities,
+          );
+          _storeRoleDescription(roleId, description);
+        } catch (e) {
+          _pendingDescriptionSave.value = _PendingRoleDescriptionSave(
+            roleId: roleId,
+            purpose: mission,
+            jobDescription: jobDescription,
+            responsibilities: responsibilities,
+          );
+          _showError(context,
+              'Role updated, but its description could not be saved. Retry the description save.');
+          return false;
+        }
       }
 
       await fetchRoles();
