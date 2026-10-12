@@ -33,7 +33,8 @@ void main() {
     expect(result['responsibilities'], 'Plan\nReview');
   });
 
-  test('role description create and update send contract fields only', () async {
+  test('role description create and update send contract fields only',
+      () async {
     final requests = <Map<String, dynamic>>[];
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
@@ -91,7 +92,8 @@ void main() {
     ]);
   });
 
-  test('saving a missing role description falls back from GET to POST', () async {
+  test('saving a missing role description falls back from GET to POST',
+      () async {
     adapter.onGet(
       '/api/v1/roles/12/description',
       (server) => server.reply(404, {'detail': 'Not found'}),
@@ -121,8 +123,11 @@ void main() {
     expect(result['purpose'], 'Purpose');
   });
 
-  test('role controller does not send description or parent fields to base role API', () {
-    final source = File('lib/pages/company/controllers/roles_controller.dart').readAsStringSync();
+  test(
+      'role controller does not send description or parent fields to base role API',
+      () {
+    final source = File('lib/pages/company/controllers/roles_controller.dart')
+        .readAsStringSync();
     expect(source, contains("'branch_ids'"));
     expect(source, contains("'permissions'"));
     expect(source, isNot(contains("'mission': mission")));
@@ -131,30 +136,94 @@ void main() {
     expect(source, contains('saveRoleDescription'));
   });
 
+  test('bulk role permission selections are sent in one role update request',
+      () async {
+    final requests = <RequestOptions>[];
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        requests.add(options);
+        handler.next(options);
+      },
+    ));
+    adapter.onPut(
+      '/api/v1/roles/12',
+      (server) => server.reply(200, {
+        'id': 12,
+        'name': 'Operations Lead',
+        'branches': [],
+        'permissions': {
+          'employees': ['list', 'update'],
+          'work_reports': ['list', 'approve'],
+        },
+        'created_at': '2026-09-01T08:00:00Z',
+        'updated_at': '2026-09-02T09:30:00Z',
+      }),
+      data: {
+        'name': 'Operations Lead',
+        'branch_ids': [3],
+        'permissions': {
+          'employees': ['list', 'update'],
+          'work_reports': ['list', 'approve'],
+        },
+      },
+    );
+
+    final updated = await service.updateRole('token', 12, {
+      'name': 'Operations Lead',
+      'branch_ids': [3],
+      'permissions': {
+        'employees': ['list', 'update'],
+        'work_reports': ['list', 'approve'],
+      },
+    });
+
+    expect(updated.id, 12);
+    expect(requests, hasLength(1));
+    expect(requests.single.method, 'PUT');
+    expect(requests.single.path, '/api/v1/roles/12');
+    expect(requests.single.data['permissions'], {
+      'employees': ['list', 'update'],
+      'work_reports': ['list', 'approve'],
+    });
+  });
+
   test('role details can load and react to a durable role id', () {
-    final controller = File('lib/pages/company/controllers/roles_controller.dart').readAsStringSync();
-    final detail = File('lib/pages/company/role_detail.dart').readAsStringSync();
+    final controller =
+        File('lib/pages/company/controllers/roles_controller.dart')
+            .readAsStringSync();
+    final detail =
+        File('lib/pages/company/role_detail.dart').readAsStringSync();
     expect(controller, contains('fetchRoleById'));
     expect(controller, contains('selectedRole'));
     expect(detail, contains('Obx'));
     expect(detail, contains('selectedRole'));
   });
 
-  test('role edit dialog loads description and leaves reporting to the reporting interface', () {
-    final dialog = File('lib/pages/company/widget/roles_dialogs.dart').readAsStringSync();
+  test(
+      'role edit dialog loads description and leaves reporting to the reporting interface',
+      () {
+    final dialog =
+        File('lib/pages/company/widget/roles_dialogs.dart').readAsStringSync();
     expect(dialog, contains('fetchRoleDescription'));
     expect(dialog, isNot(contains('_reportsToRoleId')));
     expect(dialog, isNot(contains('Reports To')));
     expect(dialog, contains('_displayResponsibilities'));
   });
 
-  test('partial role saves expose a description-only retry without resaving the role', () {
-    final controller = File('lib/pages/company/controllers/roles_controller.dart').readAsStringSync();
-    final dialog = File('lib/pages/company/widget/roles_dialogs.dart').readAsStringSync();
+  test(
+      'partial role saves expose a description-only retry without resaving the role',
+      () {
+    final controller =
+        File('lib/pages/company/controllers/roles_controller.dart')
+            .readAsStringSync();
+    final dialog =
+        File('lib/pages/company/widget/roles_dialogs.dart').readAsStringSync();
     expect(controller, contains('hasPendingDescriptionSave'));
     expect(controller, contains('retryPendingRoleDescription'));
     expect(controller, contains('_pendingDescriptionSave'));
     expect(dialog, contains('retryPendingRoleDescription'));
     expect(dialog, contains('Retry description save'));
+    expect(dialog, contains('!pendingForThisDialog'));
+    expect(dialog, contains('if (saved && mounted) Navigator.pop(context)'));
   });
 }

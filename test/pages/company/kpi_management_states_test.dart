@@ -9,7 +9,8 @@ void main() {
 
     expect(source, contains('fetchAllKpis(search:'));
     expect(source, contains('ctrl.errorMessage.value'));
-    expect(source, contains('Error loading KPIs'));
+    expect(source, contains("label: const Text('Retry')"));
+    expect(source, contains('_KpiPagination(ctrl: ctrl)'));
   });
 
   test('KPI management loads once from initState instead of every build', () {
@@ -23,5 +24,34 @@ void main() {
         source,
         isNot(contains(
             '\n    ctrl.fetchAllKpis();\r\n\n    return PageScaffold')));
+  });
+
+  test(
+      'role KPI tab aligns list, edit, create, and delete with API permissions',
+      () {
+    final source = File(
+      'lib/pages/company/widget/role_detail_tabs/kpi_tab.dart',
+    ).readAsStringSync();
+
+    expect(source, contains('Perms.roleKpisList'));
+    expect(source, contains('Perms.roleKpisCreate'));
+    expect(source, contains('Perms.roleKpisUpdate'));
+    expect(source, contains('Perms.roleKpisDelete'));
+    expect(source, contains('final canEditKpi'));
+    expect(source, contains('final canDeleteKpi'));
+    expect(source, isNot(contains('Perms.rolesList')));
+  });
+
+  test(
+      'management controller uses searchable global pagination with stale-response protection',
+      () {
+    final source = File(
+      'lib/pages/company/controllers/role_kpi_controller.dart',
+    ).readAsStringSync();
+
+    expect(source, contains('listAllRoleKpis'));
+    expect(source, contains('_allKpisRequestId'));
+    expect(source, contains('setAllKpisPage'));
+    expect(source, contains('_friendlyError(e)'));
   });
 }

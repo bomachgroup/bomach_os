@@ -3,7 +3,9 @@ import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/backend_capability_unavailable.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/role_model.dart';
@@ -42,6 +44,11 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
   static const int _permPageSize = 8;
 
   Worker? _defaultsWorker;
+  bool _showDescriptionSection = false;
+  bool _canEditDescription = false;
+  bool _isDescriptionLoading = false;
+  bool _descriptionLoaded = false;
+  String? _descriptionLoadError;
 
   @override
   void initState() {
@@ -53,7 +60,19 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         TextEditingController(text: role?.jobDescription ?? '');
     _responsibilitiesCtrl =
         TextEditingController(text: role?.responsibilities?.join('\n') ?? '');
-    if (role != null) _loadRoleDescription(role.id);
+    final permissionService = Get.find<PermissionService>();
+    if (role == null) {
+      _showDescriptionSection =
+          permissionService.has(Perms.roleDescriptionsCreate);
+      _canEditDescription = _showDescriptionSection;
+      _descriptionLoaded = true;
+    } else if (permissionService.has(Perms.roleDescriptionsView)) {
+      _showDescriptionSection = true;
+      _isDescriptionLoading = true;
+      _loadRoleDescription(role.id);
+    } else {
+      _descriptionLoaded = true;
+    }
 
     _selectedBranchIds = {};
     if (role != null) {
@@ -83,14 +102,41 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
   }
 
   Future<void> _loadRoleDescription(int roleId) async {
-    final description = await widget.ctrl.fetchRoleDescription(roleId);
-    if (!mounted || description == null) return;
-    _missionCtrl.text = description['purpose']?.toString() ?? _missionCtrl.text;
-    _jobDescriptionCtrl.text =
-        description['job_description']?.toString() ?? _jobDescriptionCtrl.text;
-    _responsibilitiesCtrl.text =
-        _displayResponsibilities(description['responsibilities']) ??
-            _responsibilitiesCtrl.text;
+    if (mounted) {
+      setState(() {
+        _isDescriptionLoading = true;
+        _descriptionLoadError = null;
+      });
+    }
+    try {
+      final description = await widget.ctrl.fetchRoleDescription(roleId);
+      if (!mounted) return;
+      if (description == null) {
+        _canEditDescription =
+            Get.find<PermissionService>().has(Perms.roleDescriptionsCreate);
+      } else {
+        _missionCtrl.text = description['purpose']?.toString() ?? '';
+        _jobDescriptionCtrl.text =
+            description['job_description']?.toString() ?? '';
+        _responsibilitiesCtrl.text =
+            _displayResponsibilities(description['responsibilities']) ?? '';
+        _canEditDescription =
+            Get.find<PermissionService>().has(Perms.roleDescriptionsUpdate);
+      }
+      setState(() {
+        _descriptionLoaded = true;
+        _descriptionLoadError = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _descriptionLoaded = false;
+        _descriptionLoadError =
+            'Could not load the role description. Retry before saving.';
+      });
+    } finally {
+      if (mounted) setState(() => _isDescriptionLoading = false);
+    }
   }
 
   String? _displayResponsibilities(dynamic value) {
@@ -129,6 +175,13 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
   int get _totalSelectedCount =>
       _selectedPermissions.values.fold(0, (sum, s) => sum + s.length);
 
+  bool get _allPermissionsSelected {
+    final options = widget.ctrl.permissionsMap;
+    if (options.isEmpty) return false;
+    return options.entries.every((entry) => entry.value.every(
+        (action) => _selectedPermissions[entry.key]?.contains(action) == true));
+  }
+
   List<MapEntry<String, List<String>>> get _filteredPermEntries {
     final query = _permSearch.toLowerCase();
     return widget.ctrl.permissionsMap.entries.where((entry) {
@@ -141,6 +194,12 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
   }
 
   void _onSave() async {
+    if (_isDescriptionLoading || _descriptionLoadError != null) {
+      Get.snackbar('Description not ready',
+          'Load the role description before saving this role.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
     if (_nameCtrl.text.trim().isEmpty) {
       Get.snackbar('Validation', 'Role name is required',
           snackPosition: SnackPosition.BOTTOM);
@@ -162,9 +221,11 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
         context,
         roleId: widget.role!.id,
         name: _nameCtrl.text.trim(),
-        mission: _missionCtrl.text.trim(),
-        jobDescription: _jobDescriptionCtrl.text.trim(),
-        responsibilities: _responsibilitiesCtrl.text.trim(),
+        mission: _canEditDescription ? _missionCtrl.text.trim() : null,
+        jobDescription:
+            _canEditDescription ? _jobDescriptionCtrl.text.trim() : null,
+        responsibilities:
+            _canEditDescription ? _responsibilitiesCtrl.text.trim() : null,
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
@@ -172,9 +233,11 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
       success = await widget.ctrl.createRole(
         context,
         name: _nameCtrl.text.trim(),
-        mission: _missionCtrl.text.trim(),
-        jobDescription: _jobDescriptionCtrl.text.trim(),
-        responsibilities: _responsibilitiesCtrl.text.trim(),
+        mission: _canEditDescription ? _missionCtrl.text.trim() : null,
+        jobDescription:
+            _canEditDescription ? _jobDescriptionCtrl.text.trim() : null,
+        responsibilities:
+            _canEditDescription ? _responsibilitiesCtrl.text.trim() : null,
         branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
@@ -223,36 +286,80 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                     height: 48,
                   ),
                   const SizedBox(height: 20),
-                  const Text('Mission / Purpose', style: AppTextStyles.label),
-                  const SizedBox(height: 8),
-                  MyTextFormField(
-                    controller: _missionCtrl,
-                    hintText:
-                        'e.g. Lead branch operations and drive revenue growth',
-                    height: 72,
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 20),
-                  const Text('Job Description', style: AppTextStyles.label),
-                  const SizedBox(height: 8),
-                  MyTextFormField(
-                    controller: _jobDescriptionCtrl,
-                    hintText:
-                        'e.g. Daily operations management, team leadership, client relations...',
-                    height: 72,
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 20),
-                  const Text('Responsibilities', style: AppTextStyles.label),
-                  const SizedBox(height: 8),
-                  MyTextFormField(
-                    controller: _responsibilitiesCtrl,
-                    hintText:
-                        'e.g. Manage daily operations\nLead team of 10\nPrepare monthly reports\nClient relationship management',
-                    height: 100,
-                    maxLines: 5,
-                  ),
-                  const SizedBox(height: 20),
+                  if (_showDescriptionSection) ...[
+                    if (_isDescriptionLoading) const LinearProgressIndicator(),
+                    if (_descriptionLoadError != null) ...[
+                      Text(
+                        _descriptionLoadError!,
+                        style: const TextStyle(color: AppColors.danger),
+                      ),
+                      TextButton.icon(
+                        onPressed: _isDescriptionLoading
+                            ? null
+                            : () => _loadRoleDescription(widget.role!.id),
+                        icon: const Icon(Iconsax.refresh, size: 16),
+                        label: const Text('Retry loading description'),
+                      ),
+                    ] else ...[
+                      if (!_canEditDescription && _descriptionLoaded)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            'Read-only',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      IgnorePointer(
+                        ignoring: !_canEditDescription ||
+                            _isDescriptionLoading ||
+                            !_descriptionLoaded,
+                        child: Opacity(
+                          opacity: _canEditDescription ? 1 : 0.65,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Mission / Purpose',
+                                  style: AppTextStyles.label),
+                              const SizedBox(height: 8),
+                              MyTextFormField(
+                                controller: _missionCtrl,
+                                hintText:
+                                    'e.g. Lead branch operations and drive revenue growth',
+                                height: 72,
+                                maxLines: 3,
+                              ),
+                              const SizedBox(height: 20),
+                              const Text('Job Description',
+                                  style: AppTextStyles.label),
+                              const SizedBox(height: 8),
+                              MyTextFormField(
+                                controller: _jobDescriptionCtrl,
+                                hintText:
+                                    'e.g. Daily operations management, team leadership, client relations...',
+                                height: 72,
+                                maxLines: 3,
+                              ),
+                              const SizedBox(height: 20),
+                              const Text('Responsibilities',
+                                  style: AppTextStyles.label),
+                              const SizedBox(height: 8),
+                              MyTextFormField(
+                                controller: _responsibilitiesCtrl,
+                                hintText:
+                                    'e.g. Manage daily operations\nLead team of 10\nPrepare monthly reports\nClient relationship management',
+                                height: 100,
+                                maxLines: 5,
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                   const Text('Branches', style: AppTextStyles.label),
                   const Text(
                     'Select which branches this role applies to',
@@ -265,97 +372,109 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
             ),
             if (isEdit) ...[
               const SizedBox(height: 24),
-              _buildSection(
-                title: 'KPIs',
-                child: GetBuilder<RoleKpiController>(
-                  tag: 'role_${widget.role!.id}',
-                  init: (() {
-                    final t = 'role_${widget.role!.id}';
-                    if (!Get.isRegistered<RoleKpiController>(tag: t)) {
-                      Get.put(RoleKpiController(), tag: t)
-                        ..scopedRoleId = widget.role!.id
-                        ..fetchKpis(roleId: widget.role!.id);
-                    }
-                    return Get.find<RoleKpiController>(tag: t);
-                  })(),
-                  builder: (kpiCtrl) {
-                    final roleKpis = kpiCtrl.kpis
-                        .where((k) => k.roleId == widget.role!.id)
-                        .toList();
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (roleKpis.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              'No KPIs defined for this role.',
-                              style: TextStyle(fontStyle: FontStyle.italic),
+              PermissionGate(
+                require: Perms.roleKpisList,
+                child: _buildSection(
+                  title: 'KPIs',
+                  child: GetBuilder<RoleKpiController>(
+                    tag: 'role_${widget.role!.id}',
+                    init: (() {
+                      final t = 'role_${widget.role!.id}';
+                      if (!Get.isRegistered<RoleKpiController>(tag: t)) {
+                        Get.put(RoleKpiController(), tag: t)
+                          ..scopedRoleId = widget.role!.id
+                          ..fetchKpis(roleId: widget.role!.id);
+                      }
+                      return Get.find<RoleKpiController>(tag: t);
+                    })(),
+                    builder: (kpiCtrl) {
+                      final roleKpis = kpiCtrl.kpis
+                          .where((k) => k.roleId == widget.role!.id)
+                          .toList();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (roleKpis.isEmpty)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                'No KPIs defined for this role.',
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                            )
+                          else
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: roleKpis.length,
+                              separatorBuilder: (_, __) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (context, index) {
+                                final k = roleKpis[index];
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            k.metric?.name ?? '',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                            k.period == 'yearly'
+                                                ? 'Annual'
+                                                : k.period.isNotEmpty
+                                                    ? k.period[0]
+                                                            .toUpperCase() +
+                                                        k.period.substring(1)
+                                                    : '—',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: AppColors.textSecondary),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        'Target: ${k.targetValue?.toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1) ?? '-'} ${k.metric?.unit ?? ''}',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
-                          )
-                        else
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: roleKpis.length,
-                            separatorBuilder: (_, __) =>
-                                const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              final k = roleKpis[index];
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          k.metric?.name ?? '',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          k.period.isNotEmpty
-                                              ? k.period[0].toUpperCase() +
-                                                  k.period.substring(1)
-                                              : '—',
-                                          style: const TextStyle(
-                                              fontSize: 12,
-                                              color: AppColors.textSecondary),
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      'Target: ${k.targetValue?.toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1) ?? '-'} ${k.metric?.unit ?? ''}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
+                          const SizedBox(height: 8),
+                          PermissionGate(
+                            allOf: const [
+                              Perms.roleKpisCreate,
+                              Perms.kpisList,
+                            ],
+                            child: TextButton.icon(
+                              onPressed: () => showDialog(
+                                context: context,
+                                builder: (_) => CreateEditKpiDialog(
+                                  ctrl: kpiCtrl,
+                                  presetRoleId: widget.role!.id,
                                 ),
-                              );
-                            },
-                          ),
-                        const SizedBox(height: 8),
-                        TextButton.icon(
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (_) => CreateEditKpiDialog(
-                              ctrl: kpiCtrl,
-                              presetRoleId: widget.role!.id,
+                              ),
+                              icon: const Icon(Icons.add, size: 16),
+                              label: const Text('Add KPI'),
+                              style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.primary),
                             ),
                           ),
-                          icon: const Icon(Icons.add, size: 16),
-                          label: const Text('Add KPI'),
-                          style: TextButton.styleFrom(
-                              foregroundColor: AppColors.primary),
-                        ),
-                      ],
-                    );
-                  },
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -463,7 +582,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                         style: TextButton.styleFrom(
                             foregroundColor: AppColors.primary),
                       ),
-                      _totalSelectedCount > 0
+                      _allPermissionsSelected
                           ? TextButton.icon(
                               onPressed: () =>
                                   setState(() => _selectedPermissions.clear()),
@@ -530,8 +649,10 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
             textColor: AppColors.warning,
             borderColor: AppColors.warning,
             child: 'Retry description save',
-            onTap: () {
-              widget.ctrl.retryPendingRoleDescription(context);
+            onTap: () async {
+              final saved =
+                  await widget.ctrl.retryPendingRoleDescription(context);
+              if (saved && mounted) Navigator.pop(context);
             },
           );
         }),
@@ -540,14 +661,28 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
           height: 44,
           onTap: () => Navigator.pop(context),
         ),
-        Obx(() => MyElevatedButton(
-              width: 140,
-              height: 44,
-              onTap: widget.ctrl.isSaving.value ? null : _onSave,
-              child: widget.ctrl.isSaving.value
-                  ? 'Saving...'
-                  : (isEdit ? 'Save Changes' : 'Create Role'),
-            )),
+        Obx(() {
+          final pendingForThisDialog = widget.ctrl.hasPendingDescriptionSave &&
+              (widget.role == null ||
+                  widget.ctrl.pendingDescriptionRoleId == widget.role!.id);
+          final descriptionReady = !_showDescriptionSection ||
+              (_descriptionLoaded &&
+                  !_isDescriptionLoading &&
+                  _descriptionLoadError == null);
+          final canSave = !widget.ctrl.isSaving.value &&
+              !pendingForThisDialog &&
+              descriptionReady;
+          return MyElevatedButton(
+            width: 140,
+            height: 44,
+            onTap: canSave ? _onSave : null,
+            child: widget.ctrl.isSaving.value
+                ? 'Saving...'
+                : pendingForThisDialog
+                    ? 'Retry description first'
+                    : (isEdit ? 'Save Changes' : 'Create Role'),
+          );
+        }),
       ],
     );
   }

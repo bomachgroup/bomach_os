@@ -71,6 +71,39 @@ class RoleKpiService {
     }
   }
 
+  Future<({List<RoleKpi> list, int count})> listAllRoleKpis(
+    String token, {
+    String? search,
+    int? roleId,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{'limit': limit, 'offset': offset};
+      if (search != null && search.trim().isNotEmpty) {
+        queryParams['search'] = search.trim();
+      }
+      if (roleId != null) queryParams['role_id'] = roleId;
+      final response = await _dio.get(
+        '/api/v1/roles/kpis',
+        queryParameters: queryParams,
+        options: _authOptions(token),
+      );
+      final data = response.data;
+      final List<dynamic> items =
+          (data is Map && data['items'] is List) ? data['items'] : data;
+      final int count = (data is Map && data['count'] is int)
+          ? data['count'] as int
+          : items.length;
+      return (
+        list: items.map((json) => RoleKpi.fromJson(json)).toList(),
+        count: count,
+      );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─── GET SINGLE KPI ───────────────────────────────────────────────────
 
   Future<RoleKpi> getRoleKpi(String token, int roleId, int kpiId) async {
@@ -142,7 +175,9 @@ class RoleKpiService {
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final body = error.response?.data;
-      final errorMessage = (body is Map) ? (body['message'] ?? body['detail'] ?? error.message) : error.message;
+      final errorMessage = (body is Map)
+          ? (body['message'] ?? body['detail'] ?? error.message)
+          : error.message;
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }

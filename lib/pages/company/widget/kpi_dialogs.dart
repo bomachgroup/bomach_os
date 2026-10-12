@@ -2,7 +2,9 @@ import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/role_kpi_model.dart';
@@ -48,6 +50,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
 
   var _metrics = <KPIMetric>[];
   var _loadingMetrics = true;
+  String? _metricLoadError;
 
   @override
   void initState() {
@@ -56,7 +59,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
     _selectedMetricId = kpi?.metricId;
     _selectedMetricUnit = kpi?.metric?.unit ?? '';
     _trackingMode = kpi?.trackingMode ?? 'manual';
-    _period = kpi?.period ?? 'monthly';
+    _period = RoleKpi.editablePeriod(kpi?.period ?? 'monthly');
     _isActive = kpi?.isActive ?? true;
     _selectedRoleId = widget.presetRoleId ?? kpi?.roleId;
     final targetVal = widget.kpi?.targetValue;
@@ -75,24 +78,44 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
   }
 
   Future<void> _fetchMetrics() async {
+    if (mounted) {
+      setState(() {
+        _loadingMetrics = true;
+        _metricLoadError = null;
+      });
+    }
     try {
       final token = await _storage.read(key: 'access_token');
-      if (token == null) return;
+      if (token == null) {
+        throw Exception('Authentication required. Sign in again.');
+      }
       final cleanToken = token.replaceAll('"', '').trim();
-      final result = await _metricService.listMetrics(cleanToken);
+      final metrics = <KPIMetric>[];
+      var offset = 0;
+      var count = 0;
+      do {
+        final result = await _metricService.listMetrics(
+          cleanToken,
+          limit: 100,
+          offset: offset,
+        );
+        metrics.addAll(result.list);
+        count = result.count;
+        if (result.list.isEmpty) break;
+        offset += result.list.length;
+      } while (offset < count);
       if (mounted) {
         setState(() {
-          _metrics = result.list;
+          _metrics = metrics;
           _loadingMetrics = false;
         });
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _loadingMetrics = false);
-        Get.snackbar('Error', 'Could not load metrics: $e',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.shade50,
-            colorText: Colors.red.shade800);
+        setState(() {
+          _loadingMetrics = false;
+          _metricLoadError = 'Could not load KPI metrics. Please retry.';
+        });
       }
     }
   }
@@ -199,10 +222,46 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
+    if (_loadingMetrics || _metricLoadError != null) {
+      Get.snackbar('KPI metrics unavailable', 'Load metrics before saving.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
 
-    final targetValue = double.tryParse(_targetCtrl.text.trim());
-    final weight = double.tryParse(_weightCtrl.text.trim());
-    final sequence = int.tryParse(_sequenceCtrl.text.trim());
+    final targetText = _targetCtrl.text.trim();
+    final targetValue = targetText.isEmpty ? null : double.tryParse(targetText);
+    if (targetText.isNotEmpty && targetValue == null) {
+      Get.snackbar('Check the value', 'Target must be a number.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+    if (targetValue != null && targetValue < 0) {
+      Get.snackbar('Check the value', 'Target cannot be negative.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    final weightText = _weightCtrl.text.trim();
+    final weight = weightText.isEmpty ? null : double.tryParse(weightText);
+    if (weightText.isNotEmpty && weight == null) {
+      Get.snackbar('Check the value', 'Weight must be a number.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+    if (weight != null && (weight < 0 || weight > 100)) {
+      Get.snackbar('Check the value', 'Weight must be between 0 and 100.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    final sequenceText = _sequenceCtrl.text.trim();
+    final sequence = sequenceText.isEmpty ? null : int.tryParse(sequenceText);
+    if (sequenceText.isNotEmpty && (sequence == null || sequence < 1)) {
+      Get.snackbar(
+          'Check the value', 'Sequence must be a positive whole number.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
 
     final isEdit = widget.kpi != null;
     final roleId = _selectedRoleId ?? widget.kpi!.roleId;
@@ -210,7 +269,9 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
     bool success;
     if (isEdit) {
       success = await widget.ctrl.updateKpi(
+        roleId: roleId,
         id: widget.kpi!.id!,
+        metricId: _selectedMetricId!,
         trackingMode: _trackingMode,
         period: _period,
         targetValue: targetValue,
@@ -251,20 +312,22 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
           Row(
             children: [
               const Expanded(child: Text('Metric', style: AppTextStyles.label)),
-              GestureDetector(
-                onTap: () => _showCreateMetricDialog(context),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // ignore: prefer_const_constructors
-                    Icon(Icons.add_circle_outline,
-                        size: 14, color: AppColors.primary),
-                    const SizedBox(width: 4),
-                    Text('New',
-                        style: AppTextStyles.caption.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600)),
-                  ],
+              PermissionGate(
+                require: Perms.kpisCreate,
+                child: GestureDetector(
+                  onTap: () => _showCreateMetricDialog(context),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.add_circle_outline,
+                          size: 14, color: AppColors.primary),
+                      const SizedBox(width: 4),
+                      Text('New',
+                          style: AppTextStyles.caption.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -280,28 +343,44 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )),
                 )
-              : DropdownButtonFormField<int>(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(borderRadius: AppRadii.brMd),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  ),
-                  value: _selectedMetricId,
-                  hint: Text(_metrics.isEmpty
-                      ? 'No metrics available — click "+ New" above'
-                      : 'Select a metric'),
-                  items: _metrics
-                      .map((m) => DropdownMenuItem(
-                            value: m.id,
-                            child: Text('${m.name} (${m.unit})'),
-                          ))
-                      .toList(),
-                  onChanged: (v) => setState(() {
-                    _selectedMetricId = v;
-                    final m = _metrics.firstWhereOrNull((x) => x.id == v);
-                    _selectedMetricUnit = m?.unit ?? '';
-                  }),
-                ),
+              : _metricLoadError != null
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _metricLoadError!,
+                            style: const TextStyle(color: AppColors.danger),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Retry loading metrics',
+                          onPressed: _fetchMetrics,
+                          icon: const Icon(Icons.refresh),
+                        ),
+                      ],
+                    )
+                  : DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(borderRadius: AppRadii.brMd),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      ),
+                      initialValue: _selectedMetricId,
+                      hint: Text(_metrics.isEmpty
+                          ? 'No metrics available — click "+ New" above'
+                          : 'Select a metric'),
+                      items: _metrics
+                          .map((m) => DropdownMenuItem(
+                                value: m.id,
+                                child: Text('${m.name} (${m.unit})'),
+                              ))
+                          .toList(),
+                      onChanged: (v) => setState(() {
+                        _selectedMetricId = v;
+                        final m = _metrics.firstWhereOrNull((x) => x.id == v);
+                        _selectedMetricUnit = m?.unit ?? '';
+                      }),
+                    ),
           const SizedBox(height: 16),
 
           // ── Role Selector (when no preset role) ─────────────────────
@@ -318,7 +397,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
-                value: _selectedRoleId,
+                initialValue: _selectedRoleId,
                 hint: const Text('Select role'),
                 items: rc.roles
                     .map((r) => DropdownMenuItem(
@@ -348,7 +427,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       ),
-                      value: _trackingMode,
+                      initialValue: _trackingMode,
                       items: RoleKpi.trackingModeOptions
                           .map((t) => DropdownMenuItem(
                               value: t, child: Text(_formatLabel(t))))
@@ -371,7 +450,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       ),
-                      value: _period,
+                      initialValue: _period,
                       items: RoleKpi.periodOptions
                           .map((p) => DropdownMenuItem(
                               value: p, child: Text(_formatLabel(p))))
@@ -384,6 +463,16 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
             ],
           ),
           const SizedBox(height: 16),
+
+          if (_trackingMode == 'automatic' || _trackingMode == 'semi_automatic')
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(
+                'This mode is stored as configuration; automatic calculations are not configured.',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+            ),
 
           // ── Target + Weight row ─────────────────────────────────────
           Row(
@@ -443,7 +532,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
               Switch(
                 value: _isActive,
                 onChanged: (v) => setState(() => _isActive = v),
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
               ),
               const SizedBox(width: 8),
               const Text('Active', style: AppTextStyles.bodyMd),
