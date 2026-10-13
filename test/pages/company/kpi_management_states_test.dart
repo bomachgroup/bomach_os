@@ -26,6 +26,31 @@ void main() {
             '\n    ctrl.fetchAllKpis();\r\n\n    return PageScaffold')));
   });
 
+  test('global Add KPI selects the role before rendering metric selection', () {
+    final source =
+        File('lib/pages/company/widget/kpi_dialogs.dart').readAsStringSync();
+    final rolePosition = source.indexOf(
+      'The global form requires a role before it can determine',
+    );
+    final metricPosition = source.indexOf('// ── Metric Selector');
+
+    expect(rolePosition, isNonNegative);
+    expect(metricPosition, greaterThan(rolePosition));
+  });
+
+  test('assignment removal explains its scope and preserves shared metric data',
+      () {
+    final source =
+        File('lib/pages/company/widget/kpi_dialogs.dart').readAsStringSync();
+
+    expect(source, contains('Remove KPI from role?'));
+    expect(
+        source,
+        contains(
+            'The shared metric and historical employee KPI data will remain.'));
+    expect(source, contains("'Remove from role'"));
+  });
+
   test(
       'role KPI tab aligns list, edit, create, and delete with API permissions',
       () {

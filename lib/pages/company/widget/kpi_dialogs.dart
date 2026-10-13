@@ -1,6 +1,7 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/src/constants/colors.dart';
@@ -13,20 +14,122 @@ import 'package:bomach_os/src/services/kpi_metric_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controllers/role_kpi_controller.dart';
 import '../controllers/roles_controller.dart';
+
+Future<KpiActionResult?> showKpiEditorDialog(
+  BuildContext context, {
+  required RoleKpiController ctrl,
+  RoleKpi? kpi,
+  int? presetRoleId,
+  Future<List<KPIMetric>> Function()? loadMetrics,
+}) async {
+  final result = await showDialog<KpiActionResult>(
+    context: context,
+    builder: (_) => CreateEditKpiDialog(
+      ctrl: ctrl,
+      kpi: kpi,
+      presetRoleId: presetRoleId,
+      loadMetrics: loadMetrics,
+    ),
+  );
+  if (result?.succeeded == true && context.mounted) {
+    AppToast.success(context, result!.message,
+        duration: const Duration(seconds: 2));
+  }
+  return result;
+}
+
+Future<bool> showRemoveKpiConfirmation(
+  BuildContext context, {
+  required RoleKpiController ctrl,
+  required int roleId,
+  required int id,
+  required String metricName,
+}) async {
+  var saving = false;
+  String? error;
+  final removed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => StatefulBuilder(
+      builder: (dialogContext, setDialogState) => AlertDialog(
+        title: const Text('Remove KPI from role?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Remove "$metricName" from this role?'),
+            const SizedBox(height: 8),
+            const Text(
+              'This removes only the role assignment. The shared metric and historical employee KPI data will remain.',
+            ),
+            if (error != null) ...[
+              const SizedBox(height: 12),
+              _InlineKpiError(message: error!),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed:
+                saving ? null : () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: saving
+                ? null
+                : () async {
+                    setDialogState(() {
+                      saving = true;
+                      error = null;
+                    });
+                    final result = await ctrl.deleteKpi(roleId: roleId, id: id);
+                    if (!dialogContext.mounted) return;
+                    if (result.succeeded) {
+                      Navigator.pop(dialogContext, true);
+                    } else {
+                      setDialogState(() {
+                        saving = false;
+                        error = result.message;
+                      });
+                    }
+                  },
+            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+            child: Text(saving ? 'Removing...' : 'Remove from role'),
+          ),
+        ],
+      ),
+    ),
+  );
+  if (removed == true && context.mounted) {
+    AppToast.success(context, 'KPI removed from the role.',
+        duration: const Duration(seconds: 2));
+  }
+  return removed == true;
+}
+
+class _MetricChoice {
+  final KPIMetric? metric;
+  final RoleKpi? assignment;
+
+  const _MetricChoice.metric(this.metric) : assignment = null;
+  const _MetricChoice.assignment(this.assignment) : metric = null;
+}
 
 class CreateEditKpiDialog extends StatefulWidget {
   final RoleKpiController ctrl;
   final RoleKpi? kpi;
   final int? presetRoleId;
+  final Future<List<KPIMetric>> Function()? loadMetrics;
 
   const CreateEditKpiDialog({
     super.key,
     required this.ctrl,
     this.kpi,
     this.presetRoleId,
+    this.loadMetrics,
   });
 
   @override
@@ -49,21 +152,30 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
   late int? _selectedRoleId;
 
   var _metrics = <KPIMetric>[];
+  var _assignments = <RoleKpi>[];
   var _loadingMetrics = true;
   String? _metricLoadError;
+  var _loadingAssignments = false;
+  String? _assignmentLoadError;
+  String? _actionError;
+  RoleKpi? _editingKpi;
+  int _assignmentRequestId = 0;
+
+  RoleKpi? get _activeKpi => _editingKpi ?? widget.kpi;
+  bool get _isEdit => _activeKpi != null;
 
   @override
   void initState() {
     super.initState();
-    final kpi = widget.kpi;
+    final kpi = _activeKpi;
     _selectedMetricId = kpi?.metricId;
     _selectedMetricUnit = kpi?.metric?.unit ?? '';
     _trackingMode = kpi?.trackingMode ?? 'manual';
     _period = RoleKpi.editablePeriod(kpi?.period ?? 'monthly');
     _isActive = kpi?.isActive ?? true;
     _selectedRoleId = widget.presetRoleId ?? kpi?.roleId;
-    final targetVal = widget.kpi?.targetValue;
-    final weightVal = widget.kpi?.weight;
+    final targetVal = kpi?.targetValue;
+    final weightVal = kpi?.weight;
     _targetCtrl = TextEditingController(
         text: targetVal != null
             ? targetVal.toStringAsFixed(targetVal % 1 == 0 ? 0 : 2)
@@ -75,6 +187,9 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
     _sequenceCtrl =
         TextEditingController(text: kpi?.sequence?.toString() ?? '');
     _fetchMetrics();
+    if (_selectedRoleId != null) {
+      _fetchAssignments(_selectedRoleId!);
+    }
   }
 
   Future<void> _fetchMetrics() async {
@@ -85,27 +200,24 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
       });
     }
     try {
-      final token = await _storage.read(key: 'access_token');
-      if (token == null) {
-        throw Exception('Authentication required. Sign in again.');
-      }
-      final cleanToken = token.replaceAll('"', '').trim();
-      final metrics = <KPIMetric>[];
-      var offset = 0;
-      var count = 0;
-      do {
-        final result = await _metricService.listMetrics(
-          cleanToken,
-          limit: 100,
-          offset: offset,
-        );
-        metrics.addAll(result.list);
-        count = result.count;
-        if (result.list.isEmpty) break;
-        offset += result.list.length;
-      } while (offset < count);
+      final metrics = widget.loadMetrics != null
+          ? await widget.loadMetrics!()
+          : await _loadMetricsFromApi();
       if (mounted) {
         setState(() {
+          final activeMetric = _activeKpi?.metric;
+          if (activeMetric != null &&
+              !metrics.any((metric) => metric.id == activeMetric.id)) {
+            metrics.insert(
+              0,
+              KPIMetric(
+                id: activeMetric.id,
+                name: activeMetric.name,
+                description: activeMetric.description,
+                unit: activeMetric.unit,
+              ),
+            );
+          }
           _metrics = metrics;
           _loadingMetrics = false;
         });
@@ -118,6 +230,99 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
         });
       }
     }
+  }
+
+  Future<List<KPIMetric>> _loadMetricsFromApi() async {
+    final token = await _storage.read(key: 'access_token');
+    if (token == null) {
+      throw Exception('Authentication required. Sign in again.');
+    }
+    final cleanToken = token.replaceAll('"', '').trim();
+    final metrics = <KPIMetric>[];
+    var offset = 0;
+    var count = 0;
+    do {
+      final result = await _metricService.listMetrics(
+        cleanToken,
+        limit: 100,
+        offset: offset,
+      );
+      metrics.addAll(result.list);
+      count = result.count;
+      if (result.list.isEmpty) break;
+      offset += result.list.length;
+    } while (offset < count);
+    return metrics;
+  }
+
+  Future<void> _fetchAssignments(int roleId) async {
+    final requestId = ++_assignmentRequestId;
+    setState(() {
+      _loadingAssignments = true;
+      _assignmentLoadError = null;
+    });
+    final result = await widget.ctrl.loadRoleAssignments(roleId);
+    if (!mounted || requestId != _assignmentRequestId) return;
+    setState(() {
+      _assignments = result.list;
+      _assignmentLoadError = result.error;
+      _loadingAssignments = false;
+    });
+  }
+
+  void _onRoleChanged(int? roleId) {
+    setState(() {
+      _selectedRoleId = roleId;
+      _selectedMetricId = null;
+      _selectedMetricUnit = '';
+      _actionError = null;
+      _assignments = [];
+      _assignmentLoadError = null;
+    });
+    if (roleId != null) _fetchAssignments(roleId);
+  }
+
+  Future<void> _pickMetric() async {
+    if (_selectedRoleId == null ||
+        _loadingAssignments ||
+        _assignmentLoadError != null) {
+      return;
+    }
+    final choice = await showDialog<_MetricChoice>(
+      context: context,
+      builder: (context) => _MetricPickerDialog(
+        metrics: _metrics,
+        assignments: _assignments,
+        selectedMetricId: _selectedMetricId,
+        editableAssignmentId: _activeKpi?.id,
+      ),
+    );
+    if (!mounted || choice == null) return;
+    if (choice.assignment != null) {
+      _switchToEdit(choice.assignment!);
+    } else if (choice.metric != null) {
+      setState(() {
+        _selectedMetricId = choice.metric!.id;
+        _selectedMetricUnit = choice.metric!.unit;
+        _actionError = null;
+      });
+    }
+  }
+
+  void _switchToEdit(RoleKpi kpi) {
+    setState(() {
+      _editingKpi = kpi;
+      _selectedRoleId = kpi.roleId;
+      _selectedMetricId = kpi.metricId;
+      _selectedMetricUnit = kpi.metric?.unit ?? '';
+      _trackingMode = kpi.trackingMode;
+      _period = RoleKpi.editablePeriod(kpi.period);
+      _isActive = kpi.isActive;
+      _targetCtrl.text = kpi.targetValue?.toString() ?? '';
+      _weightCtrl.text = kpi.weight?.toString() ?? '';
+      _sequenceCtrl.text = kpi.sequence?.toString() ?? '';
+      _actionError = null;
+    });
   }
 
   @override
@@ -211,93 +416,96 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
     );
   }
 
-  void _onSave() async {
+  void _setActionError(String message) {
+    if (mounted) setState(() => _actionError = message);
+  }
+
+  Future<void> _onSave() async {
+    setState(() => _actionError = null);
     if (_selectedMetricId == null) {
-      Get.snackbar('Validation', 'Please select a metric',
-          snackPosition: SnackPosition.BOTTOM);
+      _setActionError('Select a metric to continue.');
       return;
     }
-    if (_selectedRoleId == null && widget.kpi == null) {
-      Get.snackbar('Validation', 'Please select a role',
-          snackPosition: SnackPosition.BOTTOM);
+    if (_selectedRoleId == null) {
+      _setActionError('Select a role to continue.');
       return;
     }
     if (_loadingMetrics || _metricLoadError != null) {
-      Get.snackbar('KPI metrics unavailable', 'Load metrics before saving.',
-          snackPosition: SnackPosition.BOTTOM);
+      _setActionError('Load the KPI metrics before saving.');
+      return;
+    }
+    if (_loadingAssignments || _assignmentLoadError != null) {
+      _setActionError('Confirm this role’s assigned metrics before saving.');
       return;
     }
 
     final targetText = _targetCtrl.text.trim();
     final targetValue = targetText.isEmpty ? null : double.tryParse(targetText);
     if (targetText.isNotEmpty && targetValue == null) {
-      Get.snackbar('Check the value', 'Target must be a number.',
-          snackPosition: SnackPosition.BOTTOM);
+      _setActionError('Target must be a number.');
       return;
     }
     if (targetValue != null && targetValue < 0) {
-      Get.snackbar('Check the value', 'Target cannot be negative.',
-          snackPosition: SnackPosition.BOTTOM);
+      _setActionError('Target cannot be negative.');
       return;
     }
 
     final weightText = _weightCtrl.text.trim();
     final weight = weightText.isEmpty ? null : double.tryParse(weightText);
     if (weightText.isNotEmpty && weight == null) {
-      Get.snackbar('Check the value', 'Weight must be a number.',
-          snackPosition: SnackPosition.BOTTOM);
+      _setActionError('Weight must be a number.');
       return;
     }
     if (weight != null && (weight < 0 || weight > 100)) {
-      Get.snackbar('Check the value', 'Weight must be between 0 and 100.',
-          snackPosition: SnackPosition.BOTTOM);
+      _setActionError('Weight must be between 0 and 100.');
       return;
     }
 
     final sequenceText = _sequenceCtrl.text.trim();
     final sequence = sequenceText.isEmpty ? null : int.tryParse(sequenceText);
     if (sequenceText.isNotEmpty && (sequence == null || sequence < 1)) {
-      Get.snackbar(
-          'Check the value', 'Sequence must be a positive whole number.',
-          snackPosition: SnackPosition.BOTTOM);
+      _setActionError('Sequence must be a positive whole number.');
       return;
     }
 
-    final isEdit = widget.kpi != null;
-    final roleId = _selectedRoleId ?? widget.kpi!.roleId;
+    final activeKpi = _activeKpi;
+    final roleId = _selectedRoleId!;
 
-    bool success;
-    if (isEdit) {
-      success = await widget.ctrl.updateKpi(
-        roleId: roleId,
-        id: widget.kpi!.id!,
-        metricId: _selectedMetricId!,
-        trackingMode: _trackingMode,
-        period: _period,
-        targetValue: targetValue,
-        weight: weight,
-        sequence: sequence,
-        isActive: _isActive,
-      );
+    final result = activeKpi != null
+        ? await widget.ctrl.updateKpi(
+            roleId: roleId,
+            id: activeKpi.id!,
+            metricId: _selectedMetricId!,
+            trackingMode: _trackingMode,
+            period: _period,
+            targetValue: targetValue,
+            weight: weight,
+            sequence: sequence,
+            isActive: _isActive,
+          )
+        : await widget.ctrl.createKpi(
+            roleId: roleId,
+            metricId: _selectedMetricId!,
+            trackingMode: _trackingMode,
+            period: _period,
+            targetValue: targetValue,
+            weight: weight,
+            sequence: sequence,
+            isActive: _isActive,
+          );
+
+    if (!mounted) return;
+    if (result.succeeded) {
+      Navigator.pop(context, result);
     } else {
-      success = await widget.ctrl.createKpi(
-        roleId: roleId,
-        metricId: _selectedMetricId!,
-        trackingMode: _trackingMode,
-        period: _period,
-        targetValue: targetValue,
-        weight: weight,
-        sequence: sequence,
-        isActive: _isActive,
-      );
+      _setActionError(result.message);
+      if (result.statusCode == 409) _fetchAssignments(roleId);
     }
-
-    if (success && mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final isEdit = widget.kpi != null;
+    final isEdit = _isEdit;
 
     return DialogScaffold(
       title: isEdit ? 'Edit KPI' : 'Add KPI',
@@ -308,6 +516,40 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (_actionError != null) ...[
+            _InlineKpiError(message: _actionError!),
+            const SizedBox(height: 16),
+          ],
+          // The global form requires a role before it can determine which
+          // metrics are already assigned and therefore unavailable.
+          if (widget.presetRoleId == null &&
+              widget.kpi == null &&
+              _editingKpi == null &&
+              Get.isRegistered<RolesController>()) ...[
+            const Text('Role', style: AppTextStyles.label),
+            const SizedBox(height: 8),
+            GetBuilder<RolesController>(
+              init: Get.find<RolesController>(),
+              builder: (rc) => DropdownButtonFormField<int>(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(borderRadius: AppRadii.brMd),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+                initialValue: _selectedRoleId,
+                hint: const Text('Select role'),
+                items: rc.roles
+                    .map((r) => DropdownMenuItem(
+                          value: r.id,
+                          child: Text(r.name),
+                        ))
+                    .toList(),
+                onChanged: _onRoleChanged,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
           // ── Metric Selector ──────────────────────────────────────────
           Row(
             children: [
@@ -359,57 +601,74 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                         ),
                       ],
                     )
-                  : DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(borderRadius: AppRadii.brMd),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  : InkWell(
+                      onTap: _selectedRoleId == null || _loadingAssignments
+                          ? null
+                          : _pickMetric,
+                      borderRadius: AppRadii.brMd,
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          enabled: _selectedRoleId != null &&
+                              !_loadingAssignments &&
+                              _assignmentLoadError == null,
+                          border: const OutlineInputBorder(
+                              borderRadius: AppRadii.brMd),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
+                          suffixIcon: _loadingAssignments
+                              ? const Padding(
+                                  padding: EdgeInsets.all(13),
+                                  child: SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                        ),
+                        child: Text(
+                          _selectedRoleId == null
+                              ? 'Select a role first'
+                              : _selectedMetricId == null
+                                  ? (_metrics.isEmpty
+                                      ? 'No metrics available — click “New”'
+                                      : 'Select a metric')
+                                  : _metrics
+                                          .firstWhereOrNull((metric) =>
+                                              metric.id == _selectedMetricId)
+                                          ?.name ??
+                                      _activeKpi?.metric?.name ??
+                                      'Selected metric',
+                          style: TextStyle(
+                            color: _selectedRoleId == null
+                                ? AppColors.textMuted
+                                : AppColors.textPrimary,
+                          ),
+                        ),
                       ),
-                      initialValue: _selectedMetricId,
-                      hint: Text(_metrics.isEmpty
-                          ? 'No metrics available — click "+ New" above'
-                          : 'Select a metric'),
-                      items: _metrics
-                          .map((m) => DropdownMenuItem(
-                                value: m.id,
-                                child: Text('${m.name} (${m.unit})'),
-                              ))
-                          .toList(),
-                      onChanged: (v) => setState(() {
-                        _selectedMetricId = v;
-                        final m = _metrics.firstWhereOrNull((x) => x.id == v);
-                        _selectedMetricUnit = m?.unit ?? '';
-                      }),
                     ),
-          const SizedBox(height: 16),
-
-          // ── Role Selector (when no preset role) ─────────────────────
-          if (widget.presetRoleId == null &&
-              !isEdit &&
-              Get.isRegistered<RolesController>()) ...[
-            const Text('Role', style: AppTextStyles.label),
-            const SizedBox(height: 8),
-            GetBuilder<RolesController>(
-              init: Get.find<RolesController>(),
-              builder: (rc) => DropdownButtonFormField<int>(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(borderRadius: AppRadii.brMd),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          if (_assignmentLoadError != null) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Could not check metrics assigned to this role: $_assignmentLoadError',
+                    style: const TextStyle(color: AppColors.danger),
+                  ),
                 ),
-                initialValue: _selectedRoleId,
-                hint: const Text('Select role'),
-                items: rc.roles
-                    .map((r) => DropdownMenuItem(
-                          value: r.id,
-                          child: Text(r.name),
-                        ))
-                    .toList(),
-                onChanged: (v) => setState(() => _selectedRoleId = v),
-              ),
+                IconButton(
+                  tooltip: 'Retry role metrics',
+                  onPressed: _selectedRoleId == null
+                      ? null
+                      : () => _fetchAssignments(_selectedRoleId!),
+                  icon: const Icon(Icons.refresh),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
           ],
+          const SizedBox(height: 16),
 
           // ── Tracking Mode + Period row ──────────────────────────────
           Row(
@@ -537,10 +796,12 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
               const SizedBox(width: 8),
               const Text('Active', style: AppTextStyles.bodyMd),
               const SizedBox(width: 4),
-              Text(
-                '(inactive KPIs are hidden from dashboards)',
-                style: AppTextStyles.caption
-                    .copyWith(color: AppColors.textSecondary),
+              Expanded(
+                child: Text(
+                  '(inactive KPIs are hidden from dashboards)',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textSecondary),
+                ),
               ),
             ],
           ),
@@ -566,4 +827,119 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
 
   String _formatLabel(String s) =>
       s.split('_').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
+}
+
+class _InlineKpiError extends StatelessWidget {
+  final String message;
+
+  const _InlineKpiError({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.dangerSubtle,
+        borderRadius: AppRadii.brSm,
+        border: Border.all(color: AppColors.danger.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.error_outline, size: 18, color: AppColors.danger),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.danger),
+              semanticsLabel: message,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MetricPickerDialog extends StatelessWidget {
+  final List<KPIMetric> metrics;
+  final List<RoleKpi> assignments;
+  final int? selectedMetricId;
+  final int? editableAssignmentId;
+
+  const _MetricPickerDialog({
+    required this.metrics,
+    required this.assignments,
+    required this.selectedMetricId,
+    required this.editableAssignmentId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Select a metric'),
+      content: SizedBox(
+        width: 480,
+        height: 460,
+        child: metrics.isEmpty
+            ? const Center(child: Text('No KPI metrics are available.'))
+            : ListView.separated(
+                itemCount: metrics.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  final metric = metrics[index];
+                  final assigned = assignments.firstWhereOrNull(
+                    (item) =>
+                        item.metricId == metric.id &&
+                        item.id != editableAssignmentId,
+                  );
+                  if (assigned != null) {
+                    return ListTile(
+                      enabled: false,
+                      leading:
+                          const Icon(Iconsax.chart, color: AppColors.textMuted),
+                      title: Text(metric.name,
+                          style: const TextStyle(color: AppColors.textMuted)),
+                      subtitle: Text('${metric.unit} · Already assigned'),
+                      trailing: PermissionGate(
+                        allOf: const [
+                          Perms.roleKpisUpdate,
+                          Perms.kpisList,
+                        ],
+                        child: TextButton.icon(
+                          onPressed: () => Navigator.pop(
+                              context, _MetricChoice.assignment(assigned)),
+                          icon: const Icon(Iconsax.edit_2, size: 16),
+                          label: const Text('Edit'),
+                        ),
+                      ),
+                    );
+                  }
+                  return ListTile(
+                    selected: metric.id == selectedMetricId,
+                    leading: Icon(
+                      metric.id == selectedMetricId
+                          ? Iconsax.tick_circle
+                          : Iconsax.chart,
+                      color: metric.id == selectedMetricId
+                          ? AppColors.primary
+                          : AppColors.textSecondary,
+                    ),
+                    title: Text(metric.name),
+                    subtitle: Text(metric.unit),
+                    onTap: () =>
+                        Navigator.pop(context, _MetricChoice.metric(metric)),
+                  );
+                },
+              ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
 }

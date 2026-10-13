@@ -10,6 +10,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/model/role_kpi_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -54,10 +55,7 @@ class _KpiManagementPageState extends State<KpiManagementPage> {
             icon: const Icon(Iconsax.add_circle,
                 color: AppColors.white, size: 18),
             child: 'Add KPI',
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => CreateEditKpiDialog(ctrl: ctrl),
-            ),
+            onTap: () => showKpiEditorDialog(context, ctrl: ctrl),
           ),
         ),
       ),
@@ -75,13 +73,13 @@ class _KpiManagementPageState extends State<KpiManagementPage> {
           ),
         ),
         Obx(() {
-          if (ctrl.isLoading.value) {
+          if (ctrl.isLoading.value && ctrl.kpis.isEmpty) {
             return AppCard(
               padding: const EdgeInsets.all(24),
               child: LoadingSkeleton.listRows(count: 5),
             );
           }
-          if (ctrl.errorMessage.value.isNotEmpty) {
+          if (ctrl.errorMessage.value.isNotEmpty && ctrl.kpis.isEmpty) {
             return AppCard(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -101,18 +99,67 @@ class _KpiManagementPageState extends State<KpiManagementPage> {
             );
           }
           if (ctrl.kpis.isEmpty) {
-            return const AppCard(
-              padding: EdgeInsets.all(48),
-              child: EmptyState(
-                icon: Iconsax.chart,
-                title: 'No KPIs defined yet',
-                subtitle:
-                    'Add role-level KPIs to track measurable performance standards.',
-              ),
+            return Column(
+              children: [
+                if (ctrl.isRefreshing.value)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        SizedBox(width: 8),
+                        Text('Updating KPIs...'),
+                      ],
+                    ),
+                  ),
+                const AppCard(
+                  padding: EdgeInsets.all(48),
+                  child: EmptyState(
+                    icon: Iconsax.chart,
+                    title: 'No KPIs defined yet',
+                    subtitle:
+                        'Add role-level KPIs to track measurable performance standards.',
+                  ),
+                ),
+              ],
             );
           }
           return Column(
             children: [
+              if (ctrl.isRefreshing.value || ctrl.errorMessage.value.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      if (ctrl.isRefreshing.value) ...[
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text('Updating KPIs...'),
+                      ],
+                      if (ctrl.errorMessage.value.isNotEmpty) ...[
+                        Expanded(
+                          child: Text(
+                            ctrl.errorMessage.value,
+                            style: const TextStyle(color: AppColors.danger),
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () => ctrl.fetchAllKpis(),
+                          icon: const Icon(Iconsax.refresh),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               _KpiGrid(ctrl: ctrl),
               if (ctrl.totalCount > ctrl.limit) ...[
                 const SizedBox(height: 16),
@@ -156,7 +203,7 @@ class _KpiGrid extends StatelessWidget {
 }
 
 class _KpiCard extends StatelessWidget {
-  final dynamic kpi;
+  final RoleKpi kpi;
   const _KpiCard({required this.kpi});
 
   @override
@@ -245,7 +292,7 @@ class _KpiCard extends StatelessWidget {
                   icon: const Icon(Iconsax.trash,
                       size: 18, color: AppColors.danger),
                   onPressed: () => _confirmDelete(context, kpi),
-                  tooltip: 'Delete KPI',
+                  tooltip: 'Remove from role',
                   visualDensity: VisualDensity.compact,
                 ),
               ),
@@ -256,38 +303,24 @@ class _KpiCard extends StatelessWidget {
     );
   }
 
-  void _editKpi(BuildContext context, dynamic kpi) {
+  void _editKpi(BuildContext context, RoleKpi kpi) {
     final ctrl = Get.find<RoleKpiController>(tag: 'kpi_management');
-    showDialog(
-      context: context,
-      builder: (_) =>
-          CreateEditKpiDialog(ctrl: ctrl, kpi: kpi, presetRoleId: kpi.roleId),
+    showKpiEditorDialog(
+      context,
+      ctrl: ctrl,
+      kpi: kpi,
+      presetRoleId: kpi.roleId,
     );
   }
 
-  void _confirmDelete(BuildContext context, dynamic kpi) {
+  void _confirmDelete(BuildContext context, RoleKpi kpi) {
     final ctrl = Get.find<RoleKpiController>(tag: 'kpi_management');
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Delete KPI'),
-        content: const Text(
-            'Are you sure you want to delete this KPI definition? This cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await ctrl.deleteKpi(roleId: kpi.roleId, id: kpi.id!);
-            },
-            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    showRemoveKpiConfirmation(
+      context,
+      ctrl: ctrl,
+      roleId: kpi.roleId,
+      id: kpi.id!,
+      metricName: kpi.metric?.name ?? 'this KPI',
     );
   }
 

@@ -40,10 +40,10 @@ class KpiTab extends StatelessWidget {
       tag: tag,
       builder: (ctrl) {
         return Obx(() {
-          if (ctrl.isLoading.value) {
+          if (ctrl.isLoading.value && ctrl.kpis.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (ctrl.errorMessage.value.isNotEmpty) {
+          if (ctrl.errorMessage.value.isNotEmpty && ctrl.kpis.isEmpty) {
             return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -64,161 +64,210 @@ class KpiTab extends StatelessWidget {
           final roleKpis = ctrl.kpis.where((k) => k.roleId == roleId).toList();
 
           if (roleKpis.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(40),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Iconsax.chart,
-                        size: 48, color: AppColors.textMuted),
-                    const SizedBox(height: 16),
-                    Text('No KPIs defined for this role.',
-                        style: AppTextStyles.bodyMd
-                            .copyWith(color: AppColors.textMuted)),
-                    const SizedBox(height: 16),
-                    if (!readOnly)
-                      PermissionGate(
-                        allOf: const [Perms.roleKpisCreate, Perms.kpisList],
-                        child: MyElevatedButton(
-                          height: 40,
-                          child: 'Add KPI',
-                          icon: const Icon(Iconsax.add,
-                              size: 16, color: AppColors.textOnPrimary),
-                          onTap: () => showDialog(
-                            context: context,
-                            builder: (_) => CreateEditKpiDialog(
-                                ctrl: ctrl, presetRoleId: roleId),
-                          ),
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (ctrl.isRefreshing.value)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                      ),
-                  ],
+                        SizedBox(width: 8),
+                        Text('Updating KPIs...'),
+                      ],
+                    ),
+                  ),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Iconsax.chart,
+                            size: 48, color: AppColors.textMuted),
+                        const SizedBox(height: 16),
+                        Text('No KPIs defined for this role.',
+                            style: AppTextStyles.bodyMd
+                                .copyWith(color: AppColors.textMuted)),
+                        const SizedBox(height: 16),
+                        if (!readOnly)
+                          PermissionGate(
+                            allOf: const [Perms.roleKpisCreate, Perms.kpisList],
+                            child: MyElevatedButton(
+                              height: 40,
+                              child: 'Add KPI',
+                              icon: const Icon(Iconsax.add,
+                                  size: 16, color: AppColors.textOnPrimary),
+                              onTap: () => showKpiEditorDialog(context,
+                                  ctrl: ctrl, presetRoleId: roleId),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             );
           }
 
-          return ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(24),
-            itemCount: roleKpis.length + (readOnly ? 0 : 1),
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              if (!readOnly && index == roleKpis.length) {
-                return Center(
-                  child: PermissionGate(
-                    allOf: const [Perms.roleKpisCreate, Perms.kpisList],
-                    child: TextButton.icon(
-                      onPressed: () => showDialog(
-                        context: context,
-                        builder: (_) => CreateEditKpiDialog(
-                            ctrl: ctrl, presetRoleId: roleId),
-                      ),
-                      icon: const Icon(Icons.add, size: 16),
-                      label: const Text('Add KPI'),
-                    ),
-                  ),
-                );
-              }
-
-              final k = roleKpis[index];
-              final name = k.metric?.name ?? '';
-              final unit = k.metric?.unit ?? '';
-              final permissions = Get.find<PermissionService>();
-              final canEditKpi = permissions.hasAll([
-                Perms.roleKpisUpdate,
-                Perms.kpisList,
-              ]);
-              final canDeleteKpi = permissions.has(Perms.roleKpisDelete);
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.borderSubtle),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.info.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Iconsax.chart,
-                          color: AppColors.info, size: 20),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(name,
-                              style: AppTextStyles.bodyMd
-                                  .copyWith(fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${_fmt(k.period)} · ${_fmt(k.trackingMode)}'
-                            '${k.targetValue != null ? " · Target: ${k.targetValue!.toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1)} $unit" : ""}'
-                            '${k.weight != null ? " · Weight: ${k.weight!.toStringAsFixed(k.weight! % 1 == 0 ? 0 : 1)}" : ""}',
-                            style: AppTextStyles.bodySm
-                                .copyWith(color: AppColors.textSecondary),
+          return Column(
+            children: [
+              if (ctrl.isRefreshing.value || ctrl.errorMessage.value.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+                  child: Row(
+                    children: [
+                      if (ctrl.isRefreshing.value) ...[
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text('Updating KPIs...'),
+                      ],
+                      if (ctrl.errorMessage.value.isNotEmpty) ...[
+                        Expanded(
+                          child: Text(
+                            ctrl.errorMessage.value,
+                            style: const TextStyle(color: AppColors.danger),
                           ),
-                        ],
-                      ),
-                    ),
-                    if (!readOnly && (canEditKpi || canDeleteKpi))
-                      PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_vert,
-                            size: 18, color: AppColors.textMuted),
-                        onSelected: (val) {
-                          if (val == 'edit') {
-                            showDialog(
-                              context: context,
-                              builder: (_) => CreateEditKpiDialog(
-                                ctrl: ctrl,
-                                kpi: k,
-                                presetRoleId: roleId,
-                              ),
-                            );
-                          } else if (val == 'delete' && k.id != null) {
-                            _showDeleteConfirm(context, ctrl, roleId, k.id!);
-                          }
-                        },
-                        itemBuilder: (_) => [
-                          if (canEditKpi)
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(Iconsax.edit,
-                                      size: 16, color: AppColors.textPrimary),
-                                  SizedBox(width: 8),
-                                  Text('Edit KPI'),
-                                ],
-                              ),
-                            ),
-                          if (canDeleteKpi)
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Iconsax.trash,
-                                      size: 16, color: AppColors.danger),
-                                  SizedBox(width: 8),
-                                  Text('Delete KPI',
-                                      style:
-                                          TextStyle(color: AppColors.danger)),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                  ],
+                        ),
+                        TextButton.icon(
+                          onPressed: () => ctrl.fetchKpis(roleId: roleId),
+                          icon: const Icon(Iconsax.refresh),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-              );
-            },
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(24),
+                itemCount: roleKpis.length + (readOnly ? 0 : 1),
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  if (!readOnly && index == roleKpis.length) {
+                    return Center(
+                      child: PermissionGate(
+                        allOf: const [Perms.roleKpisCreate, Perms.kpisList],
+                        child: TextButton.icon(
+                          onPressed: () => showKpiEditorDialog(context,
+                              ctrl: ctrl, presetRoleId: roleId),
+                          icon: const Icon(Icons.add, size: 16),
+                          label: const Text('Add KPI'),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final k = roleKpis[index];
+                  final name = k.metric?.name ?? '';
+                  final unit = k.metric?.unit ?? '';
+                  final permissions = Get.find<PermissionService>();
+                  final canEditKpi = permissions.hasAll([
+                    Perms.roleKpisUpdate,
+                    Perms.kpisList,
+                  ]);
+                  final canDeleteKpi = permissions.has(Perms.roleKpisDelete);
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceMuted,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.borderSubtle),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.info.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Iconsax.chart,
+                              color: AppColors.info, size: 20),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(name,
+                                  style: AppTextStyles.bodyMd
+                                      .copyWith(fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${_fmt(k.period)} · ${_fmt(k.trackingMode)}'
+                                '${k.targetValue != null ? " · Target: ${k.targetValue!.toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1)} $unit" : ""}'
+                                '${k.weight != null ? " · Weight: ${k.weight!.toStringAsFixed(k.weight! % 1 == 0 ? 0 : 1)}" : ""}',
+                                style: AppTextStyles.bodySm
+                                    .copyWith(color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (!readOnly && (canEditKpi || canDeleteKpi))
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert,
+                                size: 18, color: AppColors.textMuted),
+                            onSelected: (val) {
+                              if (val == 'edit') {
+                                showKpiEditorDialog(
+                                  context,
+                                  ctrl: ctrl,
+                                  kpi: k,
+                                  presetRoleId: roleId,
+                                );
+                              } else if (val == 'delete' && k.id != null) {
+                                _showDeleteConfirm(
+                                    context, ctrl, roleId, k.id!);
+                              }
+                            },
+                            itemBuilder: (_) => [
+                              if (canEditKpi)
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: Row(
+                                    children: [
+                                      Icon(Iconsax.edit,
+                                          size: 16,
+                                          color: AppColors.textPrimary),
+                                      SizedBox(width: 8),
+                                      Text('Edit KPI'),
+                                    ],
+                                  ),
+                                ),
+                              if (canDeleteKpi)
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Row(
+                                    children: [
+                                      Icon(Iconsax.trash,
+                                          size: 16, color: AppColors.danger),
+                                      SizedBox(width: 8),
+                                      Text('Remove from role',
+                                          style: TextStyle(
+                                              color: AppColors.danger)),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
           );
         });
       },
@@ -227,26 +276,13 @@ class KpiTab extends StatelessWidget {
 
   void _showDeleteConfirm(
       BuildContext context, RoleKpiController ctrl, int roleId, int kpiId) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete KPI'),
-        content: const Text('Are you sure you want to delete this KPI?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await ctrl.deleteKpi(roleId: roleId, id: kpiId);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+    final kpi = ctrl.kpis.firstWhereOrNull((item) => item.id == kpiId);
+    showRemoveKpiConfirmation(
+      context,
+      ctrl: ctrl,
+      roleId: roleId,
+      id: kpiId,
+      metricName: kpi?.metric?.name ?? 'this KPI',
     );
   }
 }

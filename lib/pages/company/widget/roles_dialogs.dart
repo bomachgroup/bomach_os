@@ -458,12 +458,10 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                               Perms.kpisList,
                             ],
                             child: TextButton.icon(
-                              onPressed: () => showDialog(
-                                context: context,
-                                builder: (_) => CreateEditKpiDialog(
-                                  ctrl: kpiCtrl,
-                                  presetRoleId: widget.role!.id,
-                                ),
+                              onPressed: () => showKpiEditorDialog(
+                                context,
+                                ctrl: kpiCtrl,
+                                presetRoleId: widget.role!.id,
                               ),
                               icon: const Icon(Icons.add, size: 16),
                               label: const Text('Add KPI'),

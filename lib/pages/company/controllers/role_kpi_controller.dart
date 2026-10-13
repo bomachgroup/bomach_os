@@ -1,11 +1,24 @@
+import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 import '../../../src/model/role_kpi_model.dart';
 import '../../../src/services/role_kpi_service.dart';
+
+class KpiActionResult {
+  final bool succeeded;
+  final String message;
+  final int? statusCode;
+
+  const KpiActionResult.success(this.message)
+      : succeeded = true,
+        statusCode = null;
+
+  const KpiActionResult.failure(this.message, {this.statusCode})
+      : succeeded = false;
+}
 
 class RoleKpiController extends GetxController {
   final RoleKpiService _service;
@@ -22,6 +35,7 @@ class RoleKpiController extends GetxController {
 
   var kpis = <RoleKpi>[].obs;
   var isLoading = false.obs;
+  var isRefreshing = false.obs;
   var isSaving = false.obs;
   var errorMessage = ''.obs;
 
@@ -29,6 +43,7 @@ class RoleKpiController extends GetxController {
   int offset = 0;
   int totalCount = 0;
   String? _lastSearch;
+  int _roleKpisRequestId = 0;
   int _allKpisRequestId = 0;
 
   int? scopedRoleId;
@@ -65,54 +80,106 @@ class RoleKpiController extends GetxController {
     return cleaned.length > 120 ? '${cleaned.substring(0, 120)}...' : cleaned;
   }
 
-  // ignore: prefer_const_constructors
-  static final _errorBg = Color(0xFFFEF2F2);
-  // ignore: prefer_const_constructors
-  static final _errorText = Color(0xFF991B1B);
-  // ignore: prefer_const_constructors
-  static final _successBg = Color(0xFFF0FDF4);
-  // ignore: prefer_const_constructors
-  static final _successText = Color(0xFF166534);
-  static const _snackMargin = EdgeInsets.all(16);
+  int? _statusCode(dynamic error) {
+    final match = RegExp(r'API Error:\s*(\d+)').firstMatch(error.toString());
+    return match == null ? null : int.tryParse(match.group(1)!);
+  }
 
-  void _safeSnackbar(String title, String msg, {Color? bg, Color? fg}) {
+  KpiActionResult _actionFailure(dynamic error) => KpiActionResult.failure(
+        _friendlyError(error),
+        statusCode: _statusCode(error),
+      );
+
+  void _refreshVisibleList() {
+    if (scopedRoleId == null) {
+      unawaited(fetchAllKpis(search: _lastSearch, background: true));
+    } else {
+      unawaited(fetchKpis(roleId: scopedRoleId, background: true));
+    }
+  }
+
+  void _insertCreatedKpi(RoleKpi created, int roleId) {
+    if (created.id == null) return;
+    if (scopedRoleId != null && scopedRoleId != roleId) return;
+    if (scopedRoleId == null && (_lastSearch?.trim().isNotEmpty ?? false)) {
+      return;
+    }
+    if (offset != 0) return;
+    final alreadyPresent = kpis.any((item) => item.id == created.id);
+    kpis.removeWhere((item) => item.id == created.id);
+    kpis.insert(0, created);
+    if (!alreadyPresent) {
+      totalCount += 1;
+      if (kpis.length > limit) kpis.removeLast();
+    }
+  }
+
+  void _replaceKpi(RoleKpi updated) {
+    final index = kpis.indexWhere((item) => item.id == updated.id);
+    if (index >= 0) kpis[index] = updated;
+  }
+
+  /// Loads every assignment for a role without replacing the visible KPI list.
+  Future<({List<RoleKpi> list, String? error})> loadRoleAssignments(
+      int roleId) async {
     try {
-      if (Get.context != null && !Get.isSnackbarOpen) {
-        Get.snackbar(title, msg,
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: bg ?? _successBg,
-            colorText: fg ?? _successText,
-            margin: _snackMargin,
-            duration: const Duration(seconds: 3));
+      final token = await _getToken();
+      if (token == null) {
+        return (
+          list: <RoleKpi>[],
+          error: 'Authentication required. Sign in again.'
+        );
       }
-    } catch (_) {}
+      final assignments = <RoleKpi>[];
+      var nextOffset = 0;
+      var count = 0;
+      do {
+        final page = await _service.listRoleKpis(
+          token,
+          roleId: roleId,
+          limit: 100,
+          offset: nextOffset,
+        );
+        assignments.addAll(page.list);
+        count = page.count;
+        if (page.list.isEmpty) break;
+        nextOffset += page.list.length;
+      } while (nextOffset < count);
+      return (list: assignments, error: null);
+    } catch (error) {
+      return (list: <RoleKpi>[], error: _friendlyError(error));
+    }
   }
 
-  void _showError(String msg) {
-    _safeSnackbar('Error', msg, bg: _errorBg, fg: _errorText);
-  }
-
-  void _showSuccess(String msg) {
-    _safeSnackbar('Success', msg);
-  }
-
-  Future<void> fetchKpis({bool refresh = false, int? roleId}) async {
+  Future<void> fetchKpis({
+    bool refresh = false,
+    bool background = false,
+    int? roleId,
+  }) async {
     if (refresh) offset = 0;
-    isLoading.value = true;
+    final requestId = ++_roleKpisRequestId;
+    final hasVisibleRows = kpis.isNotEmpty;
+    isLoading.value = !background && !hasVisibleRows;
+    isRefreshing.value = background || hasVisibleRows;
     errorMessage.value = '';
     try {
       final token = await _getToken();
       if (token == null) {
-        errorMessage.value = 'Authentication required. Sign in again.';
+        if (requestId == _roleKpisRequestId) {
+          errorMessage.value = 'Authentication required. Sign in again.';
+        }
         return;
       }
       final rId = roleId ?? scopedRoleId;
       if (rId == null) {
-        errorMessage.value = 'Select a role to load its KPIs.';
+        if (requestId == _roleKpisRequestId) {
+          errorMessage.value = 'Select a role to load its KPIs.';
+        }
         return;
       }
       final result = await _service.listRoleKpis(token,
           roleId: rId, limit: limit, offset: offset);
+      if (requestId != _roleKpisRequestId) return;
       if (refresh || offset == 0) {
         kpis.assignAll(result.list);
       } else {
@@ -121,13 +188,18 @@ class RoleKpiController extends GetxController {
       totalCount = result.count;
     } catch (e) {
       log('RoleKpiController.fetchKpis error: $e');
-      errorMessage.value = _friendlyError(e);
+      if (requestId == _roleKpisRequestId) {
+        errorMessage.value = _friendlyError(e);
+      }
     } finally {
-      isLoading.value = false;
+      if (requestId == _roleKpisRequestId) {
+        isLoading.value = false;
+        isRefreshing.value = false;
+      }
     }
   }
 
-  Future<bool> createKpi({
+  Future<KpiActionResult> createKpi({
     required int roleId,
     required int metricId,
     required String trackingMode,
@@ -140,7 +212,10 @@ class RoleKpiController extends GetxController {
     try {
       isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return false;
+      if (token == null) {
+        return const KpiActionResult.failure(
+            'Authentication required. Sign in again.');
+      }
       final payload = <String, dynamic>{
         'metric_id': metricId,
         'tracking_mode': trackingMode,
@@ -151,20 +226,19 @@ class RoleKpiController extends GetxController {
       if (weight != null) payload['weight'] = weight;
       if (sequence != null) payload['sequence'] = sequence;
 
-      await _service.createRoleKpi(token, roleId, payload);
-      await fetchKpis(refresh: true, roleId: roleId);
-      _showSuccess('KPI created successfully');
-      return true;
+      final created = await _service.createRoleKpi(token, roleId, payload);
+      _insertCreatedKpi(created, roleId);
+      _refreshVisibleList();
+      return const KpiActionResult.success('KPI added to the role.');
     } catch (e) {
       log('RoleKpiController.createKpi error: $e');
-      _showError(_friendlyError(e));
-      return false;
+      return _actionFailure(e);
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<bool> updateKpi({
+  Future<KpiActionResult> updateKpi({
     required int roleId,
     required int id,
     required int metricId,
@@ -178,7 +252,10 @@ class RoleKpiController extends GetxController {
     try {
       isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return false;
+      if (token == null) {
+        return const KpiActionResult.failure(
+            'Authentication required. Sign in again.');
+      }
       final payload = <String, dynamic>{
         'metric_id': metricId,
         'target_value': targetValue,
@@ -189,51 +266,59 @@ class RoleKpiController extends GetxController {
       if (sequence != null) payload['sequence'] = sequence;
       if (isActive != null) payload['is_active'] = isActive;
 
-      await _service.updateRoleKpi(token, roleId, id, payload);
-      if (scopedRoleId == null) {
-        await fetchAllKpis(refresh: true, search: _lastSearch);
-      } else {
-        await fetchKpis(refresh: true, roleId: roleId);
-      }
-      _showSuccess('KPI updated successfully');
-      return true;
+      final updated = await _service.updateRoleKpi(token, roleId, id, payload);
+      _replaceKpi(updated);
+      _refreshVisibleList();
+      return const KpiActionResult.success('KPI updated.');
     } catch (e) {
       log('RoleKpiController.updateKpi error: $e');
-      _showError(_friendlyError(e));
-      return false;
+      return _actionFailure(e);
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<bool> deleteKpi({required int roleId, required int id}) async {
+  Future<KpiActionResult> deleteKpi(
+      {required int roleId, required int id}) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return false;
-      await _service.deleteRoleKpi(token, roleId, id);
-      if (scopedRoleId == null) {
-        await fetchAllKpis(refresh: true, search: _lastSearch);
-      } else {
-        await fetchKpis(refresh: true, roleId: roleId);
+      if (token == null) {
+        return const KpiActionResult.failure(
+            'Authentication required. Sign in again.');
       }
-      _showSuccess('KPI deleted');
-      return true;
+      await _service.deleteRoleKpi(token, roleId, id);
+      final previousLength = kpis.length;
+      kpis.removeWhere((item) => item.id == id);
+      final removed = kpis.length != previousLength;
+      if (removed) {
+        totalCount = (totalCount - 1).clamp(0, totalCount).toInt();
+        final lastOffset =
+            totalCount == 0 ? 0 : ((totalCount - 1) ~/ limit) * limit;
+        if (offset > lastOffset) offset = lastOffset;
+      }
+      _refreshVisibleList();
+      return const KpiActionResult.success('KPI removed from the role.');
     } catch (e) {
       log('RoleKpiController.deleteKpi error: $e');
-      _showError(_friendlyError(e));
-      return false;
+      return _actionFailure(e);
     } finally {
       isSaving.value = false;
     }
   }
 
   /// Fetch KPIs from ALL roles for the management page.
-  Future<void> fetchAllKpis({bool refresh = false, String? search}) async {
+  Future<void> fetchAllKpis({
+    bool refresh = false,
+    bool background = false,
+    String? search,
+  }) async {
     if (refresh) offset = 0;
     _lastSearch = search ?? _lastSearch;
     final requestId = ++_allKpisRequestId;
-    isLoading.value = true;
+    final hasVisibleRows = kpis.isNotEmpty;
+    isLoading.value = !background && !hasVisibleRows;
+    isRefreshing.value = background || hasVisibleRows;
     errorMessage.value = '';
     try {
       final token = await _getToken();
@@ -258,7 +343,10 @@ class RoleKpiController extends GetxController {
         errorMessage.value = _friendlyError(e);
       }
     } finally {
-      if (requestId == _allKpisRequestId) isLoading.value = false;
+      if (requestId == _allKpisRequestId) {
+        isLoading.value = false;
+        isRefreshing.value = false;
+      }
     }
   }
 
