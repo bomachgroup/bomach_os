@@ -3,6 +3,7 @@ import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/paginate/my_paginator.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
@@ -10,9 +11,11 @@ import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/company/widget/add_branch_dialog.dart';
 import 'package:bomach_os/pages/company/widget/view_branch_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/branch_model.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -43,13 +46,16 @@ class _BranchListPageState extends State<BranchListPage> {
       header: PageHeader(
         title: 'Branches',
         subtitle:
-            'Manage branch offices, locations, managers, and operational status.',
-        trailing: MyElevatedButton(
-          height: 48,
-          icon: const Icon(Iconsax.add_circle,
-              color: AppColors.textOnPrimary, size: 18),
-          child: 'New Branch',
-          onTap: _openAddDialog,
+            'Manage branch details and configure each office attendance geofence.',
+        trailing: PermissionGate(
+          require: Perms.branchesCreate,
+          child: MyElevatedButton(
+            height: 48,
+            icon: const Icon(Iconsax.add_circle,
+                color: AppColors.textOnPrimary, size: 18),
+            child: 'New Branch',
+            onTap: _openAddDialog,
+          ),
         ),
       ),
       children: [
@@ -486,6 +492,31 @@ class _BranchListPageState extends State<BranchListPage> {
           overflow: TextOverflow.ellipsis,
           style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
         ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Icon(
+              branch.latitude != null && branch.longitude != null
+                  ? Iconsax.location_tick
+                  : Iconsax.location_slash,
+              size: 14,
+              color: branch.latitude != null && branch.longitude != null
+                  ? AppColors.success
+                  : AppColors.textMuted,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              branch.latitude != null && branch.longitude != null
+                  ? 'Attendance geofence · ${branch.attendanceRadiusMeters} m'
+                  : 'Attendance point not configured',
+              style: AppTextStyles.caption.copyWith(
+                color: branch.latitude != null && branch.longitude != null
+                    ? AppColors.success
+                    : AppColors.textMuted,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -510,8 +541,8 @@ class _BranchListPageState extends State<BranchListPage> {
           _openEditDialog(branch);
         }
       },
-      itemBuilder: (_) => const [
-        PopupMenuItem(
+      itemBuilder: (_) => [
+        const PopupMenuItem(
           value: 'view',
           child: Row(
             children: [
@@ -521,16 +552,17 @@ class _BranchListPageState extends State<BranchListPage> {
             ],
           ),
         ),
-        PopupMenuItem(
-          value: 'edit',
-          child: Row(
-            children: [
-              Icon(Iconsax.edit, size: 18, color: AppColors.textSecondary),
-              SizedBox(width: 8),
-              Text('Edit branch'),
-            ],
+        if (Get.find<PermissionService>().has(Perms.branchesUpdate))
+          const PopupMenuItem(
+            value: 'edit',
+            child: Row(
+              children: [
+                Icon(Iconsax.edit, size: 18, color: AppColors.textSecondary),
+                SizedBox(width: 8),
+                Text('Edit branch'),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

@@ -3,6 +3,7 @@ import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
@@ -10,6 +11,7 @@ import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/branch_model.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:bomach_os/src/helper/language_helper.dart';
@@ -78,19 +80,22 @@ class _BranchDetailPageState extends State<BranchDetailPage>
           title: branch.branchName,
           subtitle: '${branch.branchRoleDisplay} • ${_branchLocation(branch)}',
           leading: _buildBackButton(context),
-          trailing: MyElevatedButton(
-            width: 128,
-            height: 44,
-            icon: const Icon(Iconsax.edit,
-                size: 16, color: AppColors.textOnPrimary),
-            child: 'Edit Branch',
-            onTap: () {
-              controller.loadFilterResources();
-              showDialog(
-                context: context,
-                builder: (_) => AddBranchDialog(branchToEdit: branch),
-              );
-            },
+          trailing: PermissionGate(
+            require: Perms.branchesUpdate,
+            child: MyElevatedButton(
+              width: 128,
+              height: 44,
+              icon: const Icon(Iconsax.edit,
+                  size: 16, color: AppColors.textOnPrimary),
+              child: 'Edit Branch',
+              onTap: () {
+                controller.loadFilterResources();
+                showDialog(
+                  context: context,
+                  builder: (_) => AddBranchDialog(branchToEdit: branch),
+                );
+              },
+            ),
           ),
         ),
         children: [
@@ -345,6 +350,25 @@ class _BranchDetailPageState extends State<BranchDetailPage>
             _DetailItem("Email", branch.contactEmail),
             _DetailItem("Phone", branch.contactPhone),
             _DetailItem("Active", branch.isActive ? "Yes" : "No"),
+          ]),
+
+          const SizedBox(height: 24),
+
+          _buildSectionTitle("Attendance Geofence"),
+          const SizedBox(height: 12),
+          _buildDetailGrid([
+            _DetailItem(
+              "Attendance point",
+              branch.latitude != null && branch.longitude != null
+                  ? "${branch.latitude!.toStringAsFixed(6)}, ${branch.longitude!.toStringAsFixed(6)}"
+                  : "Not configured",
+            ),
+            _DetailItem(
+              "Allowed radius",
+              branch.latitude != null && branch.longitude != null
+                  ? "${branch.attendanceRadiusMeters} metres"
+                  : "Configure a point first",
+            ),
           ]),
 
           const SizedBox(height: 24),

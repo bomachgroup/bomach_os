@@ -38,6 +38,7 @@ class LeaveRequestService {
     String token, {
     String? search,
     String? employeeId,
+    String? requestKind,
     String? leaveType,
     String? status,
     String? startDateFrom,
@@ -51,6 +52,8 @@ class LeaveRequestService {
         queryParameters: {
           if (search != null) 'search': search,
           if (employeeId != null) 'employee_id': employeeId,
+          if (requestKind != null && requestKind != 'all')
+            'request_kind': requestKind,
           if (leaveType != null) 'leave_type': leaveType,
           if (status != null) 'status': status,
           if (startDateFrom != null) 'start_date_from': startDateFrom,
@@ -104,7 +107,7 @@ class LeaveRequestService {
   Future<LeaveRequest> updateLeaveRequest(
       String token, String id, LeaveRequest request) async {
     try {
-      final response = await _dio.put(
+      final response = await _dio.patch(
         '/leave-requests/$id',
         data: request.toJson(),
         options: _authOptions(token),
@@ -175,9 +178,13 @@ class LeaveRequestService {
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ?? error.message;
+      final responseData = error.response?.data;
+      final errorMessage = responseData is Map
+          ? responseData['detail'] ?? responseData['message'] ?? error.message
+          : error.message;
       return Exception(
-          'API Error: ${error.response?.statusCode} - $errorMessage');
+        errorMessage?.toString() ?? 'The request could not be completed.',
+      );
     }
     return Exception('Unexpected error: $error');
   }

@@ -65,6 +65,7 @@ enum SubMenuItem {
   jobPost,
   jobApplicants,
   attendance,
+  attendanceCalendar,
   loans,
   leaveRequest,
   performance,
@@ -451,6 +452,7 @@ const List<SidebarSection> sidebarStructure = [
           PermissionConstants.resJobPostings,
           PermissionConstants.resLeaveRequests,
           PermissionConstants.resPayroll,
+          PermissionConstants.resAttendanceCalendar,
         ],
         children: [
           SubMenuItemData(
@@ -466,6 +468,13 @@ const List<SidebarSection> sidebarStructure = [
             label: 'Attendance',
             route: RouteConstants.attendance,
             resources: [PermissionConstants.resEmployees],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.attendanceCalendar,
+            icon: Iconsax.calendar_1,
+            label: 'Work Calendar',
+            route: RouteConstants.attendanceCalendar,
+            resources: [PermissionConstants.resAttendanceCalendar],
           ),
           SubMenuItemData(
             id: SubMenuItem.jobPost,

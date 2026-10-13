@@ -1,6 +1,7 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/components/input/country_state_city_picker.dart';
 import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
@@ -9,6 +10,7 @@ import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/branch_model.dart';
 import 'package:bomach_os/src/helper/language_helper.dart';
+import 'package:bomach_os/src/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -35,6 +37,11 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
   final emailCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
   final notesCtrl = TextEditingController();
+  final attendanceRadiusCtrl = TextEditingController();
+
+  double? _latitude;
+  double? _longitude;
+  bool _isCapturingLocation = false;
 
   String? countryName;
   String? countryCode;
@@ -76,6 +83,9 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       emailCtrl.text = branch.contactEmail;
       phoneCtrl.text = branch.contactPhone;
       notesCtrl.text = branch.notes;
+      attendanceRadiusCtrl.text = '${branch.attendanceRadiusMeters}';
+      _latitude = branch.latitude;
+      _longitude = branch.longitude;
       countryName = branch.country.isEmpty ? null : branch.country;
       countryCode = branch.countryCode.isEmpty ? null : branch.countryCode;
       selectedRole = branch.branchRole;
@@ -90,6 +100,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
           branch.managerName.isNotEmpty ? branch.managerName : null;
     } else {
       selectedStatus = 'active';
+      attendanceRadiusCtrl.text = '100';
     }
   }
 
@@ -100,6 +111,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
     emailCtrl.dispose();
     phoneCtrl.dispose();
     notesCtrl.dispose();
+    attendanceRadiusCtrl.dispose();
     super.dispose();
   }
 
@@ -412,6 +424,107 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                 ),
                 const SizedBox(height: 20),
                 _buildSection(
+                  title: 'Attendance geofence',
+                  subtitle:
+                      'Optional branch centre used to validate branch-based work locations and attendance.',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: AppRadii.brMd,
+                          border: Border.all(color: AppColors.borderSubtle),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Iconsax.location,
+                                color: AppColors.primary, size: 20),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _latitude == null || _longitude == null
+                                        ? 'Attendance point not configured'
+                                        : 'Attendance point configured',
+                                    style: AppTextStyles.bodyMd.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _latitude == null || _longitude == null
+                                        ? 'Capture the branch GPS point while on site.'
+                                        : '${_latitude!.toStringAsFixed(6)}, ${_longitude!.toStringAsFixed(6)}',
+                                    style: AppTextStyles.bodySm.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (_latitude != null || _longitude != null)
+                              IconButton(
+                                tooltip: 'Clear attendance point',
+                                onPressed: _isCapturingLocation
+                                    ? null
+                                    : () => setState(() {
+                                          _latitude = null;
+                                          _longitude = null;
+                                        }),
+                                icon: const Icon(Iconsax.trash,
+                                    color: AppColors.danger, size: 18),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      MyTextFormField(
+                        controller: attendanceRadiusCtrl,
+                        title: 'Attendance radius (metres)',
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          final radius = int.tryParse(value?.trim() ?? '');
+                          if (radius == null || radius < 1) {
+                            return 'Enter a positive radius';
+                          }
+                          if (radius > 5000)
+                            return 'Radius cannot exceed 5000m';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      MyOutlinedButton(
+                        height: 44,
+                        icon: Icon(
+                          _isCapturingLocation ? Iconsax.refresh : Iconsax.gps,
+                          size: 17,
+                          color: AppColors.primary,
+                        ),
+                        child: _isCapturingLocation
+                            ? 'Capturing GPS…'
+                            : _latitude == null
+                                ? 'Capture branch GPS point'
+                                : 'Recapture GPS point',
+                        onTap: _isCapturingLocation
+                            ? null
+                            : _captureAttendancePoint,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Leave the point unset if this branch should not be used as an attendance location. Default radius is 100 metres.',
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
                   title: 'Notes',
                   child: MyTextFormField(
                     controller: notesCtrl,
@@ -514,6 +627,15 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       'manager_id': selectedManagerId ?? 0,
       'notes': notesCtrl.text.trim(),
       'is_active': isActive,
+      'attendance_radius_meters':
+          int.tryParse(attendanceRadiusCtrl.text.trim()) ?? 100,
+      if (_latitude != null && _longitude != null) ...{
+        'latitude': _latitude,
+        'longitude': _longitude,
+      } else ...{
+        'latitude': null,
+        'longitude': null,
+      },
       if (selectedCurrency != null) 'default_currency': selectedCurrency,
       if (selectedLanguage != null)
         'language_preference': LanguageHelper.toCode(selectedLanguage),
@@ -523,6 +645,46 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       controller.updateBranch(context, widget.branchToEdit!.id, data);
     } else {
       controller.createBranch(context, data);
+    }
+  }
+
+  Future<void> _captureAttendancePoint() async {
+    setState(() => _isCapturingLocation = true);
+    try {
+      final location = LocationService();
+      if (!await location.ensurePermission()) {
+        if (mounted) {
+          AppToast.warning(
+            context,
+            'Enable location access and device location services to capture this branch point.',
+          );
+        }
+        return;
+      }
+      final position = await location.getSettledPosition(
+        targetAccuracy: LocationService.setupTargetAccuracy,
+        timeout: const Duration(seconds: 25),
+      );
+      if (position.accuracy > LocationService.setupMaxAccuracy) {
+        throw Exception(
+          'GPS accuracy is ±${position.accuracy.round()}m. Move to an open area and try again.',
+        );
+      }
+      if (!mounted) return;
+      setState(() {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+      });
+      AppToast.success(context, 'Branch GPS point captured.');
+    } catch (error) {
+      if (mounted) {
+        AppToast.error(
+          context,
+          error.toString().replaceFirst('Exception: ', ''),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCapturingLocation = false);
     }
   }
 }

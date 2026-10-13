@@ -3,7 +3,9 @@ import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -49,8 +51,7 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
         Obx(() => MyOutlinedButton(
               child: 'Cancel',
               height: 44,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               textColor: AppColors.textSecondary,
               borderColor: AppColors.borderStrong,
               onTap: _ctrl.isSaving.value
@@ -60,20 +61,24 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                       Navigator.pop(context);
                     },
             )),
-        Obx(() => MyElevatedButton(
-              height: 44,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              icon: _ctrl.isSaving.value
-                  ? null
-                  : const Icon(Iconsax.tick_circle,
-                      color: AppColors.textOnPrimary, size: 18),
-              child: _ctrl.isSaving.value ? 'Saving...' : 'Save',
-              onTap: _ctrl.isSaving.value
-                  ? null
-                  : () => _ctrl.saveLeaveRequest(context,
-                      id: widget.request?.id),
-            )),
+        PermissionGate(
+          require:
+              isEdit ? Perms.leaveRequestsUpdate : Perms.leaveRequestsCreate,
+          child: Obx(() => MyElevatedButton(
+                height: 44,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                icon: _ctrl.isSaving.value
+                    ? null
+                    : const Icon(Iconsax.tick_circle,
+                        color: AppColors.textOnPrimary, size: 18),
+                child: _ctrl.isSaving.value ? 'Saving...' : 'Save',
+                onTap: _ctrl.isSaving.value
+                    ? null
+                    : () =>
+                        _ctrl.saveLeaveRequest(context, id: widget.request?.id),
+              )),
+        ),
       ],
     );
   }
@@ -93,10 +98,9 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                         hintText: _ctrl.selectedLeaveType.value.isEmpty
                             ? 'Select leave type'
                             : _ctrl.selectedLeaveType.value,
-                        initialSelection:
-                            _ctrl.selectedLeaveType.value.isEmpty
-                                ? null
-                                : _ctrl.selectedLeaveType.value,
+                        initialSelection: _ctrl.selectedLeaveType.value.isEmpty
+                            ? null
+                            : _ctrl.selectedLeaveType.value,
                         title: 'Leave Type',
                         spaceBetweenText: 8,
                         onChanged: (v) {

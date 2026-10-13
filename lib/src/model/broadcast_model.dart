@@ -137,12 +137,16 @@ class BroadcastEvent {
     }
     if (parsedId == 0) {
       // Generate a consistent unique integer hash to prevent GlobalKey collisions in lists
-      final uniqueStr = "${json['title']}_${json['created_at']}_${json['date_sent']}";
+      final uniqueStr =
+          "${json['title']}_${json['created_at']}_${json['date_sent']}";
       parsedId = uniqueStr.hashCode;
     }
 
     // Resilient fallback when event_time_from/to are missing from the GET list serializer
-    final timeFrom = json['event_time_from'] ?? json['date_sent'] ?? json['created_at'] ?? '';
+    final timeFrom = json['event_time_from'] ??
+        json['date_sent'] ??
+        json['created_at'] ??
+        '';
     final timeTo = json['event_time_to'] ?? timeFrom;
 
     return BroadcastEvent(
@@ -195,23 +199,98 @@ int? _parseReminderOffset(dynamic val) {
 
 // ─── NOTIFICATION ITEM (UI-only) ────────────────────────────────
 
-/// Display model for notification cards. No API endpoint available yet.
+/// Persisted notification returned by the system inbox API.
 class NotificationItem {
+  final int? id;
   final String title;
   final String subtitle;
   final String description;
   final String time;
-  final String category; // Admin, Staff, Associate, Investor
+  final String category;
   final bool isRead;
+  final String notificationType;
+  final String? eventType;
+  final String priority;
+  final String link;
+  final String action;
+  final String entityType;
+  final String entityId;
+  final Map<String, dynamic> metadata;
+  final String createdAt;
 
   NotificationItem({
+    this.id,
     required this.title,
     required this.subtitle,
     required this.description,
     required this.time,
-    this.category = 'Admin',
+    this.category = 'General',
     this.isRead = false,
+    this.notificationType = '',
+    this.eventType,
+    this.priority = 'normal',
+    this.link = '',
+    this.action = '',
+    this.entityType = '',
+    this.entityId = '',
+    this.metadata = const {},
+    this.createdAt = '',
   });
+
+  factory NotificationItem.fromJson(Map<String, dynamic> json) {
+    final createdAt = json['created_at']?.toString() ?? '';
+    final eventType = json['event_type']?.toString();
+    return NotificationItem(
+      id: json['id'] is int ? json['id'] : int.tryParse('${json['id']}'),
+      title: json['title']?.toString() ?? 'Notification',
+      subtitle: eventType ?? json['notification_type']?.toString() ?? 'Update',
+      description: json['message']?.toString() ?? '',
+      time: createdAt,
+      category: _notificationCategory(
+          eventType ?? json['notification_type']?.toString() ?? ''),
+      isRead: json['is_read'] == true,
+      notificationType: json['notification_type']?.toString() ?? '',
+      eventType: eventType,
+      priority: json['priority']?.toString() ?? 'normal',
+      link: json['link']?.toString() ?? '',
+      action: json['action']?.toString() ?? '',
+      entityType: json['entity_type']?.toString() ?? '',
+      entityId: json['entity_id']?.toString() ?? '',
+      metadata: json['metadata'] is Map
+          ? Map<String, dynamic>.from(json['metadata'] as Map)
+          : const {},
+      createdAt: createdAt,
+    );
+  }
+
+  NotificationItem copyWith({bool? isRead}) => NotificationItem(
+        id: id,
+        title: title,
+        subtitle: subtitle,
+        description: description,
+        time: time,
+        category: category,
+        isRead: isRead ?? this.isRead,
+        notificationType: notificationType,
+        eventType: eventType,
+        priority: priority,
+        link: link,
+        action: action,
+        entityType: entityType,
+        entityId: entityId,
+        metadata: metadata,
+        createdAt: createdAt,
+      );
+}
+
+String _notificationCategory(String eventType) {
+  final type = eventType.toLowerCase();
+  if (type.contains('work_location')) return 'Work locations';
+  if (type.contains('attendance')) return 'Attendance';
+  if (type.contains('task')) return 'Tasks';
+  if (type.contains('leave')) return 'Leave';
+  if (type.contains('payment') || type.contains('invoice')) return 'Finance';
+  return 'General';
 }
 
 // ─── ANNOUNCEMENT FIELD CHOICES ─────────────────────────────────
@@ -262,7 +341,8 @@ DateTime? parseApiDateTime(String dateStr) {
   // Try parsing the backend custom display formats
   try {
     // Format: dd-MM-yyyy, hh:mm a (e.g. 09-07-2026, 11:00 AM)
-    final normalized = dateStr.trim().replaceAll(RegExp(r'\s+'), ' ').toUpperCase();
+    final normalized =
+        dateStr.trim().replaceAll(RegExp(r'\s+'), ' ').toUpperCase();
     return DateFormat('dd-MM-yyyy, hh:mm a').parse(normalized);
   } catch (_) {}
 

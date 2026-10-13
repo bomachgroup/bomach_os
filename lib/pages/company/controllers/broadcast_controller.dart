@@ -5,21 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import 'package:bomach_os/src/model/approval_model.dart';
 import 'package:bomach_os/src/model/board_model.dart';
 import 'package:bomach_os/src/model/branch_model.dart';
 import 'package:bomach_os/src/model/broadcast_model.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/model/departments_units_model.dart';
-import 'package:bomach_os/src/services/approval_service.dart';
 import 'package:bomach_os/src/services/branch_service.dart';
 import 'package:bomach_os/src/services/broadcast_service.dart';
+import 'package:bomach_os/src/services/notification_service.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:bomach_os/src/services/employees_services.dart';
 
 class BroadcastController extends GetxController {
   final BroadcastService _broadcastService = BroadcastService();
   final BranchService _branchService = BranchService();
   final EmployeeService _employeeService = EmployeeService();
-  final ApprovalService _approvalService = ApprovalService();
+  final NotificationService _notificationService = NotificationService();
   final _storage = const FlutterSecureStorage();
 
   // ─── Current tab ───────────────────────────────────────────────
@@ -46,9 +47,11 @@ class BroadcastController extends GetxController {
   // ─── Notifications state (Integrated) ─────────────────────────
   var notifications = <NotificationItem>[].obs;
   var filteredNotifications = <NotificationItem>[].obs;
-  var notificationFilter = ''.obs; // empty = all
+  var notificationFilter = 'All'.obs;
   var unreadCount = 0.obs;
   var isLoadingNotifications = false.obs;
+  var notificationError = ''.obs;
+  var notificationTotalCount = 0.obs;
 
   // ─── Field choices ────────────────────────────────────────────
   var announcementChoices = Rxn<AnnouncementFieldChoices>();
@@ -64,7 +67,11 @@ class BroadcastController extends GetxController {
     fetchEvents();
     loadAnnouncementChoices();
     _fetchBranchesAndDepartments();
-    fetchNotifications();
+  }
+
+  void setCurrentTab(String tab) {
+    currentTab.value = tab;
+    if (tab == 'Notifications') fetchNotifications();
   }
 
   Future<void> _fetchBranchesAndDepartments() async {
@@ -158,7 +165,8 @@ class BroadcastController extends GetxController {
     } catch (e) {
       log("Update Announcement Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to update announcement: ${e.toString()}");
+        _showErrorDialog(
+            context, "Failed to update announcement: ${e.toString()}");
       }
     } finally {
       isSavingAnnouncement.value = false;
@@ -179,7 +187,8 @@ class BroadcastController extends GetxController {
     } catch (e) {
       log("Delete Announcement Error: $e");
       if (context.mounted) {
-        _showErrorDialog(context, "Failed to delete announcement: ${e.toString()}");
+        _showErrorDialog(
+            context, "Failed to delete announcement: ${e.toString()}");
       }
     }
   }
@@ -310,85 +319,80 @@ class BroadcastController extends GetxController {
     }
   }
 
-  // ─── NOTIFICATIONS (Integrated with ApprovalService) ────────
+  // ─── NOTIFICATIONS ──────────────────────────────────────────
 
   Future<void> fetchNotifications({bool refresh = false}) async {
     try {
-      if (!refresh) isLoadingNotifications.value = true;
+      if (notifications.isEmpty || !refresh) {
+        isLoadingNotifications.value = true;
+      }
+      notificationError.value = '';
 
       final token = await _getToken();
       if (token == null) return;
 
-      final result = await _approvalService.getRequests(
-        accessToken: token,
-        limit: 50,
-      );
-
-      final List<NotificationItem> mapped = result.items.map((req) {
-        return NotificationItem(
-          title: req.flowName.isNotEmpty ? req.flowName : 'Approval Request',
-          subtitle: 'Status: ${req.statusDisplay}',
-          description: req.reason.isNotEmpty
-              ? req.reason
-              : '${req.requestedByName} requested approval for ${req.requestTypeDisplay.toLowerCase()}.',
-          time: _getTimeAgo(req.createdAt),
-          category: _mapRequestToCategory(req),
-          isRead: false,
-        );
-      }).toList();
-
-      notifications.assignAll(mapped);
+      final inbox = await _notificationService.list(token: token, limit: 50);
+      notifications.assignAll(inbox.items);
+      notificationTotalCount.value = inbox.total;
+      try {
+        unreadCount.value =
+            await _notificationService.unreadCount(token: token);
+      } catch (_) {
+        unreadCount.value = inbox.items.where((item) => !item.isRead).length;
+      }
       filterNotifications(notificationFilter.value);
-      unreadCount.value = mapped.length;
     } catch (e) {
-      log("Error fetching notifications (approvals): $e");
+      log("Error fetching notifications: $e");
+      notificationError.value = e.toString().replaceFirst('Exception: ', '');
     } finally {
       isLoadingNotifications.value = false;
     }
   }
 
-  String _mapRequestToCategory(ApprovalRequest req) {
-    final type = req.requestType.toLowerCase();
-    if (type.contains('leave') || type.contains('loan')) return 'Staff';
-    if (type.contains('asset') || type.contains('procure')) return 'Admin';
-    return 'Admin';
-  }
-
-  String _getTimeAgo(String dateTimeStr) {
-    if (dateTimeStr.isEmpty) return 'Just now';
-    try {
-      final DateTime dateTime = DateTime.parse(dateTimeStr).toLocal();
-      final DateTime now = DateTime.now();
-      final Duration diff = now.difference(dateTime);
-
-      if (diff.inDays >= 7) {
-        return '${(diff.inDays / 7).floor()}w ago';
-      } else if (diff.inDays >= 1) {
-        return '${diff.inDays}d ago';
-      } else if (diff.inHours >= 1) {
-        return '${diff.inHours}h ago';
-      } else if (diff.inMinutes >= 1) {
-        return '${diff.inMinutes}m ago';
-      } else {
-        return 'Just now';
-      }
-    } catch (e) {
-      return dateTimeStr;
-    }
-  }
-
   void filterNotifications(String category) {
     notificationFilter.value = category;
-    if (category.isEmpty) {
-      filteredNotifications.assignAll(notifications);
-    } else {
-      filteredNotifications.assignAll(
-          notifications.where((n) => n.category == category).toList());
+    filteredNotifications.assignAll(switch (category) {
+      'Unread' => notifications.where((n) => !n.isRead).toList(),
+      'Read' => notifications.where((n) => n.isRead).toList(),
+      _ => notifications.toList(),
+    });
+  }
+
+  Future<void> markNotificationRead(NotificationItem notification) async {
+    if (notification.isRead || notification.id == null) return;
+    if (!Get.find<PermissionService>().has(Perms.notificationsMarkRead)) return;
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+      final updated = await _notificationService.markRead(
+        token: token,
+        notificationId: notification.id!,
+      );
+      final index = notifications.indexWhere((item) => item.id == updated.id);
+      if (index >= 0) notifications[index] = updated;
+      unreadCount.value = (unreadCount.value - 1).clamp(0, 1 << 30);
+      filterNotifications(notificationFilter.value);
+    } catch (e) {
+      notificationError.value = e.toString().replaceFirst('Exception: ', '');
     }
   }
 
-  void markAllRead() {
-    unreadCount.value = 0;
+  Future<void> markAllRead() async {
+    if (unreadCount.value == 0) return;
+    if (!Get.find<PermissionService>().has(Perms.notificationsMarkAllRead)) {
+      return;
+    }
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+      await _notificationService.markAllRead(token: token);
+      notifications
+          .assignAll(notifications.map((n) => n.copyWith(isRead: true)));
+      unreadCount.value = 0;
+      filterNotifications(notificationFilter.value);
+    } catch (e) {
+      notificationError.value = e.toString().replaceFirst('Exception: ', '');
+    }
   }
 
   // ─── FILTER / SEARCH ACTIONS ──────────────────────────────────

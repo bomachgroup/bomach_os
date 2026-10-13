@@ -306,6 +306,13 @@ void main() {
       );
     });
 
+    test('attendance calendar route is registered', () {
+      expect(
+        dashboardRoutePaths,
+        contains(RouteConstants.attendanceCalendar),
+      );
+    });
+
     test('all finance webview routes are registered', () {
       for (final route in <String>{
         RouteConstants.financeDashboard,

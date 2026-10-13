@@ -76,16 +76,15 @@ class _ThreeDotPopState extends State<ThreeDotPop> {
                       }
                     },
                   ),
-                  _buildMenuItem(
-                    svgPath: "assets/svg/edit-pencil.svg",
-                    title: 'Edit',
-                    onTap: () {
-                      _removeOverlay();
-                      if (widget.onTapEdit != null) {
+                  if (widget.onTapEdit != null)
+                    _buildMenuItem(
+                      svgPath: "assets/svg/edit-pencil.svg",
+                      title: 'Edit',
+                      onTap: () {
+                        _removeOverlay();
                         widget.onTapEdit!();
-                      }
-                    },
-                  ),
+                      },
+                    ),
                   // _buildMenuItem(
                   //   svgPath: "assets/svg/trash-can.svg",
                   //   title: 'Delete',

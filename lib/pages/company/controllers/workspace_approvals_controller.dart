@@ -15,7 +15,7 @@ import 'package:bomach_os/src/services/biometric_api_service.dart';
 /// endpoint — which returns *all* locations when the caller has the admin
 /// `list` permission — and filters in-memory. The broad endpoint is the
 /// only way to see already-approved or rejected rows org-wide today.
-enum ApprovalsView { pending, approved, rejected, all }
+enum ApprovalsView { pending, approved, extensions, rejected, all }
 
 extension ApprovalsViewX on ApprovalsView {
   String get label {
@@ -24,6 +24,8 @@ extension ApprovalsViewX on ApprovalsView {
         return 'Pending';
       case ApprovalsView.approved:
         return 'Approved';
+      case ApprovalsView.extensions:
+        return 'Extensions';
       case ApprovalsView.rejected:
         return 'Rejected';
       case ApprovalsView.all:
@@ -52,6 +54,7 @@ class WorkspaceApprovalsController extends GetxController {
   /// Submissions matching the current [view]. Pending view = backend's
   /// pending endpoint; every other view filters the broad admin list.
   final submissions = <WorkspaceConfig>[].obs;
+  final extensionRequests = <WorkLocationExtension>[].obs;
 
   /// Free-text search across workspace name + employee + branch.
   final searchQuery = ''.obs;
@@ -66,12 +69,21 @@ class WorkspaceApprovalsController extends GetxController {
     }).toList();
   }
 
+  List<WorkLocationExtension> get filteredExtensions {
+    final q = searchQuery.value.trim().toLowerCase();
+    if (q.isEmpty) return extensionRequests;
+    return extensionRequests.where((request) {
+      return request.locationName.toLowerCase().contains(q) ||
+          request.requestedByName.toLowerCase().contains(q) ||
+          request.reason.toLowerCase().contains(q);
+    }).toList();
+  }
+
   /// Counts for the tab badges — computed off the pending endpoint only
   /// for the pending count (cheapest, most accurate), and off the broad
   /// endpoint for approved/rejected when it's already loaded.
-  int get pendingCountInView => submissions
-      .where((w) => w.status == WorkspaceStatus.pending)
-      .length;
+  int get pendingCountInView =>
+      submissions.where((w) => w.status == WorkspaceStatus.pending).length;
 
   @override
   void onInit() {
@@ -103,28 +115,39 @@ class WorkspaceApprovalsController extends GetxController {
         return;
       }
 
+      if (view.value == ApprovalsView.extensions) {
+        final raw = await _api.getPendingWorkspaceExtensions(token);
+        extensionRequests.assignAll(
+          raw.map(WorkLocationExtension.fromJson),
+        );
+        submissions.clear();
+        return;
+      }
+
       final raw = view.value == ApprovalsView.pending
           ? await _api.getPendingWorkspaces(token)
           : await _api.getWorkspaces(token);
 
-      final parsed =
-          raw.map((e) => WorkspaceConfig.fromJson(e)).toList();
+      final parsed = raw.map((e) => WorkspaceConfig.fromJson(e)).toList();
 
       // Filter the broad list in-memory to the selected slice.
       final filtered = switch (view.value) {
         ApprovalsView.pending => parsed,
         ApprovalsView.approved =>
           parsed.where((w) => w.status == WorkspaceStatus.approved).toList(),
+        ApprovalsView.extensions => const <WorkspaceConfig>[],
         ApprovalsView.rejected =>
           parsed.where((w) => w.status == WorkspaceStatus.rejected).toList(),
         ApprovalsView.all => parsed,
       };
 
       submissions.assignAll(filtered);
+      extensionRequests.clear();
     } catch (e) {
       log('Fetch workspaces (${view.value}) error: $e');
       errorMessage.value = e.toString().replaceFirst('Exception: ', '');
       submissions.clear();
+      extensionRequests.clear();
     } finally {
       isLoading.value = false;
     }
@@ -134,13 +157,20 @@ class WorkspaceApprovalsController extends GetxController {
 
   /// Approve a pending submission. [allowedRadiusMeters] is optional —
   /// when null, the backend keeps whatever radius is on the record.
-  Future<bool> approve(int locationId, {int? allowedRadiusMeters}) async {
+  Future<bool> approve(
+    int locationId, {
+    int? allowedRadiusMeters,
+    String? expiresAt,
+    bool clearExpiry = false,
+  }) async {
     return _run(() async {
       final token = await _requireToken();
       await _api.approveWorkspace(
         token,
         locationId,
         allowedRadiusMeters: allowedRadiusMeters,
+        expiresAt: expiresAt,
+        clearExpiry: clearExpiry,
       );
       successMessage.value = 'Workspace approved.';
     });
@@ -174,6 +204,8 @@ class WorkspaceApprovalsController extends GetxController {
     bool? isActive,
     String? expiresAt,
     String? notes,
+    String? reason,
+    bool clearExpiry = false,
   }) async {
     return _run(() async {
       final token = await _requireToken();
@@ -187,6 +219,8 @@ class WorkspaceApprovalsController extends GetxController {
         isActive: isActive,
         expiresAt: expiresAt,
         notes: notes,
+        reason: reason,
+        clearExpiry: clearExpiry,
       );
       successMessage.value = 'Workspace updated.';
     });
@@ -199,6 +233,48 @@ class WorkspaceApprovalsController extends GetxController {
       await _api.adminForceDeleteWorkspace(token, locationId);
       successMessage.value = 'Workspace deleted.';
     });
+  }
+
+  Future<bool> reviewExtension(
+    int extensionId, {
+    required bool approve,
+    String? expiresAt,
+    String? reason,
+  }) async {
+    return _run(() async {
+      final token = await _requireToken();
+      await _api.decideWorkspaceExtension(
+        token,
+        extensionId,
+        approve: approve,
+        expiresAt: expiresAt,
+        reason: reason,
+      );
+      successMessage.value = approve
+          ? 'Extension approved and expiry updated.'
+          : 'Extension request rejected.';
+    });
+  }
+
+  Future<List<WorkLocationAuditEvent>> loadLocationHistory(
+      int locationId) async {
+    final token = await _requireToken();
+    final raw = await _api.getWorkspaceHistory(token, locationId);
+    return raw.map(WorkLocationAuditEvent.fromJson).toList();
+  }
+
+  Future<WorkspaceConfig> loadLocationDetail(int locationId) async {
+    final token = await _requireToken();
+    return WorkspaceConfig.fromJson(
+      await _api.getWorkspaceDetail(token, locationId),
+    );
+  }
+
+  Future<List<WorkLocationExtension>> loadLocationExtensions(
+      int locationId) async {
+    final token = await _requireToken();
+    final raw = await _api.getWorkspaceExtensions(token, locationId);
+    return raw.map(WorkLocationExtension.fromJson).toList();
   }
 
   // ── Shared plumbing for mutations ──────────────────────────────────

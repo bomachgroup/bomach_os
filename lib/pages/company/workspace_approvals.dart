@@ -22,17 +22,17 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 import 'controllers/workspace_approvals_controller.dart';
+import 'widget/work_location_record_dialog.dart';
 
-/// Admin workspace approvals page.
+/// Admin work-location register and extension review.
 ///
-/// Four-tab view (Pending / Approved / Rejected / All) backed by the two
-/// backend endpoints that surface work locations to admins: `/pending` for
-/// the Pending tab and the broad `/whitelisted` for everything else.
+/// Pending proposals, extension decisions, and the broader location register
+/// are loaded from their corresponding backend endpoints.
 ///
 /// Actions per row depend on status:
 ///   - PENDING  -> Approve (with optional radius override) / Reject (reason).
-///   - APPROVED -> Edit (radius, expiry, active, notes) / Force delete.
-///   - REJECTED -> Force delete only.
+///   - APPROVED -> Edit, inspect the audit record, or reasoned revoke.
+///   - REJECTED -> Inspect the retained record and its history.
 class WorkspaceApprovalsPage extends StatelessWidget {
   const WorkspaceApprovalsPage({super.key});
 
@@ -60,6 +60,20 @@ class WorkspaceApprovalsPage extends StatelessWidget {
         _ViewTabs(ctrl: ctrl),
         _ApprovalsToolbar(ctrl: ctrl),
         Obx(() {
+          if (ctrl.view.value == ApprovalsView.extensions) {
+            final loading =
+                ctrl.isLoading.value && ctrl.extensionRequests.isEmpty;
+            final rows = ctrl.filteredExtensions;
+            return _buildTableCard(
+              loading: loading,
+              isEmpty: !loading && rows.isEmpty,
+              hasError: ctrl.errorMessage.value.isNotEmpty,
+              errorMessage: ctrl.errorMessage.value,
+              view: ctrl.view.value,
+              rowCount: rows.length,
+              body: _ExtensionReviewTable(rows: rows, ctrl: ctrl),
+            );
+          }
           final loading = ctrl.isLoading.value && ctrl.submissions.isEmpty;
           final rows = ctrl.filtered;
           final isEmpty = !loading && rows.isEmpty;
@@ -84,6 +98,8 @@ class WorkspaceApprovalsPage extends StatelessWidget {
         return 'Pending Submissions';
       case ApprovalsView.approved:
         return 'Approved Locations';
+      case ApprovalsView.extensions:
+        return 'Extension Review';
       case ApprovalsView.rejected:
         return 'Rejected Submissions';
       case ApprovalsView.all:
@@ -99,6 +115,8 @@ class WorkspaceApprovalsPage extends StatelessWidget {
         return '$count submission$labelSuffix awaiting admin decision';
       case ApprovalsView.approved:
         return '$count active geofence$labelSuffix across the org';
+      case ApprovalsView.extensions:
+        return '$count extension request$labelSuffix awaiting a decision';
       case ApprovalsView.rejected:
         return '$count rejected submission$labelSuffix';
       case ApprovalsView.all:
@@ -180,6 +198,8 @@ class WorkspaceApprovalsPage extends StatelessWidget {
         return 'Review queue';
       case ApprovalsView.approved:
         return 'Active sites';
+      case ApprovalsView.extensions:
+        return 'Expiry review';
       case ApprovalsView.rejected:
         return 'Rejected log';
       case ApprovalsView.all:
@@ -193,6 +213,8 @@ class WorkspaceApprovalsPage extends StatelessWidget {
         return StatusTone.warning;
       case ApprovalsView.approved:
         return StatusTone.success;
+      case ApprovalsView.extensions:
+        return StatusTone.warning;
       case ApprovalsView.rejected:
         return StatusTone.danger;
       case ApprovalsView.all:
@@ -206,6 +228,8 @@ class WorkspaceApprovalsPage extends StatelessWidget {
         return Iconsax.timer;
       case ApprovalsView.approved:
         return Iconsax.location_tick;
+      case ApprovalsView.extensions:
+        return Iconsax.calendar_edit;
       case ApprovalsView.rejected:
         return Iconsax.close_circle;
       case ApprovalsView.all:
@@ -228,6 +252,12 @@ class WorkspaceApprovalsPage extends StatelessWidget {
           title: 'No approved locations',
           subtitle:
               'Once you approve a pending submission it will appear here.',
+        );
+      case ApprovalsView.extensions:
+        return const EmptyState(
+          icon: Iconsax.calendar_tick,
+          title: 'No extension requests',
+          subtitle: 'Requests from employees will appear here for review.',
         );
       case ApprovalsView.rejected:
         return const EmptyState(
@@ -342,7 +372,366 @@ class _ViewTabs extends StatelessWidget {
   /// rows so the number would be misleading).
   int? _countFor(ApprovalsView v) {
     if (ctrl.view.value != v) return null;
-    return ctrl.submissions.length;
+    return v == ApprovalsView.extensions
+        ? ctrl.extensionRequests.length
+        : ctrl.submissions.length;
+  }
+}
+
+class _ExtensionReviewTable extends StatelessWidget {
+  const _ExtensionReviewTable({required this.rows, required this.ctrl});
+
+  final List<WorkLocationExtension> rows;
+  final WorkspaceApprovalsController ctrl;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: rows
+              .map((request) => _card(context, request))
+              .toList(growable: false),
+        ),
+      );
+
+  Widget _card(BuildContext context, WorkLocationExtension request) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+        boxShadow: AppShadows.sm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(Iconsax.calendar_edit,
+                  size: 18, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(request.locationName,
+                    style: AppTextStyles.bodyMd.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    )),
+              ),
+              const StatusChip(
+                label: 'Awaiting review',
+                tone: StatusTone.warning,
+                dense: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 24,
+            runSpacing: 10,
+            children: [
+              _value('Employee', request.requestedByName),
+              _value('Current expiry', _formatDate(request.expiryAtRequest)),
+              _value(
+                  'Requested through', _formatDate(request.requestedExpiresAt)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: const BoxDecoration(
+              color: AppColors.surfaceMuted,
+              borderRadius: AppRadii.brMd,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Reason',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary)),
+                const SizedBox(height: 4),
+                Text(request.reason,
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textPrimary)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              PermissionGate(
+                require: Perms.workLocationsView,
+                child: OutlinedButton.icon(
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (_) => WorkLocationRecordDialog(
+                      locationId: request.workLocationId,
+                    ),
+                  ),
+                  icon: const Icon(Iconsax.document_text, size: 16),
+                  label: const Text('View location record'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 42),
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.borderStrong),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadii.brMd),
+                  ),
+                ),
+              ),
+              PermissionGate(
+                anyOf: const [
+                  Perms.workLocationsApproveExtension,
+                  Perms.workLocationsRejectExtension,
+                ],
+                child: Obx(() => MyElevatedButton(
+                      height: 42,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      bgColor: AppColors.primary,
+                      icon: const Icon(Iconsax.tick_circle,
+                          size: 16, color: AppColors.textOnPrimary),
+                      child: 'Review request',
+                      disable: ctrl.isMutating.value,
+                      onTap: () => _review(context, request),
+                    )),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _value(String label, String value) => SizedBox(
+        width: 220,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary)),
+            const SizedBox(height: 3),
+            Text(value,
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                )),
+          ],
+        ),
+      );
+
+  Future<void> _review(
+      BuildContext context, WorkLocationExtension request) async {
+    final expiryCtrl = TextEditingController(
+      text: _formatDate(request.requestedExpiresAt),
+    );
+    final reasonCtrl = TextEditingController();
+    String? expiryIso = request.requestedExpiresAt;
+    bool showExpiryError = false;
+    bool showReasonError = false;
+
+    final decision = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) {
+          Future<void> pickExpiry() async {
+            final initial = _tryParseDate(expiryIso ?? '') ??
+                DateTime.now().add(const Duration(days: 30));
+            final picked = await showDatePopover(
+              dialogContext,
+              initialDate: initial,
+              firstDate: DateTime.now(),
+              lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+            );
+            if (picked == null) return;
+            final endOfDay = DateTime(
+              picked.year,
+              picked.month,
+              picked.day,
+              23,
+              59,
+              59,
+            );
+            setDialogState(() {
+              expiryIso = endOfDay.toUtc().toIso8601String();
+              expiryCtrl.text = _formatDate(expiryIso);
+              showExpiryError = false;
+            });
+          }
+
+          return DialogScaffold(
+            title: 'Review extension request',
+            subtitle: request.locationName,
+            size: DialogSize.md,
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _reviewDetail('Requested by', request.requestedByName),
+                _reviewDetail(
+                    'Current expiry', _formatDate(request.expiryAtRequest)),
+                _reviewDetail('Requested expiry',
+                    _formatDate(request.requestedExpiresAt)),
+                const SizedBox(height: 12),
+                Text('Employee reason',
+                    style: AppTextStyles.label.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                Text(request.reason,
+                    style: AppTextStyles.bodyMd.copyWith(height: 1.45)),
+                const SizedBox(height: 18),
+                Text('Effective expiry if approved',
+                    style: AppTextStyles.label.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                MyTextFormField(
+                  controller: expiryCtrl,
+                  readOnly: true,
+                  onTap: pickExpiry,
+                  leading: const Icon(Iconsax.calendar_1,
+                      size: 18, color: AppColors.textMuted),
+                  validator: (_) => showExpiryError
+                      ? 'Select a future effective expiry date.'
+                      : null,
+                ),
+                if (showExpiryError) ...[
+                  const SizedBox(height: 4),
+                  Text('Select a future effective expiry date.',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.danger)),
+                ],
+                const SizedBox(height: 6),
+                Text(
+                  'Approval may restore a location disabled by expiry. It will not undo an administrator revocation.',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textMuted),
+                ),
+                const SizedBox(height: 16),
+                Text('Decision reason (required to reject)',
+                    style: AppTextStyles.label.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                MyTextFormField(
+                  controller: reasonCtrl,
+                  hintText: 'Explain why the request is being rejected',
+                  maxLines: 3,
+                ),
+                if (showReasonError) ...[
+                  const SizedBox(height: 4),
+                  Text('A reason is required to reject this request.',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.danger)),
+                ],
+                const SizedBox(height: 10),
+                Text(
+                  'A rejection does not deactivate the current location. It remains usable until its expiry unless an administrator revokes it.',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ),
+            actions: [
+              MyOutlinedButton(
+                child: 'Cancel',
+                height: 44,
+                onTap: () => Navigator.pop(dialogContext),
+                textColor: AppColors.textSecondary,
+                borderColor: AppColors.borderStrong,
+              ),
+              PermissionGate(
+                require: Perms.workLocationsRejectExtension,
+                child: MyOutlinedButton(
+                  child: 'Reject',
+                  height: 44,
+                  textColor: AppColors.danger,
+                  borderColor: AppColors.danger,
+                  onTap: () {
+                    if (reasonCtrl.text.trim().isEmpty) {
+                      setDialogState(() => showReasonError = true);
+                      return;
+                    }
+                    Navigator.pop(dialogContext, 'reject');
+                  },
+                ),
+              ),
+              PermissionGate(
+                require: Perms.workLocationsApproveExtension,
+                child: MyElevatedButton(
+                  height: 44,
+                  child: 'Approve',
+                  onTap: () {
+                    final expiry = _tryParseDate(expiryIso ?? '');
+                    if (expiry == null || !expiry.isAfter(DateTime.now())) {
+                      setDialogState(() => showExpiryError = true);
+                      return;
+                    }
+                    Navigator.pop(dialogContext, 'approve');
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (decision == null || !context.mounted) return;
+    final approved = decision == 'approve';
+    final ok = await ctrl.reviewExtension(
+      request.id,
+      approve: approved,
+      expiresAt: approved ? expiryIso : null,
+      reason: approved ? null : reasonCtrl.text.trim(),
+    );
+    if (!context.mounted) return;
+    AppToast.info(
+      context,
+      ok ? ctrl.successMessage.value : ctrl.errorMessage.value,
+    );
+  }
+
+  Widget _reviewDetail(String label, String value) => Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 140,
+              child: Text(label,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary)),
+            ),
+            Expanded(
+              child: Text(value,
+                  style: AppTextStyles.bodySm.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ),
+      );
+
+  static String _formatDate(String? raw) {
+    if (raw == null || raw.isEmpty) return 'Permanent';
+    try {
+      final date = DateTime.parse(raw).toLocal();
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  static DateTime? _tryParseDate(String raw) {
+    try {
+      return DateTime.parse(raw).toLocal();
+    } catch (_) {
+      return null;
+    }
   }
 }
 
@@ -360,7 +749,7 @@ class _ApprovalsToolbar extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       elevation: AppCardElevation.sm,
       child: MyTextFormField(
-        hintText: 'Search by name, employee, or branch',
+        hintText: 'Search by name, employee, branch, or reason',
         height: 48,
         leading: const Icon(Iconsax.search_normal,
             size: 18, color: AppColors.textMuted),
@@ -406,8 +795,8 @@ class _ApprovalsTable extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               StatusChip(
-                label: w.status.label,
-                tone: _statusTone(w.status),
+                label: w.lifecycleLabel,
+                tone: _lifecycleTone(w),
                 icon: _statusIcon(w.status),
                 dense: true,
               ),
@@ -501,8 +890,8 @@ class _ApprovalsTable extends StatelessWidget {
     );
   }
 
-  /// Actions depend on status: pending gets approve/reject, approved gets
-  /// edit + force-delete, rejected gets force-delete only.
+  /// Mutations preserve the record; removal from service is an auditable
+  /// deactivation rather than a normal hard-delete action.
   Widget _buildActions(BuildContext context, WorkspaceConfig w) {
     if (w.status == WorkspaceStatus.pending) {
       return Row(
@@ -545,13 +934,34 @@ class _ApprovalsTable extends StatelessWidget {
       );
     }
 
-    // Approved or rejected row.
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
       children: [
+        if (w.id != null)
+          PermissionGate(
+            require: Perms.workLocationsView,
+            child: OutlinedButton.icon(
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => WorkLocationRecordDialog(locationId: w.id!),
+              ),
+              icon: const Icon(Iconsax.document_text,
+                  size: 16, color: AppColors.textPrimary),
+              label: const Text('Record'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.textPrimary,
+                side: const BorderSide(color: AppColors.borderStrong),
+                minimumSize: const Size(0, 42),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                shape:
+                    const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+              ),
+            ),
+          ),
         if (w.status == WorkspaceStatus.approved) ...[
           PermissionGate(
-            require: Perms.workLocationsUpdate,
+            require: Perms.workLocationsManage,
             child: Obx(() => OutlinedButton.icon(
                   onPressed: ctrl.isMutating.value
                       ? null
@@ -569,26 +979,47 @@ class _ApprovalsTable extends StatelessWidget {
                   ),
                 )),
           ),
-          const SizedBox(width: 8),
+          if (w.isActive)
+            PermissionGate(
+              require: Perms.workLocationsManage,
+              child: Obx(() => OutlinedButton.icon(
+                    onPressed: ctrl.isMutating.value
+                        ? null
+                        : () => _openDeactivateDialog(context, w),
+                    icon: const Icon(Iconsax.location_slash,
+                        size: 16, color: AppColors.danger),
+                    label: const Text('Revoke'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.danger,
+                      side: const BorderSide(color: AppColors.danger),
+                      minimumSize: const Size(0, 42),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadii.brMd),
+                    ),
+                  )),
+            )
+          else if (!w.isExpired)
+            PermissionGate(
+              require: Perms.workLocationsManage,
+              child: Obx(() => OutlinedButton.icon(
+                    onPressed: ctrl.isMutating.value
+                        ? null
+                        : () => _openReactivateDialog(context, w),
+                    icon: const Icon(Iconsax.refresh,
+                        size: 16, color: AppColors.success),
+                    label: const Text('Reactivate'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.success,
+                      side: const BorderSide(color: AppColors.success),
+                      minimumSize: const Size(0, 42),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadii.brMd),
+                    ),
+                  )),
+            ),
         ],
-        PermissionGate(
-          require: Perms.workLocationsDelete,
-          child: Obx(() => IconButton(
-                tooltip: 'Delete',
-                onPressed: ctrl.isMutating.value
-                    ? null
-                    : () => _openForceDeleteDialog(context, w),
-                icon: const Icon(Iconsax.trash,
-                    size: 18, color: AppColors.danger),
-                style: IconButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: AppRadii.brMd,
-                    side: BorderSide(color: AppColors.borderSubtle),
-                  ),
-                  minimumSize: const Size(42, 42),
-                ),
-              )),
-        ),
       ],
     );
   }
@@ -615,15 +1046,17 @@ class _ApprovalsTable extends StatelessWidget {
     }
   }
 
-  static StatusTone _statusTone(WorkspaceStatus s) {
-    switch (s) {
-      case WorkspaceStatus.approved:
+  static StatusTone _lifecycleTone(WorkspaceConfig w) {
+    switch (w.lifecycleLabel) {
+      case 'Active':
         return StatusTone.success;
-      case WorkspaceStatus.pending:
+      case 'Pending approval':
         return StatusTone.warning;
-      case WorkspaceStatus.rejected:
+      case 'Rejected':
+      case 'Expired':
+      case 'Revoked':
         return StatusTone.danger;
-      case WorkspaceStatus.unknown:
+      default:
         return StatusTone.neutral;
     }
   }
@@ -648,67 +1081,142 @@ class _ApprovalsTable extends StatelessWidget {
     final radiusCtrl = TextEditingController(
       text: (w.radiusMeters > 0 ? w.radiusMeters : 100).toString(),
     );
+    final expiryCtrl = TextEditingController(
+      text: w.expiresAt == null ? '' : _formatDate(w.expiresAt),
+    );
+    String? effectiveExpiry = w.expiresAt;
     final formKey = GlobalKey<FormState>();
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => DialogScaffold(
-        title: 'Approve workspace?',
-        subtitle: 'Approving "${w.workspaceName}" will let '
-            '${w.employeeName ?? 'this employee'} clock in when inside the '
-            'geofence.',
-        size: DialogSize.sm,
-        body: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Allowed radius (meters)',
-                  style: AppTextStyles.label.copyWith(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              MyTextFormField(
-                controller: radiusCtrl,
-                keyboardType: TextInputType.number,
-                hintText: '100',
-                validator: _radiusValidator,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Employees can only clock in when inside this radius.',
-                style:
-                    AppTextStyles.caption.copyWith(color: AppColors.textMuted),
-              ),
-            ],
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setDialogState) {
+        Future<void> pickExpiry() async {
+          final initial = _tryParseDate(effectiveExpiry ?? '') ??
+              DateTime.now().add(const Duration(days: 30));
+          final picked = await showDatePopover(
+            ctx,
+            initialDate: initial,
+            firstDate: DateTime.now(),
+            lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+          );
+          if (picked == null) return;
+          final endOfDay = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            23,
+            59,
+            59,
+          );
+          setDialogState(() {
+            effectiveExpiry = endOfDay.toUtc().toIso8601String();
+            expiryCtrl.text = _formatDate(effectiveExpiry);
+          });
+        }
+
+        return DialogScaffold(
+          title: 'Approve workspace?',
+          subtitle: 'Approving "${w.workspaceName}" will let '
+              '${w.employeeName ?? 'this employee'} clock in when inside the '
+              'geofence.',
+          size: DialogSize.sm,
+          body: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Allowed radius (meters)',
+                    style: AppTextStyles.label.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                MyTextFormField(
+                  controller: radiusCtrl,
+                  keyboardType: TextInputType.number,
+                  hintText: '100',
+                  validator: _radiusValidator,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Employees can only clock in when inside this radius.',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textMuted),
+                ),
+                const SizedBox(height: 18),
+                Text('Effective expiry',
+                    style: AppTextStyles.label.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: expiryCtrl,
+                        readOnly: true,
+                        onTap: pickExpiry,
+                        hintText: 'Permanent / no expiry',
+                        leading: const Icon(Iconsax.calendar_1,
+                            size: 18, color: AppColors.textMuted),
+                        validator: (_) => w.isExpired && effectiveExpiry == null
+                            ? 'Set a future expiry to approve an expired location'
+                            : null,
+                      ),
+                    ),
+                    if (effectiveExpiry != null) ...[
+                      const SizedBox(width: 8),
+                      IconButton(
+                        tooltip: 'Clear expiry',
+                        onPressed: () => setDialogState(() {
+                          effectiveExpiry = null;
+                          expiryCtrl.clear();
+                        }),
+                        icon: const Icon(Iconsax.close_circle, size: 18),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'The requested expiry is prefilled. Set a different date, or leave blank for a permanent location.',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textMuted),
+                ),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          MyOutlinedButton(
-            child: 'Cancel',
-            height: 44,
-            textColor: AppColors.textSecondary,
-            borderColor: AppColors.borderStrong,
-            onTap: () => Navigator.pop(ctx, false),
-          ),
-          MyElevatedButton(
-            height: 44,
-            bgColor: AppColors.primary,
-            child: 'Approve',
-            onTap: () {
-              if (formKey.currentState?.validate() ?? false) {
-                Navigator.pop(ctx, true);
-              }
-            },
-          ),
-        ],
-      ),
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+              onTap: () => Navigator.pop(ctx, false),
+            ),
+            MyElevatedButton(
+              height: 44,
+              bgColor: AppColors.primary,
+              child: 'Approve',
+              onTap: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  Navigator.pop(ctx, true);
+                }
+              },
+            ),
+          ],
+        );
+      }),
     );
 
     if (confirmed != true || !context.mounted) return;
     final radius = int.tryParse(radiusCtrl.text.trim());
-    final ok = await ctrl.approve(w.id!, allowedRadiusMeters: radius);
+    final ok = await ctrl.approve(
+      w.id!,
+      allowedRadiusMeters: radius,
+      expiresAt: effectiveExpiry,
+      clearExpiry: effectiveExpiry == null && w.expiresAt != null,
+    );
     if (!context.mounted) return;
     _snack(context, ok);
   }
@@ -782,7 +1290,6 @@ class _ApprovalsTable extends StatelessWidget {
     final radiusCtrl = TextEditingController(text: '${w.radiusMeters}');
     final notesCtrl = TextEditingController(text: w.notes);
     final expiryCtrl = TextEditingController(text: w.expiresAt ?? '');
-    bool isActive = w.isActive;
     final formKey = GlobalKey<FormState>();
 
     final result = await showDialog<_EditResult>(
@@ -869,42 +1376,6 @@ class _ApprovalsTable extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceMuted,
-                    borderRadius: AppRadii.brMd,
-                    border: Border.all(color: AppColors.borderSubtle),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Active',
-                                style: AppTextStyles.bodyMd.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary)),
-                            const SizedBox(height: 2),
-                            Text(
-                              'When off, employees cannot clock in from this '
-                              'location even though it stays APPROVED.',
-                              style: AppTextStyles.caption
-                                  .copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Switch(
-                        value: isActive,
-                        onChanged: (v) => setState(() => isActive = v),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
                 _fieldLabel('Notes'),
                 const SizedBox(height: 8),
                 MyTextFormField(
@@ -932,10 +1403,11 @@ class _ApprovalsTable extends StatelessWidget {
                   _EditResult(
                     name: nameCtrl.text.trim(),
                     radius: int.tryParse(radiusCtrl.text.trim()),
-                    isActive: isActive,
                     expiresAt: expiryCtrl.text.trim().isEmpty
                         ? null
                         : expiryCtrl.text.trim(),
+                    clearExpiry:
+                        expiryCtrl.text.trim().isEmpty && w.expiresAt != null,
                     notes: notesCtrl.text.trim(),
                   ),
                 );
@@ -957,26 +1429,46 @@ class _ApprovalsTable extends StatelessWidget {
           result.radius != null && result.radius != w.radiusMeters
               ? result.radius
               : null,
-      isActive: result.isActive != w.isActive ? result.isActive : null,
       expiresAt: result.expiresAt != w.expiresAt ? result.expiresAt : null,
+      clearExpiry: result.clearExpiry,
       notes: result.notes != w.notes ? result.notes : null,
     );
     if (!context.mounted) return;
     _snack(context, ok);
   }
 
-  Future<void> _openForceDeleteDialog(
+  Future<void> _openDeactivateDialog(
       BuildContext context, WorkspaceConfig w) async {
+    final reasonCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => DialogScaffold(
-        title: 'Delete workspace?',
-        subtitle: 'Permanently remove "${w.workspaceName}" owned by '
-            '${w.employeeName ?? 'this employee'}. This cannot be undone. '
-            'The employee will need to submit a new workspace if they want '
-            'to clock in.',
+        title: 'Revoke this work location?',
+        subtitle:
+            'The location record and its history will be retained. The employee will no longer be able to use it for attendance.',
         size: DialogSize.sm,
-        body: const SizedBox.shrink(),
+        body: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Reason for revocation',
+                  style: AppTextStyles.label.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              MyTextFormField(
+                controller: reasonCtrl,
+                hintText: 'Enter a reason for the employee record',
+                maxLines: 4,
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'A reason is required'
+                    : null,
+              ),
+            ],
+          ),
+        ),
         actions: [
           MyOutlinedButton(
             child: 'Cancel',
@@ -986,16 +1478,56 @@ class _ApprovalsTable extends StatelessWidget {
             onTap: () => Navigator.pop(ctx, false),
           ),
           MyElevatedButton(
-            height: 44,
-            bgColor: AppColors.danger,
-            child: 'Delete',
-            onTap: () => Navigator.pop(ctx, true),
-          ),
+              height: 44,
+              bgColor: AppColors.danger,
+              child: 'Revoke',
+              onTap: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  Navigator.pop(ctx, true);
+                }
+              }),
         ],
       ),
     );
     if (confirmed != true || !context.mounted) return;
-    final ok = await ctrl.forceDelete(w.id!);
+    final ok = await ctrl.adminUpdate(
+      w.id!,
+      isActive: false,
+      reason: reasonCtrl.text.trim(),
+    );
+    if (!context.mounted) return;
+    _snack(context, ok);
+  }
+
+  Future<void> _openReactivateDialog(
+      BuildContext context, WorkspaceConfig w) async {
+    final confirmed = await DialogScaffold.show<bool>(
+      context,
+      title: 'Reactivate work location?',
+      subtitle:
+          'This will allow ${w.employeeName ?? 'the employee'} to use it again if it has not expired and its branch remains active.',
+      size: DialogSize.sm,
+      body: Text(
+        'The original deactivation remains in the audit history.',
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context, false),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyElevatedButton(
+          height: 44,
+          child: 'Reactivate',
+          onTap: () => Navigator.pop(context, true),
+        ),
+      ],
+    );
+    if (confirmed != true || !context.mounted) return;
+    final ok = await ctrl.adminUpdate(w.id!, isActive: true);
     if (!context.mounted) return;
     _snack(context, ok);
   }
@@ -1040,14 +1572,14 @@ class _ApprovalsTable extends StatelessWidget {
 class _EditResult {
   final String name;
   final int? radius;
-  final bool isActive;
   final String? expiresAt;
+  final bool clearExpiry;
   final String notes;
   _EditResult({
     required this.name,
     required this.radius,
-    required this.isActive,
     required this.expiresAt,
+    required this.clearExpiry,
     required this.notes,
   });
 }
