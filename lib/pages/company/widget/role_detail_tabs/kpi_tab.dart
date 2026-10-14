@@ -1,9 +1,11 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -178,25 +180,33 @@ class KpiTab extends StatelessWidget {
                     Perms.kpisList,
                   ]);
                   final canDeleteKpi = permissions.has(Perms.roleKpisDelete);
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceMuted,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.borderSubtle),
-                    ),
+                  final target = k.targetValue == null
+                      ? 'Not set'
+                      : formatValueWithUnit(
+                          k.targetValue!
+                              .toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1),
+                          unit,
+                        );
+                  final weight = k.weight == null
+                      ? 'Not set'
+                      : '${k.weight!.toStringAsFixed(k.weight! % 1 == 0 ? 0 : 1)}%';
+                  return AppCard(
+                    padding: const EdgeInsets.all(14),
+                    elevation: AppCardElevation.none,
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppColors.info.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                          width: 36,
+                          height: 36,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primarySubtle,
+                            borderRadius: BorderRadius.all(Radius.circular(7)),
                           ),
                           child: const Icon(Iconsax.chart,
-                              color: AppColors.info, size: 20),
+                              color: AppColors.primary, size: 18),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,14 +214,22 @@ class KpiTab extends StatelessWidget {
                               Text(name,
                                   style: AppTextStyles.bodyMd
                                       .copyWith(fontWeight: FontWeight.w600)),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${_fmt(k.period)} · ${_fmt(k.trackingMode)}'
-                                '${k.targetValue != null ? " · Target: ${k.targetValue!.toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1)} $unit" : ""}'
-                                '${k.weight != null ? " · Weight: ${k.weight!.toStringAsFixed(k.weight! % 1 == 0 ? 0 : 1)}" : ""}',
-                                style: AppTextStyles.bodySm
-                                    .copyWith(color: AppColors.textSecondary),
+                              const SizedBox(height: 9),
+                              Wrap(
+                                spacing: 18,
+                                runSpacing: 10,
+                                children: [
+                                  _KpiTabMeta(label: 'Target', value: target),
+                                  _KpiTabMeta(
+                                      label: 'Period', value: _fmt(k.period)),
+                                  _KpiTabMeta(
+                                      label: 'Tracking',
+                                      value: _fmt(k.trackingMode)),
+                                  _KpiTabMeta(label: 'Weight', value: weight),
+                                ],
                               ),
+                              const SizedBox(height: 8),
+                              _KpiTabStatus(isActive: k.isActive),
                             ],
                           ),
                         ),
@@ -285,4 +303,47 @@ class KpiTab extends StatelessWidget {
       metricName: kpi?.metric?.name ?? 'this KPI',
     );
   }
+}
+
+class _KpiTabMeta extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _KpiTabMeta({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 2),
+          Text(value,
+              style:
+                  AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w600)),
+        ],
+      );
+}
+
+class _KpiTabStatus extends StatelessWidget {
+  final bool isActive;
+
+  const _KpiTabStatus({required this.isActive});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.successSubtle : AppColors.neutral100,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          isActive ? 'Active' : 'Inactive',
+          style: AppTextStyles.caption.copyWith(
+            color: isActive ? AppColors.success : AppColors.textSecondary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
 }

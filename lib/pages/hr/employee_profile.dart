@@ -33,6 +33,7 @@ import 'widget/add_new_employee.dart';
 import 'widget/exit_employee_dialog.dart';
 import 'widget/suspend_employee_dialog.dart';
 import 'widget/dynamic_item_list_field.dart';
+import 'widget/employee_performance_plan_section.dart';
 
 class EmployeeProfile extends StatefulWidget {
   final Employee? e;
@@ -60,6 +61,14 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
       anyOf: anyOf,
       child: child,
     );
+  }
+
+  bool get _canViewEmployeePerformancePlan {
+    if (!Get.isRegistered<PermissionService>()) return false;
+    return Get.find<PermissionService>().hasAll(const [
+      Perms.employeeKpisList,
+      Perms.employeeTargetsList,
+    ]);
   }
 
   @override
@@ -489,7 +498,13 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
   }
 
   Widget _buildPillTabBar() {
-    const tabs = ['Profile', 'Documents', 'Reviews', 'Benefits'];
+    final tabs = [
+      'Profile',
+      'Documents',
+      'Reviews',
+      'Benefits',
+      if (_canViewEmployeePerformancePlan) 'Performance Plan',
+    ];
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
@@ -539,15 +554,32 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
   }
 
   Widget _buildBody(Employee employee) {
-    switch (_selectedTab) {
-      case 0:
+    final tabs = [
+      'Profile',
+      'Documents',
+      'Reviews',
+      'Benefits',
+      if (_canViewEmployeePerformancePlan) 'Performance Plan',
+    ];
+    final selected =
+        _selectedTab < tabs.length ? tabs[_selectedTab] : 'Profile';
+    switch (selected) {
+      case 'Profile':
         return _ProfileTab(employee: employee);
-      case 1:
+      case 'Documents':
         return _DocumentsTab(controller: controller, userId: employee.id);
-      case 2:
+      case 'Reviews':
         return _ReviewsTab(controller: controller, employee: employee);
-      case 3:
+      case 'Benefits':
         return _BenefitsTab(employee: employee);
+      case 'Performance Plan':
+        return EmployeePerformancePlanSection(
+          employeeUserId: int.tryParse(employee.id),
+          readOnly: !Get.find<PermissionService>().hasAll(const [
+            Perms.employeeKpisUpdate,
+            Perms.employeeTargetsUpdate,
+          ]),
+        );
       default:
         return _ProfileTab(employee: employee);
     }
@@ -592,6 +624,21 @@ class _EmployeeDesktopProfileLayoutState
     ('Tasks', Iconsax.task_square),
     ('Work Reports', Iconsax.note_2),
   ];
+
+  List<(String, IconData)> get _visibleSections {
+    if (!Get.isRegistered<PermissionService>()) return _sections;
+    final permissions = Get.find<PermissionService>();
+    // Read the reactive version so a permission refresh updates this nav.
+    permissions.version;
+    return [
+      ..._sections,
+      if (permissions.hasAll(const [
+        Perms.employeeKpisList,
+        Perms.employeeTargetsList,
+      ]))
+        ('Performance Plan', Iconsax.chart_square),
+    ];
+  }
 
   static const _infoTabs = [
     'Personal Information',
@@ -774,14 +821,14 @@ class _EmployeeDesktopProfileLayoutState
         borderRadius: AppRadii.brLg,
       ),
       child: Column(
-        children: _sections.map((section) {
+        children: _visibleSections.map((section) {
           final label = section.$1;
           final selected = label == _selectedSection;
           return Material(
             color: selected ? AppColors.primary : Colors.transparent,
-            borderRadius: label == _sections.first.$1
+            borderRadius: label == _visibleSections.first.$1
                 ? const BorderRadius.vertical(top: Radius.circular(16))
-                : label == _sections.last.$1
+                : label == _visibleSections.last.$1
                     ? const BorderRadius.vertical(bottom: Radius.circular(16))
                     : BorderRadius.zero,
             child: InkWell(
@@ -830,6 +877,25 @@ class _EmployeeDesktopProfileLayoutState
         return _buildTasks(employee);
       case 'Work Reports':
         return _buildWorkReports(employee);
+      case 'Performance Plan':
+        if (!Get.isRegistered<PermissionService>()) {
+          return const SizedBox.shrink();
+        }
+        final permissions = Get.find<PermissionService>();
+        permissions.version;
+        if (!permissions.hasAll(const [
+          Perms.employeeKpisList,
+          Perms.employeeTargetsList,
+        ])) {
+          return const SizedBox.shrink();
+        }
+        return EmployeePerformancePlanSection(
+          employeeUserId: int.tryParse(employee.id),
+          readOnly: !permissions.hasAll(const [
+            Perms.employeeKpisUpdate,
+            Perms.employeeTargetsUpdate,
+          ]),
+        );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

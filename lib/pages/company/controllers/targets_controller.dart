@@ -1,10 +1,17 @@
 import 'dart:developer';
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 import '../../../src/model/role_target_template_model.dart';
 import '../../../src/services/role_target_template_service.dart';
+
+class TargetActionResult {
+  final bool succeeded;
+  final String message;
+
+  const TargetActionResult.success(this.message) : succeeded = true;
+  const TargetActionResult.failure(this.message) : succeeded = false;
+}
 
 class TargetsController extends GetxController {
   final RoleTargetTemplateService _service = RoleTargetTemplateService();
@@ -44,8 +51,7 @@ class TargetsController extends GetxController {
     }
   }
 
-  Future<bool> createTarget(
-    BuildContext context, {
+  Future<TargetActionResult> createTarget({
     required int roleId,
     required String title,
     required dynamic targetValue,
@@ -58,7 +64,10 @@ class TargetsController extends GetxController {
     try {
       isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return false;
+      if (token == null || token.isEmpty) {
+        return const TargetActionResult.failure(
+            'Sign in again before saving this target.');
+      }
 
       final payload = <String, dynamic>{
         'title': title,
@@ -72,30 +81,16 @@ class TargetsController extends GetxController {
 
       await _service.create(token, roleId, payload);
       await fetchTargets(roleId: roleId);
-
-      if (context.mounted) {
-        Get.snackbar('Success', 'Target template created.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green.shade50,
-            colorText: Colors.green.shade800);
-      }
-      return true;
+      return const TargetActionResult.success('Target template created.');
     } catch (e) {
       log('TargetsController.createTarget error: $e');
-      if (context.mounted) {
-        Get.snackbar('Error', 'Failed to create target: $e',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.shade50,
-            colorText: Colors.red.shade800);
-      }
-      return false;
+      return TargetActionResult.failure(_friendlyError(e));
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<bool> updateTarget(
-    BuildContext context, {
+  Future<TargetActionResult> updateTarget({
     required int roleId,
     required int templateId,
     String? title,
@@ -109,7 +104,10 @@ class TargetsController extends GetxController {
     try {
       isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return false;
+      if (token == null || token.isEmpty) {
+        return const TargetActionResult.failure(
+            'Sign in again before saving this target.');
+      }
 
       final payload = <String, dynamic>{};
       if (title != null) payload['title'] = title;
@@ -122,52 +120,44 @@ class TargetsController extends GetxController {
 
       await _service.update(token, roleId, templateId, payload);
       await fetchTargets(roleId: roleId);
-
-      if (context.mounted) {
-        Get.snackbar('Success', 'Target template updated.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green.shade50,
-            colorText: Colors.green.shade800);
-      }
-      return true;
+      return const TargetActionResult.success('Target template updated.');
     } catch (e) {
       log('TargetsController.updateTarget error: $e');
-      if (context.mounted) {
-        Get.snackbar('Error', 'Failed to update target: $e',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.shade50,
-            colorText: Colors.red.shade800);
-      }
-      return false;
+      return TargetActionResult.failure(_friendlyError(e));
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<bool> deleteTarget(BuildContext context, int roleId, int templateId) async {
+  Future<TargetActionResult> deleteTarget(int roleId, int templateId) async {
     try {
+      isSaving.value = true;
       final token = await _getToken();
-      if (token == null) return false;
+      if (token == null || token.isEmpty) {
+        return const TargetActionResult.failure(
+            'Sign in again before removing this target.');
+      }
 
       await _service.delete(token, roleId, templateId);
       await fetchTargets(roleId: roleId);
-
-      if (context.mounted) {
-        Get.snackbar('Deleted', 'Target template removed.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green.shade50,
-            colorText: Colors.green.shade800);
-      }
-      return true;
+      return const TargetActionResult.success('Target template removed.');
     } catch (e) {
       log('TargetsController.deleteTarget error: $e');
-      if (context.mounted) {
-        Get.snackbar('Error', 'Failed to delete target: $e',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.shade50,
-            colorText: Colors.red.shade800);
-      }
-      return false;
+      return TargetActionResult.failure(_friendlyError(e));
+    } finally {
+      isSaving.value = false;
     }
+  }
+
+  String _friendlyError(Object error) {
+    var message = error
+        .toString()
+        .replaceFirst(RegExp(r'^(Exception: |Unexpected error: )'), '');
+    message = message.replaceFirst(RegExp(r'^API Error: (?:\d+|null) - '), '');
+    if (message.contains('DioException') ||
+        message.contains('SocketException')) {
+      return 'The server could not be reached. Check your connection and try again.';
+    }
+    return message;
   }
 }

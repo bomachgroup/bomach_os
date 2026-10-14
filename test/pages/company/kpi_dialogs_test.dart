@@ -1,5 +1,6 @@
 import 'package:bomach_os/pages/company/controllers/role_kpi_controller.dart';
 import 'package:bomach_os/pages/company/widget/kpi_dialogs.dart';
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/src/model/kpi_metric_model.dart';
 import 'package:bomach_os/src/model/role_kpi_model.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
@@ -170,6 +171,47 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Already assigned'), findsNothing);
     expect(find.text('Quality reviews'), findsAtLeastNWidgets(1));
+  });
+
+  testWidgets('role KPI editor and metric picker fit common widths',
+      (tester) async {
+    const viewports = [
+      Size(320, 740),
+      Size(390, 844),
+      Size(768, 1024),
+      Size(1440, 900),
+    ];
+
+    for (final viewport in viewports) {
+      Get.reset();
+      Get.put(PermissionService()).loadSuperAdminPermissions();
+      service = _FakeRoleKpiService();
+      controller = RoleKpiController(
+        service: service,
+        tokenReader: () async => 'test-token',
+      );
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = viewport;
+      await pumpHost(tester, roleId: 2);
+
+      await tester.tap(find.text('Select a metric'));
+      await tester.pumpAndSettle();
+      expect(find.byType(DialogScaffold), findsNWidgets(2));
+      expect(tester.takeException(), isNull,
+          reason: 'Metric picker should fit at $viewport');
+      await tester.tap(find.text('Quality reviews').last);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull,
+          reason: 'KPI editor should fit at $viewport');
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    }
+
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
   });
 
   testWidgets('a metric assigned to one role remains selectable for another',

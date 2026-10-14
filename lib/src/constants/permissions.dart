@@ -189,6 +189,17 @@ class Perms {
   static const roleKpisUpdate = Permission('role_kpis', 'update');
   static const roleKpisDelete = Permission('role_kpis', 'delete');
 
+  // Employee-specific KPI and target plans
+  static const employeeKpisList = Permission('employee_kpis', 'list');
+  static const employeeKpisListOwn = Permission('employee_kpis', 'list_own');
+  static const employeeKpisUpdate = Permission('employee_kpis', 'update');
+  static const employeeTargetsList = Permission('employee_targets', 'list');
+  static const employeeTargetsListOwn =
+      Permission('employee_targets', 'list_own');
+  static const employeeTargetsUpdate = Permission('employee_targets', 'update');
+  static const kpisCreate = Permission('kpis', 'create');
+  static const kpisList = Permission('kpis', 'list');
+
   // Branches
   static const branchesCreate = Permission('branches', 'create');
   static const branchesView = Permission('branches', 'view');
@@ -539,10 +550,6 @@ class Perms {
 
   static const ordersList = Permission('orders', 'list');
   static const quotesList = Permission('quotes', 'list');
-
-  // KPI catalog
-  static const kpisList = Permission('kpis', 'list');
-  static const kpisCreate = Permission('kpis', 'create');
 
   // Work Locations (employee-submitted workspaces, admin-approved)
   static const workLocationsList = Permission('work_locations', 'list');

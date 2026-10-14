@@ -35,6 +35,16 @@ String formatCount(dynamic value) {
   return formatNumber(value, decimals: 0);
 }
 
+/// Formats a displayed value with its unit, using the compact percent symbol.
+String formatValueWithUnit(String value, String? unit) {
+  final normalizedUnit = unit?.trim() ?? '';
+  if (normalizedUnit.isEmpty) return value;
+  if (normalizedUnit == '%' || normalizedUnit.toLowerCase() == 'percentage') {
+    return '$value%';
+  }
+  return '$value $normalizedUnit';
+}
+
 /// Formats a value as Nigerian Naira with commas (e.g. "₦1,250,000.00").
 String formatCurrency(
   dynamic value, {
@@ -48,7 +58,8 @@ String formatCurrency(
     parsed = value;
   } else if (value is String) {
     if (value.trim().isEmpty) return '${symbol}0.00';
-    parsed = num.tryParse(value.replaceAll(symbol, '').replaceAll(',', '').trim());
+    parsed =
+        num.tryParse(value.replaceAll(symbol, '').replaceAll(',', '').trim());
   }
   if (parsed == null) return '$symbol$value';
 
@@ -64,9 +75,8 @@ String formatCurrency(
     }
   }
 
-  final fmt = decimals > 0
-      ? NumberFormat('#,##0.${'0' * decimals}')
-      : _intFormatter;
+  final fmt =
+      decimals > 0 ? NumberFormat('#,##0.${'0' * decimals}') : _intFormatter;
   return '$symbol${fmt.format(parsed)}';
 }
 
@@ -160,7 +170,9 @@ class ThousandsSeparatorInputFormatter extends TextInputFormatter {
 
     // Calculate cursor position: count non-comma characters before cursor in newValue
     int nonCommasBeforeCursor = 0;
-    for (int i = 0; i < newValue.selection.end && i < newValue.text.length; i++) {
+    for (int i = 0;
+        i < newValue.selection.end && i < newValue.text.length;
+        i++) {
       if (newValue.text[i] != ',') {
         nonCommasBeforeCursor++;
       }
@@ -169,7 +181,8 @@ class ThousandsSeparatorInputFormatter extends TextInputFormatter {
     // Find equivalent cursor position in formatted text
     int newCursorOffset = 0;
     int countedNonCommas = 0;
-    while (newCursorOffset < formatted.length && countedNonCommas < nonCommasBeforeCursor) {
+    while (newCursorOffset < formatted.length &&
+        countedNonCommas < nonCommasBeforeCursor) {
       if (formatted[newCursorOffset] != ',') {
         countedNonCommas++;
       }

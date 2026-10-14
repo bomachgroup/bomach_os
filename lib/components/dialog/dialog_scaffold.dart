@@ -165,14 +165,11 @@ class DialogScaffold extends StatelessWidget {
                 top: BorderSide(color: AppColors.borderSubtle),
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                for (int i = 0; i < actions!.length; i++) ...[
-                  if (i != 0) const SizedBox(width: 12),
-                  actions![i],
-                ],
-              ],
+            child: Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 12,
+              runSpacing: 8,
+              children: actions!,
             ),
           )
         : null;
