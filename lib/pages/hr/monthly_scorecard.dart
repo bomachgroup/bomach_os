@@ -10,6 +10,7 @@ import 'package:bomach_os/pages/hr/controller/monthly_scorecard_controller.dart'
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -398,7 +399,8 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
           const SizedBox(height: 4),
           Text(
             'Achievement vs target across each tracked metric.',
-            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
           if (scorecard.metrics.isEmpty)
@@ -443,7 +445,8 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
               Expanded(
                 child: Text(
                   metric.metricName,
-                  style: AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
+                  style:
+                      AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               const SizedBox(width: 12),
@@ -466,8 +469,9 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '${metric.currentValue.toStringAsFixed(1)}${metric.unit} / ${metric.targetValue.toStringAsFixed(0)}${metric.unit}',
-            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            '${formatValueWithUnit(metric.currentValue.toStringAsFixed(1), metric.unit)} / ${formatValueWithUnit(metric.targetValue.toStringAsFixed(0), metric.unit)}',
+            style:
+                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -491,7 +495,8 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
           const SizedBox(height: 12),
           Text(
             scorecard.notes,
-            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
           ),
         ],
       ),
