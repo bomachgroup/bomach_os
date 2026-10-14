@@ -11,6 +11,7 @@ import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/role_kpi_model.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -28,6 +29,7 @@ class KpiManagementPage extends StatefulWidget {
 
 class _KpiManagementPageState extends State<KpiManagementPage> {
   late final RoleKpiController ctrl;
+  String _searchText = '';
 
   @override
   void initState() {
@@ -68,8 +70,10 @@ class _KpiManagementPageState extends State<KpiManagementPage> {
             height: 44,
             leading: const Icon(Iconsax.search_normal,
                 size: 18, color: AppColors.textMuted),
-            onChanged: (value) =>
-                ctrl.fetchAllKpis(search: value, refresh: true),
+            onChanged: (value) {
+              setState(() => _searchText = value);
+              ctrl.fetchAllKpis(search: value, refresh: true);
+            },
           ),
         ),
         Obx(() {
@@ -116,13 +120,33 @@ class _KpiManagementPageState extends State<KpiManagementPage> {
                       ],
                     ),
                   ),
-                const AppCard(
-                  padding: EdgeInsets.all(48),
+                AppCard(
+                  padding: const EdgeInsets.all(24),
                   child: EmptyState(
                     icon: Iconsax.chart,
-                    title: 'No KPIs defined yet',
-                    subtitle:
-                        'Add role-level KPIs to track measurable performance standards.',
+                    title: _searchText.isEmpty
+                        ? 'No role KPIs yet'
+                        : 'No matching KPIs',
+                    subtitle: _searchText.isEmpty
+                        ? 'Set shared performance measures for each role. Assignments can be tailored later in an employee plan.'
+                        : 'Try a different KPI name or clear the search.',
+                    compact: true,
+                    action: _searchText.isEmpty
+                        ? PermissionGate(
+                            allOf: const [
+                              Perms.roleKpisCreate,
+                              Perms.kpisList,
+                            ],
+                            child: MyElevatedButton(
+                              height: 42,
+                              icon: const Icon(Iconsax.add,
+                                  size: 17, color: AppColors.white),
+                              child: 'Add KPI',
+                              onTap: () =>
+                                  showKpiEditorDialog(context, ctrl: ctrl),
+                            ),
+                          )
+                        : null,
                   ),
                 ),
               ],
@@ -181,19 +205,30 @@ class _KpiGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final cardWidth = constraints.maxWidth > 900
-            ? (constraints.maxWidth - 24) / 3
-            : constraints.maxWidth > 600
-                ? (constraints.maxWidth - 12) / 2
-                : constraints.maxWidth;
+        final columns = constraints.maxWidth >= 1120
+            ? 3
+            : constraints.maxWidth >= 680
+                ? 2
+                : 1;
+        final cardWidth = columns == 1
+            ? constraints.maxWidth
+            : (constraints.maxWidth - (columns - 1) * 12) / columns;
 
         return Wrap(
           spacing: 12,
           runSpacing: 12,
           children: ctrl.kpis.map((kpi) {
+            final role = Get.isRegistered<RolesController>()
+                ? Get.find<RolesController>()
+                    .roles
+                    .firstWhereOrNull((item) => item.id == kpi.roleId)
+                : null;
             return SizedBox(
               width: cardWidth,
-              child: _KpiCard(kpi: kpi),
+              child: _KpiCard(
+                kpi: kpi,
+                roleName: role?.name ?? 'Role #${kpi.roleId}',
+              ),
             );
           }).toList(),
         );
@@ -204,7 +239,8 @@ class _KpiGrid extends StatelessWidget {
 
 class _KpiCard extends StatelessWidget {
   final RoleKpi kpi;
-  const _KpiCard({required this.kpi});
+  final String roleName;
+  const _KpiCard({required this.kpi, required this.roleName});
 
   @override
   Widget build(BuildContext context) {
@@ -212,12 +248,16 @@ class _KpiCard extends StatelessWidget {
     final unit = kpi.metric?.unit ?? '';
     final desc = kpi.metric?.description ?? '';
     final target = kpi.targetValue != null
-        ? '${kpi.targetValue!.toStringAsFixed(kpi.targetValue! % 1 == 0 ? 0 : 1)} $unit'
+        ? formatValueWithUnit(
+            kpi.targetValue!.toStringAsFixed(kpi.targetValue! % 1 == 0 ? 0 : 1),
+            unit,
+          )
         : '—';
     final weight =
         kpi.weight?.toStringAsFixed(kpi.weight! % 1 == 0 ? 0 : 1) ?? '—';
     final periodLabel =
-        kpi.period == 'yearly' ? 'Annual' : _formatLabel(kpi.period);
+        _formatLabel(kpi.period == 'yearly' ? 'annual' : kpi.period);
+    final trackingLabel = _formatLabel(kpi.trackingMode);
 
     return AppCard(
       padding: const EdgeInsets.all(16),
@@ -226,7 +266,19 @@ class _KpiCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySubtle,
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: const Icon(Iconsax.chart_2,
+                    size: 18, color: AppColors.primary),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,27 +307,42 @@ class _KpiCard extends StatelessWidget {
               _StatusBadge(isActive: kpi.isActive),
             ],
           ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: [
-              _InfoChip(label: 'Target', value: target),
-              _InfoChip(label: 'Period', value: periodLabel),
-              _InfoChip(label: 'Tracking', value: kpi.trackingMode),
-              _InfoChip(label: 'Weight', value: weight),
-            ],
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 14),
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          LayoutBuilder(builder: (context, constraints) {
+            final cellWidth = (constraints.maxWidth - 18) / 2;
+            return Wrap(
+              spacing: 18,
+              runSpacing: 12,
+              children: [
+                SizedBox(
+                    width: cellWidth,
+                    child: _InfoCell(label: 'Target', value: target)),
+                SizedBox(
+                    width: cellWidth,
+                    child: _InfoCell(label: 'Period', value: periodLabel)),
+                SizedBox(
+                    width: cellWidth,
+                    child: _InfoCell(label: 'Tracking', value: trackingLabel)),
+                SizedBox(
+                    width: cellWidth,
+                    child: _InfoCell(label: 'Weight', value: weight)),
+              ],
+            );
+          }),
+          const SizedBox(height: 12),
           Row(
             children: [
-              _Badge(
-                kpi.period == 'yearly' ? 'annual' : kpi.period,
-                _periodColors,
+              Expanded(
+                child: Text(
+                  roleName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textSecondary),
+                ),
               ),
-              const SizedBox(width: 6),
-              _Badge(kpi.trackingMode, _trackingColors),
-              const Spacer(),
               PermissionGate(
                 allOf: const [Perms.roleKpisUpdate, Perms.kpisList],
                 child: IconButton(
@@ -358,32 +425,26 @@ class _KpiPagination extends StatelessWidget {
   }
 }
 
-class _InfoChip extends StatelessWidget {
+class _InfoCell extends StatelessWidget {
   final String label;
   final String value;
-  const _InfoChip({required this.label, required this.value});
+  const _InfoCell({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: AppRadii.brSm,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label,
-              style: AppTextStyles.caption
-                  .copyWith(color: AppColors.textSecondary, fontSize: 10)),
-          const SizedBox(height: 2),
-          Text(value,
-              style:
-                  AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500)),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label,
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+        const SizedBox(height: 3),
+        Text(value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w600)),
+      ],
     );
   }
 }
@@ -397,59 +458,15 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive ? Colors.green.shade50 : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(20),
+        color: isActive ? AppColors.successSubtle : AppColors.neutral100,
+        borderRadius: AppRadii.brSm,
       ),
       child: Text(
         isActive ? 'Active' : 'Inactive',
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: isActive ? Colors.green.shade700 : Colors.grey.shade600,
-        ),
-      ),
-    );
-  }
-}
-
-const _periodColors = {
-  'weekly': Color(0xFF8B5CF6),
-  'monthly': Color(0xFF059669),
-  'quarterly': Color(0xFFD97706),
-  'semi_annual': Color(0xFF3B82F6),
-  'annual': Color(0xFFDC2626),
-};
-
-const _trackingColors = {
-  'manual': Color(0xFF6B7280),
-  'automatic': Color(0xFF059669),
-  'semi_automatic': Color(0xFFD97706),
-};
-
-class _Badge extends StatelessWidget {
-  final String label;
-  final Map<String, Color> colorMap;
-  const _Badge(this.label, this.colorMap);
-
-  @override
-  Widget build(BuildContext context) {
-    final color = colorMap[label.toLowerCase()] ?? AppColors.textSecondary;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Text(
-        label
-            .split('_')
-            .map((w) => w[0].toUpperCase() + w.substring(1))
-            .join(' '),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: color,
+          color: isActive ? AppColors.success : AppColors.textSecondary,
         ),
       ),
     );

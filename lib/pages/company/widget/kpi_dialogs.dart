@@ -8,9 +8,11 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:bomach_os/src/model/role_kpi_model.dart';
 import 'package:bomach_os/src/model/kpi_metric_model.dart';
 import 'package:bomach_os/src/services/kpi_metric_service.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -54,16 +56,18 @@ Future<bool> showRemoveKpiConfirmation(
   final removed = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => StatefulBuilder(
-      builder: (dialogContext, setDialogState) => AlertDialog(
-        title: const Text('Remove KPI from role?'),
-        content: Column(
+      builder: (dialogContext, setDialogState) => DialogScaffold(
+        title: 'Remove KPI from role?',
+        subtitle: 'This only changes the selected role assignment.',
+        size: DialogSize.sm,
+        body: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Remove "$metricName" from this role?'),
+            Text('Remove “$metricName” from this role?'),
             const SizedBox(height: 8),
             const Text(
-              'This removes only the role assignment. The shared metric and historical employee KPI data will remain.',
+              'The shared metric and historical employee KPI data will remain.',
             ),
             if (error != null) ...[
               const SizedBox(height: 12),
@@ -77,7 +81,7 @@ Future<bool> showRemoveKpiConfirmation(
                 saving ? null : () => Navigator.pop(dialogContext, false),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          FilledButton(
             onPressed: saving
                 ? null
                 : () async {
@@ -96,8 +100,8 @@ Future<bool> showRemoveKpiConfirmation(
                       });
                     }
                   },
-            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: Text(saving ? 'Removing...' : 'Remove from role'),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            child: Text(saving ? 'Removing…' : 'Remove from role'),
           ),
         ],
       ),
@@ -163,6 +167,13 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
 
   RoleKpi? get _activeKpi => _editingKpi ?? widget.kpi;
   bool get _isEdit => _activeKpi != null;
+  bool get _canSave =>
+      _selectedRoleId != null &&
+      _selectedMetricId != null &&
+      !_loadingMetrics &&
+      !_loadingAssignments &&
+      _metricLoadError == null &&
+      _assignmentLoadError == null;
 
   @override
   void initState() {
@@ -333,87 +344,23 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
     super.dispose();
   }
 
-  void _showCreateMetricDialog(BuildContext context) {
-    final nameCtrl = TextEditingController();
-    final unitCtrl = TextEditingController(text: 'percentage');
-    final descCtrl = TextEditingController();
-
-    showDialog(
+  Future<void> _showCreateMetricDialog(BuildContext context) async {
+    final created = await showDialog<KPIMetric>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Create Metric'),
-        content: SizedBox(
-          width: 360,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MyTextFormField(
-                controller: nameCtrl,
-                hintText: 'Metric name (required)',
-                height: 44,
-              ),
-              const SizedBox(height: 12),
-              MyTextFormField(
-                controller: unitCtrl,
-                hintText: 'Unit (e.g. %, count, hours)',
-                height: 44,
-              ),
-              const SizedBox(height: 12),
-              MyTextFormField(
-                controller: descCtrl,
-                hintText: 'Description (optional)',
-                height: 88,
-                maxLines: 3,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (nameCtrl.text.trim().isEmpty) {
-                Get.snackbar('Validation', 'Name is required',
-                    snackPosition: SnackPosition.BOTTOM);
-                return;
-              }
-              try {
-                final token = await _storage.read(key: 'access_token');
-                if (token == null) return;
-                final cleanToken = token.replaceAll('"', '').trim();
-                final created = await _metricService.createMetric(
-                  cleanToken,
-                  name: nameCtrl.text.trim(),
-                  unit: unitCtrl.text.trim().isEmpty
-                      ? 'percentage'
-                      : unitCtrl.text.trim(),
-                  description: descCtrl.text.trim(),
-                );
-                if (ctx.mounted) Navigator.pop(ctx);
-                setState(() {
-                  _metrics = [..._metrics, created];
-                  _selectedMetricId = created.id;
-                  _selectedMetricUnit = created.unit;
-                });
-                Get.snackbar('Success', 'Metric "${created.name}" created',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.green.shade50,
-                    colorText: Colors.green.shade800);
-              } catch (e) {
-                Get.snackbar('Error', 'Failed to create metric: $e',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.red.shade50,
-                    colorText: Colors.red.shade800);
-              }
-            },
-            child: const Text('Create'),
-          ),
-        ],
+      builder: (_) => _CreateMetricDialog(
+        service: _metricService,
+        storage: _storage,
       ),
     );
+    if (!mounted || created == null) return;
+    setState(() {
+      _metrics = [..._metrics, created];
+      _selectedMetricId = created.id;
+      _selectedMetricUnit = created.unit;
+      _actionError = null;
+    });
+    AppToast.success(context, 'Shared metric created.',
+        duration: const Duration(seconds: 2));
   }
 
   void _setActionError(String message) {
@@ -463,8 +410,9 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
 
     final sequenceText = _sequenceCtrl.text.trim();
     final sequence = sequenceText.isEmpty ? null : int.tryParse(sequenceText);
-    if (sequenceText.isNotEmpty && (sequence == null || sequence < 1)) {
-      _setActionError('Sequence must be a positive whole number.');
+    if (sequenceText.isNotEmpty &&
+        (sequence == null || sequence < 1 || sequence > 2147483647)) {
+      _setActionError('Display order must be between 1 and 2,147,483,647.');
       return;
     }
 
@@ -556,20 +504,10 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
               const Expanded(child: Text('Metric', style: AppTextStyles.label)),
               PermissionGate(
                 require: Perms.kpisCreate,
-                child: GestureDetector(
-                  onTap: () => _showCreateMetricDialog(context),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.add_circle_outline,
-                          size: 14, color: AppColors.primary),
-                      const SizedBox(width: 4),
-                      Text('New',
-                          style: AppTextStyles.caption.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600)),
-                    ],
-                  ),
+                child: TextButton.icon(
+                  onPressed: () => _showCreateMetricDialog(context),
+                  icon: const Icon(Iconsax.add, size: 17),
+                  label: const Text('Create metric'),
                 ),
               ),
             ],
@@ -632,7 +570,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                               ? 'Select a role first'
                               : _selectedMetricId == null
                                   ? (_metrics.isEmpty
-                                      ? 'No metrics available — click “New”'
+                                      ? 'No shared metrics available'
                                       : 'Select a metric')
                                   : _metrics
                                           .firstWhereOrNull((metric) =>
@@ -668,19 +606,34 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
               ],
             ),
           ],
+          if (!_isEdit &&
+              _metrics.isEmpty &&
+              !_loadingMetrics &&
+              _metricLoadError == null) ...[
+            const SizedBox(height: 8),
+            _MetricEmptyNotice(
+              canCreate: Get.isRegistered<PermissionService>() &&
+                  Get.find<PermissionService>().has(Perms.kpisCreate),
+            ),
+          ],
+          if (!_isEdit && _selectedMetricId == null && _metrics.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            const _MetricSelectionHint(),
+          ],
           const SizedBox(height: 16),
 
-          // ── Tracking Mode + Period row ──────────────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+          if (_activeKpi != null || _selectedMetricId != null) ...[
+            // ── Tracking Mode + Period row ──────────────────────────────
+            ResponsiveRow(
+              spacing: 12,
+              children: [
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Tracking Mode', style: AppTextStyles.label),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(borderRadius: AppRadii.brMd),
                         contentPadding:
@@ -695,15 +648,13 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Period', style: AppTextStyles.label),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(borderRadius: AppRadii.brMd),
                         contentPadding:
@@ -718,27 +669,26 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          if (_trackingMode == 'automatic' || _trackingMode == 'semi_automatic')
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                'This mode is stored as configuration; automatic calculations are not configured.',
-                style: AppTextStyles.caption
-                    .copyWith(color: AppColors.textSecondary),
-              ),
+              ],
             ),
+            const SizedBox(height: 16),
 
-          // ── Target + Weight row ─────────────────────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+            if (_trackingMode == 'automatic' ||
+                _trackingMode == 'semi_automatic')
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text(
+                  'This mode is stored as configuration; automatic calculations are not configured.',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ),
+
+            // ── Target + Weight row ─────────────────────────────────────
+            ResponsiveRow(
+              spacing: 12,
+              children: [
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -753,10 +703,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Weight', style: AppTextStyles.label),
@@ -769,42 +716,34 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+              ],
+            ),
+            const SizedBox(height: 16),
 
-          // ── Sequence ────────────────────────────────────────────────
-          const Text('Sequence (optional)', style: AppTextStyles.label),
-          const SizedBox(height: 8),
-          MyTextFormField(
-            controller: _sequenceCtrl,
-            hintText: 'Display order',
-            height: 48,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 16),
-
-          // ── Active toggle ─────────────────────────────────────────────
-          Row(
-            children: [
-              Switch(
-                value: _isActive,
-                onChanged: (v) => setState(() => _isActive = v),
-                activeThumbColor: AppColors.primary,
-              ),
-              const SizedBox(width: 8),
-              const Text('Active', style: AppTextStyles.bodyMd),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  '(inactive KPIs are hidden from dashboards)',
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.textSecondary),
+            ExpansionTile(
+              maintainState: true,
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: EdgeInsets.zero,
+              title: const Text('Assignment settings'),
+              subtitle: const Text('Display order and active status'),
+              children: [
+                MyTextFormField(
+                  controller: _sequenceCtrl,
+                  hintText: 'Display order',
+                  height: 48,
+                  keyboardType: TextInputType.number,
                 ),
-              ),
-            ],
-          ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: _isActive,
+                  onChanged: (v) => setState(() => _isActive = v),
+                  title: const Text('Active for this role'),
+                  subtitle:
+                      const Text('Inactive KPIs are hidden from dashboards.'),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
       actions: [
@@ -816,7 +755,7 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
         Obx(() => MyElevatedButton(
               width: 140,
               height: 44,
-              onTap: widget.ctrl.isSaving.value ? null : _onSave,
+              onTap: widget.ctrl.isSaving.value || !_canSave ? null : _onSave,
               child: widget.ctrl.isSaving.value
                   ? 'Saving...'
                   : (isEdit ? 'Save Changes' : 'Add KPI'),
@@ -827,6 +766,200 @@ class _CreateEditKpiDialogState extends State<CreateEditKpiDialog> {
 
   String _formatLabel(String s) =>
       s.split('_').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
+}
+
+class _MetricEmptyNotice extends StatelessWidget {
+  final bool canCreate;
+
+  const _MetricEmptyNotice({required this.canCreate});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceMuted,
+          borderRadius: AppRadii.brSm,
+          border: Border.all(color: AppColors.borderSubtle),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Iconsax.info_circle,
+                size: 18, color: AppColors.textSecondary),
+            const SizedBox(width: 9),
+            Expanded(
+              child: Text(
+                canCreate
+                    ? 'There are no shared metrics yet. Create one to use it in role KPI assignments.'
+                    : 'There are no shared metrics available. Ask an administrator to add a KPI metric.',
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+class _MetricSelectionHint extends StatelessWidget {
+  const _MetricSelectionHint();
+
+  @override
+  Widget build(BuildContext context) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Iconsax.info_circle,
+              size: 16, color: AppColors.textSecondary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Choose a metric to configure its target, tracking method, and review period.',
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+        ],
+      );
+}
+
+class _CreateMetricDialog extends StatefulWidget {
+  final KpiMetricService service;
+  final FlutterSecureStorage storage;
+
+  const _CreateMetricDialog({required this.service, required this.storage});
+
+  @override
+  State<_CreateMetricDialog> createState() => _CreateMetricDialogState();
+}
+
+class _CreateMetricDialogState extends State<_CreateMetricDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _name = TextEditingController();
+  final _unit = TextEditingController(text: 'percentage');
+  final _description = TextEditingController();
+  String? _error;
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _unit.dispose();
+    _description.dispose();
+    super.dispose();
+  }
+
+  Future<void> _create() async {
+    if (!(_formKey.currentState?.validate() ?? false) || _saving) return;
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      final token = await widget.storage.read(key: 'access_token');
+      if (token == null || token.trim().isEmpty) {
+        throw Exception('Sign in again before creating a shared metric.');
+      }
+      final metric = await widget.service.createMetric(
+        token.replaceAll('"', '').trim(),
+        name: _name.text.trim(),
+        unit: _unit.text.trim().isEmpty ? 'percentage' : _unit.text.trim(),
+        description: _description.text.trim(),
+      );
+      if (mounted) Navigator.pop(context, metric);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = error
+            .toString()
+            .replaceFirst(RegExp(r'^Exception: (Unexpected error: )?'), '');
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => DialogScaffold(
+        title: 'Create shared metric',
+        subtitle:
+            'Add a reusable measure to the KPI catalog. You can assign it to roles after creation.',
+        size: DialogSize.sm,
+        body: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_error != null) ...[
+                _InlineKpiError(message: _error!),
+                const SizedBox(height: 14),
+              ],
+              TextFormField(
+                controller: _name,
+                enabled: !_saving,
+                autofocus: true,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  labelText: 'Metric name',
+                  hintText: 'e.g. Client follow-ups completed',
+                  helperText:
+                      'Use a clear name that can be reused across roles.',
+                ),
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Enter a metric name.'
+                    : value.trim().length > 200
+                        ? 'Metric names must be 200 characters or fewer.'
+                        : null,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _unit,
+                enabled: !_saving,
+                decoration: const InputDecoration(
+                  labelText: 'Unit',
+                  hintText: 'percentage, count, hours',
+                ),
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Enter a unit.'
+                    : value.trim().length > 20
+                        ? 'Units must be 20 characters or fewer.'
+                        : null,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _description,
+                enabled: !_saving,
+                textCapitalization: TextCapitalization.sentences,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'What does this metric measure?',
+                  alignLabelWithHint: true,
+                ),
+                validator: (value) => value != null && value.trim().length > 500
+                    ? 'Descriptions must be 500 characters or fewer.'
+                    : null,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _saving ? null : () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.icon(
+            onPressed: _saving ? null : _create,
+            icon: _saving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Iconsax.add, size: 17),
+            label: Text(_saving ? 'Creating…' : 'Create metric'),
+          ),
+        ],
+      );
 }
 
 class _InlineKpiError extends StatelessWidget {
@@ -862,7 +995,7 @@ class _InlineKpiError extends StatelessWidget {
   }
 }
 
-class _MetricPickerDialog extends StatelessWidget {
+class _MetricPickerDialog extends StatefulWidget {
   final List<KPIMetric> metrics;
   final List<RoleKpi> assignments;
   final int? selectedMetricId;
@@ -876,68 +1009,127 @@ class _MetricPickerDialog extends StatelessWidget {
   });
 
   @override
+  State<_MetricPickerDialog> createState() => _MetricPickerDialogState();
+}
+
+class _MetricPickerDialogState extends State<_MetricPickerDialog> {
+  final _search = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Select a metric'),
-      content: SizedBox(
-        width: 480,
-        height: 460,
-        child: metrics.isEmpty
-            ? const Center(child: Text('No KPI metrics are available.'))
-            : ListView.separated(
-                itemCount: metrics.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final metric = metrics[index];
-                  final assigned = assignments.firstWhereOrNull(
-                    (item) =>
-                        item.metricId == metric.id &&
-                        item.id != editableAssignmentId,
-                  );
-                  if (assigned != null) {
-                    return ListTile(
-                      enabled: false,
-                      leading:
-                          const Icon(Iconsax.chart, color: AppColors.textMuted),
-                      title: Text(metric.name,
-                          style: const TextStyle(color: AppColors.textMuted)),
-                      subtitle: Text('${metric.unit} · Already assigned'),
-                      trailing: PermissionGate(
-                        allOf: const [
-                          Perms.roleKpisUpdate,
-                          Perms.kpisList,
-                        ],
-                        child: TextButton.icon(
-                          onPressed: () => Navigator.pop(
-                              context, _MetricChoice.assignment(assigned)),
-                          icon: const Icon(Iconsax.edit_2, size: 16),
-                          label: const Text('Edit'),
+    final metrics = widget.metrics.where((metric) {
+      final query = _query.trim().toLowerCase();
+      return query.isEmpty ||
+          metric.name.toLowerCase().contains(query) ||
+          metric.description.toLowerCase().contains(query) ||
+          metric.unit.toLowerCase().contains(query);
+    }).toList();
+    return DialogScaffold(
+      title: 'Select a metric',
+      subtitle: 'Choose the shared measure to assign to this role.',
+      size: DialogSize.md,
+      scrollable: false,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            controller: _search,
+            onChanged: (value) => setState(() => _query = value),
+            decoration: const InputDecoration(
+              labelText: 'Search metrics',
+              prefixIcon: Icon(Iconsax.search_normal),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: metrics.isEmpty
+                ? Center(
+                    child: Text(_query.isEmpty
+                        ? 'No KPI metrics are available.'
+                        : 'No metrics match “$_query”.'))
+                : ListView.separated(
+                    itemCount: metrics.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final metric = metrics[index];
+                      final assigned = widget.assignments.firstWhereOrNull(
+                        (item) =>
+                            item.metricId == metric.id &&
+                            item.id != widget.editableAssignmentId,
+                      );
+                      if (assigned != null) {
+                        return ListTile(
+                          key: ValueKey('assigned-metric-${metric.id}'),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 4),
+                          leading: const Icon(Iconsax.chart_2,
+                              color: AppColors.textMuted),
+                          title: Text(metric.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style:
+                                  const TextStyle(color: AppColors.textMuted)),
+                          subtitle: Text(
+                            [metric.unit, 'Already assigned']
+                                .where((value) => value.trim().isNotEmpty)
+                                .join(' · '),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: PermissionGate(
+                            allOf: const [
+                              Perms.roleKpisUpdate,
+                              Perms.kpisList,
+                            ],
+                            child: TextButton.icon(
+                              onPressed: () => Navigator.pop(
+                                  context, _MetricChoice.assignment(assigned)),
+                              icon: const Icon(Iconsax.edit_2, size: 16),
+                              label: const Text('Edit'),
+                            ),
+                          ),
+                        );
+                      }
+                      final selected = metric.id == widget.selectedMetricId;
+                      return ListTile(
+                        key: ValueKey('metric-${metric.id}'),
+                        selected: selected,
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 4),
+                        leading: Icon(
+                          selected ? Iconsax.tick_circle : Iconsax.chart_2,
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
                         ),
-                      ),
-                    );
-                  }
-                  return ListTile(
-                    selected: metric.id == selectedMetricId,
-                    leading: Icon(
-                      metric.id == selectedMetricId
-                          ? Iconsax.tick_circle
-                          : Iconsax.chart,
-                      color: metric.id == selectedMetricId
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
-                    ),
-                    title: Text(metric.name),
-                    subtitle: Text(metric.unit),
-                    onTap: () =>
-                        Navigator.pop(context, _MetricChoice.metric(metric)),
-                  );
-                },
-              ),
+                        title: Text(metric.name,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        subtitle: Text(
+                          [metric.description, metric.unit]
+                              .where((value) => value.trim().isNotEmpty)
+                              .join(' · '),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: () => Navigator.pop(
+                            context, _MetricChoice.metric(metric)),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
+          child: const Text('Cancel'),
         ),
       ],
     );

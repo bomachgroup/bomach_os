@@ -10,6 +10,7 @@ import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/role_model.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
+import 'package:bomach_os/src/utils/number_formatting.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -442,7 +443,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                                         ],
                                       ),
                                       Text(
-                                        'Target: ${k.targetValue?.toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1) ?? '-'} ${k.metric?.unit ?? ''}',
+                                        'Target: ${k.targetValue == null ? '-' : formatValueWithUnit(k.targetValue!.toStringAsFixed(k.targetValue! % 1 == 0 ? 0 : 1), k.metric?.unit)}',
                                         style: const TextStyle(
                                             fontWeight: FontWeight.w600),
                                       ),
