@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/src/constants/colors.dart';
@@ -44,14 +45,12 @@ class _EmployeePerformancePlanSectionState
     extends State<EmployeePerformancePlanSection> {
   final _storage = const FlutterSecureStorage();
   late final EmployeePerformancePlanService _service;
-  final _reason = TextEditingController();
   late DateTime _periodStart;
   late DateTime _periodEnd;
   Map<String, dynamic>? _plan;
   List<Map<String, dynamic>> _history = [];
   String _scope = 'period_only';
   String _error = '';
-  String? _reasonError;
   String _historyError = '';
   bool _loading = true;
   bool _saving = false;
@@ -84,6 +83,11 @@ class _EmployeePerformancePlanSectionState
       Get.isRegistered<PermissionService>() &&
       Get.find<PermissionService>().has(Perms.kpisCreate);
 
+  bool get _canReviewRoleDefaults =>
+      _canEdit &&
+      _plan?['role_id'] != null &&
+      const {'employee_plan', 'period_snapshot'}.contains(_plan?['source']);
+
   int? get _userId => widget.employeeUserId;
 
   @override
@@ -98,7 +102,6 @@ class _EmployeePerformancePlanSectionState
 
   @override
   void dispose() {
-    _reason.dispose();
     super.dispose();
   }
 
@@ -133,7 +136,6 @@ class _EmployeePerformancePlanSectionState
       setState(() {
         _plan = _copy(plan);
         _hasDraftChanges = false;
-        _reasonError = null;
       });
     } catch (error) {
       if (mounted) setState(() => _error = _cleanError(error));
@@ -219,11 +221,15 @@ class _EmployeePerformancePlanSectionState
   }
 
   Future<void> _save() async {
-    if (_userId == null || !_canEdit || _saving) return;
-    if (_reason.text.trim().isEmpty) {
-      setState(() => _reasonError = 'Enter a reason before saving this plan.');
-      return;
-    }
+    if (_userId == null || !_canEdit || _saving || !_hasDraftChanges) return;
+    final saveDetails = await showDialog<_PlanSaveDetails>(
+      context: context,
+      builder: (_) => _PlanSaveDialog(
+        periodLabel: '${_month(_periodStart.month)} ${_periodStart.year}',
+        initialScope: _scope,
+      ),
+    );
+    if (saveDetails == null || !mounted) return;
     setState(() {
       _saving = true;
       _error = '';
@@ -233,17 +239,16 @@ class _EmployeePerformancePlanSectionState
       final payload = {
         'period_start': _iso(_periodStart),
         'period_end': _iso(_periodEnd),
-        'change_scope': _scope,
-        'reason': _reason.text.trim(),
+        'change_scope': saveDetails.scope,
+        'reason': saveDetails.reason,
         'kpis': _items('kpis').map(_kpiPayload).toList(),
         'targets': _items('targets').map(_targetPayload).toList(),
       };
       await _service.updateEmployee(token, _userId!, payload);
-      _reason.clear();
       if (mounted) {
         setState(() {
+          _scope = saveDetails.scope;
           _hasDraftChanges = false;
-          _reasonError = null;
         });
       }
       await _loadPlan();
@@ -993,7 +998,9 @@ class _EmployeePerformancePlanSectionState
   }
 
   Future<void> _refreshRoleDefaults() async {
-    if (_userId == null || !_canEdit || _saving || _refreshing) return;
+    if (_userId == null || !_canReviewRoleDefaults || _saving || _refreshing) {
+      return;
+    }
     if (!await _confirmDiscardDraft(
       title: 'Discard unsaved plan changes?',
       message:
@@ -1041,8 +1048,8 @@ class _EmployeePerformancePlanSectionState
       await _loadPlan();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                'Role defaults applied as plan revision ${result['revision']}.')),
+            content: Text('Role-default updates applied as plan revision '
+                "${result['revision']}.")),
       );
     } catch (error) {
       if (mounted) setState(() => _error = _cleanError(error));
@@ -1062,6 +1069,171 @@ class _EmployeePerformancePlanSectionState
         'preserved' => 'Customized items kept',
         _ => action,
       };
+
+  String _historyActionLabel(String action) => switch (action) {
+        'period_edit' || 'period_only' => 'Plan updated',
+        'carry_forward' => 'Plan carried forward',
+        'role_refresh' => 'Role defaults refreshed',
+        _ => 'Plan updated',
+      };
+
+  String _historyScopeLabel(String scope) => switch (scope) {
+        'period_only' => 'This period only',
+        'carry_forward' => 'From selected period',
+        _ => _label(scope),
+      };
+
+  IconData _historyActionIcon(String action) => switch (action) {
+        'role_refresh' => Iconsax.refresh,
+        'carry_forward' => Iconsax.arrow_2,
+        _ => Iconsax.edit_2,
+      };
+
+  Widget _historyMeta(IconData icon, String value) => Padding(
+        padding: const EdgeInsets.only(top: 3),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 13, color: AppColors.textMuted),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                value,
+                softWrap: true,
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _historyScopeBadge(String label) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+        decoration: BoxDecoration(
+          color: AppColors.primarySubtle,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.primarySoft),
+        ),
+        child: Text(
+          label,
+          softWrap: true,
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w600,
+            fontSize: 11,
+          ),
+        ),
+      );
+
+  Widget _historyEntry(Map<String, dynamic> entry) {
+    final action = entry['action']?.toString() ?? '';
+    final scope = entry['change_scope']?.toString() ?? '';
+    final actor = entry['actor__email']?.toString().trim().isNotEmpty == true
+        ? entry['actor__email'].toString()
+        : 'Manager';
+    final changes = _auditChangeLines(entry);
+    final reason = entry['reason']?.toString().trim() ?? '';
+
+    return Column(
+      children: [
+        ExpansionTile(
+          key: ValueKey('plan-history-${entry['id']}'),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          leading: CircleAvatar(
+            radius: 17,
+            backgroundColor: AppColors.surfaceMuted,
+            child: Icon(_historyActionIcon(action),
+                size: 16, color: AppColors.primary),
+          ),
+          title: Text(
+            _historyActionLabel(action),
+            style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w700),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _historyScopeBadge(_historyScopeLabel(scope)),
+                const SizedBox(height: 5),
+                _historyMeta(Iconsax.user, actor),
+                _historyMeta(
+                    Iconsax.clock, _auditTimestamp(entry['created_at'])),
+                _historyMeta(Iconsax.calendar_1,
+                    _auditPeriod(entry['period_start'], entry['period_end'])),
+              ],
+            ),
+          ),
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceMuted,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Reason',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w700,
+                      )),
+                  const SizedBox(height: 4),
+                  Text(reason.isNotEmpty ? reason : 'No reason provided',
+                      style: AppTextStyles.bodySm),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Text('Changes',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w700,
+                          )),
+                      const SizedBox(width: 7),
+                      StatusChip(
+                        label: '${changes.length}',
+                        tone: StatusTone.neutral,
+                        dense: true,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  if (changes.isEmpty)
+                    Text('No item-level changes recorded.',
+                        style: AppTextStyles.bodySm
+                            .copyWith(color: AppColors.textSecondary))
+                  else
+                    for (final line in changes)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(top: 2),
+                              child: Icon(Iconsax.arrow_right_3,
+                                  size: 14, color: AppColors.primary),
+                            ),
+                            const SizedBox(width: 7),
+                            Expanded(
+                              child: Text(line,
+                                  softWrap: true, style: AppTextStyles.bodySm),
+                            ),
+                          ],
+                        ),
+                      ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
   String _auditTimestamp(dynamic value) {
     final parsed = DateTime.tryParse(value?.toString() ?? '');
@@ -1272,6 +1444,27 @@ class _EmployeePerformancePlanSectionState
                             .copyWith(color: AppColors.textSecondary)),
                 ],
               ),
+              if (_canReviewRoleDefaults) ...[
+                const SizedBox(height: 10),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: OutlinedButton.icon(
+                    key: const Key('review-role-default-updates'),
+                    onPressed:
+                        _saving || _refreshing ? null : _refreshRoleDefaults,
+                    icon: _refreshing
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Iconsax.refresh, size: 17),
+                    label: Text(_refreshing
+                        ? 'Checking role defaults'
+                        : 'Review role-default updates'),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -1279,9 +1472,7 @@ class _EmployeePerformancePlanSectionState
           _inlineNotice('Completed periods are read-only.'),
         if (_error.isNotEmpty) _inlineError(_error),
         const SizedBox(height: 14),
-        if (_canEdit && _hasDraftChanges)
-          _inlineNotice(
-              'Unsaved plan changes. Add a reason and save the plan to apply them.'),
+        if (_canEdit && _hasDraftChanges) _draftActionBar(),
         _sectionHeading('KPIs', Iconsax.chart_2,
             count: kpis.length, onAdd: _canEdit ? () => _editKpi() : null),
         if (kpis.isEmpty) _emptyItems('No KPIs are assigned for this period.'),
@@ -1294,99 +1485,6 @@ class _EmployeePerformancePlanSectionState
           _emptyItems('No targets are assigned for this period.'),
         ...targets.map((item) => _itemCard(item, isKpi: false)),
         if (_canEdit) ...[
-          const SizedBox(height: 16),
-          AppCard(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Plan changes',
-                      style: AppTextStyles.bodyMd
-                          .copyWith(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 4),
-                  Text(
-                      _hasDraftChanges
-                          ? 'Choose how these edits should take effect.'
-                          : 'Add or edit a KPI or target to create a plan change.',
-                      style: AppTextStyles.bodySm
-                          .copyWith(color: AppColors.textSecondary)),
-                  const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    initialValue: _scope,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Change applies to',
-                    ),
-                    items: const [
-                      DropdownMenuItem(
-                          value: 'period_only',
-                          child: Text('This period only',
-                              maxLines: 1, overflow: TextOverflow.ellipsis)),
-                      DropdownMenuItem(
-                          value: 'carry_forward',
-                          child: Text('This period and future periods',
-                              maxLines: 1, overflow: TextOverflow.ellipsis)),
-                    ],
-                    onChanged: (value) =>
-                        setState(() => _scope = value ?? _scope),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _scope == 'period_only'
-                        ? 'Only the selected period changes. Other saved periods stay as they are.'
-                        : 'Apply this plan from the selected period to future periods when they are generated. Already-saved periods stay unchanged.',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _reason,
-                    textCapitalization: TextCapitalization.sentences,
-                    maxLines: 2,
-                    onChanged: (_) {
-                      if (_reasonError != null) {
-                        setState(() => _reasonError = null);
-                      }
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Reason for change',
-                      hintText: 'Briefly explain the approved adjustment',
-                      helperText: 'Required for the audit history.',
-                      errorText: _reasonError,
-                      alignLabelWithHint: true,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(spacing: 10, runSpacing: 8, children: [
-                    FilledButton.icon(
-                      onPressed: _saving || _refreshing || !_hasDraftChanges
-                          ? null
-                          : _save,
-                      icon: _saving
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Iconsax.save_2),
-                      label: Text(_saving ? 'Saving' : 'Save plan'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed:
-                          _saving || _refreshing ? null : _refreshRoleDefaults,
-                      icon: _refreshing
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Iconsax.refresh),
-                      label: Text(_refreshing
-                          ? 'Checking role defaults'
-                          : 'Preview role refresh'),
-                    ),
-                  ]),
-                ]),
-          ),
-          const SizedBox(height: 10),
           AppCard(
             padding: EdgeInsets.zero,
             elevation: AppCardElevation.none,
@@ -1395,9 +1493,12 @@ class _EmployeePerformancePlanSectionState
               child: ExpansionTile(
                 leading: const Icon(Iconsax.clock,
                     size: 19, color: AppColors.textSecondary),
-                title: const Text('Change history'),
-                subtitle:
-                    const Text('Review previous plan updates and reasons.'),
+                title: const Text('Plan change history'),
+                subtitle: Text(
+                  _historyLoaded
+                      ? '${_history.length} recorded changes'
+                      : 'Review who changed the plan, when, and why.',
+                ),
                 onExpansionChanged: (expanded) {
                   if (expanded) _loadHistory();
                 },
@@ -1434,54 +1535,11 @@ class _EmployeePerformancePlanSectionState
                       child: Text('No plan changes have been recorded.'),
                     )
                   else
-                    ..._history.map((entry) {
-                      final changes = _auditChangeLines(entry);
-                      final actor =
-                          entry['actor__email']?.toString() ?? 'Manager';
-                      return ExpansionTile(
-                        key: ValueKey('plan-history-${entry['id']}'),
-                        title: Text(
-                            '${_label(entry['action']?.toString() ?? '')} · $actor'),
-                        subtitle: Text(
-                          '${_auditTimestamp(entry['created_at'])} · ${_label(entry['change_scope']?.toString() ?? '')} · ${_auditPeriod(entry['period_start'], entry['period_end'])}',
-                        ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text('Reason',
-                                    style: AppTextStyles.caption.copyWith(
-                                        color: AppColors.textSecondary)),
-                                const SizedBox(height: 3),
-                                Text(entry['reason']?.toString().isNotEmpty ==
-                                        true
-                                    ? entry['reason'].toString()
-                                    : 'No reason provided'),
-                                if (changes.isNotEmpty) ...[
-                                  const SizedBox(height: 12),
-                                  const Divider(height: 1),
-                                  const SizedBox(height: 8),
-                                  for (final line in changes)
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4),
-                                      child: Text(line,
-                                          style: AppTextStyles.bodySm),
-                                    ),
-                                ] else ...[
-                                  const SizedBox(height: 8),
-                                  Text('No item-level changes recorded.',
-                                      style: AppTextStyles.bodySm.copyWith(
-                                          color: AppColors.textSecondary)),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }),
+                    for (var index = 0; index < _history.length; index++) ...[
+                      _historyEntry(_history[index]),
+                      if (index < _history.length - 1)
+                        const Divider(height: 1, indent: 16, endIndent: 16),
+                    ],
                 ],
               ),
             ),
@@ -1698,8 +1756,82 @@ class _EmployeePerformancePlanSectionState
 
   Widget _emptyItems(String text) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: EmptyState(icon: Iconsax.chart, title: text, subtitle: ''),
+        child: EmptyState(
+          icon: Iconsax.chart,
+          title: text,
+          subtitle: '',
+          compact: true,
+        ),
       );
+
+  Widget _draftActionBar() => AppCard(
+        padding: const EdgeInsets.all(14),
+        backgroundColor: AppColors.primarySubtle,
+        borderColor: AppColors.primary.withValues(alpha: 0.2),
+        elevation: AppCardElevation.none,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Iconsax.edit_2, size: 19, color: AppColors.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Unsaved changes',
+                          style: AppTextStyles.bodyMd
+                              .copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Your edits are still a draft. Save them to update this employee’s plan.',
+                        style: AppTextStyles.bodySm
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                FilledButton.icon(
+                  key: const Key('save-plan-changes'),
+                  onPressed: _saving || _refreshing ? null : _save,
+                  icon: _saving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Iconsax.save_2, size: 17),
+                  label: Text(_saving ? 'Saving' : 'Save changes'),
+                ),
+                TextButton.icon(
+                  onPressed: _saving || _refreshing ? null : _discardDraft,
+                  icon: const Icon(Iconsax.close_circle, size: 17),
+                  label: const Text('Discard'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+
+  Future<void> _discardDraft() async {
+    if (!await _confirmDiscardDraft(
+      title: 'Discard unsaved changes?',
+      message: 'Your edits will be lost. The saved plan will be restored.',
+    )) {
+      return;
+    }
+    if (mounted) await _loadPlan();
+  }
 
   Widget _inlineError(String message) => Container(
         margin: const EdgeInsets.only(top: 10),
@@ -2067,6 +2199,183 @@ class _PlanMeasure extends StatelessWidget {
       );
 }
 
+class _PlanSaveDetails {
+  final String scope;
+  final String reason;
+
+  const _PlanSaveDetails({required this.scope, required this.reason});
+}
+
+class _PlanSaveDialog extends StatefulWidget {
+  final String periodLabel;
+  final String initialScope;
+
+  const _PlanSaveDialog({
+    required this.periodLabel,
+    required this.initialScope,
+  });
+
+  @override
+  State<_PlanSaveDialog> createState() => _PlanSaveDialogState();
+}
+
+class _PlanSaveDialogState extends State<_PlanSaveDialog> {
+  final _reason = TextEditingController();
+  late String _scope = widget.initialScope;
+  String? _reasonError;
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final reason = _reason.text.trim();
+    if (reason.isEmpty) {
+      setState(() => _reasonError = 'Enter a reason before saving.');
+      return;
+    }
+    Navigator.pop(
+      context,
+      _PlanSaveDetails(scope: _scope, reason: reason),
+    );
+  }
+
+  Widget _scopeOption({
+    required Key key,
+    required String value,
+    required String title,
+    required String description,
+  }) {
+    final selected = _scope == value;
+    return Semantics(
+      selected: selected,
+      button: true,
+      child: InkWell(
+        key: key,
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => setState(() => _scope = value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primarySubtle : AppColors.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: selected ? AppColors.primary : AppColors.borderSubtle,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Radio<String>(value: value),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title,
+                          style: AppTextStyles.bodySm
+                              .copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 3),
+                      Text(description,
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => DialogScaffold(
+        title: 'Save employee plan changes',
+        subtitle:
+            'Choose when these changes apply and record the reason for the adjustment.',
+        size: DialogSize.md,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Selected period',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary)),
+            const SizedBox(height: 3),
+            Text(widget.periodLabel,
+                key: const Key('plan-save-dialog-period'),
+                style:
+                    AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 16),
+            Text('Apply changes to',
+                style:
+                    AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 8),
+            RadioGroup<String>(
+              groupValue: _scope,
+              onChanged: (value) {
+                if (value != null) setState(() => _scope = value);
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _scopeOption(
+                    key: const Key('plan-save-scope-period-only'),
+                    value: 'period_only',
+                    title: 'This period only',
+                    description:
+                        'Change only this period. Other saved periods will not change.',
+                  ),
+                  const SizedBox(height: 8),
+                  _scopeOption(
+                    key: const Key('plan-save-scope-carry-forward'),
+                    value: 'carry_forward',
+                    title: 'This period and future periods',
+                    description:
+                        'Use this plan for periods generated later. Already-saved periods will not change.',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              key: const Key('plan-save-dialog-reason'),
+              controller: _reason,
+              textCapitalization: TextCapitalization.sentences,
+              maxLines: 2,
+              onChanged: (_) {
+                if (_reasonError != null) setState(() => _reasonError = null);
+              },
+              decoration: InputDecoration(
+                labelText: 'Reason for change',
+                hintText: 'Briefly explain the approved adjustment',
+                helperText: 'Saved in the plan’s change history.',
+                errorText: _reasonError,
+                alignLabelWithHint: true,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.icon(
+            key: const Key('plan-save-dialog-submit'),
+            onPressed: _submit,
+            icon: const Icon(Iconsax.save_2, size: 17),
+            label: const Text('Save changes'),
+          ),
+        ],
+      );
+}
+
 class _RoleRefreshConfirmationDialog extends StatefulWidget {
   final Map<String, dynamic> initialPreview;
   final Future<Map<String, dynamic>> Function() previewAgain;
@@ -2177,7 +2486,7 @@ class _RoleRefreshConfirmationDialogState
 
   @override
   Widget build(BuildContext context) => DialogScaffold(
-        title: 'Refresh from role defaults',
+        title: 'Review role-default updates',
         subtitle:
             'Review the proposed changes before applying them to this employee.',
         size: DialogSize.md,
@@ -2185,7 +2494,8 @@ class _RoleRefreshConfirmationDialogState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_summaryLines.isEmpty)
-              const Text('This plan already matches the role defaults.')
+              const Text('No updates are needed. This plan already matches '
+                  'the current role defaults.')
             else
               for (final line in _summaryLines)
                 Padding(
@@ -2251,7 +2561,7 @@ class _RoleRefreshConfirmationDialogState
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Apply refresh'),
+                : const Text('Apply updates'),
           ),
         ],
       );

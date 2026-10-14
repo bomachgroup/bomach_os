@@ -12,7 +12,10 @@ class _FakePerformancePlanService extends EmployeePerformancePlanService {
 
   int previewCount = 0;
   int applyCount = 0;
+  int updateCount = 0;
   bool returnStaleOnce = false;
+  String source = 'role_default';
+  Map<String, dynamic> lastUpdatePayload = {};
   List<dynamic> kpis = <dynamic>[];
   List<dynamic> targets = <dynamic>[];
 
@@ -29,10 +32,21 @@ class _FakePerformancePlanService extends EmployeePerformancePlanService {
         'period_start': '2026-10-01',
         'period_end': '2026-10-31',
         'revision': null,
-        'source': 'role_default',
+        'source': source,
         'kpis': kpis,
         'targets': targets,
       };
+
+  @override
+  Future<Map<String, dynamic>> updateEmployee(
+    String token,
+    int userId,
+    Map<String, dynamic> payload,
+  ) async {
+    updateCount++;
+    lastUpdatePayload = Map<String, dynamic>.from(payload);
+    return {'revision': 4};
+  }
 
   @override
   Future<Map<String, dynamic>> previewRefresh(
@@ -144,15 +158,15 @@ void main() {
 
   testWidgets('blank refresh reason keeps the dialog open with an error',
       (tester) async {
-    final service = _FakePerformancePlanService();
+    final service = _FakePerformancePlanService()..source = 'employee_plan';
     await pumpPlan(tester, service);
 
-    await tester.ensureVisible(find.text('Preview role refresh'));
-    await tester.tap(find.text('Preview role refresh'));
+    await tester.ensureVisible(find.text('Review role-default updates'));
+    await tester.tap(find.text('Review role-default updates'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.textContaining('New quality KPI'), findsOneWidget);
 
-    await tester.tap(find.text('Apply refresh'));
+    await tester.tap(find.text('Apply updates'));
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byKey(const Key('refresh-dialog-reason')), findsOneWidget);
@@ -163,15 +177,17 @@ void main() {
 
   testWidgets('stale refresh updates the preview and waits for reconfirmation',
       (tester) async {
-    final service = _FakePerformancePlanService()..returnStaleOnce = true;
+    final service = _FakePerformancePlanService()
+      ..returnStaleOnce = true
+      ..source = 'employee_plan';
     await pumpPlan(tester, service);
 
-    await tester.ensureVisible(find.text('Preview role refresh'));
-    await tester.tap(find.text('Preview role refresh'));
+    await tester.ensureVisible(find.text('Review role-default updates'));
+    await tester.tap(find.text('Review role-default updates'));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.enterText(
         find.byKey(const Key('refresh-dialog-reason')), 'Workload change');
-    await tester.tap(find.text('Apply refresh'));
+    await tester.tap(find.text('Apply updates'));
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byKey(const Key('refresh-dialog-error')), findsOneWidget);
@@ -180,26 +196,151 @@ void main() {
     expect(find.byKey(const Key('refresh-dialog-reason')), findsOneWidget);
     expect(service.applyCount, 1);
 
-    await tester.tap(find.text('Apply refresh'));
+    await tester.tap(find.text('Apply updates'));
     await tester.pumpAndSettle();
     expect(service.applyCount, 2);
-    expect(find.text('Refresh from role defaults'), findsNothing);
+    expect(find.byKey(const Key('refresh-dialog-reason')), findsNothing);
   });
 
-  testWidgets('history exposes the timestamp and before-after values',
+  testWidgets('scope and reason appear only when saving a draft',
       (tester) async {
     final service = _FakePerformancePlanService();
     await pumpPlan(tester, service);
 
-    await tester.ensureVisible(find.text('Change history'));
-    await tester.tap(find.text('Change history'));
+    expect(find.text('Plan changes'), findsNothing);
+    expect(find.text('Change applies to'), findsNothing);
+    expect(find.text('Reason for change'), findsNothing);
+    expect(find.text('Review role-default updates'), findsNothing);
+
+    await tester.ensureVisible(find.text('Add KPI'));
+    await tester.tap(find.text('Add KPI'));
     await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const Key('employee-plan-kpi-name')), 'Draft KPI');
+    await tester.tap(find.text('Add to draft'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('save-plan-changes')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('save-plan-changes')));
+    await tester.tap(find.byKey(const Key('save-plan-changes')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Save employee plan changes'), findsOneWidget);
+    expect(find.byKey(const Key('plan-save-dialog-period')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('plan-save-dialog-submit')));
+    await tester.pumpAndSettle();
+    expect(find.text('Enter a reason before saving.'), findsOneWidget);
+    expect(find.byType(DialogScaffold), findsOneWidget);
+    expect(service.updateCount, 0);
+
+    await tester.tap(find.byKey(const Key('plan-save-scope-carry-forward')));
+    await tester.enterText(
+      find.byKey(const Key('plan-save-dialog-reason')),
+      'Approved workload adjustment',
+    );
+    await tester.tap(find.byKey(const Key('plan-save-dialog-submit')));
+    await tester.pumpAndSettle();
+
+    expect(service.updateCount, 1);
+    expect(service.lastUpdatePayload['change_scope'], 'carry_forward');
+    expect(service.lastUpdatePayload['reason'], 'Approved workload adjustment');
+    expect(find.byKey(const Key('save-plan-changes')), findsNothing);
+  });
+
+  testWidgets('plan save confirmation fits phone, tablet, and desktop widths',
+      (tester) async {
+    const viewports = [
+      Size(320, 740),
+      Size(390, 844),
+      Size(768, 1024),
+      Size(1440, 900),
+    ];
+
+    for (final viewport in viewports) {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = viewport;
+      await pumpPlan(tester, _FakePerformancePlanService());
+
+      await tester.ensureVisible(find.text('Add KPI'));
+      await tester.tap(find.text('Add KPI'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.byKey(const Key('employee-plan-kpi-name')), 'Responsive KPI');
+      await tester.tap(find.text('Add to draft'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('save-plan-changes')));
+      await tester.tap(find.byKey(const Key('save-plan-changes')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DialogScaffold), findsOneWidget,
+          reason: 'Save dialog should open at $viewport');
+      expect(tester.takeException(), isNull,
+          reason: 'Save dialog should fit at $viewport');
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    }
+
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+
+  testWidgets('history clearly separates action, scope, actor and details',
+      (tester) async {
+    final service = _FakePerformancePlanService();
+    await pumpPlan(tester, service);
+
+    await tester.ensureVisible(find.text('Plan change history'));
+    await tester.tap(find.text('Plan change history'));
+    await tester.pumpAndSettle();
+    expect(find.text('Plan carried forward'), findsOneWidget);
+    expect(find.text('From selected period'), findsOneWidget);
+    expect(find.text('This period only'), findsNothing);
     expect(find.textContaining('05 Oct 2026'), findsOneWidget);
     await tester.ensureVisible(find.textContaining('manager@example.com'));
     await tester.tap(find.textContaining('manager@example.com'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Adjusted workload'), findsOneWidget);
+    expect(find.text('Changes'), findsOneWidget);
     expect(find.textContaining('Target Value: 10 → 12'), findsOneWidget);
+  });
+
+  testWidgets('history rows fit phone, tablet and desktop widths',
+      (tester) async {
+    const viewports = [
+      Size(320, 740),
+      Size(390, 844),
+      Size(768, 1024),
+      Size(1440, 900),
+    ];
+
+    for (final viewport in viewports) {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = viewport;
+      await pumpPlan(tester, _FakePerformancePlanService());
+      expect(tester.takeException(), isNull,
+          reason: 'Plan section should fit before history opens at $viewport');
+
+      await tester.ensureVisible(find.text('Plan change history'));
+      await tester.tap(find.text('Plan change history'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull,
+          reason: 'History list should fit at $viewport');
+      await tester.ensureVisible(find.textContaining('manager@example.com'));
+      await tester.tap(find.textContaining('manager@example.com'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull,
+          reason: 'History details should fit at $viewport');
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    }
+
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
   });
 
   testWidgets('employee-only items are not labeled as inherited or customized',
