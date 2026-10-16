@@ -447,6 +447,20 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
     return GoRoute(
       path: routePath,
       builder: (context, state) {
+        final requestId =
+            int.tryParse(state.uri.queryParameters['request_id'] ?? '');
+        if (path == RouteConstants.leaves) {
+          return LeavesPage(
+            key: ValueKey('my-leaves-${requestId ?? 'all'}'),
+            initialRequestId: requestId,
+          );
+        }
+        if (path == RouteConstants.leaveRequest) {
+          return LeaveRequestPage(
+            key: ValueKey('leave-review-${requestId ?? 'all'}'),
+            initialRequestId: requestId,
+          );
+        }
         // Detail routes carry their object via in-memory `extra` for legacy
         // callers, but durable links use the identifier in the URL.
         if (path == RouteConstants.estateDetail ||

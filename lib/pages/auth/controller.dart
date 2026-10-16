@@ -294,6 +294,30 @@ class AuthController extends GetxController {
     }
   }
 
+  /// Reload the authenticated employee profile and return its Employee-record
+  /// primary key. The auth account ID is used only to request the profile.
+  Future<int?> reloadEmployeeRecordId() async {
+    final token = await _storage.read(key: 'access_token');
+    final storedUserId = await _storage.read(key: 'user_id');
+    final currentUserId = currentUser.value?.userId;
+    final userId = currentUserId != null && currentUserId > 0
+        ? currentUserId
+        : int.tryParse(storedUserId ?? '');
+    if (token == null || userId == null || userId <= 0) return null;
+
+    try {
+      await _fetchUserProfile(token, userId);
+    } catch (e) {
+      log('Failed to reload employee profile for leave requests: $e');
+      return null;
+    }
+
+    final employeeRecordId = currentUser.value?.id;
+    return employeeRecordId != null && employeeRecordId > 0
+        ? employeeRecordId
+        : null;
+  }
+
   Future<void> _fetchUserPermissions(String token, int userId) async {
     // Audit B14 fix: removed the client-side `userId == 1` super-admin
     // shortcut. Any future account receiving id 1 (DB re-provisioning,

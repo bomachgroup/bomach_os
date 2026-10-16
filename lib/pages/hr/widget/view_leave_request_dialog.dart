@@ -84,6 +84,8 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
         ),
         PermissionGate(
           require: Perms.leaveRequestsReject,
+          allOf: const [Perms.leaveRequestsList, Perms.leaveRequestsReject],
+          explicit: true,
           child: MyElevatedButton(
             child: 'Reject',
             height: 44,
@@ -165,8 +167,10 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
     final currentEmployeeId = Get.isRegistered<AuthController>()
         ? Get.find<AuthController>().currentUser.value?.id
         : null;
-    final isOwnRequest = currentEmployeeId != null &&
-        currentEmployeeId.toString() == r.employeeId;
+    final isOwnRequest = LeaveRequestController.isOwnRequest(
+      currentEmployeeRecordId: currentEmployeeId,
+      requestEmployeeId: r.employeeId,
+    );
     final canAct = (r.status ?? '').toLowerCase() == 'pending' &&
         r.id != null &&
         currentEmployeeId != null &&
@@ -263,6 +267,8 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
         if (canAct) ...[
           PermissionGate(
             require: Perms.leaveRequestsReject,
+            allOf: const [Perms.leaveRequestsList, Perms.leaveRequestsReject],
+            explicit: true,
             child: Obx(() => MyOutlinedButton(
                   child: 'Reject',
                   height: 44,
@@ -279,6 +285,8 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
           ),
           PermissionGate(
             require: Perms.leaveRequestsApprove,
+            allOf: const [Perms.leaveRequestsList, Perms.leaveRequestsApprove],
+            explicit: true,
             child: Obx(() => MyElevatedButton(
                   height: 44,
                   padding:

@@ -92,7 +92,8 @@ void main() {
     );
   }
 
-  test('successful login persists employee_record_id from the profile '
+  test(
+      'successful login persists employee_record_id from the profile '
       '(not the auth user_id)', () async {
     stubDownstream();
 
@@ -105,6 +106,31 @@ void main() {
     const storage = FlutterSecureStorage();
     expect(await storage.read(key: 'employee_record_id'), '3');
     // The auth id must remain untouched for endpoints that key on it.
+    expect(await storage.read(key: 'user_id'), '7');
+  });
+
+  test('profile reload restores Employee ID without replacing auth user ID',
+      () async {
+    FlutterSecureStorage.setMockInitialValues({
+      'access_token': 'AT_123',
+      'user_id': '7',
+    });
+    dioAdapter.onGet(
+      '/api/v1/employees/employees/7',
+      (server) => server.reply(200, employeeJson),
+    );
+    dioAdapter.onGet(
+      '/api/v1/auth/2fa/status',
+      (server) => server.reply(200, {'is_enabled': false}),
+    );
+
+    final controller =
+        AuthController(authService: AuthService(dioOverride: dio));
+    addTearDown(controller.onClose);
+
+    expect(await controller.reloadEmployeeRecordId(), 3);
+    const storage = FlutterSecureStorage();
+    expect(await storage.read(key: 'employee_record_id'), '3');
     expect(await storage.read(key: 'user_id'), '7');
   });
 }

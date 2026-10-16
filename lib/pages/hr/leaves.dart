@@ -11,6 +11,7 @@ import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/section/responsive_stat_row.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/pages/hr/widget/add_leave_request_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
@@ -23,9 +24,12 @@ import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:bomach_os/pages/hr/controller/leave_request_controller.dart';
 import 'controller/my_leaves_controller.dart';
+import 'models/leave_request_model.dart';
+import 'widget/view_leave_request_dialog.dart';
 
 class LeavesPage extends StatefulWidget {
-  const LeavesPage({super.key});
+  final int? initialRequestId;
+  const LeavesPage({super.key, this.initialRequestId});
 
   @override
   State<LeavesPage> createState() => _LeavesPageState();
@@ -33,6 +37,7 @@ class LeavesPage extends StatefulWidget {
 
 class _LeavesPageState extends State<LeavesPage> {
   final MyLeavesController _ctrl = Get.put(MyLeavesController());
+  late final VoidCallback _searchListener;
 
   @override
   void initState() {
@@ -41,9 +46,40 @@ class _LeavesPageState extends State<LeavesPage> {
       Get.put(LeaveRequestController());
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _ctrl.fetchMyLeaves(context);
+      _loadInitialRequest();
     });
-    _ctrl.searchController.addListener(() => _ctrl.onSearchChanged(context));
+    _searchListener = () => _ctrl.onSearchChanged(context);
+    _ctrl.searchController.addListener(_searchListener);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.searchController.removeListener(_searchListener);
+    super.dispose();
+  }
+
+  Future<void> _loadInitialRequest() async {
+    final requestId = widget.initialRequestId;
+    if (requestId != null) {
+      _ctrl
+        ..selectedRequestKind.value = 'all'
+        ..selectedStatusFilter.value = 'All'
+        ..currentPage.value = 1;
+      _ctrl.clearSearch();
+    }
+    await _ctrl.fetchMyLeaves(context, requestId: requestId);
+    if (!mounted || requestId == null) return;
+    final request =
+        _ctrl.leaveList.firstWhereOrNull((item) => item.id == requestId);
+    if (request == null) {
+      AppToast.warning(
+          context, 'This request is not available in your personal records.');
+      return;
+    }
+    await showDialog<void>(
+      context: context,
+      builder: (_) => ViewLeaveRequestDialog(request: request),
+    );
   }
 
   void _openRequestDialog() {
@@ -58,15 +94,15 @@ class _LeavesPageState extends State<LeavesPage> {
     return PageScaffold(
       maxContentWidth: 1440,
       header: PageHeader(
-        title: 'My Leave Requests',
-        subtitle: 'Track, manage and request time off.',
+        title: 'My Leave & Attendance Requests',
+        subtitle: 'Track leave, absence, and late-arrival reports.',
         trailing: PermissionGate(
           require: Perms.leaveRequestsCreate,
           child: MyElevatedButton(
             height: 48,
             icon: const Icon(Iconsax.add_circle,
                 color: AppColors.textOnPrimary, size: 18),
-            child: 'Request Leave',
+            child: 'New Request',
             onTap: _openRequestDialog,
           ),
         ),
@@ -203,7 +239,7 @@ class _LeavesPageState extends State<LeavesPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Leave History', style: AppTextStyles.h3),
+                          const Text('My Requests', style: AppTextStyles.h3),
                           const SizedBox(height: 4),
                           Obx(() => Text(
                                 '${_ctrl.totalCount.value} request${_ctrl.totalCount.value == 1 ? '' : 's'} on record',
@@ -215,7 +251,7 @@ class _LeavesPageState extends State<LeavesPage> {
                       ),
                     ),
                     const StatusChip(
-                      label: 'Personal leave log',
+                      label: 'Personal record',
                       tone: StatusTone.primary,
                       icon: Iconsax.calendar_1,
                     ),
@@ -243,7 +279,10 @@ class _LeavesPageState extends State<LeavesPage> {
                   subtitle: _ctrl.errorMessage.value,
                   action: MyElevatedButton(
                     child: 'Retry',
-                    onTap: () => _ctrl.fetchMyLeaves(context),
+                    onTap: () => _ctrl.fetchMyLeaves(
+                      context,
+                      requestId: widget.initialRequestId,
+                    ),
                   ),
                 ),
               );
@@ -292,6 +331,32 @@ class _LeavesPageState extends State<LeavesPage> {
               onChanged: (v) => _ctrl.updateStatusFilter(v, context),
             ),
           ));
+      final kindFilter = Obx(() {
+        final selected = _ctrl.selectedRequestKind.value;
+        final selectionLabel = _requestKindFilterLabel(selected);
+        return SizedBox(
+          width: isNarrow ? double.infinity : 190,
+          child: MyDropdown(
+            hintText: selectionLabel,
+            initialSelection: selectionLabel,
+            items: const [
+              'All request types',
+              'Leave',
+              'Absence',
+              'Late arrival',
+            ],
+            onChanged: (label) => _ctrl.updateRequestKindFilter(
+              switch (label) {
+                'Leave' => 'leave',
+                'Absence' => 'absence',
+                'Late arrival' => 'running_late',
+                _ => 'all',
+              },
+              context,
+            ),
+          ),
+        );
+      });
 
       if (isNarrow) {
         return Column(
@@ -300,6 +365,8 @@ class _LeavesPageState extends State<LeavesPage> {
             search,
             const SizedBox(height: 12),
             filter,
+            const SizedBox(height: 12),
+            kindFilter,
           ],
         );
       }
@@ -308,6 +375,8 @@ class _LeavesPageState extends State<LeavesPage> {
           Expanded(child: search),
           const SizedBox(width: 12),
           filter,
+          const SizedBox(width: 12),
+          kindFilter,
         ],
       );
     });
@@ -318,14 +387,14 @@ class _LeavesPageState extends State<LeavesPage> {
       padding: const EdgeInsets.all(24),
       child: EmptyState(
         icon: Iconsax.calendar_remove,
-        title: 'No leave requests found',
-        subtitle: 'Submit a request to take time off.',
+        title: 'No requests found',
+        subtitle: 'Submit a leave, absence, or late-arrival report.',
         action: PermissionGate(
           require: Perms.leaveRequestsCreate,
           child: MyElevatedButton(
             icon: const Icon(Iconsax.add_circle,
                 color: AppColors.textOnPrimary, size: 18),
-            child: 'Request Leave',
+            child: 'New Request',
             onTap: _openRequestDialog,
           ),
         ),
@@ -337,20 +406,15 @@ class _LeavesPageState extends State<LeavesPage> {
     return ResponsiveTable(
       items: _ctrl.leaveList,
       columns: const [
-        DataColumn(label: Text('Leave Type')),
+        DataColumn(label: Text('Request Type')),
         DataColumn(label: Text('Period')),
         DataColumn(label: Text('Duration')),
         DataColumn(label: Text('Reason')),
         DataColumn(label: Text('Status')),
       ],
       rowBuilder: (leave, index) {
-        final startStr = leave.startDate != null
-            ? DateFormat('dd-MM-yyyy').format(leave.startDate!)
-            : '-';
-        final endStr = leave.endDate != null
-            ? DateFormat('dd-MM-yyyy').format(leave.endDate!)
-            : '-';
-        final days = leave.durationDays ?? 0;
+        final period = _periodLabel(leave);
+        final duration = _durationLabel(leave);
         final status = (leave.status ?? 'pending');
 
         return DataRow(cells: [
@@ -358,9 +422,9 @@ class _LeavesPageState extends State<LeavesPage> {
           DataCell(Align(
             alignment: Alignment.centerLeft,
             child: StatusChip(
-              label: _formatLeaveType(leave.leaveType),
-              tone: _leaveTypeTone(leave.leaveType),
-              icon: _leaveTypeIcon(leave.leaveType),
+              label: _requestTypeLabel(leave),
+              tone: _requestTypeTone(leave),
+              icon: _requestTypeIcon(leave),
               dense: true,
             ),
           )),
@@ -370,26 +434,17 @@ class _LeavesPageState extends State<LeavesPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                startStr,
+                period,
                 style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (endStr != '-') ...[
-                const SizedBox(height: 2),
-                Text(
-                  '→ $endStr',
-                  style: AppTextStyles.bodySm.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
             ],
           )),
           // Duration
           DataCell(Text(
-            '$days day${days == 1 ? '' : 's'}',
+            duration,
             style: AppTextStyles.bodyMd.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
@@ -420,13 +475,8 @@ class _LeavesPageState extends State<LeavesPage> {
         ]);
       },
       mobileCardBuilder: (leave, index) {
-        final startStr = leave.startDate != null
-            ? DateFormat('dd-MM-yyyy').format(leave.startDate!)
-            : '-';
-        final endStr = leave.endDate != null
-            ? DateFormat('dd-MM-yyyy').format(leave.endDate!)
-            : '-';
-        final days = leave.durationDays ?? 0;
+        final period = _periodLabel(leave);
+        final duration = _durationLabel(leave);
         final status = (leave.status ?? 'pending');
 
         return AppCard(
@@ -438,9 +488,9 @@ class _LeavesPageState extends State<LeavesPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   StatusChip(
-                    label: _formatLeaveType(leave.leaveType),
-                    tone: _leaveTypeTone(leave.leaveType),
-                    icon: _leaveTypeIcon(leave.leaveType),
+                    label: _requestTypeLabel(leave),
+                    tone: _requestTypeTone(leave),
+                    icon: _requestTypeIcon(leave),
                     dense: true,
                   ),
                   StatusChip(
@@ -460,8 +510,10 @@ class _LeavesPageState extends State<LeavesPage> {
                         const MyText('Period',
                             size: 11, color: AppColors.textSecondary),
                         const SizedBox(height: 4),
-                        MyText('$startStr - $endStr',
-                            size: 13, weight: 600, color: AppColors.textPrimary),
+                        MyText(period,
+                            size: 13,
+                            weight: 600,
+                            color: AppColors.textPrimary),
                       ],
                     ),
                   ),
@@ -471,7 +523,7 @@ class _LeavesPageState extends State<LeavesPage> {
                       const MyText('Duration',
                           size: 11, color: AppColors.textSecondary),
                       const SizedBox(height: 4),
-                      MyText('$days day${days == 1 ? '' : 's'}',
+                      MyText(duration,
                           size: 13, weight: 700, color: AppColors.primary),
                     ],
                   ),
@@ -568,6 +620,54 @@ class _LeavesPageState extends State<LeavesPage> {
             (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
         .join(' ');
   }
+
+  String _requestTypeLabel(LeaveRequest request) =>
+      switch (request.requestKind) {
+        'absence' => 'Absence report',
+        'running_late' => 'Late-arrival report',
+        _ => _formatLeaveType(request.leaveType).isEmpty
+            ? 'Leave request'
+            : _formatLeaveType(request.leaveType),
+      };
+
+  StatusTone _requestTypeTone(LeaveRequest request) =>
+      switch (request.requestKind) {
+        'absence' => StatusTone.info,
+        'running_late' => StatusTone.warning,
+        _ => _leaveTypeTone(request.leaveType),
+      };
+
+  IconData _requestTypeIcon(LeaveRequest request) =>
+      switch (request.requestKind) {
+        'absence' => Iconsax.document_text,
+        'running_late' => Iconsax.clock,
+        _ => _leaveTypeIcon(request.leaveType),
+      };
+
+  String _periodLabel(LeaveRequest request) {
+    final start = request.startDate;
+    if (start == null) return 'Date unavailable';
+    final startLabel = DateFormat('dd MMM yyyy').format(start);
+    if (request.requestKind == 'running_late' || request.endDate == null) {
+      return startLabel;
+    }
+    final endLabel = DateFormat('dd MMM yyyy').format(request.endDate!);
+    return startLabel == endLabel ? startLabel : '$startLabel - $endLabel';
+  }
+
+  String _durationLabel(LeaveRequest request) {
+    if (request.requestKind == 'running_late') return 'Not applicable';
+    final days = request.durationDays;
+    if (days == null) return '—';
+    return '$days day${days == 1 ? '' : 's'}';
+  }
+
+  String _requestKindFilterLabel(String kind) => switch (kind) {
+        'leave' => 'Leave',
+        'absence' => 'Absence',
+        'running_late' => 'Late arrival',
+        _ => 'All request types',
+      };
 
   String _titleCase(String s) {
     if (s.isEmpty) return s;

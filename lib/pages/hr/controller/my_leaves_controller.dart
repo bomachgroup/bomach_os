@@ -5,11 +5,18 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:async';
 
 import '../../../src/services/hr/leave_request_services.dart';
+import '../../auth/controller.dart';
 import '../models/leave_request_model.dart';
 
 class MyLeavesController extends GetxController {
-  final LeaveRequestService _service = LeaveRequestService();
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  MyLeavesController({
+    LeaveRequestService? service,
+    FlutterSecureStorage? storage,
+  })  : _service = service ?? LeaveRequestService(),
+        _storage = storage ?? const FlutterSecureStorage();
+
+  final LeaveRequestService _service;
+  final FlutterSecureStorage _storage;
 
   var isLoading = false.obs;
   var isSaving = false.obs;
@@ -31,11 +38,18 @@ class MyLeavesController extends GetxController {
 
   // Filter
   var selectedStatusFilter = 'All'.obs;
+  var selectedRequestKind = 'all'.obs;
   final List<String> statusOptions = [
     'All',
     'Pending',
     'Approved',
     'Rejected',
+  ];
+  final List<String> requestKindOptions = [
+    'all',
+    'leave',
+    'absence',
+    'running_late',
   ];
 
   @override
@@ -53,6 +67,12 @@ class MyLeavesController extends GetxController {
     });
   }
 
+  void clearSearch() {
+    _debounce?.cancel();
+    searchController.clear();
+    _debounce?.cancel();
+  }
+
   void updateStatusFilter(String? newValue, BuildContext context) {
     if (newValue != null) {
       selectedStatusFilter.value = newValue;
@@ -61,17 +81,54 @@ class MyLeavesController extends GetxController {
     }
   }
 
+  void updateRequestKindFilter(String? newValue, BuildContext context) {
+    if (newValue != null && requestKindOptions.contains(newValue)) {
+      selectedRequestKind.value = newValue;
+      currentPage.value = 1;
+      fetchMyLeaves(context);
+    }
+  }
+
   Future<void> fetchMyLeaves(BuildContext context,
-      {bool refresh = false}) async {
+      {bool refresh = false, int? requestId}) async {
     try {
       if (!refresh) isLoading.value = true;
       hasError.value = false;
 
       final token = await _getToken();
-      final userId = await _storage.read(key: 'user_id');
-      if (token == null || userId == null) {
+      var employeeRecordId = await _storage.read(key: 'employee_record_id');
+      var parsedEmployeeRecordId = int.tryParse(employeeRecordId ?? '');
+      if ((parsedEmployeeRecordId == null || parsedEmployeeRecordId <= 0) &&
+          Get.isRegistered<AuthController>()) {
+        final authController = Get.find<AuthController>();
+        var profileId = authController.currentUser.value?.id;
+        if (profileId == null || profileId <= 0) {
+          profileId = await authController.reloadEmployeeRecordId();
+        }
+        if (profileId != null && profileId > 0) {
+          employeeRecordId = profileId.toString();
+          parsedEmployeeRecordId = profileId;
+          await _storage.write(
+            key: 'employee_record_id',
+            value: employeeRecordId,
+          );
+        }
+      }
+      if (token == null) {
+        leaveList.clear();
+        totalCount.value = 0;
+        stats.clear();
         hasError.value = true;
         errorMessage.value = 'Authentication failed.';
+        return;
+      }
+      if (parsedEmployeeRecordId == null || parsedEmployeeRecordId <= 0) {
+        leaveList.clear();
+        totalCount.value = 0;
+        stats.clear();
+        hasError.value = true;
+        errorMessage.value =
+            'Your employee profile is unavailable. Sign in again, then retry.';
         return;
       }
 
@@ -80,13 +137,17 @@ class MyLeavesController extends GetxController {
         statusParam = selectedStatusFilter.value.toLowerCase();
       }
 
-      int offset = (currentPage.value - 1) * itemsPerPage.value;
+      final isTargetedRequest = requestId != null;
+      int offset =
+          isTargetedRequest ? 0 : (currentPage.value - 1) * itemsPerPage.value;
 
       final result = await _service.getLeaveRequests(
         token,
-        employeeId: userId,
-        status: statusParam,
-        search: searchController.text.trim().isNotEmpty
+        employeeId: parsedEmployeeRecordId.toString(),
+        requestKind: isTargetedRequest ? null : selectedRequestKind.value,
+        requestId: requestId,
+        status: isTargetedRequest ? null : statusParam,
+        search: !isTargetedRequest && searchController.text.trim().isNotEmpty
             ? searchController.text.trim()
             : null,
         limit: itemsPerPage.value,
@@ -97,7 +158,7 @@ class MyLeavesController extends GetxController {
       totalCount.value = result.count;
 
       // Fetch personal stats
-      _fetchMyStats(token, userId);
+      await _fetchMyStats(token, parsedEmployeeRecordId.toString());
     } catch (e) {
       hasError.value = true;
       errorMessage.value = e.toString();

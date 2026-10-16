@@ -386,6 +386,7 @@ class _LeavesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return const PermissionGate(
       require: Perms.leaveRequestsList,
+      explicit: true,
       child: _DashboardLinkCard(
         title: 'Leave Requests',
         icon: Iconsax.calendar_remove,

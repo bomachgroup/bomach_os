@@ -47,6 +47,7 @@ class PermissionGate extends StatelessWidget {
 
   final Widget child;
   final PermissionGateMode mode;
+  final bool explicit;
 
   /// Optional fallback when permission is denied. If null and [mode] is
   /// [PermissionGateMode.hide], nothing is rendered.
@@ -60,6 +61,7 @@ class PermissionGate extends StatelessWidget {
     required this.child,
     this.mode = PermissionGateMode.hide,
     this.fallback,
+    this.explicit = false,
   }) : assert(require != null || anyOf != null || allOf != null,
             'PermissionGate needs at least one of: require, anyOf, allOf');
 
@@ -73,15 +75,17 @@ class PermissionGate extends StatelessWidget {
       // ignore: unused_local_variable
       final _ = perms.version;
 
+      bool check(Permission permission) =>
+          explicit ? perms.hasExplicit(permission) : perms.has(permission);
       bool allowed;
       if (allOf != null && allOf!.isNotEmpty) {
-        allowed = perms.hasAll(allOf!);
+        allowed = allOf!.every(check);
       } else {
         final checks = <Permission>[
           if (require != null) require!,
           if (anyOf != null) ...anyOf!,
         ];
-        allowed = checks.isEmpty ? true : perms.hasAny(checks);
+        allowed = checks.isEmpty ? true : checks.any(check);
       }
 
       if (allowed) return child;

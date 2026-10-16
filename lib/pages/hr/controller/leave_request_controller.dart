@@ -12,6 +12,7 @@ import '../../../src/services/hr/leave_request_services.dart';
 import '../models/leave_request_model.dart' show LeaveRequest;
 
 import 'package:bomach_os/src/utils/app_date_format.dart';
+
 class LeaveRequestController extends GetxController {
   final LeaveRequestService _service = LeaveRequestService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -43,6 +44,7 @@ class LeaveRequestController extends GetxController {
     'annual_leave',
     'maternity_leave',
     'paternity_leave',
+    'compassionate_leave',
     'unpaid_leave'
   ];
   final List<String> filterStatusOptions = [
@@ -70,9 +72,18 @@ class LeaveRequestController extends GetxController {
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
   var selectedLeaveType = ''.obs;
+  var selectedCreateRequestKind = 'leave'.obs;
   var selectedStatus = 'pending'.obs;
 
   Timer? _debounce;
+
+  static bool isOwnRequest({
+    required int? currentEmployeeRecordId,
+    required String requestEmployeeId,
+  }) =>
+      currentEmployeeRecordId != null &&
+      currentEmployeeRecordId > 0 &&
+      currentEmployeeRecordId.toString() == requestEmployeeId;
 
   @override
   void onClose() {
@@ -98,12 +109,33 @@ class LeaveRequestController extends GetxController {
     });
   }
 
+  void clearSearch() {
+    _debounce?.cancel();
+    searchController.clear();
+    _debounce?.cancel();
+  }
+
   bool _requirePermission(
     BuildContext context,
     Permission permission,
     String action,
   ) {
     if (Get.find<PermissionService>().has(permission)) return true;
+    if (context.mounted) {
+      AppToast.error(context, 'Your role does not allow you to $action.');
+    }
+    return false;
+  }
+
+  bool _requireReviewPermission(
+    BuildContext context,
+    Permission permission,
+    String action,
+  ) {
+    if (Get.find<PermissionService>().hasExplicit(permission) &&
+        Get.find<PermissionService>().hasExplicit(Perms.leaveRequestsList)) {
+      return true;
+    }
     if (context.mounted) {
       AppToast.error(context, 'Your role does not allow you to $action.');
     }
@@ -128,8 +160,8 @@ class LeaveRequestController extends GetxController {
   }
 
   Future<void> fetchLeaveRequests(BuildContext context,
-      {bool refresh = false}) async {
-    if (!Get.find<PermissionService>().has(Perms.leaveRequestsList)) {
+      {bool refresh = false, int? requestId}) async {
+    if (!Get.find<PermissionService>().hasExplicit(Perms.leaveRequestsList)) {
       leaveList.clear();
       totalCount.value = 0;
       stats.updateAll((_, __) => 0);
@@ -160,13 +192,16 @@ class LeaveRequestController extends GetxController {
         statusParam = selectedStatusFilter.value.toLowerCase();
       }
 
-      int offset = (currentPage.value - 1) * itemsPerPage.value;
+      final isTargetedRequest = requestId != null;
+      int offset =
+          isTargetedRequest ? 0 : (currentPage.value - 1) * itemsPerPage.value;
 
       final result = await _service.getLeaveRequests(
         token,
-        status: statusParam,
-        requestKind: selectedRequestKind.value,
-        search: searchController.text.trim().isNotEmpty
+        status: isTargetedRequest ? null : statusParam,
+        requestKind: isTargetedRequest ? null : selectedRequestKind.value,
+        requestId: requestId,
+        search: !isTargetedRequest && searchController.text.trim().isNotEmpty
             ? searchController.text.trim()
             : null,
         limit: itemsPerPage.value,
@@ -208,6 +243,20 @@ class LeaveRequestController extends GetxController {
     fetchLeaveRequests(context);
   }
 
+  void updateCreateRequestKind(String? kind) {
+    if (kind == null || !requestKindOptions.contains(kind) || kind == 'all') {
+      return;
+    }
+    selectedCreateRequestKind.value = kind;
+    if (kind != 'leave') selectedLeaveType.value = '';
+    if (kind == 'running_late') {
+      selectedStartDate = null;
+      selectedEndDate = null;
+      startDateController.clear();
+      endDateController.clear();
+    }
+  }
+
   // --- NEW METHOD: Update Status (Approve/Reject) ---
   Future<void> updateLeaveStatus(
     BuildContext context,
@@ -224,7 +273,7 @@ class LeaveRequestController extends GetxController {
     };
     if (requiredPermission == null) return;
     final action = normalizedStatus == 'approved' ? 'approve' : 'reject';
-    if (!_requirePermission(
+    if (!_requireReviewPermission(
       context,
       requiredPermission,
       '$action leave requests',
@@ -241,7 +290,10 @@ class LeaveRequestController extends GetxController {
       }
       return;
     }
-    if (currentEmployeeId.toString() == requestEmployeeId) {
+    if (isOwnRequest(
+      currentEmployeeRecordId: currentEmployeeId,
+      requestEmployeeId: requestEmployeeId,
+    )) {
       if (context.mounted) {
         AppToast.error(context, 'You cannot review your own request.');
       }
@@ -290,15 +342,38 @@ class LeaveRequestController extends GetxController {
     final action = id == null ? 'create leave requests' : 'edit leave requests';
     if (!_requirePermission(context, permission, action)) return;
 
+    final kind = selectedCreateRequestKind.value;
+    if (reasonController.text.trim().length < 3) {
+      AppToast.error(context, 'Enter a brief reason of at least 3 characters.');
+      return;
+    }
+    if (kind == 'leave' && selectedLeaveType.value.isEmpty) {
+      AppToast.error(context, 'Select a leave type.');
+      return;
+    }
+    if (kind != 'running_late' &&
+        (selectedStartDate == null || selectedEndDate == null)) {
+      AppToast.error(context, 'Choose both the start and end dates.');
+      return;
+    }
+    if (kind != 'running_late' &&
+        selectedEndDate!.isBefore(selectedStartDate!)) {
+      AppToast.error(context, 'The end date cannot be before the start date.');
+      return;
+    }
+
     try {
       isSaving.value = true;
       final request = LeaveRequest(
         id: id,
         employeeId: employeeIdController.text.trim(),
-        leaveType: selectedLeaveType.value,
+        requestKind: selectedCreateRequestKind.value,
+        leaveType: selectedCreateRequestKind.value == 'leave'
+            ? selectedLeaveType.value
+            : '',
         status: selectedStatus.value,
-        startDate: selectedStartDate,
-        endDate: selectedEndDate,
+        startDate: kind == 'running_late' ? null : selectedStartDate,
+        endDate: kind == 'running_late' ? null : selectedEndDate,
         reason: reasonController.text.trim(),
       );
 
@@ -332,19 +407,19 @@ class LeaveRequestController extends GetxController {
     startDateController.clear();
     endDateController.clear();
     selectedLeaveType.value = '';
+    selectedCreateRequestKind.value = 'leave';
   }
 
   void populateForm(LeaveRequest request) {
+    selectedCreateRequestKind.value = request.requestKind;
     employeeIdController.text = request.employeeId;
     reasonController.text = request.reason ?? '';
     selectedStartDate = request.startDate;
     selectedEndDate = request.endDate;
-    startDateController.text = request.startDate != null
-        ? formatAppDate(request.startDate!)
-        : '';
-    endDateController.text = request.endDate != null
-        ? formatAppDate(request.endDate!)
-        : '';
+    startDateController.text =
+        request.startDate != null ? formatAppDate(request.startDate!) : '';
+    endDateController.text =
+        request.endDate != null ? formatAppDate(request.endDate!) : '';
     selectedLeaveType.value = request.leaveType;
   }
 

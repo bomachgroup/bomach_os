@@ -38,6 +38,7 @@ class LeaveRequestService {
     String token, {
     String? search,
     String? employeeId,
+    int? requestId,
     String? requestKind,
     String? leaveType,
     String? status,
@@ -52,6 +53,7 @@ class LeaveRequestService {
         queryParameters: {
           if (search != null) 'search': search,
           if (employeeId != null) 'employee_id': employeeId,
+          if (requestId != null) 'request_id': requestId,
           if (requestKind != null && requestKind != 'all')
             'request_kind': requestKind,
           if (leaveType != null) 'leave_type': leaveType,
@@ -83,7 +85,7 @@ class LeaveRequestService {
     try {
       final response = await _dio.post(
         '/leave-requests/',
-        data: request.toJson(),
+        data: request.toCreateJson(),
         options: _authOptions(token),
       );
       return LeaveRequest.fromJson(response.data);
@@ -109,7 +111,7 @@ class LeaveRequestService {
     try {
       final response = await _dio.patch(
         '/leave-requests/$id',
-        data: request.toJson(),
+        data: request.toUpdateJson(),
         options: _authOptions(token),
       );
       return LeaveRequest.fromJson(response.data);

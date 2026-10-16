@@ -17,12 +17,14 @@ import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/model/broadcast_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'controllers/broadcast_controller.dart';
 import 'package:bomach_os/src/services/permission_service.dart';
+import 'package:bomach_os/src/utils/notification_destination.dart';
 import 'widget/broadcast_announcement_dialogs.dart';
 import 'widget/broadcast_event_dialogs.dart';
 
@@ -1122,8 +1124,14 @@ class _NotificationsTab extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {
-          controller.markNotificationRead(notification);
+        onTap: () async {
+          await controller.markNotificationRead(notification);
+          if (!context.mounted) return;
+          final destination = NotificationDestination.routeFor(notification);
+          if (destination != null) {
+            context.go(destination);
+            return;
+          }
           showDialog<void>(
             context: context,
             builder: (_) => _NotificationDetailDialog(item: notification),

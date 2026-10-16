@@ -86,14 +86,20 @@ class LeaveRequest {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    // payload for create/update
+  Map<String, dynamic> toCreateJson() {
     return {
       'employee_id': employeeId,
-      'leave_type': leaveType,
-      'start_date': startDate?.toIso8601String().split('T').first,
-      'end_date': endDate?.toIso8601String().split('T').first,
+      'request_kind': requestKind,
       'reason': reason,
+      if (requestKind == 'leave') 'leave_type': leaveType,
+      if (requestKind != 'running_late') ...{
+        'start_date': startDate?.toIso8601String().split('T').first,
+        'end_date': endDate?.toIso8601String().split('T').first,
+      },
     }..removeWhere((key, value) => value == null);
   }
+
+  Map<String, dynamic> toUpdateJson() => toCreateJson()..remove('request_kind');
+
+  Map<String, dynamic> toJson() => toCreateJson();
 }

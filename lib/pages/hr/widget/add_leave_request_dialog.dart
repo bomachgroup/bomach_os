@@ -41,10 +41,10 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
     final isEdit = widget.request != null;
 
     return DialogScaffold(
-      title: isEdit ? 'Edit Leave Request' : 'New Leave Request',
+      title: isEdit ? 'Edit Leave Request' : 'New Request',
       subtitle: isEdit
           ? 'Update the details of this leave request.'
-          : 'Submit a leave request for review and approval.',
+          : 'Submit leave, absence, or late-arrival information for review.',
       size: DialogSize.lg,
       body: _buildBody(),
       actions: [
@@ -84,37 +84,102 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
   }
 
   Widget _buildBody() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSection(
-          title: 'Leave details',
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Obx(() => MyDropdown(
-                        items: _ctrl.leaveTypes,
-                        hintText: _ctrl.selectedLeaveType.value.isEmpty
-                            ? 'Select leave type'
-                            : _ctrl.selectedLeaveType.value,
-                        initialSelection: _ctrl.selectedLeaveType.value.isEmpty
-                            ? null
-                            : _ctrl.selectedLeaveType.value,
-                        title: 'Leave Type',
-                        spaceBetweenText: 8,
-                        onChanged: (v) {
-                          if (v != null) _ctrl.selectedLeaveType.value = v;
-                        },
+    return Obx(() {
+      final kind = _ctrl.selectedCreateRequestKind.value;
+      final isLate = kind == 'running_late';
+      final isLeave = kind == 'leave';
+      final kindLabel = switch (kind) {
+        'absence' => 'Absence report',
+        'running_late' => 'Running-late report',
+        _ => 'Leave request',
+      };
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSection(
+            title: 'Request details',
+            children: [
+              if (widget.request == null) ...[
+                MyDropdown(
+                  items: const [
+                    'Leave request',
+                    'Absence report',
+                    'Running-late report',
+                  ],
+                  hintText: kindLabel,
+                  initialSelection: kindLabel,
+                  title: 'Request type',
+                  spaceBetweenText: 8,
+                  onChanged: (label) {
+                    final requestKind = switch (label) {
+                      'Absence report' => 'absence',
+                      'Running-late report' => 'running_late',
+                      _ => 'leave',
+                    };
+                    _ctrl.updateCreateRequestKind(requestKind);
+                  },
+                ),
+                const SizedBox(height: 16),
+              ] else
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text('Request type: $kindLabel',
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
                       )),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: MyTextFormField(
+              if (isLate)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    borderRadius: AppRadii.brMd,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Iconsax.info_circle,
+                          size: 18, color: AppColors.primary),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'This report is recorded for today. Submit it before you clock in.',
+                          style: AppTextStyles.bodySm.copyWith(
+                            color: AppColors.textPrimary,
+                            height: 1.45,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else ...[
+                if (isLeave) ...[
+                  MyDropdown(
+                    items: _ctrl.leaveTypes,
+                    hintText: _ctrl.selectedLeaveType.value.isEmpty
+                        ? 'Select leave type'
+                        : _ctrl.selectedLeaveType.value,
+                    initialSelection: _ctrl.selectedLeaveType.value.isEmpty
+                        ? null
+                        : _ctrl.selectedLeaveType.value,
+                    title: 'Leave type',
+                    spaceBetweenText: 8,
+                    onChanged: (value) {
+                      if (value != null) _ctrl.selectedLeaveType.value = value;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                LayoutBuilder(builder: (context, constraints) {
+                  final startField = MyTextFormField(
                     controller: _ctrl.startDateController,
                     hintText: 'Select date',
                     spaceBetweenText: 8,
-                    title: 'Start Date',
+                    title: 'Start date',
                     readOnly: true,
                     trailing: const Icon(
                       Iconsax.calendar_1,
@@ -122,41 +187,60 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                       color: AppColors.textMuted,
                     ),
                     onTap: () => _ctrl.pickDate(context, true),
-                  ),
-                ),
+                  );
+                  final endField = MyTextFormField(
+                    controller: _ctrl.endDateController,
+                    hintText: 'Select date',
+                    spaceBetweenText: 8,
+                    title: 'End date',
+                    readOnly: true,
+                    trailing: const Icon(
+                      Iconsax.calendar_1,
+                      size: 18,
+                      color: AppColors.textMuted,
+                    ),
+                    onTap: () => _ctrl.pickDate(context, false),
+                  );
+                  if (constraints.maxWidth < 560) {
+                    return Column(children: [
+                      startField,
+                      const SizedBox(height: 14),
+                      endField,
+                    ]);
+                  }
+                  return Row(children: [
+                    Expanded(child: startField),
+                    const SizedBox(width: 16),
+                    Expanded(child: endField),
+                  ]);
+                }),
               ],
-            ),
-            const SizedBox(height: 16),
-            MyTextFormField(
-              controller: _ctrl.endDateController,
-              hintText: 'Select date',
-              spaceBetweenText: 8,
-              title: 'End Date',
-              readOnly: true,
-              trailing: const Icon(
-                Iconsax.calendar_1,
-                size: 18,
-                color: AppColors.textMuted,
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: isLate
+                ? 'Reason for delay'
+                : isLeave
+                    ? 'Reason for leave'
+                    : 'Reason for absence',
+            children: [
+              MyTextFormField(
+                controller: _ctrl.reasonController,
+                hintText: isLate
+                    ? 'Briefly explain why you expect to arrive late'
+                    : isLeave
+                        ? 'Briefly describe the reason for this leave'
+                        : 'Briefly describe the absence',
+                spaceBetweenText: 8,
+                maxLines: 5,
+                title: 'Reason',
               ),
-              onTap: () => _ctrl.pickDate(context, false),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _buildSection(
-          title: 'Reason',
-          children: [
-            MyTextFormField(
-              controller: _ctrl.reasonController,
-              hintText: 'Briefly describe the reason for this leave',
-              spaceBetweenText: 8,
-              maxLines: 5,
-              title: 'Reason',
-            ),
-          ],
-        ),
-      ],
-    );
+            ],
+          ),
+        ],
+      );
+    });
   }
 
   Widget _buildSection({

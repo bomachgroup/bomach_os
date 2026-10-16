@@ -239,7 +239,15 @@ class NotificationItem {
 
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
     final createdAt = json['created_at']?.toString() ?? '';
-    final eventType = json['event_type']?.toString();
+    final metadata = json['metadata'] is Map
+        ? Map<String, dynamic>.from(json['metadata'] as Map)
+        : <String, dynamic>{};
+    final topLevelEvent = json['event_type']?.toString() ?? '';
+    final eventType = topLevelEvent.isNotEmpty
+        ? topLevelEvent
+        : metadata['event']?.toString();
+    final topLevelEntityType = json['entity_type']?.toString() ?? '';
+    final topLevelEntityId = json['entity_id']?.toString() ?? '';
     return NotificationItem(
       id: json['id'] is int ? json['id'] : int.tryParse('${json['id']}'),
       title: json['title']?.toString() ?? 'Notification',
@@ -254,11 +262,13 @@ class NotificationItem {
       priority: json['priority']?.toString() ?? 'normal',
       link: json['link']?.toString() ?? '',
       action: json['action']?.toString() ?? '',
-      entityType: json['entity_type']?.toString() ?? '',
-      entityId: json['entity_id']?.toString() ?? '',
-      metadata: json['metadata'] is Map
-          ? Map<String, dynamic>.from(json['metadata'] as Map)
-          : const {},
+      entityType: topLevelEntityType.isNotEmpty
+          ? topLevelEntityType
+          : metadata['entity_type']?.toString() ?? '',
+      entityId: topLevelEntityId.isNotEmpty
+          ? topLevelEntityId
+          : metadata['entity_id']?.toString() ?? '',
+      metadata: metadata,
       createdAt: createdAt,
     );
   }

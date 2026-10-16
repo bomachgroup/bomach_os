@@ -10,6 +10,7 @@ import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/section/responsive_stat_row.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:bomach_os/pages/hr/widget/add_leave_request_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
@@ -29,7 +30,8 @@ import 'models/leave_request_model.dart';
 import 'widget/view_leave_request_dialog.dart';
 
 class LeaveRequestPage extends StatefulWidget {
-  const LeaveRequestPage({super.key});
+  final int? initialRequestId;
+  const LeaveRequestPage({super.key, this.initialRequestId});
 
   @override
   State<LeaveRequestPage> createState() => LeaveRequestPageState();
@@ -45,9 +47,9 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
     super.initState();
     _searchListener = () => _ctrl.onSearchChanged(context);
     _ctrl.searchController.addListener(_searchListener);
-    if (Get.find<PermissionService>().has(Perms.leaveRequestsList)) {
+    if (Get.find<PermissionService>().hasExplicit(Perms.leaveRequestsList)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _ctrl.fetchLeaveRequests(context);
+        if (mounted) _loadInitialRequest();
       });
     }
   }
@@ -63,6 +65,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
   Widget build(BuildContext context) {
     return PermissionGate(
       require: Perms.leaveRequestsList,
+      explicit: true,
       fallback: const PageScaffold(
         maxContentWidth: 1440,
         header: PageHeader(title: 'Leave Requests'),
@@ -91,7 +94,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
             height: 48,
             icon: const Icon(Iconsax.add_circle,
                 color: AppColors.textOnPrimary, size: 20),
-            child: 'New Leave Request',
+            child: 'New Request',
             onTap: () => showDialog(
               context: context,
               builder: (_) => const AddLeaveRequestDialog(),
@@ -247,7 +250,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                       textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: () => _ctrl.fetchLeaveRequests(context),
+                    onPressed: _loadInitialRequest,
                     icon: const Icon(Iconsax.refresh),
                     label: const Text('Try again'),
                   ),
@@ -294,6 +297,35 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
           );
         }),
       ],
+    );
+  }
+
+  Future<void> _loadInitialRequest() async {
+    if (widget.initialRequestId == null) {
+      await _ctrl.fetchLeaveRequests(context);
+      return;
+    }
+    _ctrl
+      ..selectedRequestKind.value = 'all'
+      ..activeTab.value = 'All'
+      ..selectedStatusFilter.value = 'All statuses'
+      ..currentPage.value = 1;
+    _ctrl.clearSearch();
+    await _ctrl.fetchLeaveRequests(
+      context,
+      requestId: widget.initialRequestId,
+    );
+    if (!mounted) return;
+    final request = _ctrl.leaveList
+        .firstWhereOrNull((item) => item.id == widget.initialRequestId);
+    if (request == null) {
+      AppToast.warning(
+          context, 'This request is unavailable in your review scope.');
+      return;
+    }
+    await showDialog<void>(
+      context: context,
+      builder: (_) => ViewLeaveRequestDialog(request: request),
     );
   }
 

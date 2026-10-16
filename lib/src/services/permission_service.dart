@@ -196,6 +196,11 @@ class PermissionService extends GetxService {
         actions.contains('all');
   }
 
+  /// Check only permissions explicitly present on the assigned role. Use this
+  /// for leave-review actions that must match the backend permission rule.
+  bool hasExplicit(Permission p) =>
+      _userPermissions[p.resource]?.contains(p.action) ?? false;
+
   /// User satisfies ANY of the listed permissions.
   bool hasAny(Iterable<Permission> perms) {
     for (final p in perms) {
@@ -218,6 +223,9 @@ class PermissionService extends GetxService {
   bool canAccessRouteTyped(String? route) {
     if (route == null) return true;
     if (_disabledMarketingRoutes.contains(route)) return false;
+    if (route == RouteConstants.leaveRequest) {
+      return hasExplicit(Perms.leaveRequestsList);
+    }
     final required = routeRequirements[route];
     if (required == null) {
       // Unmapped route → allow any logged-in user. This keeps detail routes
@@ -257,6 +265,9 @@ class PermissionService extends GetxService {
   bool canAccessRoute(String? route, List<String>? resources) {
     if (route != null) {
       if (_disabledMarketingRoutes.contains(route)) return false;
+      if (route == RouteConstants.leaveRequest) {
+        return hasExplicit(Perms.leaveRequestsList);
+      }
       final required = routeRequirements[route];
       if (required != null) {
         if (required.isEmpty) return true;
@@ -272,10 +283,12 @@ class PermissionService extends GetxService {
   /// always lands on the Company dashboard; regular employees land on the
   /// employee dashboard. Falls back by walking the main menu order.
   String getFirstPermittedRoute() {
-    if (canAccessRoute(RouteConstants.home, [PermissionConstants.resDashboard])) {
+    if (canAccessRoute(
+        RouteConstants.home, [PermissionConstants.resDashboard])) {
       return RouteConstants.home;
     }
-    if (canAccessRoute(RouteConstants.company, [PermissionConstants.resCompanySettings])) {
+    if (canAccessRoute(
+        RouteConstants.company, [PermissionConstants.resCompanySettings])) {
       return RouteConstants.company;
     }
 
