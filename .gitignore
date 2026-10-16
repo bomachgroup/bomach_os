@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+storybook-static/
+.vercel/
+.DS_Store
+*.tsbuildinfo
+.env.*
+!.env.example

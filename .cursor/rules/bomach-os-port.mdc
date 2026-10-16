@@ -1,0 +1,14 @@
+---
+description: Persistent scope, parity, and implementation rules for the Bomach OS React port
+alwaysApply: true
+---
+
+# Bomach OS Port Rules
+
+- Read AGENTS.md and the porting documents before implementation.
+- Preserve the Flutter Company and HR screens as the visual and behavior reference. This work is a port, not a redesign.
+- Standardize form, loading, empty, error, success, and permission behavior according to docs/porting/interaction-standards.md.
+- Keep the work in this repository. Do not modify the sibling Flutter reference or separately owned standalone app repositories.
+- Verify API contracts before implementing. Do not guess endpoint paths, payloads, or permission names.
+- Keep shared UI generic; keep Company and HR domain logic in their own modules.
+- The user decides product behavior; Codex implements the agreed changes incrementally and keeps the porting documents current.
