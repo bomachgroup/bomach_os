@@ -6,15 +6,15 @@ The user has agreed to document this as the working architecture for the port. T
 
 ## Application boundary
 
-Build the React application at the root of this repository. This is the planned Bomach OS web shell for Company and HR, replacing the Flutter shell after parity review. The repository is the port branch; it does not need an extra nested frontend project.
+Build the React application at the root of this repository. This is the planned Bomach OS web shell for Workspace/Dashboard, Company, and HR/Admin, replacing the Flutter shell after parity review. The repository is the port branch; it does not need an extra nested frontend project.
 
 The React app owns:
 
-- The Company and HR screens currently owned by Flutter.
+- The six Workspace/Dashboard routes and the Company and HR screens currently owned by Flutter.
 - The shell, routes, authentication, permissions, and shared controls needed by those screens.
 - Shared loading, empty, error, success, and form behavior.
 
-Separately owned standalone modules stay in their own applications. Preserve their existing navigation, launch, and session-sharing contract from the Bomach shell. Do not port their screens into Company or HR.
+Separately owned Services, Marketing, and Finance modules stay in their own applications. Their links are temporarily hidden in this React shell by the current phase decision. Do not port their screens, alter their codebases, or assume a new launch/session contract; review reintroduction separately after this phase.
 
 ## Working technology choices
 
@@ -34,11 +34,13 @@ Next.js is not selected for this port. Revisit only if hosting or product requir
 
 ### TanStack Router
 
-Use TanStack Router for typed route definitions, route parameters, search/filter state, deep links, redirects, and route-level auth/permission checks. Preserve the existing Bomach route paths where practical so bookmarked links and standalone-module links continue to work.
+Use TanStack Router for typed route definitions, route parameters, validated search/filter state, deep links, scroll restoration, redirects, and route-level auth/permission checks. Put durable page view state (search, filters, sort, pagination, tabs, and view modes) in route-owned search parameters so reloads and copied URLs restore it. Preserve the existing Bomach route paths where practical so bookmarked links and standalone-module links continue to work. Keep short-lived overlays and local sidebar preferences out of the URL; never serialize credentials or sensitive drafts.
 
 ### TanStack Query
 
 Use TanStack Query for server-owned data: lists, details, current user, permissions, mutations, loading/error state, refetching, cancellation, and cache invalidation. Its cache is the canonical client copy of backend-owned data.
+
+Plan query freshness, focused-page refresh triggers, and domain-scoped invalidation for every route using [Data Freshness, Refetching, and Invalidation](data-freshness.md). Token refresh in the shared transport is separate from revalidating application data.
 
 Do not add Redux or RTK Query for the current scope. The port has not identified substantial client-only global state that needs a Redux store, and TanStack Query already owns remote data. Keep form drafts in TanStack Form, route/search state in the URL, and short-lived interface state local to components. Revisit a client-state library only if source review identifies a concrete cross-feature client-only state requirement. Do not run TanStack Query and RTK Query as competing caches for the same endpoints.
 
@@ -66,7 +68,7 @@ API type generation and runtime response validation have not been selected. Veri
 
 ### Shared UI primitives
 
-Create Bomach-specific shared primitives in src/shared/ui. Start with only patterns needed by the inventoried pages: buttons, form controls, alerts, empty/error/success states, skeletons, dialogs, confirmation, and permission gates. Put the toast provider and shared feedback orchestration in src/shared/feedback; keep error normalization and placement policy in src/shared/errors.
+Create Bomach-specific shared primitives in src/shared/ui. Start with only patterns needed by the inventoried pages: buttons, form controls, alerts, empty/error/success states, skeletons, dialogs, confirmation, and permission gates. `PageLayout` owns the full-width page-heading band and aligned page body; `PageHeader` owns its title, breadcrumbs, optional actions, and optional route-specific toolbar. Put the toast provider and shared feedback orchestration in src/shared/feedback; keep error normalization and placement policy in src/shared/errors.
 
 Use semantic component variants such as primary, neutral, success, warning, and danger. Do not add a large external component kit that changes the current screens.
 
@@ -74,14 +76,14 @@ The component reuse boundary, promotion criteria, extension rules, and staged fo
 
 ### Quality and development tools
 
-Align with the Service Operations toolchain where compatible:
+The first shared-foundation quality gate is configured with the Service Operations toolchain where compatible:
 
 - ESLint and Prettier for consistent source formatting and linting.
-- Vitest and Testing Library for component and interaction behavior.
-- MSW for deterministic API scenarios during development and verification.
+- Vitest, Testing Library, and user-event for component and interaction behavior; axe-core provides representative automated accessibility checks.
+- MSW for deterministic API scenarios when the typed client and feature queries are implemented.
 - Storybook for shared components when its setup is justified by the component inventory.
 
-These are planned tools; the React scaffold has started, while test setup has not been added. Do not select separate chart, date, or icon libraries until the screen inventory shows what is needed and which choices preserve the current visuals.
+The component tests cover current shared behavior; API tests and browser automation are added with the first real workflow. Storybook remains deferred until the shared-component inventory justifies it. Do not select separate chart, date, or icon libraries until the screen inventory shows what is needed and which choices preserve the current visuals.
 
 ## Proposed source structure
 
@@ -98,6 +100,7 @@ src/
   shared/
     api/                # Typed Fetch client, ApiError, origins, request helpers
     auth/               # Session contract, token/session adapter, current user
+    notifications/      # Cross-module notification contracts and API functions
     errors/             # Error normalization and context-aware presentation policy
     feedback/           # Toast provider and shared feedback orchestration
     permissions/        # Permission types, mapping, and reusable gates
@@ -134,6 +137,8 @@ This is a guide, not a requirement to create every listed file or folder up fron
 
 The backend owns persistent business truth, identifiers, authorization, workflow transitions, and business validation. The frontend owns presentation, drafts, navigation, client-side usability checks, and cache orchestration.
 
+Notifications are shared shell data, not a Company/HR-owned feature. Keep their DTOs and endpoint functions in `shared/notifications`, keep cached list/count state in TanStack Query, and keep the bell/panel presentation in `app/shell`. Check `notifications.list`, `notifications.view`, `notifications.mark_read`, and `notifications.mark_all_read` before calling their corresponding endpoints. Do not navigate notification links unless they are same-origin, map to a registered React destination, and pass that destination's permission check.
+
 Use this flow:
 
 1. Verify the backend contract and permission vocabulary.
@@ -147,16 +152,11 @@ Treat existing OpenAPI files and endpoint notes as leads to verify, not proof th
 
 ## Authentication and standalone-app integration
 
-Authentication is a prerequisite for all protected Company and HR routes. The session contract is still open. Before implementation, compare:
+Authentication is implemented as a browser-specific session contract documented in [authentication.md](authentication.md). Browser sessions use host-only HttpOnly cookies, exact Origin plus a custom request header for unsafe cookie-authenticated requests, and the shared Fetch client for refresh coordination. Existing bearer-token endpoints and response shapes remain for Flutter, mobile, and other clients.
 
-- Flutter token, user, permission, and refresh behavior.
-- Service Operations token storage, refresh, and current-user bootstrap.
-- How the current Bomach shell launches standalone apps and shares identity.
-- Deployment origins and whether the new app runs embedded or as the host.
+Protected routes must bootstrap the current user, employee profile, assigned role, and permission catalog before rendering. Loading or unresolved permissions block access and offer retry. One route manifest drives registered placeholders, permission requirements, sidebar visibility/order, and breadcrumb context; the backend remains authoritative. Return targets must be validated same-origin internal paths, and tokens must never appear in URLs. The current page bodies are Coming Soon placeholders and are not considered feature ports.
 
-Select one browser session contract and implement it once in the shared API/auth layer. The Service Operations app's storage and refresh behavior is a reference, not an automatic decision for the shell. Confirm whether Bomach OS uses separate auth and operations API origins and configure the shared transport accordingly.
-
-Do not put authentication tokens in URLs. If embedded auth is required, use an explicitly trusted origin and a validated message contract. Loading or unresolved permissions must never be treated as a denial; show forbidden only after the authenticated user and permissions are resolved. Frontend permission gates improve the experience, while the backend enforces access.
+The Service Operations app remains a reference for client boundaries and error handling, not the source of Bomach identity or token storage. Standalone-app launch, return, and identity-sharing contracts still need their own review before those integrations are ported.
 
 ## Visual and behavior contract
 

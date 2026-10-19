@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+storybook-static
+package-lock.json
+public/fonts
+# Preserve the manually aligned mapping tables in these existing route audits.
+docs/porting/company-hr-screen-review.md
+docs/porting/flutter-reachability-audit.md

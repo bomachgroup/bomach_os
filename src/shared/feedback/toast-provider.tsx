@@ -1,7 +1,5 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -14,26 +12,13 @@ import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/ui/button'
 import { FeedbackIcon, type FeedbackIconName } from '@/shared/ui/feedback-icon'
 
-export type ToastTone = 'success' | 'info' | 'warning' | 'danger'
+import { ToastContext } from './toast-context'
+import type { ToastOptions, ToastTone } from './toast-types'
 
-export interface ToastOptions {
-  title: string
-  description?: string
-  tone?: ToastTone
-  durationMs?: number
-  action?: { label: string; onClick: () => void }
-}
-
-interface ToastItem extends ToastOptions {
+interface ToastItem extends Omit<ToastOptions, 'durationMs'> {
+  durationMs: number | null
   id: number
 }
-
-interface ToastContextValue {
-  showToast: (options: ToastOptions) => void
-  dismissToast: () => void
-}
-
-const ToastContext = createContext<ToastContextValue | null>(null)
 
 const toneClasses: Record<ToastTone, string> = {
   success: 'border-success/25 bg-success-subtle text-text-primary',
@@ -53,21 +38,36 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastItem | null>(null)
   const [paused, setPaused] = useState(false)
   const sequence = useRef(0)
+  const remainingDuration = useRef<{ toastId: number; milliseconds: number | null } | null>(null)
 
   const showToast = useCallback((options: ToastOptions) => {
     sequence.current += 1
     setPaused(false)
-    setToast({ ...options, tone: options.tone ?? 'info', id: sequence.current })
+    const durationMs =
+      options.durationMs === undefined ? (options.action ? null : 5000) : options.durationMs
+    remainingDuration.current = { toastId: sequence.current, milliseconds: durationMs }
+    setToast({ ...options, durationMs, tone: options.tone ?? 'info', id: sequence.current })
   }, [])
 
   const dismissToast = useCallback(() => setToast(null), [])
 
   useEffect(() => {
-    if (!toast || paused) return
+    if (!toast || paused || toast.durationMs === null) return
+    const trackedDuration = remainingDuration.current
+    const durationMs =
+      trackedDuration?.toastId === toast.id && trackedDuration.milliseconds !== null
+        ? trackedDuration.milliseconds
+        : toast.durationMs
+    const startedAt = Date.now()
     const timeout = window.setTimeout(() => {
       setToast((current) => (current?.id === toast.id ? null : current))
-    }, toast.durationMs ?? 3000)
-    return () => window.clearTimeout(timeout)
+    }, durationMs)
+    return () => {
+      window.clearTimeout(timeout)
+      if (remainingDuration.current?.toastId === toast.id) {
+        remainingDuration.current.milliseconds = Math.max(0, durationMs - (Date.now() - startedAt))
+      }
+    }
   }, [toast, paused])
 
   function handleBlur(event: FocusEvent<HTMLDivElement>) {
@@ -84,17 +84,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {toast ? (
-        <div className="pointer-events-none fixed inset-x-4 bottom-4 z-toast flex justify-center tablet:inset-x-auto tablet:right-6 tablet:w-[min(28rem,calc(100vw-3rem))]">
+        <div className="z-toast tablet:inset-x-auto tablet:right-6 tablet:w-[min(28rem,calc(100vw-3rem))] pointer-events-none fixed inset-x-4 bottom-4 flex justify-center">
           <div
             role={tone === 'danger' ? 'alert' : 'status'}
-            aria-live={tone === 'danger' ? 'assertive' : 'polite'}
             aria-atomic="true"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
             onFocusCapture={() => setPaused(true)}
             onBlurCapture={handleBlur}
             className={cn(
-              'pointer-events-auto flex w-full items-start gap-3 rounded-control border px-4 py-3 shadow-elevation-md',
+              'rounded-control shadow-elevation-md pointer-events-auto flex w-full items-start gap-3 border px-4 py-3',
               toneClasses[tone],
             )}
           >
@@ -111,15 +110,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div className="min-w-0 flex-1">
               <p className="text-label font-semibold">{toast.title}</p>
               {toast.description ? (
-                <p className="mt-0.5 text-body-sm text-text-secondary">{toast.description}</p>
+                <p className="text-body-sm text-text-secondary mt-0.5">{toast.description}</p>
               ) : null}
               {toast.action ? (
                 <button
                   type="button"
-                  className="mt-2 text-label font-semibold text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:shadow-focus-ring"
+                  className="text-label text-primary focus-visible:shadow-focus-ring mt-2 font-semibold underline-offset-2 hover:underline focus-visible:outline-none"
                   onClick={() => {
-                    toast.action?.onClick()
-                    dismissToast()
+                    try {
+                      toast.action?.onClick()
+                    } finally {
+                      dismissToast()
+                    }
                   }}
                 >
                   {toast.action.label}
@@ -130,7 +132,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               type="button"
               variant="ghost"
               size="icon"
-              className="-mr-2 -mt-2 size-9 shrink-0"
+              className="-mt-2 -mr-2 size-9 shrink-0"
               aria-label="Dismiss notification"
               onClick={dismissToast}
             >
@@ -141,10 +143,4 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       ) : null}
     </ToastContext.Provider>
   )
-}
-
-export function useToast() {
-  const context = useContext(ToastContext)
-  if (!context) throw new Error('useToast must be used within ToastProvider')
-  return context
 }

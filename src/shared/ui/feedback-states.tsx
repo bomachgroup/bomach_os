@@ -10,6 +10,7 @@ interface StateContentProps {
   description?: string
   icon?: ReactNode
   action?: ReactNode
+  announcement?: 'polite' | 'assertive'
   className?: string
 }
 
@@ -18,41 +19,45 @@ function CenteredState({
   description,
   icon,
   action,
+  announcement,
   className,
 }: StateContentProps) {
   return (
-    <div className={cn('flex min-h-52 flex-col items-center justify-center px-5 py-8 text-center', className)}>
+    <div
+      className={cn(
+        'flex min-h-52 flex-col items-center justify-center px-5 py-8 text-center',
+        className,
+      )}
+    >
       {icon ? (
-        <div className="mb-4 flex size-12 items-center justify-center rounded-surface bg-surface-muted text-text-secondary">
+        <div className="rounded-surface bg-surface-muted text-text-secondary mb-4 flex size-12 items-center justify-center">
           {icon}
         </div>
       ) : null}
-      <h2 className="text-h3 font-semibold text-text-primary">{title}</h2>
-      {description ? (
-        <p className="mt-2 max-w-lg text-body-sm text-text-secondary">{description}</p>
-      ) : null}
+      <div aria-live={announcement} aria-atomic={announcement ? 'true' : undefined}>
+        <h2 className="text-h3 text-text-primary font-semibold">{title}</h2>
+        {description ? (
+          <p className="text-body-sm text-text-secondary mt-2 max-w-lg">{description}</p>
+        ) : null}
+      </div>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
   )
 }
 
 export function EmptyState(props: StateContentProps) {
-  return <CenteredState {...props} />
+  return <CenteredState announcement="polite" {...props} />
 }
 
-export function ErrorState({
-  title,
-  description,
-  action,
-  className,
-}: StateContentProps) {
+export function ErrorState({ title, description, action, className }: StateContentProps) {
   return (
     <CenteredState
       title={title}
       description={description}
       action={action}
+      announcement="assertive"
       className={className}
-      icon={<FeedbackIcon name="danger" className="size-6 text-danger" />}
+      icon={<FeedbackIcon name="danger" className="text-danger size-6" />}
     />
   )
 }
@@ -71,7 +76,12 @@ export function SectionErrorState({
   className,
 }: SectionErrorStateProps) {
   return (
-    <Alert tone="danger" title={title} className={cn('flex flex-wrap items-center justify-between gap-3', className)}>
+    <Alert
+      tone="danger"
+      role="status"
+      title={title}
+      className={cn('flex flex-wrap items-center justify-between gap-3', className)}
+    >
       <span>{description}</span>
       {onRetry ? (
         <Button variant="outline" size="sm" onClick={onRetry}>
@@ -100,18 +110,23 @@ export function SuccessState({
       title={title}
       description={description}
       action={
-        <>
-          {reference ? (
-            <p className="mb-3 text-body-sm text-text-secondary">
-              Reference: <span className="font-semibold text-text-primary">{reference}</span>
-            </p>
-          ) : null}
-          {nextSteps ? <div className="mb-4 text-body-sm text-text-secondary">{nextSteps}</div> : null}
-          {action}
-        </>
+        reference || nextSteps || action ? (
+          <>
+            {reference ? (
+              <p className="text-body-sm text-text-secondary mb-3">
+                Reference: <span className="text-text-primary font-semibold">{reference}</span>
+              </p>
+            ) : null}
+            {nextSteps ? (
+              <div className="text-body-sm text-text-secondary mb-4">{nextSteps}</div>
+            ) : null}
+            {action}
+          </>
+        ) : undefined
       }
+      announcement="polite"
       className={className}
-      icon={<FeedbackIcon name="success" className="size-6 text-success" />}
+      icon={<FeedbackIcon name="success" className="text-success size-6" />}
     />
   )
 }
@@ -141,24 +156,26 @@ export function Skeleton({
   )
 }
 
-export function PageSkeleton({ className }: { className?: string }) {
+export function PageSkeleton({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div aria-label="Loading page" role="status" className={cn('space-y-6', className)}>
-      <Skeleton variant="title" className="w-1/3" />
-      <Skeleton variant="text" className="w-1/2" />
-      <div className="grid gap-4 tablet:grid-cols-2 desktop:grid-cols-3">
-        <Skeleton variant="card" />
-        <Skeleton variant="card" />
-        <Skeleton variant="card" />
-      </div>
+    <div
+      aria-label="Loading page"
+      aria-busy="true"
+      role="status"
+      className={cn('space-y-6', className)}
+    >
+      {children}
     </div>
   )
 }
 
 export function LoadingLabel({ children = 'Loading' }: { children?: string }) {
   return (
-    <span role="status" className="inline-flex items-center gap-2 text-body-sm text-text-secondary">
-      <span aria-hidden="true" className="size-4 animate-spin rounded-pill border-2 border-primary border-r-transparent" />
+    <span role="status" className="text-body-sm text-text-secondary inline-flex items-center gap-2">
+      <span
+        aria-hidden="true"
+        className="rounded-pill border-primary size-4 animate-spin border-2 border-r-transparent"
+      />
       {children}
     </span>
   )

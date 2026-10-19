@@ -14,6 +14,7 @@ type DescribedControlProps = {
   'aria-invalid'?: boolean | 'true' | 'false'
   'aria-errormessage'?: string
   'aria-required'?: boolean | 'true' | 'false'
+  required?: boolean
 }
 
 interface FormControlProps {
@@ -24,6 +25,9 @@ interface FormControlProps {
   error?: string
   required?: boolean
   className?: string
+  labelClassName?: string
+  requiredMarkClassName?: string
+  errorClassName?: string
 }
 
 export function FormControl({
@@ -34,28 +38,32 @@ export function FormControl({
   error,
   required = false,
   className,
+  labelClassName,
+  requiredMarkClassName,
+  errorClassName,
 }: FormControlProps) {
   const descriptionId = description ? `${id}-description` : undefined
   const errorId = error ? `${id}-error` : undefined
+  const isRequired = required || children.props.required
   const childDescription = children.props['aria-describedby']
-  const describedBy = [childDescription, descriptionId, errorId]
-    .filter(Boolean)
-    .join(' ')
+  const describedBy = [childDescription, descriptionId, errorId].filter(Boolean).join(' ')
 
   const control = cloneElement(children, {
     id,
     'aria-describedby': describedBy || undefined,
-    'aria-invalid': error ? 'true' : undefined,
-    'aria-errormessage': errorId,
-    'aria-required': required ? 'true' : children.props['aria-required'],
+    'aria-invalid': error ? 'true' : children.props['aria-invalid'],
+    required: isRequired || undefined,
   })
 
   return (
     <div className={cn('space-y-1.5', className)}>
-      <label htmlFor={id} className="block text-label font-medium text-text-secondary">
+      <label
+        htmlFor={id}
+        className={cn('text-label text-text-secondary block font-medium', labelClassName)}
+      >
         {label}
-        {required ? (
-          <span aria-hidden="true" className="ml-1 text-danger">
+        {isRequired ? (
+          <span aria-hidden="true" className={cn('text-danger ml-1', requiredMarkClassName)}>
             *
           </span>
         ) : null}
@@ -67,7 +75,7 @@ export function FormControl({
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} className="text-body-sm text-danger" role="alert">
+        <p id={errorId} className={cn('text-body-sm text-danger', errorClassName)} role="status">
           {error}
         </p>
       ) : null}

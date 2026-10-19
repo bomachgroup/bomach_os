@@ -314,10 +314,13 @@ The router also contains detail, legacy, landing, and compatibility routes. Thes
 
 ## Port scope reading
 
-- **Confirmed initial port focus:** Company (15 configured destinations) and HR/Admin (17), plus only the Bomach shell, auth/session, permissions, and navigation pieces needed to host them.
-- **Still a scope question:** whether any of the six Workspace/Dashboard destinations are required in the React port beyond shell bootstrap and return navigation.
+- **Confirmed Flutter source inventory:** all six Workspace/Dashboard, 15 Company, and 17 HR/Admin destinations (38 source sidebar destinations). React intentionally reorganizes them: Attendance and My Leaves are under My Work, Roles & Permissions is under HR/Admin, and `/hr` is surfaced as the HR dashboard.
+- **React implementation status:** the route manifest has 40 sidebar destinations and the 12 direct/detail routes below. `/dashboard`, the React-only `/company/overview`, and `/hr` have dashboard implementations; remaining destinations use the shared permission-guarded Coming Soon page.
+- **React-only route:** `/company/overview` was added as the first Company destination to hold the four summary cards moved out of Company Profile. It is not a Flutter router path.
+- Dashboard metric ownership, summary API contracts, permission rules, branch-scope limits, and dashboard verification are recorded in [dashboard-implementation.md](dashboard-implementation.md).
+- **In-scope direct/detail routes:** `/hr/employees/profile`, `/hr/associates`, `/employee`, `/employee/directory`, `/employee/performance`, `/employee/attendance`, `/employee/training`, `/company/enugu`, `/company/roles/detail`, `/company/roles/:roleId`, `/workspace`, and `/workspace-dashboard` (12 unique entries; the dynamic role route is shown in Flutter syntax). The source's legacy `/company/roles/detail` route requires in-memory `state.extra` and otherwise renders an unavailable state; durable role links use the ID route.
 - **Flutter but outside the current Company/HR port focus:** Operations, Events, CRM Clients, Analytics, Legal & Compliance, Security, and the legacy Flutter Services pages listed above.
-- **Stay as separate applications:** Services, Marketing, and Finance embedded pages. Do not rewrite their screens as part of the Company/HR port.
+- **Stay as separate applications and hide their React shell links for this phase:** Services, Marketing, and Finance. Their codebases and page content are untouched.
 - The Company menu’s `Assets` destination is rendered by `AssetsPage` from the Flutter HR source folder, but ownership in this inventory follows its actual Company sidebar group and `/company/assets` route.
 
 ## Source files checked

@@ -7,10 +7,11 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon'
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-text-on-primary hover:bg-primary-hover active:bg-primary-pressed',
-  secondary: 'bg-surface-muted text-text-primary hover:bg-neutral-200',
-  outline: 'border border-border-strong bg-surface text-text-primary hover:bg-surface-muted',
-  ghost: 'text-text-secondary hover:bg-surface-muted hover:text-text-primary',
-  danger: 'bg-danger text-text-on-primary hover:bg-danger-hover',
+  secondary: 'bg-surface-muted text-text-primary hover:bg-neutral-200 active:bg-neutral-300',
+  outline:
+    'border border-border-strong bg-surface text-text-primary hover:bg-surface-muted active:bg-neutral-200',
+  ghost: 'text-text-secondary hover:bg-surface-muted hover:text-text-primary active:bg-neutral-200',
+  danger: 'bg-danger text-text-on-primary hover:bg-danger-hover active:bg-danger-foreground',
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -49,7 +50,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       className={cn(
-        'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-control font-semibold transition-colors focus-visible:outline-none focus-visible:shadow-focus-ring disabled:cursor-not-allowed disabled:opacity-50',
+        'rounded-control focus-visible:shadow-focus-ring inline-flex items-center justify-center gap-2 font-semibold whitespace-nowrap transition-colors focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
         variantClasses[variant],
         sizeClasses[size],
         className,

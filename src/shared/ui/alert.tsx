@@ -17,20 +17,14 @@ interface AlertProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode
 }
 
-export function Alert({
-  className,
-  tone = 'info',
-  title,
-  children,
-  ...props
-}: AlertProps) {
+export function Alert({ className, tone = 'info', title, children, role, ...props }: AlertProps) {
   return (
     <div
       {...props}
-      role={tone === 'danger' ? 'alert' : 'status'}
-      className={cn('rounded-control border px-4 py-3 text-body-sm', toneClasses[tone], className)}
+      role={role}
+      className={cn('rounded-control text-body-sm border px-4 py-3', toneClasses[tone], className)}
     >
-      {title ? <p className="mb-1 text-label font-semibold">{title}</p> : null}
+      {title ? <p className="text-label mb-1 font-semibold">{title}</p> : null}
       {children ? <div className="text-text-secondary">{children}</div> : null}
     </div>
   )

@@ -2,32 +2,34 @@
 
 ## Current position
 
-The global route/reachability pass is complete. The first detailed route review is underway, and the React foundation has started. The sibling Flutter checkout remains the visual and behavior reference.
+The global route/reachability pass and first authenticated-shell implementation are complete. The sibling Flutter checkout remains the visual and behavior reference; the shell's protected pages are placeholders pending individual route reviews.
 
 - Completed: global sidebar and route inventory, including route targets and standalone-app boundaries; see [route-inventory.md](route-inventory.md).
 - Completed: route reachability, redirects, unregistered paths, and orphan candidates; see [flutter-reachability-audit.md](flutter-reachability-audit.md).
 - Agreed: React + TypeScript + Vite; TanStack Router, Query, and Form; Zod; Tailwind; one typed Fetch client; shared error and feedback behavior; no Redux/RTK Query for the current scope.
-- In progress: first detailed in-scope route review, Company Profile; see [company-hr-screen-review.md](company-hr-screen-review.md). Its source behavior is recorded; deployed populated states remain unverified because the test session expired.
+- In progress: detailed route reviews; see [company-hr-screen-review.md](company-hr-screen-review.md). Company Profile source behavior is recorded; deployed populated states remain unverified because the test session expired.
 - Completed: shared foundation and extension map; see [shared-foundations-plan.md](shared-foundations-plan.md).
-- Completed: Vite/React/TypeScript scaffold, Flutter-derived global tokens, and first shared visual/feedback foundation slice. The local preview is temporary; there is no product shell, route, auth, or live API integration yet.
-- Not started: the remaining 31 Company/HR screen reviews, backend/auth contract verification, protected shell, or feature-page implementation.
+- Completed: Vite/React/TypeScript scaffold, Flutter-derived tokens and shared UI foundation, browser auth, and local Vite/Vercel `/api` proxy configuration.
+- Completed in this slice: authenticated shell and 40 permission-aware sidebar destinations plus 12 in-scope direct/detail routes; three read-only dashboard pages (`/dashboard`, `/company/overview`, and `/hr`); independent summary loading/error/retry states; permission-filtered metrics and shortcuts; branch-scoped employee, branch, HR and approval totals; and a repeatable local test-admin permission sync. All other protected route bodies remain Coming Soon placeholders.
+- Verification: React typecheck, lint, formatting, all 70 frontend tests, and production build pass. The dashboard API and test-admin command have 13 targeted backend tests passing; `manage.py check` is clean. Workspace, Company, and HR dashboards were spot-checked in the available ~760px browser viewport; the full viewport matrix and live role/branch scenarios still need review.
+- Next: review the dashboard pages in the browser, then choose the first transactional workflow with the user. Local preview integration and hosting verification remain separate from production cutover.
 
 ## Scope disposition
 
-| Route group | Initial port decision | Work to do |
-| --- | --- | --- |
-| Company — 15 sidebar destinations | **In scope** | Port Flutter-owned screens and their required navigation, permissions, API behavior, forms, and shared states. |
-| HR/Admin — 17 sidebar destinations | **In scope** | Same parity requirements; includes the employee, attendance, leave, recruitment, training, compensation/benefits, and performance workflows. |
-| App shell, auth/session, routing, permissions, shared UI and feedback | **In scope as required foundation** | Implement only the shared behavior needed to host the agreed routes and preserve existing links. |
-| Services, Marketing, Finance sidebar destinations | **Preserve as separate apps** | Keep current standalone-app launch/embedding and identity-sharing boundaries. Do not rewrite their pages. |
-| Workspace Dashboard — 6 destinations | **Not decided for first cut** | Decide whether the React shell needs all six pages or only a landing/return route. Do not assume all six are included. |
-| Operations, Events, CRM Clients, Analytics, Legal & Compliance, Security | **Outside initial port scope** | Documented for awareness; implement only if the product scope is later expanded. |
-| Legacy Flutter Services pages and non-sidebar detail routes | **Outside initial port scope** | Do not migrate by default. Retain only routes needed for compatibility or explicit navigation decisions. |
-| Seven retired Client Portal/CRM routes | **Do not port as pages** | Preserve their redirect to CRM Clients if those legacy URLs must continue working. |
-| Seven blocked Marketing routes | **Do not port** | They are blocked in the Flutter host and belong to the separate Marketing app. |
-| Three unregistered path constants and 13 orphan candidates | **Do not treat as product routes** | Keep out of the parity checklist unless current use is verified; this is not a cleanup/deletion request. |
+| Route group                                                              | Initial port decision                      | Work to do                                                                                                                                        |
+| ------------------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Workspace/Dashboard — 8 sidebar destinations                             | **In scope**                               | Six original Workspace routes plus Attendance and My Leaves, now grouped under My Work. Overview is implemented; other pages remain placeholders. |
+| Company — 15 sidebar destinations                                        | **In scope**                               | Includes the new React Company Overview; the other 14 Company routes retain their Flutter paths and remain placeholders.                          |
+| HR/Admin — 17 sidebar destinations                                       | **In scope**                               | Includes the HR dashboard surfaced from `/hr` and Roles & Permissions moved from Company; other routes remain placeholders.                       |
+| App shell, auth/session, routing, permissions, shared UI and feedback    | **In scope as required foundation**        | Shell and placeholder routing are implemented; improve from visual review and real page uses.                                                     |
+| Services, Marketing, Finance sidebar destinations                        | **Separate apps; links hidden this phase** | Do not rewrite their screens or touch their repositories. Revisit their host navigation after this scope.                                         |
+| Operations, Events, CRM Clients, Analytics, Legal & Compliance, Security | **Outside initial port scope**             | Documented for awareness; implement only if the product scope is later expanded.                                                                  |
+| Legacy Flutter Services pages and non-sidebar detail routes              | **Outside initial port scope**             | Do not migrate by default. Retain only routes needed for compatibility or explicit navigation decisions.                                          |
+| Seven retired Client Portal/CRM routes                                   | **Do not port as pages**                   | Preserve their redirect to CRM Clients if those legacy URLs must continue working.                                                                |
+| Seven blocked Marketing routes                                           | **Do not port**                            | They are blocked in the Flutter host and belong to the separate Marketing app.                                                                    |
+| Three unregistered path constants and 13 orphan candidates               | **Do not treat as product routes**         | Keep out of the parity checklist unless current use is verified; this is not a cleanup/deletion request.                                          |
 
-The initial page checklist is therefore **32 sidebar destinations (15 Company + 17 HR/Admin)**, plus the minimum shared shell/auth/permission/standalone integration needed to host them. The complete app-wide inventory is broader and does not expand implementation scope by itself.
+The Flutter source inventory contains 38 original destinations (6 Workspace/Dashboard + 15 Company + 17 HR/Admin). The React sidebar now has **40 links**: it promotes the existing `/hr` dashboard into HR/Admin, adds `/company/overview`, and groups Attendance and My Leaves under My Work while placing Roles & Permissions under HR/Admin. This leaves 12 other in-scope direct/detail routes. Registered placeholders keep the URL and access behavior stable; the full app-wide inventory does not expand implementation scope by itself.
 
 ## Roadmap at a glance
 
@@ -44,7 +46,7 @@ flowchart LR
   H --> I["9. Decide separately whether and when to cut over"]
 ```
 
-The shared visual and feedback foundation slice is implemented and described in [shared-foundations-plan.md](shared-foundations-plan.md). Continue the route workbook in [company-hr-screen-review.md](company-hr-screen-review.md) while resolving the initial pilot choice and protected-route contracts. Do not create a speculative shell: the Workspace Dashboard scope, initial landing route, navigation/permission input, and browser session contract still affect that work.
+The shared visual/feedback foundation, auth contract, and shell implementation are described in [shared-foundations-plan.md](shared-foundations-plan.md), [authentication.md](authentication.md), and [route-inventory.md](route-inventory.md). The read-only dashboards are the first implemented route slice; review them together, then select the first transactional workflow. Do not treat placeholders as completed page ports.
 
 ## Working method
 
@@ -56,7 +58,7 @@ The current Flutter checkout remains the visual and behavior reference. The Serv
 
 **Status: global route audit complete; in-scope screen review remains.** The global route registry, sidebar map, current renderer, redirects, disabled paths, unregistered constants, and orphan candidates are documented in [route-inventory.md](route-inventory.md) and [flutter-reachability-audit.md](flutter-reachability-audit.md).
 
-Now inspect each of the 15 Company and 17 HR/Admin sidebar destinations against the current Flutter source. Reconcile the local source with the deployed test build where access permits. The prior test deployment inspection hit an expired token, so route data and account-specific permissions remain unverified there.
+Now inspect each of the six Dashboard, 15 Company, and 17 HR/Admin sidebar destinations against the current Flutter source. Reconcile the local source with the deployed test build where access permits. The prior test deployment inspection hit an expired token, so populated data and account-specific permissions remain unverified there.
 
 For each route or screen, record:
 
@@ -74,38 +76,35 @@ Do not infer the number of screens from Dart file counts. Controllers, models, a
 
 ## Phase 1 — Resolve protected-route implementation blockers
 
-Before implementing authentication, configuring protected routes, or calling live APIs, verify:
+The browser auth/session contract and shell navigation are implemented locally. Before real pages, continue verifying:
 
-- Which auth base URL, login, refresh, current-user, and permission contracts the target must use.
-- How Company and HR share a session with the separately owned apps.
-- How the React Bomach shell preserves standalone-app launch, return, and session-sharing behavior.
-- API endpoint and permission contracts against current code and backend documentation.
+- Per-page API endpoint and permission contracts against current code and backend documentation.
 - Browser support for each Flutter capability in the route inventory.
-- Which existing fonts, images, icons, and chart designs must be carried into the new branch.
+- Remaining page assets, icons, charts, and measurements needed by the React port.
 
-Also decide whether the six Workspace Dashboard destinations belong in the first cut, and which route is the initial post-login landing page. Do not reopen the agreed framework or state-management choices unless source evidence presents a concrete conflict.
+The source scope, 40-link React sidebar, shell interactions, and Dashboard-first fallback are decided. Standalone Services, Marketing, and Finance links stay hidden in this phase. Do not reopen the agreed framework or state-management choices unless source evidence presents a concrete conflict.
 
-Record decisions and owners in the relevant document before coding dependent flows. Never put tokens in URL query parameters. Do not implement against guessed endpoint shapes or reuse unrelated standalone-app auth assumptions.
+Record decisions and owners in the relevant document before coding dependent flows. Never put tokens in URL query parameters. The browser cookie session does not imply that standalone apps share or accept those cookies.
 
 ## Phase 2 — Scaffold the small shared React foundation
 
-**Status: visual foundation complete; app composition pending.** The root Vite/React/TypeScript setup, lockfile, Poppins font, semantic tokens, shared controls, feedback states, dialog, tooltip, toast host, and local component preview are in place. Continue only with components needed by reviewed routes; defer auth, live API calls, and permissions until their contracts are verified.
+**Status: visual foundation, auth slice, shell, and route placeholders implemented locally.** The root Vite/React/TypeScript setup, lockfile, Poppins font, semantic tokens, shared controls, feedback states, dialog, tooltip, toast host, auth routes/client, responsive app-level header, shared page heading/breadcrumbs, and local component preview are in place. Durable URL search state is added with each real screen that owns filters or view controls; Coming Soon pages do not receive artificial query parameters. Continue only with components needed by reviewed routes.
 
-The route review and shell-independent visual foundation can proceed incrementally. Keep protected routes and live API behavior behind unresolved contract boundaries until auth/session and API decisions are verified:
+The route review and shell-independent visual foundation can proceed incrementally. Auth and permissions use the documented browser contract; feature API behavior remains behind per-route contract verification:
 
 - Create the Vite React TypeScript application at the repository root.
 - Add the agreed TanStack, Zod, Tailwind, and quality toolchain.
 - Establish Bomach visual tokens from the Flutter source.
-- Build the product shell after the landing route, Workspace scope, auth/session bootstrap, and permission input are reviewed; add API/auth/permission wiring only against verified contracts.
+- Shell composition and the 40-destination sidebar have been implemented. The read-only dashboard slice and its module summary contracts are recorded in [dashboard-implementation.md](dashboard-implementation.md); add each later feature's API and permission wiring only against verified contracts.
 - Keep the implementation modular; do not build a generic platform framework larger than the pages need.
 
-Complete the provider/router entry points when the first real route is ready. Add lint/format and any verification tooling as a separate small setup slice. The initial package manager and resolved dependencies are recorded in `package-lock.json`. Do not build feature folders or generic components for screens not yet reviewed.
+The provider/router entry points are in place. The initial lint, format, and shared-component test setup is in place; expand the checks with each real route rather than adding unused infrastructure. The initial package manager and resolved dependencies are recorded in `package-lock.json`. Do not build feature folders or generic components for screens not yet reviewed.
 
 ## Phase 3 — Port shared shell and one representative flow
 
-Port the application shell, navigation, and one representative Company or HR workflow. Recommended pilot: the Employees list/profile plus one verified employee create/edit form, if that is the current workflow. This should exercise list/detail navigation, a form, permissions, API loading, a backend failure, and confirmed success. If the employee form does not cover those patterns, choose a reviewed Company/HR workflow that does. The pilot is not selected yet; the employee route and form need a detailed source pass, and the Company Profile review needs its populated state and unresolved save/permission behavior settled.
+Review the shell at the agreed widths and with the user, then select one representative page or workflow. The first real-page pilot should exercise meaningful route navigation, permissions, API loading, failure, and confirmed success. The Employees list/profile with one verified employee create/edit flow is a candidate, not a preselected decision; choose after the source review is complete.
 
-Build the first API client, auth/session adapter, permission bootstrap, error presentation, form primitives, loading/empty/error states, and Bomach design tokens only as the pilot requires them. Compare it with Flutter at the five agreed viewport widths and any relevant breakpoint edges. Adjust shared pieces before repeating patterns across routes.
+Reuse the existing API client, auth/session adapter, permission bootstrap, feedback primitives, and Bomach design tokens. Extend shared pieces only when the pilot proves a gap. Compare the page with Flutter at the five agreed viewport widths and relevant breakpoint edges.
 
 ## Phase 4 — Port routes by vertical slice
 
@@ -171,16 +170,15 @@ A route is ready for review when:
 - It uses the verified API contract and correct permission names.
 - Loading, empty, populated, page/section error, pending mutation, and success states are intentional.
 - Forms preserve drafts on failure, map server field errors, prevent duplicate submission, and show success only after backend confirmation.
-- Related standalone modules still open through the agreed boundary.
+- Standalone module links remain hidden until their future launch and identity-sharing boundary is reviewed.
 - Any behavior difference is recorded and approved by the user.
 
 ## Open decisions to resolve during Phase 0
 
 - Reconcile the first-pass route inventory with the deployed test build; complete Company and HR route details, ownership boundaries, deep links, and navigation behavior.
-- Confirm whether all six Workspace Dashboard routes belong in the first cut and select the post-login landing/return route for the React shell.
 - Auth and operations origins, environment selection, and backend login/refresh/current-user/permission/error contracts.
 - Whether API DTOs should be handwritten from verified contracts or generated from OpenAPI, and where runtime response validation is warranted.
-- Browser session sharing, standalone-app launch, return-navigation, and any embedded-app message contract.
+- Future standalone-app launch, return-navigation, identity-sharing, and embedded-app message contract when those links are reintroduced.
 - Browser parity for camera/liveness, location, uploads/downloads, exports, and notifications.
 - Exact assets, icons, charts, and screen measurements needed for visual parity; use the responsive cutovers and review widths documented in the shared foundation. Select icon/chart libraries only if required.
 - Route-specific query freshness, retry, invalidation, and optimistic-update behavior.

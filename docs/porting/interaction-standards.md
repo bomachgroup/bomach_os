@@ -17,7 +17,9 @@ Keep the existing Bomach layout and visual language. Standardize where feedback 
 Use an inline error immediately below or beside the field when one field can be corrected by the user.
 
 - Associate the label, input, help text, and error semantically.
-- Mark invalid controls accessibly and announce errors to assistive technology.
+- Use the native `required` attribute for required text controls. Forms use `noValidate` and shared validation so the browser does not replace Bomach's inline feedback with native popups.
+- Mark invalid controls with `aria-invalid` and connect help and the error through `aria-describedby`. Use one live announcement for a newly displayed error; do not also point `aria-errormessage` at the same text.
+- Keep inline field errors polite. On submit, focus the first invalid control so its label, value, and associated error are read together.
 - Do not repeat the same field error in a toast.
 - For multiple invalid fields, show each error at its field and focus the first invalid field after submission.
 
@@ -33,12 +35,15 @@ Use a brief toast when an action succeeds or fails and the page remains usable. 
 
 - Use success, danger, warning, and information tones according to meaning.
 - Use a concise message that identifies the action or affected record.
+- Simple toasts remain for five seconds by default. A toast with an action stays until the user acts or dismisses it unless the caller supplies an explicit duration. Pausing on hover or focus preserves the remaining time.
 - Show success only after the backend confirms the mutation.
 - Do not use a toast for field validation, login errors, a failed primary page load, or information the user must retain while editing.
 
 ### Persistent alert
 
 Use an inline Alert for information that must remain visible while the user works, such as a form-wide rejection, a relevant permission restriction, a stale record notice, or a partial outcome that needs attention.
+
+Static alerts do not become live regions solely because of their visual tone. Set `role="status"` or `role="alert"` only when the content is newly inserted or updated and should be announced; use a polite status for partial updates and reserve assertive alerts for urgent failures.
 
 ### Section error
 
@@ -80,19 +85,19 @@ Required fields, format, length, numeric bounds, date relationships, file constr
 
 The initial components are deliberately generic. They present states and manage accessible interaction; feature pages decide when a state applies and supply its message and action.
 
-| Component | Use |
-| --- | --- |
-| `FormControl` with `TextInput` or `TextArea` | One label, required marker, description, control, and inline error. Use it with feature-owned TanStack Form fields; required state is exposed to assistive technology without forcing the browser's native validation popup. |
-| `Alert` | Persistent information or a form-wide error. A danger alert is announced urgently; other tones use polite status semantics. |
-| `SectionErrorState` | A local dataset or panel failed while the rest of the page remains useful. It can render a retry action. |
-| `ErrorState` | The primary page or record cannot load. The caller supplies safe wording and retry/return actions. |
-| `EmptyState` | A successful query returned no records. Keep filter-empty wording and actions feature-owned. |
-| `SuccessState` | A completed workflow that needs a reference, next step, or deliberate destination. |
-| `Skeleton` and `PageSkeleton` | Initial loading placeholders shaped to content; honor reduced-motion settings. |
-| `ToastProvider` and `useToast` | One transient action message host in `shared/feedback`. It replaces the previous toast, uses the Flutter-derived three-second default, and pauses dismissal while hovered or keyboard-focused. |
-| `Dialog` | Controlled modal with a size union, header/body/footer composition, focus entry and restoration, Escape behavior, and full-screen layout below 700px. |
-| `StatusChip` | A visual status label with explicit tone selected by the feature; it does not translate backend status strings into business meaning. |
-| `Tooltip` | Short supplementary help for a focusable trigger. It links with `aria-describedby` and clamps its position to the current viewport. |
+| Component                                    | Use                                                                                                                                                                                                             |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FormControl` with `TextInput` or `TextArea` | One label, required marker, description, control, and inline error. Use it with feature-owned TanStack Form fields; native required semantics work with `noValidate` to avoid browser validation popups.        |
+| `Alert`                                      | Persistent information or a form-wide error. Static alerts have no live role by default; the owner chooses polite status or urgent alert semantics when an update needs announcement.                           |
+| `SectionErrorState`                          | A local dataset or panel failed while the rest of the page remains useful. It can render a retry action.                                                                                                        |
+| `ErrorState`                                 | The primary page or record cannot load. The caller supplies safe wording and retry/return actions.                                                                                                              |
+| `EmptyState`                                 | A successful query returned no records. Keep filter-empty wording and actions feature-owned.                                                                                                                    |
+| `SuccessState`                               | A completed workflow that needs a reference, next step, or deliberate destination.                                                                                                                              |
+| `Skeleton` and `PageSkeleton`                | Initial loading placeholders shaped to content; honor reduced-motion settings.                                                                                                                                  |
+| `ToastProvider` and `useToast`               | One transient action message host in `shared/feedback`. It replaces the previous toast, uses a five-second default, keeps action toasts until acted on or dismissed, and preserves remaining time while paused. |
+| `Dialog`                                     | Controlled modal with a size union, header/body/footer composition, focus entry and restoration, Escape behavior, and full-screen layout below 700px.                                                           |
+| `StatusChip`                                 | A visual status label with explicit tone selected by the feature; it does not translate backend status strings into business meaning.                                                                           |
+| `Tooltip`                                    | Short supplementary help for a focusable trigger. It links with `aria-describedby` and clamps its position to the current viewport.                                                                             |
 
 Use the semantic typography classes through `cn`; the Tailwind Merge configuration knows Bomach's named type tiers so color classes do not erase font-size tokens. Shared buttons and fields use the same keyboard-focus token; invalid fields use the danger variant. `Card` follows the shared Flutter `AppCard` default (12px corners, 16px padding, subtle border and low elevation), while a page can request a different elevation or compose a flat card when its reviewed reference requires it.
 
@@ -150,11 +155,42 @@ Translate transport failures and server errors into safe, plain language. Put th
 - While auth or permissions are unresolved, show loading behavior rather than Forbidden.
 - Hide or disable actions according to the existing screen behavior, but always rely on the backend to enforce authorization.
 
+## Page headers, breadcrumbs, and URL state
+
+- Keep the global application header focused on app-level controls. Do not repeat the active route there.
+- Use the shared `PageLayout` for authenticated pages. It places the `PageHeader` in a full-width surface band across the content pane, with a subtle bottom border, and aligns the padded page body beneath it. On desktop, keep the band pinned to the top while the document scrolls; below 1100px, let it scroll normally beneath the compact app bar. This preserves TanStack Router's document scroll restoration and avoids a nested page scroll region.
+- The shared `PageHeader` owns the page title, optional short description, concise route context, route-specific actions, and an optional second row for page-level tabs or filters. Keep the title and primary actions together on desktop; let them wrap or stack on narrow screens. Render tabs and filters on the separate row only when a real page needs them.
+- Use one context treatment: when breadcrumbs identify the section, do not repeat it as an eyebrow or another page trail. Start breadcrumbs at the nearest meaningful parent; do not add a generic `Workspace` root. Link an ancestor only when it is a registered route the current session can visit. The page title identifies the current location.
+- Keep Coming Soon pages compact. They use the shared title and any meaningful parent breadcrumb, with no fabricated page description, page actions, tabs, or filters.
+- Below 480px, replace the full breadcrumb trail with a back link to its nearest accessible ancestor. Keep the same page title and actions across widths; wrap or stack them as needed.
+- Treat the pathname as the page or record identity. Put durable, user-visible view state such as search, filters, sort order, pagination, selected tab, and view mode in TanStack Router search parameters so refresh, browser Back/Forward, and a copied link restore that view.
+- Each route owns and validates its search parameters with `validateSearch` (use a route-owned Zod schema when the values need coercion, bounds, or enumerations). Components read validated search state and update it through TanStack Router; do not keep a second local copy of durable route state.
+- Omit default values from generated links and normalize invalid values to safe defaults. Reset dependent state such as the page index when a filter or query changes. Use history replacement for high-frequency text entry so each keystroke does not create a history entry; use normal navigation for deliberate view changes users may want to revisit with Back/Forward.
+- Keep menus, drawers, popovers, tooltips, and unsent form drafts local. Sidebar pin/collapse preferences remain in local storage. Never put credentials, tokens, private identifiers, or sensitive form values in a URL.
+- TanStack Router scroll restoration is enabled. Add page-specific search schemas with the real page that owns those controls; placeholder routes with no filters must not invent query parameters.
+
 ## Responsive layout and usability
 
 Every React page, screen, dialog, and major interaction must be designed and reviewed at narrow, medium, and wide viewport sizes. Desktop styling is not the only target. Flutter remains the visual and behavior reference; responsive changes should preserve the same content, actions, permissions, and workflow while adapting their layout to the available space.
 
 Use the shared mobile-first cutovers at 480px, 700px, 1100px, and 1440px. These create five review ranges, but do not require every page or component to change at each boundary. Add a layout change only when the content no longer fits or can be made substantially easier to use. A route may keep a Flutter-specific/content-driven threshold such as 760px or 980px when source review shows it is needed; record the reason and test around it instead of adding unexplained one-off breakpoints.
+
+### Authenticated shell behavior
+
+- Below 1100px, keep a 64px app bar with the menu control, Bomach mark, and permitted notifications. At 1100px and above, remove the separate app bar and place the permission-gated notification bell beside the brand and collapse action at the top of the persistent sidebar; its panel opens beside the sidebar. Let each route begin with the shared page heading for route context and title.
+- Below 1100px, use an overlay navigation drawer. Opening it moves focus into the drawer and locks page scrolling; Escape and the backdrop close it, and focus returns to the menu button. Keep the drawer within the viewport at 320px.
+- At 1100px and above, use a persistent 300px expanded sidebar or 72px collapsed rail. Save collapse, open-group, and pin preferences locally. Keep controls accessible while collapsed and preserve text labels through accessible names/tooltips.
+- When the desktop rail is collapsed, pointer hover expands it in the page layout and the main content shifts with it. Pointer leave starts the width transition back to the rail immediately; do not use an overlay or a delayed close. If keyboard focus is inside the temporary expanded sidebar, keep it open until focus leaves. Provide an explicit action to keep the sidebar expanded. Respect reduced-motion preferences.
+- Organize navigation under Workspace and People. Workspace begins with the primary Overview link, then the collapsible My Work and Company groups; People contains HR/Admin. My Work has the foldable subgroups My tasks & goals, Time & leave, and My account. Company has Organization, Governance & oversight, Workflow & communication, and Planning & resources. HR/Admin has People & access, HR operations, Performance & reporting, and Recognition & employee relations. Attendance and My Leaves belong to My Work; Roles & Permissions belongs to HR/Admin while the employee's own Role stays in My Work. Loans stays in HR/Admin because it includes approval and repayment work. Separate top-level sections with consistent spacing and a restrained divider. Style both group and subgroup rows as accessible disclosure controls; indent each level under a subtle neutral guide with matching horizontal branches, and use a slim primary accent to identify the active destination. Navigation-only labels may disambiguate repeated names such as My profile and Company profile without changing route titles. Keep route paths and permission guards stable when sidebar ownership changes.
+- Save both group and subgroup open/collapsed state with the existing local sidebar preferences. When a route is selected through navigation, search, or a pinned shortcut, expand its parent group and subgroup so the active link is visible in its context. Permission filtering applies before subgroup rendering; do not show empty categories.
+- Keep page search as an input in the sidebar. Typing opens a bounded suggestions list; Up/Down changes the active suggestion, Enter navigates, Escape closes suggestions, and Ctrl/Cmd+K focuses the input. Search returns only destinations visible to the current user and displays both the navigation group and subgroup context when a subgroup exists.
+- Show only the destination or subgroup name in sidebar tooltips, using the shared Bomach tooltip rather than the browser's native `title` popup. Do not repeat the parent navigation group in a subgroup tooltip. Keep group and subgroup context in search results, where it helps distinguish matching destinations. Position route tooltips beside the collapsed rail and above expanded links. Show sidebar tooltips after 1 second of pointer hover, immediately on keyboard focus, and never on touch hover.
+- Show pin controls progressively: on pointer devices, reveal the icon when the row is hovered or keyboard-focused; on touch devices, expose pin/unpin through a row actions menu. Once pinned, keep its pin marker visible in both the pinned shortcut and original route row, including the collapsed rail. Present pinned shortcuts in a restrained bordered surface above the navigation groups while each destination remains in its original group. Save pin and collapse preferences locally.
+- Center shared dialogs in the viewport on tablet and desktop. On phone-sized screens, use the agreed full-screen dialog treatment so forms and actions remain usable.
+- Keep one account/profile control at the bottom of navigation. It opens a profile dialog with a restrained identity panel, verification and employment status, readable access-role chips, and clearly grouped personal and employment details. Use visible section dividers instead of low-contrast hairlines. Two-factor settings appear as a compact status row; enabling or disabling opens a focused password-confirmation dialog, and success appears only after the server confirms the change. Place the full-profile action at the left and destructive sign-out at the right on wider screens; stack both actions on phones. Confirm sign-out and state clearly that it closes the current device session. Do not add a global footer to page content; sticky actions belong to individual workflows.
+- Place the notification bell in the mobile/tablet header or desktop sidebar only when the session can list notifications. Show unread count only when the backend returns it and the session has `notifications.view`; load the feed on demand, support read/unread filters, mark-read and mark-all-read according to permissions, and show a panel-level retry state on failure. Follow notification destinations only when they resolve to a same-origin, registered, permitted React route.
+- Use one icon library and a consistent stroke style for shell navigation and actions. Collapse controls need clear open/close names and tooltips.
+- Review shell cutovers at 480, 700, 1100, and 1440px, in addition to the representative 375, 600, 900, 1280, and 1600px widths.
 
 ### Per-screen responsive requirements
 
@@ -164,6 +200,7 @@ Use the shared mobile-first cutovers at 480px, 700px, 1100px, and 1440px. These 
 - On compact layouts, preserve access to primary navigation and key actions. If the Flutter layout cannot fit the browser viewport, record the adaptation (such as a navigation drawer) and preserve the same destinations and permission behavior.
 - Make forms comfortable to complete at every width: use a clear narrow-screen field order, keep labels/help/errors attached to their fields, allow validation messages to expand the layout, and keep submit/cancel actions visible and operable.
 - Keep dialogs and menus inside the viewport. Allow long content to scroll without hiding the title, close action, or important footer actions; ensure focus moves into an overlay and returns to its trigger when it closes.
+- Dialogs focus their heading by default; a workflow may focus a field with `initialFocusRef`. Disable backdrop dismissal when closing could discard a draft. Full-screen mobile dialogs account for device safe areas.
 - Preserve status visibility and interaction during resizing. Loading, empty, error, success, pending, and permission states must not overlap, truncate, or become color-only cues at narrow widths.
 - At wide desktop sizes, use available space without stretching text and forms into hard-to-scan lines. Choose content constraints per screen based on the Flutter reference and the actual data layout.
 - Check pointer, touch, keyboard, and browser zoom behavior where the control is used. Responsive layout must not remove keyboard focus indicators or break assistive-technology labels and announcements.
@@ -175,5 +212,7 @@ Capture the normal screen plus the important responsive interaction states for t
 - Use semantic form labels and connect descriptions and errors with the control.
 - Provide visible keyboard focus and keyboard operation for dialogs, menus, selects, and buttons.
 - Announce asynchronous errors and success through appropriate alert or status semantics.
+- Keep live announcement regions limited to the message; do not put action buttons inside the live region.
+- Static alerts stay out of the live announcement stream. Page-level state text is announced when inserted; the route or form owns first-invalid-field focus.
 - Do not communicate state by color alone.
 - Restore focus when a dialog closes and move focus into a dialog when it opens.
