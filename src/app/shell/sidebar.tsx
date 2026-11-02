@@ -41,6 +41,7 @@ function navigationTitle(destination: ProtectedDestination) {
 export function Sidebar({
   session,
   activePath,
+  expandedPath = activePath,
   destinations,
   preferences,
   onPreferencesChange,
@@ -58,6 +59,7 @@ export function Sidebar({
 }: {
   session: AuthenticatedSession
   activePath: string
+  expandedPath?: string
   destinations: ProtectedDestination[]
   preferences: SidebarPreferences
   onPreferencesChange: (updater: (current: SidebarPreferences) => SidebarPreferences) => void
@@ -74,7 +76,8 @@ export function Sidebar({
   onKeepExpanded?: () => void
 }) {
   const collapsed = preferences.collapsed && !onCloseDrawer && !transientExpanded
-  const currentDestination = destinationForPath(activePath)
+  const currentDestination = destinationForPath(expandedPath)
+  const activeDestination = destinationForPath(activePath)
   const pinned = destinations.filter((item) => preferences.pinnedPaths.includes(item.path))
 
   function toggleGroup(group: NavigationGroup) {
@@ -326,7 +329,7 @@ export function Sidebar({
                   const groupIcon =
                     group === 'Dashboard' ? 'task' : group === 'Company' ? 'building' : 'people'
                   const activeGroup =
-                    currentDestination?.group === group && currentDestination.path !== '/dashboard'
+                    activeDestination?.group === group && activeDestination.path !== '/dashboard'
                   const categories = NAVIGATION_CATEGORIES[group]
                     .map((category) => ({
                       ...category,
@@ -374,8 +377,10 @@ export function Sidebar({
                             </div>
                           ))}
                           {categories.map((category) => {
-                            const categoryActive =
+                            const categoryCurrent =
                               currentDestination?.navigationCategory === category.id
+                            const categoryActive =
+                              activeDestination?.navigationCategory === category.id
                             const firstCategoryDefaultsOpen =
                               category.id === categories[0]?.id &&
                               preferences.expandedCategories.length === 0 &&
@@ -383,8 +388,8 @@ export function Sidebar({
                             const categoryExpanded =
                               preferences.expandedCategories.includes(category.id) ||
                               firstCategoryDefaultsOpen ||
-                              (Boolean(onCloseDrawer) && categoryActive) ||
-                              (categoryActive &&
+                              (Boolean(onCloseDrawer) && categoryCurrent) ||
+                              (categoryCurrent &&
                                 !preferences.collapsedCategories.includes(category.id))
                             return (
                               <div key={category.id} className="relative">

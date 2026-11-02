@@ -205,15 +205,24 @@ describe('route transition feedback', () => {
   it('shows and clears transition feedback for an in-page link and browser history navigation', async () => {
     const user = userEvent.setup()
     const { delayedModule, history, router } = await renderHarness()
+    const shellHeader = screen.getByRole('banner', { name: 'Workspace header' })
+    const shellSidebar = screen.getByRole('complementary')
+    const hrAdminGroup = screen.getByRole('button', { name: 'HR/Admin navigation group' })
 
     await user.click(screen.getByRole('link', { name: 'Open employees from this page' }))
-    expect(
-      await screen.findByRole('status', { name: 'Loading destination page' }),
-    ).toBeInTheDocument()
+    const transition = await screen.findByRole('status', { name: 'Loading destination page' })
+    expect(transition).toBeInTheDocument()
+    expect(screen.getByRole('banner', { name: 'Workspace header' })).toBe(shellHeader)
+    expect(screen.getByRole('complementary')).toBe(shellSidebar)
+    expect(hrAdminGroup).toHaveAttribute('aria-expanded', 'false')
+    expect(hrAdminGroup).toHaveClass('border-primary/15')
+    expect(transition.firstElementChild?.firstElementChild).toHaveClass('min-h-16', 'py-3')
+
     await act(async () => {
       delayedModule.resolve({ default: () => <h1>Employee directory</h1> })
     })
     expect(await screen.findByRole('heading', { name: 'Employee directory' })).toBeInTheDocument()
+    expect(hrAdminGroup).toHaveAttribute('aria-expanded', 'true')
 
     await act(async () => {
       history.back()

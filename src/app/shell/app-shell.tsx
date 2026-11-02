@@ -103,10 +103,10 @@ function RouteTransitionSkeleton() {
       <div className="bg-surface border-border-subtle desktop:sticky desktop:top-0 desktop:z-20 border-b">
         <div
           aria-hidden="true"
-          className="tablet:px-6 wide:px-8 mx-auto w-full max-w-[1440px] space-y-2 px-4 py-4"
+          className="tablet:px-6 wide:px-8 mx-auto flex min-h-16 w-full max-w-[1440px] items-center gap-3 px-4 py-3"
         >
+          <Skeleton className="size-10 shrink-0 motion-reduce:animate-none" />
           <Skeleton variant="title" className="h-7 w-2/5 max-w-60 motion-reduce:animate-none" />
-          <Skeleton variant="text" className="h-4 w-1/2 max-w-96 motion-reduce:animate-none" />
         </div>
       </div>
       <div
@@ -131,6 +131,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
   const router = useRouter()
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const [pendingPathname, setPendingPathname] = useState<string | null>(null)
+  const [expandedPathname, setExpandedPathname] = useState(pathname)
   const { data: session } = useQuery(authSessionQueryOptions())
   const [preferences, setPreferences] = useState<SidebarPreferences>(loadPreferences)
   const [isDesktop, setIsDesktop] = useState(() => window.matchMedia('(min-width: 1100px)').matches)
@@ -162,6 +163,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
     })
     const unsubscribeResolved = router.subscribe('onResolved', () => {
       setPendingPathname(null)
+      setExpandedPathname(router.state.location.pathname)
     })
 
     return () => {
@@ -317,6 +319,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
               isDesktop && hasPermission(session.permissions, 'notifications', 'list')
             }
             activePath={activePath}
+            expandedPath={expandedPathname}
             destinations={sidebarDestinations}
             preferences={preferences}
             transientExpanded={preferences.collapsed && sidebarHoverExpanded}
@@ -391,6 +394,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
             <Sidebar
               session={session}
               activePath={activePath}
+              expandedPath={expandedPathname}
               destinations={sidebarDestinations}
               preferences={{ ...preferences, collapsed: false }}
               onPreferencesChange={updatePreferences}
