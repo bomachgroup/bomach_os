@@ -18,7 +18,8 @@ export interface PersonalOverviewDto {
   } | null
 }
 
-export const personalOverviewQueryKey = ['dashboard', 'personal-overview'] as const
+export const personalOverviewQueryKey = (userId: number, employeeId: string) =>
+  ['dashboard', 'personal-overview', userId, employeeId] as const
 
 export const dashboardApi = {
   personalOverview: (signal?: AbortSignal) =>

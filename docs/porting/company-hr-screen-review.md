@@ -5,10 +5,10 @@ This is the working screen-by-screen behavior record for the initial 32-route po
 ## Review status
 
 - **In scope:** 15 Company sidebar routes and 17 HR/Admin sidebar routes.
-- **Reviewed:** Company Profile has an initial source pass. Its deployed data and populated visual state could not be checked because the test session expired.
-- **Candidate source trace:** HR/Admin Employees is a recommended pilot candidate; its list/detail/form flow has an initial source trace below, but is not yet a parity-complete review or approved pilot.
-- **Not reviewed yet:** the remaining 30 routes.
-- **Implementation:** not started.
+- **Reviewed:** Company Profile, Departments & Units, and Org Chart have source passes. The organization routes' live data and responsive behavior still need a full QA pass.
+- **Reviewed:** HR/Admin Employees and Company Roles & Permissions now have source/backend contract reviews and React implementations. Full responsive and live workflow verification is recorded in [hr-roles-employees-implementation.md](hr-roles-employees-implementation.md) and [QA findings](../testing/qa-findings.md).
+- **Not reviewed yet:** the remaining in-scope routes.
+- **Implementation:** Company Profile, Departments & Units, Org Chart, Roles & Permissions, Employees, and HR Dashboard have React implementations; see their implementation notes for verified behavior and any remaining limits.
 
 Status meanings:
 
@@ -25,19 +25,19 @@ Status meanings:
 | Company | Profile | `/company` | Source pass — see review below; populated deployment state blocked by expired session |
 | Company | Branch | `/company/branch` | Not reviewed |
 | Company | Board | `/company/board` | Not reviewed |
-| Company | Broadcast | `/company/broadcast` | Not reviewed |
-| Company | Roles & Permissions | `/company/roles` | Not reviewed |
-| Company | Org Chart | `/company/org-chart` | Not reviewed |
+| Company | Broadcast | `/company/broadcast` | Source and backend contract reviewed; React implementation and narrow-viewport live QA complete. Desktop visual QA and mutation checks remain; see [company-communication-implementation.md](company-communication-implementation.md) |
+| Company | Roles & Permissions | `/company/roles` | Source and backend contracts reviewed; React directory and 13 active role detail sections implemented; QA recorded in implementation notes |
+| Company | Org Chart | `/company/org-chart` | Source pass — see [company-organization-implementation.md](company-organization-implementation.md); live data and responsive review remain |
 | Company | KPI Management | `/company/kpi-management` | Not reviewed |
 | Company | OKR Board | `/company/okr-board` | Not reviewed |
 | Company | Compliance Dashboard | `/company/compliance` | Not reviewed |
 | Company | Knowledge Base | `/company/knowledge-base` | Not reviewed |
-| Company | Approval Workflows | `/company/approval-workflow` | Not reviewed |
+| Company | Approval Workflows | `/company/approval-workflow` | Source/backend review, live local workflow CRUD and approve/reject paths, focused automated checks, and narrow-viewport QA complete. Tablet/desktop and breakpoint-edge visual matrix remains; see [company-communication-implementation.md](company-communication-implementation.md) |
 | Company | Workspace Approvals | `/company/workspace-approvals` | Not reviewed |
-| Company | Departments & Units | `/company/department` | Not reviewed |
+| Company | Departments & Units | `/company/department` | Source pass — see [company-organization-implementation.md](company-organization-implementation.md); live data and responsive review remain |
 | Company | Assets | `/company/assets` | Not reviewed |
 | Company | Audit Log | `/company/audit-log` | Not reviewed |
-| HR/Admin | Employees | `/hr/employees` | Candidate source trace — pilot recommendation; full screen/form and deployed-state review still needed |
+| HR/Admin | Employees | `/hr/employees` | Source and backend contracts reviewed; React directory, four-step form, and durable profile tabs implemented; QA recorded in implementation notes |
 | HR/Admin | Attendance | `/hr/attendance` | Not reviewed |
 | HR/Admin | Work Calendar | `/hr/attendance-calendar` | Not reviewed |
 | HR/Admin | Recruitment | `/hr/job-post` | Not reviewed |
@@ -134,10 +134,10 @@ The Flutter `CompanyService` owns a Dio client and sends Bearer auth. On `Compan
 
 | Purpose | Method and path | Use |
 | --- | --- | --- |
-| Core profile | `GET` and `PUT /api/v1/company/company/profile` | Name, email, phone, address, RC number, created/updated metadata. |
+| Core profile | `GET` and `PUT /api/v1/company/company/profile` | Name, email, phone, address, RC number, optional industry, explicit `is_configured` state, and created/updated metadata. |
 | Branding | `GET` and `PUT /api/v1/company/company/branding` | Logo, primary/secondary colors, slogan. |
-| Preferences | `GET` and `PUT /api/v1/company/company/preferences` | Currency, language, business rules, punctuality time. |
-| Company field choices | `GET /api/v1/company/company/choices` | Currency/language choices for the settings form. |
+| Preferences | `GET` and `PUT /api/v1/company/company/preferences` | Currency, language, business rules, canonical `punctuality_cutoff_time`, and IANA `time_zone`. |
+| Company field choices | `GET /api/v1/company/company/choices` | Currency, language, and runtime IANA time-zone choices for the settings form. |
 | Dashboard summary | `GET /api/v1/stats/dashboard` | Four statistic cards. |
 | Shareholder register | `GET /api/v1/shareholders/?limit=100&offset=0`; create/update/delete under `/api/v1/shareholders/` | Ownership and board-member tabs. |
 | Compliance register | `GET`, `POST /api/v1/compliance/compliance-records`; update/delete on `/{id}` | Compliance tab. |
@@ -145,13 +145,9 @@ The Flutter `CompanyService` owns a Dio client and sends Bearer auth. On `Compan
 
 Profile settings update sends three PUT requests in parallel and merges the results. This is not evidently an atomic backend operation: a partial failure may leave some resources updated and others rejected. Verify server behavior and recovery before deciding the React mutation strategy. The Flutter Dio timeout is 15 seconds for connect and receive. The React implementation should use the already agreed shared Fetch client; feature modules should own endpoint contracts rather than creating new transport clients.
 
-### Questions to settle before implementation
+### Implementation decision
 
-1. Which `company_settings` permission should be required to enter, view, and edit this route? Should the form actions disappear/disable for view-only users?
-2. Are Industry and timezone meant to be shared backend values? Are approval level, notification channels, and GDPR/CCPA preferences expected to persist? If so, what are the current authoritative contracts?
-3. What is the intended behavior when one of the three profile/branding/preferences updates succeeds and another fails? Can the backend provide an atomic update or a read-back recovery contract?
-4. Is local-only authorized-share storage intentional, or should the company-wide value always require the equity API?
-5. Can the expired test session be renewed so we can capture populated/empty behavior and responsive visual references at the agreed viewport widths?
+The focused React scope, permissions, data contract, setup behavior, and separate section saves are implemented in [company-profile-implementation.md](company-profile-implementation.md). Industry and IANA time zone now have persisted fields; unsupported approval mode, notification-channel, and GDPR/CCPA toggles remain out of scope. Profile, branding, and preferences save through their own endpoints so one section’s failure does not discard another section’s draft. Shareholders and equity remain separate follow-up work. The local React implementation can be visually reviewed with the current development session; deployment-specific screenshots remain outside this source audit.
 
 ## HR/Admin Employees — pilot candidate source trace
 

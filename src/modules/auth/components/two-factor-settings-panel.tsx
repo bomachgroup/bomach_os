@@ -4,12 +4,14 @@ import { useForm } from '@tanstack/react-form'
 import { ShieldCheck } from 'lucide-react'
 
 import { authApi } from '@/shared/auth/auth.api'
+import { presentError } from '@/shared/errors'
 import { Button } from '@/shared/ui/button'
 import { Dialog } from '@/shared/ui/dialog'
 import { SectionErrorState } from '@/shared/ui/feedback-states'
 import { FormControl, TextInput } from '@/shared/ui/form-control'
 import { StatusChip } from '@/shared/ui/status-chip'
 import { useToast } from '@/shared/feedback/use-toast'
+import { DATA_FRESHNESS_MS } from '@/shared/query/freshness'
 import { AuthFormAlert } from './auth-page-frame'
 
 const STATUS_QUERY_KEY = ['auth', 'two-factor-status'] as const
@@ -24,6 +26,9 @@ export function TwoFactorSettingsPanel() {
   const statusQuery = useQuery({
     queryKey: STATUS_QUERY_KEY,
     queryFn: ({ signal }) => authApi.twoFactorStatus(signal),
+    staleTime: DATA_FRESHNESS_MS.standard,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
     retry: false,
   })
   const updateMutation = useMutation({
@@ -43,7 +48,7 @@ export function TwoFactorSettingsPanel() {
       })
     },
     onError: (error) => {
-      setFormError(error instanceof Error ? error.message : 'The setting could not be updated.')
+      setFormError(presentError(error, 'form-submit').message)
     },
   })
   const form = useForm({
@@ -84,6 +89,7 @@ export function TwoFactorSettingsPanel() {
       <SectionErrorState
         title="Could not load two-factor status"
         description="Retry to check the current setting."
+        error={statusQuery.error}
         onRetry={() => void statusQuery.refetch()}
       />
     )
@@ -137,8 +143,9 @@ export function TwoFactorSettingsPanel() {
         title={actionLabel}
         description={`Confirm your password to ${isEnabled ? 'turn off' : 'turn on'} two-factor authentication.`}
         size="sm"
-        className="tablet:h-fit"
-        bodyClassName="flex-none"
+        fitContent
+        compactOnMobile
+        bodyClassName="flex-none overflow-y-auto py-4"
         closeOnBackdrop={!updateMutation.isPending}
         initialFocusRef={passwordRef}
         footer={

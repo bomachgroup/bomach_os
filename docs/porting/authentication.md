@@ -30,7 +30,7 @@ The six Dashboard destinations are included in the protected route manifest, wit
 flowchart TD
   A[Open /splash or protected link] --> B{Browser session valid?}
   B -- No --> C[Login, retaining a safe internal return target]
-  B -- Yes --> D[Load employee profile, role and permission catalog]
+  B -- Yes --> D[Load current user and permissions, then employee profile]
   D -- Failure --> E[Block access and offer retry]
   D -- Success --> F{Requested route is implemented and permitted?}
   F -- Yes --> G[Requested route]
@@ -48,23 +48,30 @@ flowchart TD
 
 Each protected route is placed below the authenticated route parent and reads its OR-list of required resource/action permissions from the route manifest. An empty list means authenticated-only, matching Flutter's explicit public-to-logged-in gates. The sidebar separately checks the source menu's visible resource set and route permission so it does not display links that lead directly to an access denial. Do not put permissions in client-only storage or treat an unresolved permission response as a denial. Backend authorization remains authoritative. Flutter omits explicit route permission entries for role details, so the React manifest requires the parent Roles page's `roles:list` permission instead of retaining that authenticated-only fallback. Other authenticated-only routes match their explicit Flutter configuration or current source behavior; review these again when their real pages are selected.
 
-Session bootstrap calls, in order, `GET /api/v1/auth/me`, `GET /api/v1/employees/employees/{user_id}`, and in parallel `GET /api/v1/roles/employees/{user_id}` plus `GET /api/v1/roles/permissions-map`. A missing assigned role (404) is represented as an empty role/permission set; any other role or permission-catalog failure blocks protected access and offers retry.
+Session bootstrap calls `GET /api/v1/auth/me` and then `GET /api/v1/employees/employees/{user_id}`. `/auth/me` is the current-user context: alongside its existing identity fields it returns `role: { id, name } | null` and a `permissions` map containing the signed-in employee role's granted actions. A signed-in user without an employee profile or without an assigned role receives `role: null` and `permissions: {}`; React still requires an employee profile for this employee application. React does not call the ID-based role endpoint or load the full permission catalogue during session bootstrap, so a user does not need `roles.view` merely to learn their own grants. Existing `/auth/me` fields and bearer authentication remain unchanged; the new fields are additive. Flutter's current profile bootstrap reads the employee endpoint instead of `/auth/me`, and the staff mobile `/auth/me` mapper selects known identity fields, so both continue to use their existing contracts.
+
+`GET /api/v1/roles/permissions-map` remains the full system permission catalogue for permission-management interfaces; it is not a user's grants and is not needed to authorize React navigation. `GET /api/v1/auth/capabilities` remains the staff mobile app's boolean feature-flag projection. React does not use it as its permission source because it is a smaller, client-specific projection; currently the backend hardcodes `attendance.view` and `attendance.manage` to `true`, which should be reviewed separately before that endpoint is used for authorization decisions.
+
+React treats a missing or malformed `permissions` field as a bootstrap failure and blocks protected access with retry. A valid empty map means the user has no role grants; the route manifest may still allow routes explicitly marked authenticated-only, and `/no-access` is shown only when no implemented route is permitted. These are the current role's granted resource/action entries, including any `_own` actions; they do not expose the complete permission catalogue or branch IDs. Backend endpoints remain authoritative for every data read and write, including branch and ownership scope. This uses the existing `/auth/me` route; no new session-context endpoint is added.
 
 ## Browser endpoint contract
 
 All browser-only endpoints are under `/api/v1/auth/browser/`. Every POST requires the configured exact `Origin` and `X-Bomach-Request: browser` header. JSON responses never include access, refresh, or pending two-factor tokens.
 
-| Method and path         | Request                         | Response/session effect                                                                                                                                                                    |
-| ----------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `POST /login`           | `{ email, password }`           | `{ success, requires_2fa, detail, user_id? }`; set access+refresh cookies or a pending 2FA cookie. Login failure is generic.                                                               |
-| `POST /verify-2fa`      | `{ code }`                      | `{ success, user_id }`; consume the pending session/code and set access+refresh cookies.                                                                                                   |
-| `POST /cancel-2fa`      | no body                         | `{ success }`; revoke and clear the pending 2FA session cookie.                                                                                                                            |
-| `POST /refresh`         | no body                         | `{ success }`; refresh the access cookie. A rejected refresh returns 401 and clears auth cookies. Refresh token is not rotated, matching the existing backend service.                     |
-| `POST /logout`          | no body                         | `{ success }`; revoke refresh/access credentials where present and clear all browser auth cookies.                                                                                         |
-| `POST /forgot-password` | `{ email }`                     | Same neutral `{ success, detail }` for a known or unknown email. The legacy endpoint remains unchanged.                                                                                    |
-| `POST /reset-password`  | `{ email, code, new_password }` | `{ success, detail }` on success; use one neutral verification failure for unknown email and invalid/expired code. Reset expires after 10 minutes and increments the user's token version. |
+| Method and path          | Request                         | Response/session effect                                                                                                                                                                    |
+| ------------------------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `POST /login`            | `{ email, password }`           | `{ success, requires_2fa, detail, user_id? }`; set access+refresh cookies or a pending 2FA cookie. Login failure is generic.                                                               |
+| `GET /two-factor/status` | no body                         | `{ success, pending }`; validates the HttpOnly pending cookie without returning its token or user identity. The verification screen waits for this result before showing the code form.    |
+| `POST /verify-2fa`       | `{ code }`                      | `{ success, user_id }`; consume the pending session/code and set access+refresh cookies.                                                                                                   |
+| `POST /cancel-2fa`       | no body                         | `{ success }`; revoke and clear the pending 2FA session cookie.                                                                                                                            |
+| `POST /refresh`          | no body                         | `{ success }`; refresh the access cookie. A rejected refresh returns 401 and clears auth cookies. Refresh token is not rotated, matching the existing backend service.                     |
+| `POST /logout`           | no body                         | `{ success }`; revoke refresh/access credentials where present and clear all browser auth cookies.                                                                                         |
+| `POST /forgot-password`  | `{ email }`                     | Same neutral `{ success, detail }` for a known or unknown email. The legacy endpoint remains unchanged.                                                                                    |
+| `POST /reset-password`   | `{ email, code, new_password }` | `{ success, detail }` on success; use one neutral verification failure for unknown email and invalid/expired code. Reset expires after 10 minutes and increments the user's token version. |
 
-Authenticated session reads continue to use existing `/api/v1/auth/me`, employee, role, and permission endpoints. Authenticated Company/HR API calls use the same shared Fetch client and access cookie.
+Authenticated session reads use `/api/v1/auth/me` for identity, role summary, and permission grants, plus the current user's employee profile endpoint. Authenticated Company/HR API calls use the same shared Fetch client and access cookie.
+
+Direct visits to `/two-factor-verify` do not assume that a challenge exists. The React page checks the browser status endpoint first, shows the code form only for a valid pending challenge, and offers a retry or Login action if status cannot be checked. If verification returns an expired-session response, it rechecks status and changes to the expired state when the pending cookie is no longer valid.
 
 ## Cookies, CSRF, and expiry
 

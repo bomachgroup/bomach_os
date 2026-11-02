@@ -5,6 +5,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { authApi } from '@/shared/auth/auth.api'
+import { presentError } from '@/shared/errors'
 import { SESSION_ESTABLISHED_KEY } from '@/shared/api/api-client'
 import { Alert } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
@@ -41,11 +42,7 @@ export function ResetPasswordPage() {
         queryClient.clear()
         await navigate({ to: '/login', search: { reset: true } })
       } catch (error) {
-        setFormError(
-          error instanceof Error
-            ? error.message
-            : 'The password could not be reset. Check the code and try again.',
-        )
+        setFormError(presentError(error, 'form-submit').message)
       }
     },
   })

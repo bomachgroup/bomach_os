@@ -50,7 +50,7 @@ describe('auth route boundaries', () => {
       queryClient,
     )
 
-    expect(screen.getByText(/Access is paused until they can be verified/)).toBeInTheDocument()
+    expect(screen.getByText(/Your access permissions could not be verified/)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Try again' }))
 
     await waitFor(() => expect(reset).toHaveBeenCalledOnce())

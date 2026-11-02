@@ -18,6 +18,11 @@ describe('FormControl', () => {
     )
 
     const input = screen.getByRole('textbox', { name: 'Company email' })
+    expect(input).toHaveClass('min-h-[38px]', 'px-2.5', 'py-[9px]', 'text-control-value')
+    expect(screen.getByText('Company email').closest('label')).toHaveClass(
+      'text-control-label',
+      'font-bold',
+    )
     expect(input).toBeRequired()
     expect(input).toHaveAttribute('aria-invalid', 'true')
     expect(input).toHaveAttribute(

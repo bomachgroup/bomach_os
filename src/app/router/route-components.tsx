@@ -3,9 +3,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Outlet, useRouter } from '@tanstack/react-router'
 
 import { SESSION_EXPIRED_EVENT } from '@/shared/api/api-client'
-import { ApiError } from '@/shared/api/api-error'
 import { safeInternalTarget } from '@/shared/auth/navigation'
 import { AUTH_SESSION_QUERY_KEY, SessionBootstrapError } from '@/shared/auth/session'
+import { presentError } from '@/shared/errors'
 import { Button } from '@/shared/ui/button'
 import { ErrorState } from '@/shared/ui/feedback-states'
 import { ToastProvider } from '@/shared/feedback/toast-provider'
@@ -39,14 +39,19 @@ export function RootLayout() {
 export function RouteError({ error, reset }: { error: unknown; reset: () => void }) {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const bootstrapError = error instanceof SessionBootstrapError ? error : null
+  const cause = bootstrapError?.cause
+  const presentation = presentError(cause ?? error, 'page-load')
+  const title =
+    bootstrapError && cause === undefined
+      ? 'Workspace access could not be verified'
+      : presentation.title
   const detail =
-    error instanceof SessionBootstrapError
-      ? error.stage === 'permissions'
-        ? 'Your roles and permissions could not be loaded. Access is paused until they can be verified.'
-        : 'Your employee profile could not be loaded. Check your connection and try again.'
-      : error instanceof ApiError && error.status === 0
-        ? 'The server could not be reached. Check your connection and try again.'
-        : 'We could not load this page. Try again.'
+    bootstrapError && cause === undefined
+      ? bootstrapError.stage === 'permissions'
+        ? 'Your access permissions could not be verified. Retry to continue securely.'
+        : 'Your employee profile could not be loaded. Retry to continue.'
+      : presentation.message
 
   async function retry() {
     await queryClient.resetQueries({ queryKey: AUTH_SESSION_QUERY_KEY })
@@ -57,11 +62,7 @@ export function RouteError({ error, reset }: { error: unknown; reset: () => void
   return (
     <main className="bg-background flex min-h-svh items-center justify-center px-4 py-8">
       <ErrorState
-        title={
-          error instanceof SessionBootstrapError
-            ? 'Workspace access could not be verified'
-            : 'Unable to continue'
-        }
+        title={title}
         description={detail}
         action={<Button onClick={() => void retry()}>Try again</Button>}
       />

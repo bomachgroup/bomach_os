@@ -1,5 +1,5 @@
 import { createElement, type ReactNode } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
@@ -46,9 +46,14 @@ async function expectNoAxeViolations(container: HTMLElement) {
 
 describe('authentication pages', () => {
   beforeEach(() => {
+    vi.restoreAllMocks()
     vi.clearAllMocks()
     window.sessionStorage.clear()
     routerMocks.search = { returnTo: undefined, expired: false, reset: false }
+    vi.spyOn(authApi, 'browserTwoFactorChallengeStatus').mockResolvedValue({
+      success: true,
+      pending: true,
+    })
   })
 
   it('keeps the password draft and shows one generic login error after server rejection', async () => {
@@ -66,7 +71,7 @@ describe('authentication pages', () => {
     await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Email or password is incorrect. Check your details and try again.',
+      'The email address or password is incorrect. Check both and try again.',
     )
     expect(screen.queryAllByRole('alert')).toHaveLength(1)
     expect(screen.getByLabelText(/^Password/)).toHaveValue('  exact password  ')
@@ -75,6 +80,20 @@ describe('authentication pages', () => {
       password: '  exact password  ',
     })
     expect(screen.queryByText('Internal server detail')).not.toBeInTheDocument()
+
+    const email = screen.getByRole('textbox', { name: 'Email' })
+    await user.clear(email)
+    await user.type(email, 'another@example.com')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Sign in' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The email address or password is incorrect. Check both and try again.',
+    )
+    const password = screen.getByLabelText(/^Password/)
+    await user.clear(password)
+    await user.type(password, 'replacement-password')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('focuses the first invalid field after an empty sign-in attempt', async () => {
@@ -153,7 +172,7 @@ describe('authentication pages', () => {
     vi.spyOn(authApi, 'verifyTwoFactor').mockResolvedValue({ success: true, user_id: 7 })
     renderInQueryProvider(<TwoFactorVerifyPage />)
 
-    await user.type(screen.getByRole('textbox', { name: 'Verification Code' }), '123456')
+    await user.type(await screen.findByRole('textbox', { name: 'Verification Code' }), '123456')
     await user.click(screen.getByRole('button', { name: 'Verify Code' }))
 
     await waitFor(() =>
@@ -162,6 +181,62 @@ describe('authentication pages', () => {
         search: { returnTo: '/company/profile?tab=details' },
       }),
     )
+  })
+
+  it('shows the expired two-factor state immediately when no challenge is pending', async () => {
+    const user = userEvent.setup()
+    routerMocks.search.returnTo = '/hr/attendance?month=2026-10'
+    vi.mocked(authApi.browserTwoFactorChallengeStatus).mockResolvedValue({
+      success: true,
+      pending: false,
+    })
+    renderInQueryProvider(<TwoFactorVerifyPage />)
+
+    expect(
+      await screen.findByRole('heading', { name: 'Verification session expired' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Verification Code' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Return to Login' }))
+    expect(routerMocks.navigate).toHaveBeenCalledWith({
+      to: '/login',
+      search: { returnTo: '/hr/attendance?month=2026-10' },
+    })
+  })
+
+  it('rechecks an active two-factor challenge when the browser regains focus', async () => {
+    const status = vi
+      .mocked(authApi.browserTwoFactorChallengeStatus)
+      .mockResolvedValueOnce({ success: true, pending: true })
+      .mockResolvedValueOnce({ success: true, pending: false })
+    renderInQueryProvider(<TwoFactorVerifyPage />)
+
+    expect(await screen.findByRole('heading', { name: '2FA Verification' })).toBeInTheDocument()
+    focusManager.setFocused(false)
+    focusManager.setFocused(true)
+
+    expect(
+      await screen.findByRole('heading', { name: 'Verification session expired' }),
+    ).toBeInTheDocument()
+    expect(status).toHaveBeenCalledTimes(2)
+  })
+
+  it('moves to the expired state when a verification session expires during code entry', async () => {
+    const user = userEvent.setup()
+    vi.mocked(authApi.browserTwoFactorChallengeStatus)
+      .mockResolvedValueOnce({ success: true, pending: true })
+      .mockResolvedValueOnce({ success: true, pending: false })
+    vi.spyOn(authApi, 'verifyTwoFactor').mockRejectedValue(
+      new ApiError('Your verification session has expired.', { status: 401 }),
+    )
+    renderInQueryProvider(<TwoFactorVerifyPage />)
+
+    await user.type(await screen.findByRole('textbox', { name: 'Verification Code' }), '123456')
+    await user.click(screen.getByRole('button', { name: 'Verify Code' }))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Verification session expired' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Verification Code' })).not.toBeInTheDocument()
   })
 
   it('returns to login only after a server-confirmed password reset', async () => {

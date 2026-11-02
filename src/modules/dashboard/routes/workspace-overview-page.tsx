@@ -17,6 +17,7 @@ import {
   GitBranch,
   MapPinned,
   PackageSearch,
+  RefreshCw,
   Users,
 } from 'lucide-react'
 
@@ -49,9 +50,14 @@ import {
   operationsOverviewQueryKey,
 } from '@/modules/operations/operations-dashboard.api'
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
-import { notificationApi, type NotificationDto } from '@/shared/notifications/notifications.api'
+import {
+  notificationApi,
+  notificationKeys,
+  type NotificationDto,
+} from '@/shared/notifications/notifications.api'
+import { DATA_FRESHNESS_MS } from '@/shared/query/freshness'
 import { Button } from '@/shared/ui/button'
-import { SectionErrorState, Skeleton } from '@/shared/ui/feedback-states'
+import { SectionErrorState, Skeleton, SummaryUnavailable } from '@/shared/ui/feedback-states'
 import { cn } from '@/shared/lib/cn'
 import { PageLayout } from '@/shared/ui/page-layout'
 
@@ -402,20 +408,13 @@ function PulseSection({
       title="Organization pulse"
       description="A few signals from areas you can access."
       icon={<Building2 className="size-5" aria-hidden="true" />}
-      action={
-        error && items.length ? (
-          <Button variant="ghost" size="sm" onClick={onRetry}>
-            Retry unavailable data
-          </Button>
-        ) : null
-      }
     >
       <DashboardPanelCard>
         {loading ? (
           <DashboardLoadingRows count={3} />
         ) : error && items.length === 0 ? (
-          <SectionErrorState
-            description="Organization summaries could not be loaded. Your personal work is still available."
+          <SummaryUnavailable
+            description="Organization summary figures are temporarily unavailable."
             onRetry={onRetry}
           />
         ) : items.length ? (
@@ -444,6 +443,8 @@ function PulseSection({
 
 export function WorkspaceOverviewPage() {
   const { data: session } = useQuery(authSessionQueryOptions())
+  const userId = session?.user.id ?? 0
+  const employeeId = session?.employee.employee_id ?? ''
   const permissions = session?.permissions ?? {}
   const now = new Date()
   const today = localDateString(now)
@@ -453,7 +454,7 @@ export function WorkspaceOverviewPage() {
     .filter(Boolean)
     .join(' ')
   const roleTitle = session?.employee.designation || session?.roles[0]?.name || 'Your workspace'
-  const department = session?.employee.department || ''
+  const department = session?.employee.department_name || session?.employee.department?.name || ''
 
   const canViewAttendance = hasAny(permissions, [
     ['attendance', 'list'],
@@ -497,72 +498,82 @@ export function WorkspaceOverviewPage() {
     ['timelines', 'list'],
   ])
   const pulseEnabled = companyEnabled || hrEnabled || operationsEnabled
+  const standardOverviewRefresh = {
+    staleTime: DATA_FRESHNESS_MS.standard,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  } as const
+  const liveOverviewRefresh = {
+    staleTime: DATA_FRESHNESS_MS.live,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  } as const
 
   const personal = useQuery({
-    queryKey: personalOverviewQueryKey,
+    queryKey: personalOverviewQueryKey(userId, employeeId),
     queryFn: ({ signal }) => dashboardApi.personalOverview(signal),
     enabled: personalEnabled,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
   const attendanceToday = useQuery({
-    queryKey: personalWorkQueryKeys.attendanceToday,
+    queryKey: personalWorkQueryKeys.attendanceToday(userId, employeeId),
     queryFn: ({ signal }) => personalWorkApi.attendanceToday(signal),
     enabled: canViewAttendance,
-    staleTime: 30_000,
+    ...liveOverviewRefresh,
   })
   const tasks = useQuery({
-    queryKey: personalWorkQueryKeys.tasks,
+    queryKey: personalWorkQueryKeys.tasks(userId, employeeId),
     queryFn: ({ signal }) => personalWorkApi.tasks(signal),
     enabled: canViewTasks,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
   const completedTasks = useQuery({
-    queryKey: personalWorkQueryKeys.completedTasks,
+    queryKey: personalWorkQueryKeys.completedTasks(userId, employeeId),
     queryFn: ({ signal }) => personalWorkApi.completedTasks(signal),
     enabled: canViewTasks,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
   const reports = useQuery({
-    queryKey: [...personalWorkQueryKeys.reports, monthStart, today],
+    queryKey: [...personalWorkQueryKeys.reports(userId, employeeId), monthStart, today],
     queryFn: ({ signal }) => personalWorkApi.reports(monthStart, today, signal),
     enabled: canViewReports,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
   const leaveRequests = useQuery({
-    queryKey: personalWorkQueryKeys.leaveRequests,
+    queryKey: personalWorkQueryKeys.leaveRequests(userId, employeeId),
     queryFn: ({ signal }) => personalWorkApi.leaveRequests(signal),
     enabled: canViewLeaves,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
   const loans = useQuery({
-    queryKey: personalWorkQueryKeys.loans,
+    queryKey: personalWorkQueryKeys.loans(userId, employeeId),
     queryFn: ({ signal }) => personalWorkApi.loans(signal),
     enabled: canViewLoans,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
   const notifications = useQuery({
-    queryKey: personalWorkQueryKeys.notifications,
+    queryKey: notificationKeys.overview(userId),
     queryFn: ({ signal }) => notificationApi.list({ limit: 20, offset: 0, signal }),
     enabled: canViewNotifications,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
   const company = useQuery({
-    queryKey: companyOverviewQueryKey,
+    queryKey: companyOverviewQueryKey(userId, employeeId),
     queryFn: ({ signal }) => companyDashboardApi.overview(signal),
     enabled: companyEnabled,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
   const hr = useQuery({
-    queryKey: hrOverviewQueryKey,
+    queryKey: hrOverviewQueryKey(userId, employeeId),
     queryFn: ({ signal }) => hrDashboardApi.overview(signal),
     enabled: hrEnabled,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
   const operations = useQuery({
-    queryKey: operationsOverviewQueryKey,
+    queryKey: operationsOverviewQueryKey(userId, employeeId),
     queryFn: ({ signal }) => operationsDashboardApi.overview(signal),
     enabled: operationsEnabled,
-    staleTime: 30_000,
+    ...standardOverviewRefresh,
   })
 
   const workReports = reports.data?.items ?? []
@@ -670,7 +681,8 @@ export function WorkspaceOverviewPage() {
     ...(canViewLoans ? [loans] : []),
   ]
   const updatesLoading = updateQueries.some((query) => query.isPending)
-  const failedUpdateQueries = updateQueries.filter((query) => query.isError)
+  const failedUpdateQueries = updateQueries.filter((query) => query.isError && !query.data)
+  const firstFailedUpdateQuery = failedUpdateQueries[0]
   const retryUpdates = () => {
     void Promise.all(failedUpdateQueries.map((query) => query.refetch()))
   }
@@ -814,9 +826,11 @@ export function WorkspaceOverviewPage() {
     ...(operationsEnabled ? [operations] : []),
   ]
   const pulseLoading = pulseQueries.some((query) => query.isPending)
-  const pulseError = pulseQueries.some((query) => query.isError)
+  const pulseError = pulseQueries.some((query) => query.isError && !query.data)
   const retryPulse = () => {
-    void Promise.all(pulseQueries.filter((query) => query.isError).map((query) => query.refetch()))
+    void Promise.all(
+      pulseQueries.filter((query) => query.isError && !query.data).map((query) => query.refetch()),
+    )
   }
 
   const userInitials = initials(fullName || firstName)
@@ -865,10 +879,32 @@ export function WorkspaceOverviewPage() {
           : todayReport?.status === 'draft' || (reports.isSuccess && !todayReport)
             ? 'warning'
             : 'neutral'
+  const overviewQueries = [
+    personal,
+    attendanceToday,
+    tasks,
+    completedTasks,
+    reports,
+    leaveRequests,
+    loans,
+    notifications,
+    company,
+    hr,
+    operations,
+  ]
+  const isRefreshingOverview = overviewQueries.some(
+    (query) => query.isFetching && query.data !== undefined,
+  )
 
   return (
     <PageLayout title="Overview">
       <div className="phone:space-y-7 space-y-6">
+        {isRefreshingOverview ? (
+          <p className="text-caption text-text-secondary flex items-center gap-2" role="status">
+            <RefreshCw className="size-3.5 motion-safe:animate-spin" aria-hidden="true" />
+            Updating workspace data…
+          </p>
+        ) : null}
         <section className="dashboard-enter dashboard-hero rounded-surface shadow-elevation-md phone:px-6 phone:py-6 tablet:flex tablet:min-h-44 tablet:items-center tablet:justify-between tablet:gap-6 wide:px-8 relative isolate overflow-hidden px-4 py-5 text-white">
           <div
             className="pointer-events-none absolute -top-20 -right-12 -z-10 size-72 rounded-full border-[34px] border-white/10"
@@ -886,9 +922,9 @@ export function WorkspaceOverviewPage() {
               <p className="text-overline mb-1 tracking-wider text-white/75 uppercase">
                 Personal workspace
               </p>
-              <h1 className="text-h1 phone:text-display-md mt-1 font-semibold break-words text-white">
+              <h2 className="text-h1 phone:text-display-md mt-1 font-semibold break-words text-white">
                 {greeting(now)}, {fullName || firstName}
-              </h1>
+              </h2>
               <p className="text-body-md mt-1 truncate text-white/85">
                 {department ? `${roleTitle} · ${department}` : roleTitle}
               </p>
@@ -921,7 +957,7 @@ export function WorkspaceOverviewPage() {
                 }
                 href="/hr/attendance"
                 loading={attendanceToday.isPending}
-                error={attendanceToday.isError}
+                error={attendanceToday.isError && !attendanceToday.data}
                 onRetry={() => void attendanceToday.refetch()}
               />
             ) : null}
@@ -940,7 +976,7 @@ export function WorkspaceOverviewPage() {
                 }
                 href="/dashboard/my-tasks"
                 loading={tasks.isPending}
-                error={tasks.isError}
+                error={tasks.isError && !tasks.data}
                 onRetry={() => void tasks.refetch()}
               />
             ) : null}
@@ -954,7 +990,7 @@ export function WorkspaceOverviewPage() {
                 detail={todayReport ? formatShortDate(todayReport.day) : 'Today’s report'}
                 href="/dashboard/my-reports"
                 loading={reports.isPending}
-                error={reports.isError}
+                error={reports.isError && !reports.data}
                 onRetry={() => void reports.refetch()}
               />
             ) : null}
@@ -994,14 +1030,18 @@ export function WorkspaceOverviewPage() {
               (tasks.isPending && canViewTasks) ||
               (reports.isPending && canViewReports) ? (
                 <DashboardLoadingRows count={3} />
-              ) : attendanceToday.isError || tasks.isError || reports.isError ? (
+              ) : (attendanceToday.isError && !attendanceToday.data) ||
+                (tasks.isError && !tasks.data) ||
+                (reports.isError && !reports.data) ? (
                 <div className="space-y-3">
                   <SectionErrorState
                     description="Some personal action items could not be checked. Retry the unavailable source above."
+                    error={attendanceToday.error ?? tasks.error ?? reports.error}
                     onRetry={() => {
-                      if (attendanceToday.isError) void attendanceToday.refetch()
-                      if (tasks.isError) void tasks.refetch()
-                      if (reports.isError) void reports.refetch()
+                      if (attendanceToday.isError && !attendanceToday.data)
+                        void attendanceToday.refetch()
+                      if (tasks.isError && !tasks.data) void tasks.refetch()
+                      if (reports.isError && !reports.data) void reports.refetch()
                     }}
                   />
                   {sortedAttentionItems.length ? (
@@ -1080,10 +1120,10 @@ export function WorkspaceOverviewPage() {
                   ))}
                 </div>
               </DashboardPanelCard>
-            ) : personal.isError ? (
+            ) : personal.isError && !personal.data ? (
               <DashboardPanelCard>
-                <SectionErrorState
-                  description="Monthly progress could not be loaded. Your other dashboard sections remain available."
+                <SummaryUnavailable
+                  description="Monthly progress figures are temporarily unavailable."
                   onRetry={() => void personal.refetch()}
                 />
               </DashboardPanelCard>
@@ -1228,6 +1268,7 @@ export function WorkspaceOverviewPage() {
               ) : failedUpdateQueries.length ? (
                 <SectionErrorState
                   description="Recent updates could not be loaded. Your other dashboard sections remain available."
+                  error={firstFailedUpdateQuery?.error}
                   onRetry={retryUpdates}
                 />
               ) : (

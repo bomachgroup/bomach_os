@@ -84,7 +84,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {toast ? (
-        <div className="z-toast tablet:inset-x-auto tablet:right-6 tablet:w-[min(28rem,calc(100vw-3rem))] pointer-events-none fixed inset-x-4 bottom-4 flex justify-center">
+        <div className="z-toast tablet:inset-x-auto tablet:right-6 tablet:w-[min(28rem,calc(100vw-3rem))] desktop:top-32 pointer-events-none fixed inset-x-4 top-[calc(env(safe-area-inset-top)+5rem)] flex justify-center">
           <div
             role={tone === 'danger' ? 'alert' : 'status'}
             aria-atomic="true"

@@ -5,9 +5,26 @@ import { defineConfig, loadEnv } from 'vite'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const configuredSiteOrigin =
+    env.VITE_SITE_ORIGIN ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_URL ||
+    'http://localhost:5173'
+  const siteOrigin = new URL(
+    configuredSiteOrigin.includes('://') ? configuredSiteOrigin : `https://${configuredSiteOrigin}`,
+  ).origin
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: 'bomach-social-metadata-origin',
+        transformIndexHtml(html) {
+          return html.replaceAll('__BOMACH_SITE_ORIGIN__', siteOrigin)
+        },
+      },
+    ],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),

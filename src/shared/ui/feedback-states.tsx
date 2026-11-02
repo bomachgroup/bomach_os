@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { cn } from '@/shared/lib/cn'
 import { Alert } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
+import { presentError, type ErrorPresentationContext } from '@/shared/errors'
 import { FeedbackIcon, type FeedbackIconName } from '@/shared/ui/feedback-icon'
 
 interface StateContentProps {
@@ -49,11 +50,22 @@ export function EmptyState(props: StateContentProps) {
   return <CenteredState announcement="polite" {...props} />
 }
 
-export function ErrorState({ title, description, action, className }: StateContentProps) {
+export function ErrorState({
+  title,
+  description,
+  action,
+  className,
+  error,
+  errorContext = 'page-load',
+}: StateContentProps & {
+  error?: unknown
+  errorContext?: ErrorPresentationContext
+}) {
+  const presentation = error != null ? presentError(error, errorContext) : undefined
   return (
     <CenteredState
-      title={title}
-      description={description}
+      title={presentation?.title ?? title}
+      description={presentation?.message ?? description}
       action={action}
       announcement="assertive"
       className={className}
@@ -64,9 +76,11 @@ export function ErrorState({ title, description, action, className }: StateConte
 
 export interface SectionErrorStateProps {
   title?: string
-  description: string
+  description?: string
   onRetry?: () => void
   className?: string
+  error?: unknown
+  errorContext?: ErrorPresentationContext
 }
 
 export function SectionErrorState({
@@ -74,21 +88,57 @@ export function SectionErrorState({
   description,
   onRetry,
   className,
+  error,
+  errorContext = 'section-load',
 }: SectionErrorStateProps) {
+  const presentation = error != null ? presentError(error, errorContext) : undefined
   return (
     <Alert
       tone="danger"
       role="status"
-      title={title}
+      title={presentation?.title ?? title}
       className={cn('flex flex-wrap items-center justify-between gap-3', className)}
     >
-      <span>{description}</span>
+      <span>{presentation?.message ?? description}</span>
       {onRetry ? (
         <Button variant="outline" size="sm" onClick={onRetry}>
           Try again
         </Button>
       ) : null}
     </Alert>
+  )
+}
+
+export function SummaryUnavailable({
+  description = 'Figures are temporarily unavailable.',
+  onRetry,
+  className,
+}: {
+  description?: string
+  onRetry?: () => void
+  className?: string
+}) {
+  return (
+    <div
+      role="status"
+      className={cn(
+        'rounded-surface shadow-elevation-sm border-border-subtle bg-surface min-w-0 border p-4',
+        className,
+      )}
+    >
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-caption text-text-secondary">Summary</p>
+          <p className="text-label text-text-primary mt-1 font-semibold">Unavailable</p>
+          <p className="text-caption text-text-secondary mt-0.5">{description}</p>
+        </div>
+        {onRetry ? (
+          <Button variant="ghost" size="sm" onClick={onRetry} className="shrink-0">
+            Retry
+          </Button>
+        ) : null}
+      </div>
+    </div>
   )
 }
 

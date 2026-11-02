@@ -19,7 +19,8 @@ export interface HROverviewDto {
     | null
 }
 
-export const hrOverviewQueryKey = ['hr', 'dashboard', 'overview'] as const
+export const hrOverviewQueryKey = (userId: number, employeeId: string) =>
+  ['hr', 'dashboard', 'overview', userId, employeeId] as const
 
 export const hrDashboardApi = {
   overview: (signal?: AbortSignal) =>

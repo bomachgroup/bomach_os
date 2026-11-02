@@ -21,6 +21,7 @@ import {
 } from '@/modules/dashboard/dashboard-components'
 import { hrDashboardApi, hrOverviewQueryKey } from '@/modules/hr/hr-dashboard.api'
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
+import { DATA_FRESHNESS_MS } from '@/shared/query/freshness'
 import { PageLayout } from '@/shared/ui/page-layout'
 
 function formatDateRange(start: string, end: string) {
@@ -32,10 +33,15 @@ function formatDateRange(start: string, end: string) {
 
 export function HRDashboardPage() {
   const { data: session } = useQuery(authSessionQueryOptions())
+  const userId = session?.user.id ?? 0
+  const employeeId = session?.employee.employee_id ?? ''
   const summary = useQuery({
-    queryKey: hrOverviewQueryKey,
+    queryKey: hrOverviewQueryKey(userId, employeeId),
     queryFn: ({ signal }) => hrDashboardApi.overview(signal),
-    staleTime: 30_000,
+    enabled: Boolean(session),
+    staleTime: DATA_FRESHNESS_MS.standard,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
   const data = summary.data
   const permissions = session?.permissions ?? {}
@@ -149,7 +155,7 @@ export function HRDashboardPage() {
         <DashboardMetricStrip
           metrics={metrics}
           loading={summary.isPending}
-          error={summary.isError}
+          error={summary.isError && !data}
           onRetry={() => void summary.refetch()}
           emptyMessage="No HR summary values are available for your permissions and branch scope."
         />
@@ -190,9 +196,9 @@ export function HRDashboardPage() {
                     <div className="rounded-pill h-3 animate-pulse bg-neutral-100" />
                     <div className="rounded-pill h-3 animate-pulse bg-neutral-100" />
                   </div>
-                ) : summary.isError ? (
+                ) : summary.isError && !data ? (
                   <p className="text-body-sm text-text-secondary">
-                    Department data is unavailable.
+                    Department summary unavailable.
                   </p>
                 ) : visibleHeadcount?.length ? (
                   <>
@@ -207,7 +213,7 @@ export function HRDashboardPage() {
                             {item.department}
                           </span>
                           <span
-                            className="bg-surface-muted rounded-pill h-2.5 overflow-hidden"
+                            className="bg-surface-muted rounded-pill h-1.5 overflow-hidden"
                             role="img"
                             aria-label={`${item.department}: ${item.count} employees`}
                           >
@@ -261,10 +267,8 @@ export function HRDashboardPage() {
                     <div className="rounded-control h-10 animate-pulse bg-neutral-100" />
                     <div className="rounded-control h-10 animate-pulse bg-neutral-100" />
                   </div>
-                ) : summary.isError ? (
-                  <p className="text-body-sm text-text-secondary">
-                    Review requests are unavailable.
-                  </p>
+                ) : summary.isError && !data ? (
+                  <p className="text-body-sm text-text-secondary">Review summary unavailable.</p>
                 ) : data?.review_queue?.length ? (
                   <ul className="divide-border-subtle divide-y">
                     {data.review_queue.slice(0, 5).map((item) => (

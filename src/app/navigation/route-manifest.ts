@@ -11,6 +11,7 @@ export type NavigationCategoryId =
   | 'my-work-output'
   | 'my-work-time'
   | 'my-work-account'
+  | 'my-work-finance'
   | 'company-organization'
   | 'company-governance'
   | 'company-workflows'
@@ -32,6 +33,7 @@ export const NAVIGATION_CATEGORIES: Record<
   Dashboard: [
     { id: 'my-work-output', label: 'My tasks & goals' },
     { id: 'my-work-time', label: 'Time & leave' },
+    { id: 'my-work-finance', label: 'Pay & finance' },
     { id: 'my-work-account', label: 'My account' },
   ],
   Company: [
@@ -58,6 +60,9 @@ const categoryByPath: Partial<Record<string, NavigationCategoryId>> = {
   '/dashboard/my-tasks': 'my-work-output',
   '/dashboard/my-reports': 'my-work-output',
   '/dashboard/my-target-reports': 'my-work-output',
+  '/dashboard/my-loans': 'my-work-finance',
+  '/dashboard/my-pay': 'my-work-finance',
+  '/hr/monthly-scorecard': 'my-work-output',
   '/hr/attendance': 'my-work-time',
   '/hr/leaves': 'my-work-time',
   '/company': 'company-organization',
@@ -67,6 +72,7 @@ const categoryByPath: Partial<Record<string, NavigationCategoryId>> = {
   '/company/board': 'company-governance',
   '/company/compliance': 'company-governance',
   '/company/audit-log': 'company-governance',
+  '/company/approval-requests': 'company-governance',
   '/company/approval-workflow': 'company-workflows',
   '/company/workspace-approvals': 'company-workflows',
   '/company/broadcast': 'company-workflows',
@@ -86,7 +92,6 @@ const categoryByPath: Partial<Record<string, NavigationCategoryId>> = {
   '/hr/benefits': 'hr-operations',
   '/hr/performance-review': 'hr-performance',
   '/hr/work-report': 'hr-performance',
-  '/hr/monthly-scorecard': 'hr-performance',
   '/hr/employee-evaluation': 'hr-performance',
   '/hr/performance-engine': 'hr-performance',
   '/hr/awards-recognition': 'hr-recognition',
@@ -113,6 +118,10 @@ export interface ProtectedDestination {
   navigationCategory?: NavigationCategoryId
   /** Empty means any authenticated user, matching Flutter's public-to-logged-in route gates. */
   requiredPermissions: readonly PermissionRequirement[]
+  /** Additional permissions that must all be present when this is non-empty. */
+  requiredAllPermissions?: readonly PermissionRequirement[]
+  /** Permissions that make this destination the wrong audience, even if other grants match. */
+  excludedPermissions?: readonly PermissionRequirement[]
   /** Flutter's menu checks resource presence separately from its route action checks. */
   visibleResources: readonly string[]
   inSidebar: boolean
@@ -130,6 +139,8 @@ function destination(
   order = 0,
   inSidebar = true,
   navigationLabel?: string,
+  requiredAllPermissions: readonly PermissionRequirement[] = [],
+  excludedPermissions: readonly PermissionRequirement[] = [],
 ): ProtectedDestination {
   return {
     path,
@@ -139,6 +150,8 @@ function destination(
     group,
     section: group === 'HR/Admin' ? 'People' : 'Workspace',
     requiredPermissions,
+    ...(requiredAllPermissions.length ? { requiredAllPermissions } : {}),
+    ...(excludedPermissions.length ? { excludedPermissions } : {}),
     visibleResources,
     inSidebar,
     icon,
@@ -164,6 +177,16 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     1,
     true,
     'My profile',
+  ),
+  destination(
+    '/notifications',
+    'Notifications',
+    'Dashboard',
+    any(p('notifications', 'list')),
+    ['notifications'],
+    'bell',
+    113,
+    false,
   ),
   destination(
     '/dashboard/role',
@@ -198,7 +221,7 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     'Target',
     'Dashboard',
     [],
-    ['employees'],
+    ['employee_targets', 'target_reports'],
     'target',
     5,
   ),
@@ -233,7 +256,7 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/company',
     'Profile',
     'Company',
-    any(p('company_settings', 'view'), p('company_settings', 'update')),
+    [p('company_settings', 'view')],
     ['company_settings'],
     'building',
     10,
@@ -244,7 +267,7 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/company/branch',
     'Branch',
     'Company',
-    any(p('branches', 'list'), p('branches', 'view')),
+    [p('branches', 'list')],
     ['branches'],
     'branch',
     11,
@@ -253,8 +276,14 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/company/board',
     'Board',
     'Company',
-    any(p('board_resolutions', 'list')),
-    ['board_resolutions'],
+    any(
+      p('meetings', 'list'),
+      p('board_resolutions', 'list'),
+      p('shareholders', 'list'),
+      p('employees', 'list'),
+      p('partners', 'list'),
+    ),
+    ['meetings', 'board_resolutions', 'shareholders', 'employees', 'partners'],
     'board',
     12,
   ),
@@ -262,8 +291,8 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/company/broadcast',
     'Broadcast',
     'Company',
-    any(p('announcements', 'list')),
-    ['announcements'],
+    any(p('announcements', 'list'), p('events', 'list')),
+    ['announcements', 'events'],
     'broadcast',
     13,
   ),
@@ -280,10 +309,13 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/company/org-chart',
     'Org Chart',
     'Company',
-    any(p('roles', 'list')),
+    any(p('role_reporting_lines', 'list')),
     ['roles'],
     'org',
     15,
+    true,
+    undefined,
+    [p('roles', 'list')],
   ),
   destination(
     '/company/kpi-management',
@@ -302,13 +334,14 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     ['roles'],
     'target',
     17,
+    false,
   ),
   destination(
     '/company/compliance',
     'Compliance Dashboard',
     'Company',
     any(p('compliance_records', 'list')),
-    ['roles'],
+    ['compliance_records'],
     'shield',
     18,
   ),
@@ -320,13 +353,14 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     ['roles'],
     'book',
     19,
+    false,
   ),
   destination(
     '/company/approval-workflow',
     'Approval Workflows',
     'Company',
-    any(p('approval_flows', 'list')),
-    ['approval_flows'],
+    any(p('approval_flows', 'list'), p('approval_requests', 'list')),
+    ['approval_flows', 'approval_requests'],
     'workflow',
     20,
   ),
@@ -351,8 +385,8 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/company/department',
     'Departments & Units',
     'Company',
-    any(p('departments', 'list')),
-    ['departments'],
+    any(p('departments', 'list'), p('department_units', 'list')),
+    ['departments', 'department_units'],
     'org',
     22,
   ),
@@ -373,6 +407,15 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     ['audit_logs'],
     'audit',
     24,
+  ),
+  destination(
+    '/company/approval-requests',
+    'Approval Requests',
+    'Company',
+    any(p('approval_requests', 'list')),
+    ['approval_requests'],
+    'approvals',
+    25,
   ),
 
   // People > HR/Admin.
@@ -416,8 +459,8 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/hr/job-post',
     'Recruitment',
     'HR/Admin',
-    any(p('job_postings', 'list')),
-    ['job_postings'],
+    any(p('job_postings', 'list'), p('applicants', 'list')),
+    ['job_postings', 'applicants'],
     'recruitment',
     33,
   ),
@@ -448,23 +491,37 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     'training',
     36,
   ),
-  destination(
-    '/hr/loans',
-    'Loans',
-    'HR/Admin',
-    any(p('loans', 'list_own'), p('loans', 'list')),
-    ['loans'],
-    'money',
-    37,
-  ),
+  destination('/hr/loans', 'Loans', 'HR/Admin', any(p('loans', 'list')), ['loans'], 'money', 37),
   destination(
     '/hr/benefits',
-    'Benefits',
+    'Payroll',
     'HR/Admin',
-    any(p('payroll', 'list'), p('payroll', 'list_own')),
+    any(p('payroll', 'list')),
     ['payroll'],
     'benefits',
     38,
+  ),
+  destination(
+    '/dashboard/my-loans',
+    'My Loans',
+    'Dashboard',
+    any(p('loans', 'list_own')),
+    ['loans'],
+    'money',
+    7,
+    true,
+    undefined,
+    [],
+    [p('loans', 'list')],
+  ),
+  destination(
+    '/dashboard/my-pay',
+    'My Pay',
+    'Dashboard',
+    any(p('payroll', 'list_own'), p('payroll', 'list')),
+    ['payroll'],
+    'benefits',
+    8,
   ),
   destination(
     '/hr/performance-review',
@@ -487,11 +544,13 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
   destination(
     '/hr/monthly-scorecard',
     'Monthly Scorecard',
-    'HR/Admin',
-    any(p('monthly_scorecards', 'list_own'), p('monthly_scorecards', 'list')),
+    'Dashboard',
+    any(p('monthly_scorecards', 'view_own'), p('monthly_scorecards', 'view')),
     ['monthly_scorecards'],
     'scorecard',
-    41,
+    6,
+    true,
+    'My Scorecard',
   ),
   destination(
     '/hr/awards-recognition',
@@ -507,7 +566,7 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     'Performance Leaderboard',
     'HR/Admin',
     any(p('monthly_scorecards', 'list')),
-    ['kpis'],
+    ['monthly_scorecards'],
     'leaderboard',
     43,
   ),
@@ -515,7 +574,11 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/hr/employee-evaluation',
     'Employee Evaluation',
     'HR/Admin',
-    any(p('employee_evaluations', 'list')),
+    any(
+      p('employee_evaluations', 'list'),
+      p('employee_evaluations', 'list_own'),
+      p('employee_evaluations', 'create'),
+    ),
     ['employee_evaluations'],
     'evaluation',
     44,
@@ -524,7 +587,7 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/hr/disciplinary-process',
     'Disciplinary Process',
     'HR/Admin',
-    any(p('disciplinary_cases', 'list')),
+    any(p('disciplinary_cases', 'list'), p('disciplinary_cases', 'list_own')),
     ['disciplinary_cases'],
     'warning',
     45,
@@ -674,8 +737,14 @@ export function canVisitDestination(
   permissions: PermissionSet,
 ): boolean {
   return (
-    destination.requiredPermissions.length === 0 ||
-    destination.requiredPermissions.some(
+    (destination.requiredPermissions.length === 0 ||
+      destination.requiredPermissions.some(
+        ({ resource, action }) => permissions[resource]?.includes(action) ?? false,
+      )) &&
+    (destination.requiredAllPermissions ?? []).every(
+      ({ resource, action }) => permissions[resource]?.includes(action) ?? false,
+    ) &&
+    !(destination.excludedPermissions ?? []).some(
       ({ resource, action }) => permissions[resource]?.includes(action) ?? false,
     )
   )

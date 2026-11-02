@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from 'react'
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react'
 
 import { cn } from '@/shared/lib/cn'
 
@@ -17,15 +17,18 @@ interface AlertProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode
 }
 
-export function Alert({ className, tone = 'info', title, children, role, ...props }: AlertProps) {
-  return (
+export const Alert = forwardRef<HTMLDivElement, AlertProps>(
+  ({ className, tone = 'info', title, children, role, ...props }, ref) => (
     <div
       {...props}
+      ref={ref}
       role={role}
       className={cn('rounded-control text-body-sm border px-4 py-3', toneClasses[tone], className)}
     >
       {title ? <p className="text-label mb-1 font-semibold">{title}</p> : null}
       {children ? <div className="text-text-secondary">{children}</div> : null}
     </div>
-  )
-}
+  ),
+)
+
+Alert.displayName = 'Alert'

@@ -61,14 +61,25 @@ export interface PersonalLoanDto {
   updated_at: string
 }
 
+const personalWorkScope = (userId: number, employeeId: string) =>
+  ['dashboard', 'personal', userId, employeeId] as const
+
 export const personalWorkQueryKeys = {
-  attendanceToday: ['dashboard', 'personal', 'attendance-today'] as const,
-  tasks: ['dashboard', 'personal', 'tasks'] as const,
-  completedTasks: ['dashboard', 'personal', 'completed-tasks'] as const,
-  reports: ['dashboard', 'personal', 'reports'] as const,
-  leaveRequests: ['dashboard', 'personal', 'leave-requests'] as const,
-  loans: ['dashboard', 'personal', 'loans'] as const,
-  notifications: ['dashboard', 'personal', 'notifications'] as const,
+  scoped: personalWorkScope,
+  attendanceToday: (userId: number, employeeId: string) =>
+    [...personalWorkScope(userId, employeeId), 'attendance-today'] as const,
+  tasks: (userId: number, employeeId: string) =>
+    [...personalWorkScope(userId, employeeId), 'tasks'] as const,
+  completedTasks: (userId: number, employeeId: string) =>
+    [...personalWorkScope(userId, employeeId), 'completed-tasks'] as const,
+  reports: (userId: number, employeeId: string) =>
+    [...personalWorkScope(userId, employeeId), 'reports'] as const,
+  leaveRequests: (userId: number, employeeId: string) =>
+    [...personalWorkScope(userId, employeeId), 'leave-requests'] as const,
+  loans: (userId: number, employeeId: string) =>
+    [...personalWorkScope(userId, employeeId), 'loans'] as const,
+  notifications: (userId: number, employeeId: string) =>
+    [...personalWorkScope(userId, employeeId), 'notifications'] as const,
 }
 
 export const personalWorkApi = {

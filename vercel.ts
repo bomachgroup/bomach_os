@@ -28,13 +28,18 @@ if (
 }
 
 export const config: VercelConfig = {
+  framework: 'vite',
+  buildCommand: 'npm run build',
+  outputDirectory: 'dist',
   rewrites: [
-    routes.rewrite('/api/:path*', `${apiOrigin.origin}/api/:path*`),
+    // Match every API path as a regex, including root collection routes with
+    // or without a trailing slash, before the SPA fallback can claim it.
+    routes.rewrite('/api/(.*)', `${apiOrigin.origin}/api/$1`),
     routes.rewrite('/(.*)', '/index.html'),
   ],
   headers: [
     {
-      source: '/api/:path*',
+      source: '/api/(.*)',
       headers: [
         { key: 'Cache-Control', value: 'private, no-store, max-age=0' },
         { key: 'CDN-Cache-Control', value: 'no-store' },

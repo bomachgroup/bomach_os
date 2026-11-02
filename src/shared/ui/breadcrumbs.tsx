@@ -1,5 +1,8 @@
-import { ArrowLeft } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
+
+import { cn } from '@/shared/lib/cn'
+
+import { PageBackLinkContent, pageBackLinkClassName } from './page-back-link'
 
 export interface BreadcrumbItem {
   label: string
@@ -31,12 +34,8 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
         ))}
       </ol>
       {backItem ? (
-        <Link
-          to={backItem.to as never}
-          className="phone:hidden focus-visible:shadow-focus-ring text-caption text-text-secondary hover:text-primary rounded-control inline-flex min-h-8 items-center gap-1.5 underline-offset-4 transition-colors hover:underline focus-visible:outline-none"
-        >
-          <ArrowLeft aria-hidden="true" className="size-3.5 shrink-0" />
-          <span className="truncate">Back to {backItem.label}</span>
+        <Link to={backItem.to as never} className={cn('phone:hidden', pageBackLinkClassName)}>
+          <PageBackLinkContent>{backItem.label}</PageBackLinkContent>
         </Link>
       ) : null}
     </nav>

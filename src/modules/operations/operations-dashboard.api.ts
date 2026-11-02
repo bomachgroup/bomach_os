@@ -9,7 +9,8 @@ export interface OperationsOverviewDto {
   scope_limited: boolean
 }
 
-export const operationsOverviewQueryKey = ['operations', 'dashboard', 'overview'] as const
+export const operationsOverviewQueryKey = (userId: number, employeeId: string) =>
+  ['operations', 'dashboard', 'overview', userId, employeeId] as const
 
 export const operationsDashboardApi = {
   overview: (signal?: AbortSignal) =>

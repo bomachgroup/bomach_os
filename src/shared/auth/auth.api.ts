@@ -21,19 +21,49 @@ export interface CurrentUserDto {
   phone_number?: string | null
   is_verified: boolean
   created_at: string
+  role: { id: number; name: string } | null
+  permissions: Record<string, string[]>
 }
 
 export interface EmployeeProfileDto {
+  id?: number
   user_id: number
   employee_id: string
   username: string
   email: string
-  first_name: string
-  last_name: string
-  designation?: string
-  employment_status?: string
+  first_name?: string
+  middle_name?: string | null
+  last_name?: string
+  gender?: string | null
+  marital_status?: string | null
+  nationality?: string | null
+  phone_number?: string | null
+  personal_email?: string | null
+  date_of_birth?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  zip_code?: string | null
+  country?: string | null
+  profile_picture?: string | null
+  is_verified?: boolean
   is_active?: boolean
-  [key: string]: unknown
+  designation?: string | null
+  employment_type?: string | null
+  employment_status?: string | null
+  branch_id?: number | null
+  branch_name?: string | null
+  branch?: { id: number; branch_name: string } | null
+  department_id?: number | null
+  department_name?: string | null
+  department?: { id: number; name: string } | null
+  role_id?: number | null
+  role_name?: string | null
+  location?: string | null
+  reporting_to_id?: number | null
+  start_date?: string | null
+  created_at?: string
+  updated_at?: string
 }
 
 export interface RoleDto {
@@ -43,13 +73,14 @@ export interface RoleDto {
   [key: string]: unknown
 }
 
-export interface PermissionsCatalogDto {
-  permissions_map: Record<string, string[]>
-}
-
 export interface TwoFactorStatusDto {
   success: boolean
   two_factor_enabled: boolean
+}
+
+export interface BrowserTwoFactorChallengeStatusDto {
+  success: true
+  pending: boolean
 }
 
 export interface AuthSuccessDto {
@@ -75,6 +106,12 @@ export const authApi = {
       skipRefresh: true,
     }),
 
+  browserTwoFactorChallengeStatus: (signal?: AbortSignal) =>
+    apiClient.get<BrowserTwoFactorChallengeStatusDto>('/auth/browser/two-factor/status', {
+      signal,
+      skipRefresh: true,
+    }),
+
   logout: () => apiClient.post<AuthSuccessDto>('/auth/browser/logout'),
 
   forgotPassword: (email: string) =>
@@ -93,12 +130,6 @@ export const authApi = {
 
   employeeProfile: (userId: number, signal?: AbortSignal) =>
     apiClient.get<EmployeeProfileDto>(`/employees/employees/${userId}`, { signal }),
-
-  employeeRole: (userId: number, signal?: AbortSignal) =>
-    apiClient.get<RoleDto>(`/roles/employees/${userId}`, { signal }),
-
-  permissionsCatalog: (signal?: AbortSignal) =>
-    apiClient.get<PermissionsCatalogDto>('/roles/permissions-map', { signal }),
 
   twoFactorStatus: (signal?: AbortSignal) =>
     apiClient.get<TwoFactorStatusDto>('/auth/2fa/status', { signal }),

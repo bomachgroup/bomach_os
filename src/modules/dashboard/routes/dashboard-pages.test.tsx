@@ -126,6 +126,8 @@ function createSession(permissions: Record<string, string[]>): AuthenticatedSess
       last_name: 'Person',
       is_verified: true,
       created_at: '2026-01-01T00:00:00Z',
+      role: null,
+      permissions: {},
     },
     employee: {
       user_id: 7,
@@ -137,7 +139,6 @@ function createSession(permissions: Record<string, string[]>): AuthenticatedSess
     },
     roles: [],
     permissions,
-    permissionsCatalog: {},
   }
 }
 
@@ -195,6 +196,21 @@ describe('dashboard pages', () => {
     expect(operationsRequest).not.toHaveBeenCalled()
     expect(personalWorkApi.tasks).not.toHaveBeenCalled()
     expect(personalWorkApi.completedTasks).not.toHaveBeenCalled()
+  })
+
+  it('keeps one page-level heading and places the personal greeting beneath it', async () => {
+    const { container } = renderWithSession(<WorkspaceOverviewPage />, {
+      attendance: ['list_own'],
+    })
+
+    expect(await screen.findByRole('heading', { name: 'Overview', level: 1 })).toBeInTheDocument()
+    expect(container.querySelectorAll('h1')).toHaveLength(1)
+    expect(
+      screen.getByRole('heading', {
+        name: /Good (morning|afternoon|evening), Avery Person/,
+        level: 2,
+      }),
+    ).toBeInTheDocument()
   })
 
   it('shows attendance, work-report, and punctuality summaries from personal metrics', async () => {
@@ -388,7 +404,36 @@ describe('dashboard pages', () => {
     expect(within(today).queryByRole('button', { name: /clock/i })).not.toBeInTheDocument()
     await user.tab()
     expect(screen.getByRole('link', { name: /Not recorded yet/ })).toHaveFocus()
+  })
 
+  it('keeps Workspace task and report shortcuts on visible route paths', async () => {
+    vi.mocked(personalWorkApi.attendanceToday).mockResolvedValue({
+      date: '2026-10-19',
+      state: 'not_clocked_in',
+      next_action: 'clock_in',
+      day_policy: { required: true, reason: null, label: 'Workday', non_working_day_name: null },
+      clock_in: null,
+      clock_out: null,
+    })
+    vi.mocked(personalWorkApi.tasks).mockResolvedValue({
+      count: 1,
+      items: [createTask(21, { name: 'Prepare handoff' })],
+    })
+
+    renderWithSession(<WorkspaceOverviewPage />, {
+      attendance: ['list_own'],
+      tasks: ['list_own'],
+      work_reports: ['list_own', 'create'],
+    })
+
+    await screen.findByRole('region', { name: 'Needs your attention' })
+    await screen.findByRole('link', { name: /No report submitted/ })
+    const hrefs = Array.from(document.querySelectorAll('a')).map((link) =>
+      link.getAttribute('href'),
+    )
+    expect(hrefs).toContain('/dashboard/my-tasks')
+    expect(hrefs).toContain('/dashboard/my-reports')
+    expect(hrefs.some((href) => href?.includes('_protected'))).toBe(false)
   })
 
   it('keeps other Today data visible when one personal source fails', async () => {
@@ -462,9 +507,9 @@ describe('dashboard pages', () => {
     renderWithSession(<CompanyOverviewPage />, { branches: ['list'] })
 
     expect(await screen.findByRole('status')).toHaveTextContent(
-      'These summary figures could not be loaded',
+      'Figures are temporarily unavailable.',
     )
-    await user.click(screen.getByRole('button', { name: 'Try again' }))
+    await user.click(screen.getByRole('button', { name: 'Retry' }))
     expect(await screen.findByText('4')).toBeInTheDocument()
     expect(companyDashboardApi.overview).toHaveBeenCalledTimes(2)
   })

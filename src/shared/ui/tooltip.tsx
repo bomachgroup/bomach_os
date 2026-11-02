@@ -10,6 +10,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react'
+import { createPortal } from 'react-dom'
 
 import { cn } from '@/shared/lib/cn'
 
@@ -36,8 +37,10 @@ export function Tooltip({
   const showTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [visible, setVisible] = useState(false)
   const [position, setPosition] = useState<CSSProperties>({})
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
   const existingDescription = children.props['aria-describedby']
-  const describedBy = [existingDescription, tooltipId].filter(Boolean).join(' ')
+  const describedBy =
+    [existingDescription, portalTarget ? tooltipId : null].filter(Boolean).join(' ') || undefined
   const child = cloneElement(children, { 'aria-describedby': describedBy })
 
   const updatePosition = useCallback(() => {
@@ -47,28 +50,48 @@ export function Tooltip({
 
     const viewportWidth = document.documentElement.clientWidth
     const viewportHeight = document.documentElement.clientHeight
-    tooltip.style.maxWidth = `${Math.max(0, viewportWidth - 16)}px`
+    const dialog = trigger.closest('dialog')
+    const dialogRect = dialog?.getBoundingClientRect()
+    const dialogClientLeft = dialog?.clientLeft ?? 0
+    const dialogClientTop = dialog?.clientTop ?? 0
+    const originLeft = dialogRect ? dialogRect.left + dialogClientLeft : 0
+    const originTop = dialogRect ? dialogRect.top + dialogClientTop : 0
+    const gutter = 8
+    const bounds = dialogRect
+      ? {
+          left: dialogRect.left + dialogClientLeft + gutter,
+          top: dialogRect.top + dialogClientTop + gutter,
+          right: dialogRect.right - dialogClientLeft - gutter,
+          bottom: dialogRect.bottom - dialogClientTop - gutter,
+        }
+      : {
+          left: gutter,
+          top: gutter,
+          right: viewportWidth - gutter,
+          bottom: viewportHeight - gutter,
+        }
+    tooltip.style.maxWidth = `${Math.max(0, Math.min(viewportWidth - 2 * gutter, bounds.right - bounds.left))}px`
     const triggerRect = trigger.getBoundingClientRect()
     const tooltipRect = tooltip.getBoundingClientRect()
-    const gutter = 8
     const leftForRight = triggerRect.right + gutter
-    const rightFits = leftForRight + tooltipRect.width <= viewportWidth - gutter
-    const left =
+    const rightFits = leftForRight + tooltipRect.width <= bounds.right
+    const desiredLeft =
       placement === 'right'
         ? rightFits
           ? leftForRight
-          : Math.max(gutter, triggerRect.left - tooltipRect.width - gutter)
+          : triggerRect.left - tooltipRect.width - gutter
         : Math.max(
-            gutter,
+            bounds.left,
             Math.min(
               triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2,
-              viewportWidth - tooltipRect.width - gutter,
+              bounds.right - tooltipRect.width,
             ),
           )
+    const left = Math.max(bounds.left, Math.min(desiredLeft, bounds.right - tooltipRect.width))
     const topAbove = triggerRect.top - tooltipRect.height - gutter
     const topBelow = triggerRect.bottom + gutter
-    const aboveFits = topAbove >= gutter
-    const belowFits = topBelow + tooltipRect.height <= viewportHeight - gutter
+    const aboveFits = topAbove >= bounds.top
+    const belowFits = topBelow + tooltipRect.height <= bounds.bottom
     const useAbove =
       placement === 'right'
         ? false
@@ -76,19 +99,20 @@ export function Tooltip({
           ? aboveFits || !belowFits
           : !belowFits && aboveFits
 
-    const top =
+    const desiredTop =
       placement === 'right'
         ? Math.max(
-            gutter,
+            bounds.top,
             Math.min(
               triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2,
-              viewportHeight - tooltipRect.height - gutter,
+              bounds.bottom - tooltipRect.height,
             ),
           )
         : useAbove
-          ? Math.max(gutter, topAbove)
-          : Math.min(topBelow, viewportHeight - tooltipRect.height - gutter)
-    setPosition({ left, top })
+          ? topAbove
+          : topBelow
+    const top = Math.max(bounds.top, Math.min(desiredTop, bounds.bottom - tooltipRect.height))
+    setPosition({ left: left - originLeft, top: top - originTop })
   }, [placement])
 
   useLayoutEffect(() => {
@@ -116,6 +140,13 @@ export function Tooltip({
     }
   }
 
+  function revealTooltip() {
+    setPortalTarget(
+      (currentTarget) => currentTarget ?? triggerRef.current?.closest('dialog') ?? document.body,
+    )
+    setVisible(true)
+  }
+
   useLayoutEffect(
     () => () => {
       if (showTimerRef.current !== null) clearTimeout(showTimerRef.current)
@@ -130,7 +161,7 @@ export function Tooltip({
       onPointerEnter={(event) => {
         if (event.pointerType === 'touch') return
         clearShowTimer()
-        showTimerRef.current = setTimeout(() => setVisible(true), showDelayMs)
+        showTimerRef.current = setTimeout(revealTooltip, showDelayMs)
       }}
       onPointerLeave={() => {
         clearShowTimer()
@@ -138,26 +169,32 @@ export function Tooltip({
       }}
       onFocus={() => {
         clearShowTimer()
-        setVisible(true)
+        revealTooltip()
       }}
       onBlur={handleBlur}
     >
       {child}
-      <span
-        ref={tooltipRef}
-        id={tooltipId}
-        role="tooltip"
-        style={{
-          position: 'fixed',
-          width: 'max-content',
-          visibility: visible ? 'visible' : 'hidden',
-          opacity: visible ? 1 : 0,
-          ...position,
-        }}
-        className="z-tooltip text-caption shadow-elevation-md rounded-control pointer-events-none border border-neutral-700 bg-neutral-900 px-3 py-2 text-white transition-opacity"
-      >
-        {content}
-      </span>
+      {portalTarget
+        ? createPortal(
+            <span
+              ref={tooltipRef}
+              id={tooltipId}
+              role="tooltip"
+              style={{
+                position: 'fixed',
+                width: 'max-content',
+                display: visible ? 'block' : 'none',
+                visibility: visible ? 'visible' : 'hidden',
+                opacity: visible ? 1 : 0,
+                ...position,
+              }}
+              className="z-tooltip text-caption shadow-elevation-md rounded-control pointer-events-none border border-neutral-700 bg-neutral-900 px-3 py-2 text-white transition-opacity"
+            >
+              {content}
+            </span>,
+            portalTarget,
+          )
+        : null}
     </span>
   )
 }

@@ -7,6 +7,7 @@ import {
 } from 'react'
 
 import { cn } from '@/shared/lib/cn'
+import { CONTROL_SIZE_CLASSES } from '@/shared/ui/control-sizing'
 
 type DescribedControlProps = {
   id?: string
@@ -59,7 +60,7 @@ export function FormControl({
     <div className={cn('space-y-1.5', className)}>
       <label
         htmlFor={id}
-        className={cn('text-label text-text-secondary block font-medium', labelClassName)}
+        className={cn('text-control-label text-text-secondary block font-bold', labelClassName)}
       >
         {label}
         {isRequired ? (
@@ -83,8 +84,10 @@ export function FormControl({
   )
 }
 
-const controlClasses =
-  'min-h-[50px] w-full rounded-control border border-border-subtle bg-surface px-3.5 py-2.5 text-body-md text-text-primary placeholder:text-text-muted transition-colors hover:border-border-strong focus-visible:border-primary focus-visible:outline-none focus-visible:shadow-focus-ring disabled:cursor-not-allowed disabled:bg-surface-muted disabled:opacity-60 aria-[invalid=true]:border-danger aria-[invalid=true]:focus-visible:border-danger aria-[invalid=true]:focus-visible:shadow-focus-ring-danger'
+const controlClasses = cn(
+  CONTROL_SIZE_CLASSES,
+  'w-full rounded-control border border-border-subtle bg-surface text-text-primary placeholder:text-text-muted transition-colors hover:border-border-strong focus-visible:border-primary focus-visible:outline-none focus-visible:shadow-focus-ring disabled:cursor-not-allowed disabled:bg-surface-muted disabled:opacity-60 aria-[invalid=true]:border-danger aria-[invalid=true]:focus-visible:border-danger aria-[invalid=true]:focus-visible:shadow-focus-ring-danger',
+)
 
 export const TextInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (

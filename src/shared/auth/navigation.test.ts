@@ -53,6 +53,8 @@ function session(permissions: Record<string, string[]>): AuthenticatedSession {
       username: 'person',
       is_verified: true,
       created_at: '2026-01-01T00:00:00Z',
+      role: null,
+      permissions: {},
     },
     employee: {
       user_id: 7,
@@ -64,17 +66,16 @@ function session(permissions: Record<string, string[]>): AuthenticatedSession {
     },
     roles: [],
     permissions,
-    permissionsCatalog: {},
   }
 }
 
 describe('auth navigation', () => {
-  it('registers 40 sidebar destinations and exposes the Company and HR dashboards first', () => {
+  it('registers sidebar destinations and exposes the Company and HR dashboards first', () => {
     const sidebar = PROTECTED_DESTINATIONS.filter((destination) => destination.inSidebar)
-    expect(sidebar).toHaveLength(40)
-    expect(sidebar.filter((destination) => destination.group === 'Dashboard')).toHaveLength(8)
-    expect(sidebar.filter((destination) => destination.group === 'Company')).toHaveLength(15)
-    expect(sidebar.filter((destination) => destination.group === 'HR/Admin')).toHaveLength(17)
+    expect(sidebar).toHaveLength(41)
+    expect(sidebar.filter((destination) => destination.group === 'Dashboard')).toHaveLength(11)
+    expect(sidebar.filter((destination) => destination.group === 'Company')).toHaveLength(14)
+    expect(sidebar.filter((destination) => destination.group === 'HR/Admin')).toHaveLength(16)
     expect(sidebar.find((destination) => destination.path === '/company/overview')?.order).toBe(9)
     expect(sidebar.find((destination) => destination.path === '/hr')?.order).toBe(29)
     expect(
@@ -83,6 +84,10 @@ describe('auth navigation', () => {
     expect(
       PROTECTED_DESTINATIONS.some((destination) => destination.path === '/company/roles/$roleId'),
     ).toBe(true)
+    expect(
+      PROTECTED_DESTINATIONS.find((destination) => destination.path === '/company/knowledge-base')
+        ?.inSidebar,
+    ).toBe(false)
   })
 
   it('keeps a safe same-origin deep link with its search and hash', () => {
@@ -133,5 +138,42 @@ describe('auth navigation', () => {
     expect(
       resolvePostLoginTarget('/company/roles/42', session({}), destinations.slice(1), origin),
     ).toBe('/no-access')
+  })
+
+  it('requires both role and reporting-line list access for the Org Chart', () => {
+    const destination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/company/org-chart')
+    expect(destination).toBeDefined()
+    expect(canVisitDestination(destination!, { roles: ['list'] })).toBe(false)
+    expect(canVisitDestination(destination!, { role_reporting_lines: ['list'] })).toBe(false)
+    expect(
+      canVisitDestination(destination!, {
+        roles: ['list'],
+        role_reporting_lines: ['list'],
+      }),
+    ).toBe(true)
+  })
+
+  it('allows the Departments and Units route from either catalog list permission', () => {
+    const destination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/company/department')
+    expect(destination).toBeDefined()
+    expect(canVisitDestination(destination!, { departments: ['list'] })).toBe(true)
+    expect(canVisitDestination(destination!, { department_units: ['list'] })).toBe(true)
+    expect(canVisitDestination(destination!, {})).toBe(false)
+  })
+
+  it('places the employee-owned scorecard in My Work without changing its route access', () => {
+    const destination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/hr/monthly-scorecard')
+    expect(destination).toMatchObject({
+      path: '/hr/monthly-scorecard',
+      title: 'Monthly Scorecard',
+      navigationLabel: 'My Scorecard',
+      section: 'Workspace',
+      group: 'Dashboard',
+      navigationCategory: 'my-work-output',
+      requiredPermissions: [
+        { resource: 'monthly_scorecards', action: 'view_own' },
+        { resource: 'monthly_scorecards', action: 'view' },
+      ],
+    })
   })
 })

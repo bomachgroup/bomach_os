@@ -318,7 +318,10 @@ export function Sidebar({
                     preferences.expandedGroups.includes(group) ||
                     (currentDestination?.group === group &&
                       currentDestination.path !== '/dashboard' &&
-                      !preferences.collapsedGroups.includes(group))
+                      !preferences.collapsedGroups.includes(group)) ||
+                    (Boolean(onCloseDrawer) &&
+                      currentDestination?.group === group &&
+                      currentDestination.path !== '/dashboard')
                   const groupLabel = navigationGroupLabel(group)
                   const groupIcon =
                     group === 'Dashboard' ? 'task' : group === 'Company' ? 'building' : 'people'
@@ -380,6 +383,7 @@ export function Sidebar({
                             const categoryExpanded =
                               preferences.expandedCategories.includes(category.id) ||
                               firstCategoryDefaultsOpen ||
+                              (Boolean(onCloseDrawer) && categoryActive) ||
                               (categoryActive &&
                                 !preferences.collapsedCategories.includes(category.id))
                             return (
@@ -719,7 +723,7 @@ function SidebarSearch({
       <label htmlFor={searchId} className="sr-only">
         Search workspace pages
       </label>
-      <div className="border-border-strong bg-surface focus-within:shadow-focus-ring rounded-control flex min-h-11 items-center gap-2 border px-3">
+      <div className="border-border-strong bg-surface focus-within:shadow-focus-ring rounded-control flex min-h-10 items-center gap-2 border px-3">
         <ShellIcon name="search" className="text-text-muted size-[18px] shrink-0" />
         <input
           ref={inputRef}

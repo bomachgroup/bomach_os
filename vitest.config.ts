@@ -13,6 +13,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    // Bound jsdom concurrency to avoid resource contention and timeout flakes.
+    maxWorkers: 2,
     setupFiles: ['./src/test/setup.ts'],
     css: false,
     clearMocks: true,

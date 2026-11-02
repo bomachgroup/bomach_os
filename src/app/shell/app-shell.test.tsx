@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const routerMocks = vi.hoisted(() => ({
   pathname: '/dashboard',
   navigate: vi.fn(async () => undefined),
+  subscribe: vi.fn(() => () => undefined),
 }))
 
 const notificationMocks = vi.hoisted(() => ({
@@ -28,6 +29,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
       createElement('a', { ...props, href: to }, children),
     Outlet: () => null,
     useNavigate: () => routerMocks.navigate,
+    useRouter: () => ({ subscribe: routerMocks.subscribe }),
     useRouterState: ({
       select,
     }: {
@@ -42,9 +44,10 @@ vi.mock('@/shared/auth/auth.api', () => ({
   },
 }))
 
-vi.mock('@/shared/notifications/notifications.api', () => ({
-  notificationApi: notificationMocks,
-}))
+vi.mock('@/shared/notifications/notifications.api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/shared/notifications/notifications.api')>()
+  return { ...actual, notificationApi: notificationMocks }
+})
 
 import { AppShell } from './app-shell'
 import { authApi } from '@/shared/auth/auth.api'
@@ -78,6 +81,8 @@ function session(
       last_name: 'User',
       is_verified: true,
       created_at: '2026-01-01T00:00:00Z',
+      role: null,
+      permissions: {},
     },
     employee: {
       user_id: 7,
@@ -90,7 +95,6 @@ function session(
     },
     roles: [{ id: 1, name: 'Staff', permissions }],
     permissions,
-    permissionsCatalog: {},
   }
 }
 
@@ -173,6 +177,16 @@ describe('authenticated app shell', () => {
     routerMocks.pathname = '/dashboard'
     renderApp()
     expect(screen.getByRole('link', { name: 'Overview' })).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('shows the employee-owned scorecard under My Work', async () => {
+    routerMocks.pathname = '/hr/monthly-scorecard'
+    renderShell({ monthly_scorecards: ['view_own'] })
+
+    const scorecard = screen.getByRole('link', { name: 'My Scorecard' })
+    expect(scorecard).toHaveAttribute('href', '/hr/monthly-scorecard')
+    expect(scorecard).toHaveAttribute('aria-current', 'page')
+    expect(screen.queryByRole('link', { name: 'Monthly Scorecard' })).not.toBeInTheDocument()
   })
 
   it('opens inline page search from Ctrl/Cmd+K and navigates to a permitted result', async () => {
@@ -336,9 +350,23 @@ describe('authenticated app shell', () => {
     const trigger = await screen.findByRole('button', { name: 'Notifications, 1 unread' })
     await user.click(trigger)
     expect(await screen.findByText('Leave request needs review')).toBeInTheDocument()
-    await user.click(
-      screen.getByRole('button', { name: 'Mark Leave request needs review as read' }),
-    )
+
+    const viewAll = screen.getByRole('button', { name: 'View all notifications' })
+    expect(viewAll).toHaveClass('min-h-11', 'w-full')
+    await user.click(viewAll)
+    expect(routerMocks.navigate).toHaveBeenCalledWith({
+      to: '/notifications',
+      search: { filter: 'all' },
+    })
+
+    await user.click(trigger)
+    const unreadFilter = screen.getByRole('button', { name: 'unread' })
+    expect(unreadFilter).toHaveClass('min-h-10', 'min-w-10')
+    const markRead = screen.getByRole('button', {
+      name: 'Mark Leave request needs review as read',
+    })
+    expect(markRead).toHaveClass('size-10')
+    await user.click(markRead)
 
     await waitFor(() =>
       expect(notificationApi.markRead).toHaveBeenCalledWith(81, expect.anything()),
@@ -346,6 +374,69 @@ describe('authenticated app shell', () => {
     expect(notificationApi.list).toHaveBeenCalledWith(
       expect.objectContaining({ limit: 8, offset: 0 }),
     )
+  })
+
+  it('opens a notification directly from the bell preview without using View all', async () => {
+    const user = userEvent.setup()
+    notificationMocks.list.mockResolvedValue({ items: [notification()], count: 1 })
+    notificationMocks.stats.mockResolvedValue({ unread_count: 1 })
+    renderShell({
+      employees: ['list'],
+      notifications: ['view', 'list', 'mark_read'],
+    })
+
+    await user.click(await screen.findByRole('button', { name: 'Notifications' }))
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'View notification: Leave request needs review',
+      }),
+    )
+
+    expect(routerMocks.navigate).toHaveBeenCalledWith({
+      to: '/notifications/$notificationId',
+      params: { notificationId: '81' },
+      search: { filter: 'all' },
+    })
+  })
+
+  it('uses the authorized related destination when detail permission is missing', async () => {
+    const user = userEvent.setup()
+    notificationMocks.list.mockResolvedValue({ items: [notification()], count: 1 })
+    notificationMocks.stats.mockResolvedValue({ unread_count: 1 })
+    renderShell({
+      employees: ['list'],
+      notifications: ['list', 'mark_read'],
+      leave_requests: ['view_own'],
+    })
+
+    await user.click(await screen.findByRole('button', { name: 'Notifications' }))
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'Open leave request: Leave request needs review',
+      }),
+    )
+
+    await waitFor(() => expect(routerMocks.navigate).toHaveBeenCalledWith({ to: '/hr/leaves/81' }))
+  })
+
+  it('offers the named destination beside notification details in the bell preview', async () => {
+    const user = userEvent.setup()
+    notificationMocks.list.mockResolvedValue({ items: [notification()], count: 1 })
+    notificationMocks.stats.mockResolvedValue({ unread_count: 1 })
+    renderShell({
+      employees: ['list'],
+      notifications: ['view', 'list', 'mark_read'],
+      leave_requests: ['view_own'],
+    })
+
+    await user.click(await screen.findByRole('button', { name: 'Notifications, 1 unread' }))
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'Open leave request: Leave request needs review',
+      }),
+    )
+
+    await waitFor(() => expect(routerMocks.navigate).toHaveBeenCalledWith({ to: '/hr/leaves/81' }))
   })
 
   it('does not report zero unread notifications when the count request fails', async () => {
@@ -374,7 +465,16 @@ describe('authenticated app shell', () => {
 
     await user.click(screen.getByRole('button', { name: 'Open profile for Staff User' }))
     expect(screen.getByRole('dialog', { name: 'Your profile' })).toBeInTheDocument()
-    expect(screen.getByText('EMP-7')).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('dialog', { name: 'Your profile' })).getByRole('link', {
+        name: 'View full profile',
+      }),
+    ).toHaveAttribute('href', '/dashboard/my-profile')
+    expect(
+      within(screen.getByRole('dialog', { name: 'Your profile' })).queryByText(
+        'Two-factor authentication',
+      ),
+    ).not.toBeInTheDocument()
     await user.click(
       within(screen.getByRole('dialog', { name: 'Your profile' })).getByRole('button', {
         name: 'Sign out',

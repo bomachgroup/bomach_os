@@ -13,9 +13,15 @@ import {
 } from '@/modules/dashboard/dashboard-components'
 import {
   companyDashboardApi,
+  companyIdentityQueryKeys,
   companyOverviewQueryKey,
 } from '@/modules/company/company-dashboard.api'
+import { CompanyLogoImage } from '@/modules/company/components/company-logo-image'
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
+import { DATA_FRESHNESS_MS } from '@/shared/query/freshness'
+import { Button } from '@/shared/ui/button'
+import { Card } from '@/shared/ui/card'
+import { Skeleton } from '@/shared/ui/feedback-states'
 import { PageLayout } from '@/shared/ui/page-layout'
 
 function formatShortDate(value: string) {
@@ -26,13 +32,35 @@ function formatShortDate(value: string) {
 
 export function CompanyOverviewPage() {
   const { data: session } = useQuery(authSessionQueryOptions())
+  const userId = session?.user.id ?? 0
+  const employeeId = session?.employee.employee_id ?? ''
   const summary = useQuery({
-    queryKey: companyOverviewQueryKey,
+    queryKey: companyOverviewQueryKey(userId, employeeId),
     queryFn: ({ signal }) => companyDashboardApi.overview(signal),
-    staleTime: 30_000,
+    enabled: Boolean(session),
+    staleTime: DATA_FRESHNESS_MS.standard,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
   const data = summary.data
   const permissions = session?.permissions ?? {}
+  const canViewCompanyIdentity = hasPermission(permissions, 'company_settings', 'view')
+  const companyProfile = useQuery({
+    queryKey: companyIdentityQueryKeys.profile(userId),
+    queryFn: ({ signal }) => companyDashboardApi.profile(signal),
+    enabled: Boolean(session && canViewCompanyIdentity),
+    staleTime: DATA_FRESHNESS_MS.reference,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  })
+  const companyBranding = useQuery({
+    queryKey: companyIdentityQueryKeys.branding(userId),
+    queryFn: ({ signal }) => companyDashboardApi.branding(signal),
+    enabled: Boolean(session && canViewCompanyIdentity),
+    staleTime: DATA_FRESHNESS_MS.reference,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  })
   const metrics: DashboardMetric[] = []
 
   if (hasPermission(permissions, 'branches', 'list') && data?.total_branches != null) {
@@ -40,9 +68,11 @@ export function CompanyOverviewPage() {
       label: 'Branches',
       value: data.total_branches,
       detail:
-        data.inactive_branches_30_days == null
-          ? 'Operating footprint'
-          : `${data.inactive_branches_30_days} recently inactive`,
+        data.operational_branches == null || data.non_operational_branches == null
+          ? data.inactive_branches_30_days == null
+            ? 'Operating footprint'
+            : `${data.inactive_branches_30_days} recently inactive`
+          : `${data.operational_branches} operational · ${data.non_operational_branches} non-operational`,
       icon: <GitBranch className="size-4" aria-hidden="true" />,
       tone: 'primary',
     })
@@ -108,6 +138,13 @@ export function CompanyOverviewPage() {
       icon: <ClipboardCheck className="size-4" aria-hidden="true" />,
     })
   }
+  if (hasPermission(permissions, 'approval_requests', 'list')) {
+    links.push({
+      label: 'Approval requests',
+      to: '/company/approval-requests',
+      icon: <ClipboardCheck className="size-4" aria-hidden="true" />,
+    })
+  }
   if (hasPermission(permissions, 'assets', 'list')) {
     links.push({
       label: 'Assets',
@@ -122,10 +159,76 @@ export function CompanyOverviewPage() {
       subtitle="A focused view of organization structure, governance, and company assets."
     >
       <div className="space-y-7">
+        {canViewCompanyIdentity ? (
+          <Card className="phone:p-5 tablet:flex-row tablet:items-center tablet:gap-5 tablet:p-6 flex min-w-0 flex-col gap-4 p-4">
+            <CompanyLogoImage
+              src={companyBranding.data?.company_logo}
+              alt=""
+              className="border-border-subtle bg-surface-muted rounded-control tablet:size-20 size-16 shrink-0 border object-contain p-2"
+              fallback={
+                <span
+                  className="bg-primary-subtle text-primary rounded-control tablet:size-20 flex size-16 shrink-0 items-center justify-center"
+                  aria-hidden="true"
+                >
+                  <Building2 className="size-8" />
+                </span>
+              }
+            />
+            <div className="min-w-0 flex-1">
+              {companyProfile.isPending ? (
+                <Skeleton className="h-7 w-56 max-w-full" />
+              ) : companyProfile.data ? (
+                <>
+                  <p className="text-overline text-text-secondary font-semibold">Company</p>
+                  <h2 className="text-h2 text-text-primary mt-1 font-semibold break-words">
+                    {companyProfile.data.company_name}
+                  </h2>
+                  {companyBranding.data?.company_slogan ? (
+                    <p className="text-body-sm text-text-secondary mt-1.5">
+                      {companyBranding.data.company_slogan}
+                    </p>
+                  ) : null}
+                </>
+              ) : companyProfile.isError ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="text-body-sm text-text-secondary">
+                    Company identity is temporarily unavailable.
+                  </p>
+                  <Button size="sm" variant="ghost" onClick={() => void companyProfile.refetch()}>
+                    Retry
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-body-sm text-text-secondary">
+                  Company identity has not been set up.
+                </p>
+              )}
+              {companyProfile.isError && companyProfile.data ? (
+                <button
+                  type="button"
+                  onClick={() => void companyProfile.refetch()}
+                  className="text-caption text-text-muted hover:text-primary focus-visible:shadow-focus-ring mt-1 rounded-xs underline underline-offset-2 focus-visible:outline-none"
+                >
+                  Identity refresh failed · Retry
+                </button>
+              ) : null}
+              {companyBranding.isError ? (
+                <button
+                  type="button"
+                  onClick={() => void companyBranding.refetch()}
+                  className="text-caption text-text-muted hover:text-primary focus-visible:shadow-focus-ring mt-1 rounded-xs underline underline-offset-2 focus-visible:outline-none"
+                >
+                  Branding is unavailable · Retry
+                </button>
+              ) : null}
+            </div>
+          </Card>
+        ) : null}
+
         <DashboardMetricStrip
           metrics={metrics}
           loading={summary.isPending}
-          error={summary.isError}
+          error={summary.isError && !data}
           onRetry={() => void summary.refetch()}
           emptyMessage="No company summary values are available for your permissions and branch scope."
         />
@@ -134,17 +237,26 @@ export function CompanyOverviewPage() {
           {hasPermission(permissions, 'approval_requests', 'list') ? (
             <DashboardPanel
               title="Approval queue"
-              description="The latest requests in your authorized organization scope."
+              description="The oldest pending requests in your authorized organization scope."
               icon={<ClipboardCheck className="size-5" aria-hidden="true" />}
               action={
-                hasPermission(permissions, 'approval_flows', 'list') ? (
+                <div className="flex flex-wrap items-center gap-1">
                   <Link
-                    to="/company/approval-workflow"
+                    to="/company/approval-requests"
+                    search={{ status: 'pending', search: '', page: 1 }}
                     className="text-caption text-primary focus-visible:shadow-focus-ring rounded-control inline-flex min-h-10 items-center gap-1 px-2 font-semibold focus-visible:outline-none"
                   >
-                    Workflows <ArrowUpRight className="size-4" aria-hidden="true" />
+                    Review approvals <ArrowUpRight className="size-4" aria-hidden="true" />
                   </Link>
-                ) : null
+                  {hasPermission(permissions, 'approval_flows', 'list') ? (
+                    <Link
+                      to="/company/approval-workflow"
+                      className="text-caption text-primary focus-visible:shadow-focus-ring rounded-control inline-flex min-h-10 items-center gap-1 px-2 font-semibold focus-visible:outline-none"
+                    >
+                      Workflows <ArrowUpRight className="size-4" aria-hidden="true" />
+                    </Link>
+                  ) : null}
+                </div>
               }
             >
               <DashboardPanelCard className="phone:p-5 p-4">
@@ -154,10 +266,8 @@ export function CompanyOverviewPage() {
                     <div className="rounded-control h-10 animate-pulse bg-neutral-100" />
                     <div className="rounded-control h-10 animate-pulse bg-neutral-100" />
                   </div>
-                ) : summary.isError ? (
-                  <p className="text-body-sm text-text-secondary">
-                    Approval previews are unavailable while the summary retries.
-                  </p>
+                ) : summary.isError && !data ? (
+                  <p className="text-body-sm text-text-secondary">Approval preview unavailable.</p>
                 ) : data?.approval_queue?.length ? (
                   <ul className="divide-border-subtle divide-y">
                     {data.approval_queue.slice(0, 5).map((item) => (
@@ -167,7 +277,16 @@ export function CompanyOverviewPage() {
                         tone="warning"
                         title={item.title}
                         description={`${item.action_type}${item.requester_name ? ` · ${item.requester_name}` : ''}`}
-                        trailing={formatShortDate(item.created_at)}
+                        trailing={
+                          <span className="text-right">
+                            <time dateTime={item.created_at} className="block">
+                              {formatShortDate(item.created_at)}
+                            </time>
+                            <span className="text-overline text-text-muted block">
+                              {waitingDuration(item.created_at)}
+                            </span>
+                          </span>
+                        }
                       />
                     ))}
                   </ul>
@@ -211,4 +330,14 @@ export function CompanyOverviewPage() {
       </div>
     </PageLayout>
   )
+}
+
+function waitingDuration(value: string) {
+  const createdAt = new Date(value).getTime()
+  if (!Number.isFinite(createdAt)) return 'Age unavailable'
+  const elapsedHours = Math.floor(Math.max(0, Date.now() - createdAt) / 3_600_000)
+  if (elapsedHours < 1) return 'Just received'
+  if (elapsedHours < 24) return `${elapsedHours}h waiting`
+  const days = Math.floor(elapsedHours / 24)
+  return `${days} ${days === 1 ? 'day' : 'days'} waiting`
 }

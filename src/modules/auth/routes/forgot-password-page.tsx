@@ -1,10 +1,12 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from '@tanstack/react-form'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { authApi } from '@/shared/auth/auth.api'
+import { ApiError } from '@/shared/api/api-error'
+import { presentError } from '@/shared/errors'
 import { Alert } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { FormControl, TextInput } from '@/shared/ui/form-control'
@@ -16,19 +18,34 @@ const emailSchema = z.string().trim().email('Enter a valid email address.')
 export function ForgotPasswordPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [requestAccepted, setRequestAccepted] = useState(false)
+  const [prefillEmail] = useState(() => {
+    return window.sessionStorage.getItem('bomach:reset-prefill-email') ?? ''
+  })
   const formElement = useRef<HTMLFormElement>(null)
   const navigate = useNavigate()
   const requestMutation = useMutation({ mutationFn: authApi.forgotPassword })
+  useEffect(() => {
+    window.sessionStorage.removeItem('bomach:reset-prefill-email')
+  }, [])
   const form = useForm({
-    defaultValues: { email: '' },
+    defaultValues: { email: prefillEmail },
     onSubmit: async ({ value }) => {
       setFormError(null)
       try {
         await requestMutation.mutateAsync(value.email.trim())
         window.sessionStorage.setItem('bomach:reset-email', value.email.trim())
         setRequestAccepted(true)
-      } catch {
-        setFormError('We could not send the request right now. Please try again.')
+      } catch (error) {
+        if (
+          error instanceof ApiError &&
+          error.status !== 0 &&
+          error.status < 500 &&
+          error.status !== 429
+        ) {
+          setFormError('If an account exists for this email address, a reset code will be sent.')
+        } else {
+          setFormError(presentError(error, 'form-submit').message)
+        }
       }
     },
   })

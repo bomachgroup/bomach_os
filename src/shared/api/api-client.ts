@@ -138,14 +138,14 @@ async function refreshSession(): Promise<boolean> {
         skipRefresh: true,
       })
       if (!response.ok) {
-        await parseResponse(response)
-        announceExpiredSession()
-        return false
+        if ([400, 401, 403].includes(response.status)) {
+          await parseResponse(response)
+          announceExpiredSession()
+          return false
+        }
+        await parseSuccessfulResponse(response)
       }
       return true
-    } catch {
-      announceExpiredSession()
-      return false
     } finally {
       refreshPromise = null
     }
@@ -154,12 +154,12 @@ async function refreshSession(): Promise<boolean> {
   return refreshPromise
 }
 
-async function request<TResponse>(
+async function requestResponse(
   path: string,
   method: string,
   body: RequestBody,
   options: ApiRequestOptions,
-): Promise<TResponse> {
+): Promise<Response> {
   let response = await executeRequest(path, method, body, options)
 
   if (response.status === 401 && !options.skipRefresh) {
@@ -171,6 +171,10 @@ async function request<TResponse>(
 
   if (response.status === 401 && !options.skipRefresh) announceExpiredSession()
 
+  return response
+}
+
+async function parseSuccessfulResponse<TResponse>(response: Response): Promise<TResponse> {
   const payload = await parseResponse(response)
   if (!response.ok) {
     const errorPayload =
@@ -189,9 +193,31 @@ async function request<TResponse>(
   return payload as TResponse
 }
 
+async function request<TResponse>(
+  path: string,
+  method: string,
+  body: RequestBody,
+  options: ApiRequestOptions,
+): Promise<TResponse> {
+  const response = await requestResponse(path, method, body, options)
+  return parseSuccessfulResponse(response)
+}
+
+async function requestWithHeaders<TResponse>(
+  path: string,
+  options: Omit<ApiRequestOptions, 'body'> = {},
+): Promise<{ data: TResponse; headers: Headers }> {
+  const response = await requestResponse(path, 'GET', undefined, options)
+  const data = await parseSuccessfulResponse<TResponse>(response)
+  return { data, headers: response.headers }
+}
+
 export const apiClient = {
   get: <TResponse>(path: string, options: Omit<ApiRequestOptions, 'body'> = {}) =>
     request<TResponse>(path, 'GET', undefined, options),
+
+  getWithHeaders: <TResponse>(path: string, options: Omit<ApiRequestOptions, 'body'> = {}) =>
+    requestWithHeaders<TResponse>(path, options),
 
   post: <TResponse>(path: string, body?: RequestBody, options: ApiRequestOptions = {}) =>
     request<TResponse>(path, 'POST', body, options),

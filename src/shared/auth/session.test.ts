@@ -14,6 +14,8 @@ describe('authenticated session bootstrap', () => {
       username: 'person',
       is_verified: true,
       created_at: '2026-01-01T00:00:00Z',
+      role: { id: 2, name: 'Staff' },
+      permissions: { employees: ['list'] },
     })
     vi.spyOn(authApi, 'employeeProfile').mockResolvedValue({
       user_id: 7,
@@ -23,28 +25,26 @@ describe('authenticated session bootstrap', () => {
       first_name: 'A',
       last_name: 'Person',
     })
-    vi.spyOn(authApi, 'employeeRole').mockResolvedValue({
-      id: 2,
-      name: 'Staff',
-      permissions: { employees: ['list'] },
-    })
-    vi.spyOn(authApi, 'permissionsCatalog').mockResolvedValue({
-      permissions_map: { employees: ['list', 'view'] },
-    })
   })
 
-  it('loads profile, role and permission catalog before access is granted', async () => {
+  it('loads the current user permissions and employee profile before access is granted', async () => {
     const session = await loadAuthenticatedSession()
     expect(session.employee.employee_id).toBe('EMP-7')
     expect(session.permissions).toEqual({ employees: ['list'] })
-    expect(session.permissionsCatalog).toEqual({ employees: ['list', 'view'] })
+    expect(session.roles).toEqual([{ id: 2, name: 'Staff', permissions: { employees: ['list'] } }])
     expect(window.sessionStorage.getItem(SESSION_ESTABLISHED_KEY)).toBe('1')
   })
 
   it('treats no assigned role as an empty permission set', async () => {
-    vi.spyOn(authApi, 'employeeRole').mockRejectedValue(
-      new ApiError('No assigned role', { status: 404 }),
-    )
+    vi.spyOn(authApi, 'currentUser').mockResolvedValue({
+      id: 7,
+      email: 'person@example.com',
+      username: 'person',
+      is_verified: true,
+      created_at: '2026-01-01T00:00:00Z',
+      role: null,
+      permissions: {},
+    })
 
     const session = await loadAuthenticatedSession()
     expect(session.roles).toEqual([])
@@ -52,9 +52,7 @@ describe('authenticated session bootstrap', () => {
   })
 
   it('blocks access and identifies a permissions load failure', async () => {
-    vi.spyOn(authApi, 'permissionsCatalog').mockRejectedValue(
-      new ApiError('Unavailable', { status: 503 }),
-    )
+    vi.spyOn(authApi, 'currentUser').mockRejectedValue(new ApiError('Unavailable', { status: 503 }))
 
     await expect(loadAuthenticatedSession()).rejects.toMatchObject<Partial<SessionBootstrapError>>({
       stage: 'permissions',

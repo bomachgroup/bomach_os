@@ -45,46 +45,61 @@ The host route is shown first; for embedded pages, the child app route follows `
 - **Tasks** — `/dashboard/my-tasks`; Flutter page; Flutter widget: `MyTasksPage`.
 - **Work Reports** — `/dashboard/my-reports`; Flutter page; Flutter widget: `MyWorkReportsPage`.
 - **Target** — `/dashboard/my-target-reports`; Flutter page; Flutter widget: `TargetReportsPage`.
+- **My Loans** — `/dashboard/my-loans`; employee-owned loan submissions, pending edits, details, and status tracking. `/hr/loans` remains the cross-employee HR register; owner-only users arriving at that legacy URL are redirected here.
+- **My Pay** — `/dashboard/my-pay`; read-only payslip history for the signed-in employee. `/hr/benefits` remains the HR payroll register (labeled Payroll); owner-only users arriving at that legacy URL are redirected here.
+
+The React port of Tasks is implemented at `/dashboard/my-tasks`; see [my-tasks-implementation.md](my-tasks-implementation.md) for its URL state, permission contract, data lifecycle, and verification notes.
+
+The React port of personal daily Work Reports is implemented at `/dashboard/my-reports`; see [my-work-reports-implementation.md](my-work-reports-implementation.md) for its routes, editor workflow, backend contract, and data lifecycle. Its list, detail, and editor carry validated filter/page state through canonical parent links. The HR/Admin `/hr/work-report` review queue and Operations site reports remain separate workflows.
+
+The employee-facing Targets route is implemented at `/dashboard/my-target-reports`; see [my-targets-implementation.md](my-targets-implementation.md) for the separate target and progress-history sections, permissions, API fields, and refresh lifecycle. KPI measures stay in their own workflows.
+
+The employee-facing Profile and Role routes are implemented at `/dashboard/my-profile` and `/dashboard/role`; see [my-profile-role-implementation.md](my-profile-role-implementation.md) for their read-only data mapping, backend contracts, access rules, and freshness behavior.
+
+The signed-in notification inbox and detail pages are implemented at `/notifications` and `/notifications/$notificationId`; see [notifications-implementation.md](notifications-implementation.md) for endpoint permissions, in-app arrival checks, safe related-item navigation, and data freshness. The inbox is reached from the shell bell and is not a sidebar destination. Web Push remains deferred.
 
 ### Company
 
-- **Profile** — `/company`; Flutter page; Flutter widget: `CompanyProfilePage`.
+- **Profile** — `/company`; Flutter page; Flutter widget: `CompanyProfilePage`; implemented in React as Company Profile with identity, branding, and supported operating defaults.
 - **Branch** — `/company/branch`; Flutter page; Flutter widget: `BranchListPage`.
-- **Board** — `/company/board`; Flutter page; Flutter widget: `BoardPage`.
-- **Broadcast** — `/company/broadcast`; Flutter page; Flutter widget: `BroadcastPage`.
-- **Roles & Permissions** — `/company/roles`; Flutter page; Flutter widget: `RolesPage`.
-- **Org Chart** — `/company/org-chart`; Flutter page; Flutter widget: `OrgChartPage`.
-- **KPI Management** — `/company/kpi-management`; Flutter page; Flutter widget: `KpiManagementPage`.
-- **OKR Board** — `/company/okr-board`; Flutter page; Flutter widget: `OkrBoardPage`.
-- **Compliance Dashboard** — `/company/compliance`; Flutter page; Flutter widget: `ComplianceDashboardPage`.
-- **Knowledge Base** — `/company/knowledge-base`; Flutter page; Flutter widget: `CompanyKnowledgeBasePage`.
-- **Approval Workflows** — `/company/approval-workflow`; Flutter page; Flutter widget: `ApprovalWorkflowPage`.
+- **Board** — `/company/board`; Flutter page; Flutter widget: `BoardPage`; implemented in React with permissioned Meetings, Resolutions, Investors, Associates, and Partners sections. See [company-governance-implementation.md](company-governance-implementation.md).
+- **Broadcast** — `/company/broadcast`; Flutter page; Flutter widget: `BroadcastPage`; implemented in React with permission-gated Announcements and Events, plus a shortcut to the canonical `/notifications` inbox. See [company-communication-implementation.md](company-communication-implementation.md).
+- **Roles & Permissions** — `/company/roles`; Flutter page; Flutter widget: `RolesPage`; implemented in React with role permissions, branch scope, description, and durable role details for supported sections. The duplicate, unsupported role Authority Limits detail tab is omitted. See [hr-roles-employees-implementation.md](hr-roles-employees-implementation.md).
+- **Org Chart** — `/company/org-chart`; Flutter page; Flutter widget: `OrgChartPage`; implemented in React as a read-only role-position chart with exact saved-scope separation and branch-limited reporting data. See [company-organization-implementation.md](company-organization-implementation.md).
+- **KPI Management** — `/company/kpi-management`; Flutter page; Flutter widget: `KpiManagementPage`; implemented in React against role KPI and shared metric APIs. See [kpi-okr-implementation.md](kpi-okr-implementation.md).
+- **OKR Board** — `/company/okr-board`; Flutter page; Flutter widget: `OkrBoardPage`; implemented in React as the same explicit unavailable-capability state because the backend lacks company/role OKR endpoints. See [kpi-okr-implementation.md](kpi-okr-implementation.md).
+- **Compliance Dashboard** — `/company/compliance`; Flutter page; Flutter widget: `ComplianceDashboardPage`; implemented in React as the backend-supported Compliance Register. No separate aggregate dashboard endpoint exists. See [company-governance-implementation.md](company-governance-implementation.md).
+- **Knowledge Base** — `/company/knowledge-base`; Flutter page; Flutter widget: `CompanyKnowledgeBasePage`; implemented in React as an explicit unavailable-capability state because there is no company-wide backend API.
+- **Approval Workflows** — `/company/approval-workflow`; Flutter page; Flutter widget: `ApprovalWorkflowPage`; implemented in React with workflow configuration and the approval-request review tab. See [company-communication-implementation.md](company-communication-implementation.md).
 - **Workspace Approvals** — `/company/workspace-approvals`; Flutter page; Flutter widget: `WorkspaceApprovalsPage`.
-- **Departments & Units** — `/company/department`; Flutter page; Flutter widget: `DepartmentsUnitsPage`.
-- **Assets** — `/company/assets`; Flutter page; Flutter widget: `AssetsPage`.
+- **Departments & Units** — `/company/department`; Flutter page; Flutter widget: `DepartmentsUnitsPage`; implemented in React with permissioned department and unit tabs, URL-backed filters, and compact create/edit dialogs. See [company-organization-implementation.md](company-organization-implementation.md).
+- **Assets** — `/company/assets`; Flutter page; Flutter widget: `AssetsPage`; implemented in React against the Asset API, with branch-aware choices and register/detail/create/edit/delete flows. See [company-assets-knowledge-base-implementation.md](company-assets-knowledge-base-implementation.md).
 - **Audit Log** — `/company/audit-log`; Flutter page; Flutter widget: `AuditLogPage`.
+- **Approval Requests** — `/company/approval-requests`; React review destination under Governance & oversight, gated by `approval_requests:list`; approve/reject actions use their own permissions. It keeps Compliance Register and Approval Workflows separate.
 
 ## People
 
 ### HR/Admin
 
-- **Employees** — `/hr/employees`; Flutter page; Flutter widget: `EmployeeDatabase`.
+- **Employees** — `/hr/employees`; Flutter page; Flutter widget: `EmployeeDatabase`; implemented in React with active/past lists, four-step form, and durable employee profiles. See [hr-roles-employees-implementation.md](hr-roles-employees-implementation.md).
 - **Attendance** — `/hr/attendance`; Flutter page; Flutter widget: `AttendancePage`.
 - **Work Calendar** — `/hr/attendance-calendar`; Flutter page; Flutter widget: `AttendanceCalendarPage`.
 - **Recruitment** — `/hr/job-post`; Flutter page; Flutter widget: `JobPostPage`.
 - **My Leaves** — `/hr/leaves`; Flutter page; Flutter widget: `LeavesPage`.
 - **Leave Requests** — `/hr/leave-request`; Flutter page; Flutter widget: `LeaveRequestPage`.
-- **Training** — `/hr/training-program`; Flutter page; Flutter widget: `TrainingProgramPage`.
-- **Loans** — `/hr/loans`; Flutter page; Flutter widget: `LoanPage`.
-- **Benefits** — `/hr/benefits`; Flutter page; Flutter widget: `BenefitsPage`.
+- **Training** — `/hr/training-program`; Flutter page; Flutter widget: `TrainingProgramPage`; implemented in React with program CRUD, details, supported filters, and URL-backed pagination. See [hr-training-loans-implementation.md](hr-training-loans-implementation.md).
+- **Loans** — `/hr/loans`; Flutter page; Flutter widget: `LoanPage`; implemented in React as the cross-employee HR register with pending edits, independent approval/rejection, and decision history. Employee submissions and owner-scoped details are at `/dashboard/my-loans`. See [hr-training-loans-implementation.md](hr-training-loans-implementation.md).
+- **Payroll** — `/hr/benefits`; Flutter page; Flutter widget: `BenefitsPage`; React navigation labels the read-only payroll register Payroll. Employee payslip history is at `/dashboard/my-pay`. See [hr-benefits-performance-work-reports-implementation.md](hr-benefits-performance-work-reports-implementation.md).
 - **Performance** — `/hr/performance-review`; Flutter page; Flutter widget: `PerformanceReviewPage`.
 - **Work Reports** — `/hr/work-report`; Flutter page; Flutter widget: `WorkReportPage`.
-- **Monthly Scorecard** — `/hr/monthly-scorecard`; Flutter page; Flutter widget: `MonthlyScorecardPage`.
-- **Awards & Recognition** — `/hr/awards-recognition`; Flutter page; Flutter widget: `AwardsRecognitionPage`.
-- **Performance Leaderboard** — `/hr/performance-leaderboard`; Flutter page; Flutter widget: `PerformanceLeaderboardPage`.
-- **Employee Evaluation** — `/hr/employee-evaluation`; Flutter page; Flutter widget: `EmployeeEvaluationPage`.
-- **Disciplinary Process** — `/hr/disciplinary-process`; Flutter page; Flutter widget: `DisciplinaryProcessPage`.
-- **Performance Engine** — `/hr/performance-engine`; Flutter page; Flutter widget: `PerformanceEnginePage`.
+- **Monthly Scorecard** — `/hr/monthly-scorecard`; Flutter source page is under HR/Admin; React implements it as the signed-in employee's read-only, period-filtered scorecard under My Work (navigation label **My Scorecard**), and viewing never generates data. The route remains unchanged. See [hr-performance-analytics-implementation.md](hr-performance-analytics-implementation.md).
+- **Awards & Recognition** — `/hr/awards-recognition`; Flutter page; Flutter widget: `AwardsRecognitionPage`; implemented in React against award record CRUD. Awards are not linked to employees in the backend model. See [hr-recognition-employee-relations-implementation.md](hr-recognition-employee-relations-implementation.md).
+- **Performance Leaderboard** — `/hr/performance-leaderboard`; Flutter page; Flutter widget: `PerformanceLeaderboardPage`; implemented in React against the top-ten monthly scorecard endpoint. See [hr-recognition-employee-relations-implementation.md](hr-recognition-employee-relations-implementation.md).
+- **Employee Evaluation** — `/hr/employee-evaluation`; Flutter page; Flutter widget: `EmployeeEvaluationPage`; implemented in React with employee selection, authenticated evaluator identity, scoped create/update, and recommendation flags. The Flutter PDF control is omitted because both it and the API are nonfunctional for export. See [hr-performance-analytics-implementation.md](hr-performance-analytics-implementation.md).
+- **Disciplinary Process** — `/hr/disciplinary-process`; Flutter page; Flutter widget: `DisciplinaryProcessPage`; implemented in React against permission-scoped disciplinary case CRUD. See [hr-recognition-employee-relations-implementation.md](hr-recognition-employee-relations-implementation.md).
+- **Performance Engine** — `/hr/performance-engine`; Flutter page; Flutter widget: `PerformanceEnginePage`; implemented in React as an honest roadmap page. The Flutter source marks it unavailable and Django has no performance-engine API, so the page does not fabricate live capabilities. See [hr-performance-analytics-implementation.md](hr-performance-analytics-implementation.md).
+
+The employee Attendance and My Leaves pages are implemented at `/hr/attendance` and `/hr/leaves`; leave records have durable detail URLs at `/hr/leaves/$requestId`. `/employee/attendance` is kept as an explicit compatibility redirect to the canonical Attendance route. Their filters and pagination are validated route search state, so changing them stays on the implemented page. See [my-attendance-implementation.md](my-attendance-implementation.md) and [my-leaves-implementation.md](my-leaves-implementation.md) for permissions, API contracts, actions, and freshness.
 
 ## Operations
 
@@ -315,8 +330,8 @@ The router also contains detail, legacy, landing, and compatibility routes. Thes
 ## Port scope reading
 
 - **Confirmed Flutter source inventory:** all six Workspace/Dashboard, 15 Company, and 17 HR/Admin destinations (38 source sidebar destinations). React intentionally reorganizes them: Attendance and My Leaves are under My Work, Roles & Permissions is under HR/Admin, and `/hr` is surfaced as the HR dashboard.
-- **React implementation status:** the route manifest has 40 sidebar destinations and the 12 direct/detail routes below. `/dashboard`, the React-only `/company/overview`, and `/hr` have dashboard implementations; remaining destinations use the shared permission-guarded Coming Soon page.
-- **React-only route:** `/company/overview` was added as the first Company destination to hold the four summary cards moved out of Company Profile. It is not a Flutter router path.
+- **React implementation status:** the route manifest has 41 sidebar destinations and the direct/detail routes below. `/dashboard`, `/company`, `/company/overview`, `/company/approval-requests`, `/company/approval-workflow`, `/company/broadcast`, `/company/branch`, `/company/branch/:branchId`, and `/hr` have implemented React pages; remaining destinations use the shared permission-guarded Coming Soon page.
+- **React-only routes:** `/company/overview` consolidates company health metrics; `/company/approval-requests` provides a dedicated approval-request review experience, also available as a tab in Approval Workflows; and `/company/branch/:branchId` is a shareable branch detail route. `/company` is the focused company profile/settings page.
 - Dashboard metric ownership, summary API contracts, permission rules, branch-scope limits, and dashboard verification are recorded in [dashboard-implementation.md](dashboard-implementation.md).
 - **In-scope direct/detail routes:** `/hr/employees/profile`, `/hr/associates`, `/employee`, `/employee/directory`, `/employee/performance`, `/employee/attendance`, `/employee/training`, `/company/enugu`, `/company/roles/detail`, `/company/roles/:roleId`, `/workspace`, and `/workspace-dashboard` (12 unique entries; the dynamic role route is shown in Flutter syntax). The source's legacy `/company/roles/detail` route requires in-memory `state.extra` and otherwise renders an unavailable state; durable role links use the ID route.
 - **Flutter but outside the current Company/HR port focus:** Operations, Events, CRM Clients, Analytics, Legal & Compliance, Security, and the legacy Flutter Services pages listed above.

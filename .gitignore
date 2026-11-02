@@ -7,3 +7,8 @@ storybook-static/
 *.tsbuildinfo
 .env.*
 !.env.example
+/AGENTS.md
+/package.json
+/package-lock.json
+.vercel
+.env*

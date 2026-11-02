@@ -5,6 +5,8 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { authApi } from '@/shared/auth/auth.api'
+import { presentError } from '@/shared/errors'
+import { authQueryKeys } from '@/shared/auth/auth.queries'
 import { AUTH_SESSION_QUERY_KEY } from '@/shared/auth/session'
 import { SESSION_ESTABLISHED_KEY, SESSION_EXPIRED_NOTICE_KEY } from '@/shared/api/api-client'
 import { Alert } from '@/shared/ui/alert'
@@ -41,6 +43,7 @@ export function LoginPage() {
         })
         if (response.requires_2fa) {
           window.sessionStorage.removeItem(SESSION_ESTABLISHED_KEY)
+          await queryClient.removeQueries({ queryKey: authQueryKeys.twoFactorChallengeStatus })
           await navigate({
             to: '/two-factor-verify',
             search: { returnTo: search.returnTo },
@@ -53,8 +56,8 @@ export function LoginPage() {
           to: '/splash',
           search: { returnTo: search.returnTo },
         })
-      } catch {
-        setFormError('Email or password is incorrect. Check your details and try again.')
+      } catch (error) {
+        setFormError(presentError(error, 'login').message)
       }
     },
   })
@@ -113,7 +116,10 @@ export function LoginPage() {
                     inputMode="email"
                     value={field.state.value}
                     onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
+                    onChange={(event) => {
+                      if (formError) setFormError(null)
+                      field.handleChange(event.target.value)
+                    }}
                     placeholder="Enter your email"
                   />
                 </FormControl>
@@ -145,7 +151,10 @@ export function LoginPage() {
                     autoComplete="current-password"
                     value={field.state.value}
                     onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
+                    onChange={(event) => {
+                      if (formError) setFormError(null)
+                      field.handleChange(event.target.value)
+                    }}
                     placeholder="Enter your password"
                     trailing={
                       <button

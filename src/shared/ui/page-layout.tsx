@@ -10,14 +10,14 @@ interface PageLayoutProps extends Omit<PageHeaderProps, 'className'> {
   contentClassName?: string
 }
 
-/** Shared full-width page heading band and aligned, padded page body. */
+/** Shared compact page title band and aligned, padded page body. */
 export function PageLayout({
   title,
   subtitle,
-  eyebrow,
   leading,
-  breadcrumbs,
+  backLink,
   actions,
+  actionsInline,
   toolbar,
   children,
   className,
@@ -26,14 +26,14 @@ export function PageLayout({
   return (
     <div className={cn('min-w-0', className)}>
       <div className="bg-surface border-border-subtle desktop:sticky desktop:top-0 desktop:z-20 border-b">
-        <div className="phone:px-5 phone:py-5 tablet:px-6 tablet:py-5 wide:px-8 mx-auto w-full max-w-[1440px] px-4 py-4">
+        <div className="tablet:px-6 wide:px-8 mx-auto w-full max-w-[1440px] px-4 py-3">
           <PageHeader
             title={title}
             subtitle={subtitle}
-            eyebrow={eyebrow}
             leading={leading}
-            breadcrumbs={breadcrumbs}
+            backLink={backLink}
             actions={actions}
+            actionsInline={actionsInline}
             toolbar={toolbar}
           />
         </div>

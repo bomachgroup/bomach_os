@@ -1,6 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router'
+import { Link, Outlet, useNavigate, useRouter, useRouterState } from '@tanstack/react-router'
 
 import { Dialog } from '@/shared/ui/dialog'
 import { Button } from '@/shared/ui/button'
@@ -14,9 +22,6 @@ import {
 } from '@/shared/auth/session'
 import { SESSION_ESTABLISHED_KEY, SESSION_EXPIRED_NOTICE_KEY } from '@/shared/api/api-client'
 import {
-  canSeeDestination,
-  canVisitDestination,
-  destinationForPath,
   NAVIGATION_CATEGORY_IDS,
   NAVIGATION_GROUPS,
   type NavigationCategoryId,
@@ -25,13 +30,12 @@ import {
   type ProtectedDestination,
 } from '@/app/navigation/route-manifest'
 import { ShellIcon } from './shell-icons'
-import { NotificationCenter } from './notification-center'
+import { NotificationCenter, NotificationDeliveryBridge } from './notification-center'
 import { Sidebar, type SidebarPreferences } from './sidebar'
 import { handleDrawerKeyDown } from './shell-utils'
-import { TwoFactorSettingsPanel } from '@/modules/auth/components/two-factor-settings-panel'
 import { displayName, initials } from './account-utils'
-import { Breadcrumbs, type BreadcrumbItem } from '@/shared/ui/breadcrumbs'
 import { PageLayout } from '@/shared/ui/page-layout'
+import { Skeleton } from '@/shared/ui/feedback-states'
 
 const PREFERENCES_KEY = 'bomach.sidebar.preferences.v2'
 const LEGACY_PREFERENCES_KEY = 'bomach.sidebar.preferences.v1'
@@ -93,44 +97,40 @@ function savePreferences(preferences: SidebarPreferences) {
   }
 }
 
-function breadcrumbItemsFor(
-  destination: ProtectedDestination,
-  permissions: AuthenticatedSession['permissions'],
-): BreadcrumbItem[] {
-  if (destination.path === '/dashboard') return []
-
-  const items: BreadcrumbItem[] = []
-  const segments = destination.path.split('/').filter(Boolean)
-
-  for (let length = 1; length < segments.length; length += 1) {
-    const parentPath = `/${segments.slice(0, length).join('/')}`
-    if (parentPath === '/dashboard') continue
-
-    const parent = destinationForPath(parentPath)
-    if (
-      !parent ||
-      !canVisitDestination(parent, permissions) ||
-      !canSeeDestination(parent, permissions)
-    ) {
-      continue
-    }
-
-    const label =
-      parent.path === '/company'
-        ? 'Company'
-        : parent.path === '/hr'
-          ? 'HR/Admin'
-          : (parent.navigationLabel ?? parent.title)
-    items.push({ label, to: parent.path })
-  }
-
-  return items
+function RouteTransitionSkeleton() {
+  return (
+    <div role="status" aria-label="Loading destination page" aria-busy="true" className="min-w-0">
+      <div className="bg-surface border-border-subtle desktop:sticky desktop:top-0 desktop:z-20 border-b">
+        <div
+          aria-hidden="true"
+          className="tablet:px-6 wide:px-8 mx-auto w-full max-w-[1440px] space-y-2 px-4 py-4"
+        >
+          <Skeleton variant="title" className="h-7 w-2/5 max-w-60 motion-reduce:animate-none" />
+          <Skeleton variant="text" className="h-4 w-1/2 max-w-96 motion-reduce:animate-none" />
+        </div>
+      </div>
+      <div
+        aria-hidden="true"
+        className="phone:px-5 tablet:px-6 tablet:py-6 wide:px-8 wide:py-8 mx-auto w-full max-w-[1440px] space-y-5 px-4 py-5"
+      >
+        <Skeleton className="rounded-control h-24 motion-reduce:animate-none" />
+        <div className="tablet:grid-cols-2 desktop:grid-cols-3 grid grid-cols-1 gap-4">
+          {[0, 1, 2].map((item) => (
+            <Skeleton key={item} className="rounded-control h-28 motion-reduce:animate-none" />
+          ))}
+        </div>
+        <Skeleton className="rounded-control h-56 motion-reduce:animate-none" />
+      </div>
+    </div>
+  )
 }
 
 export function AppShell({ children }: { children?: ReactNode }) {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const router = useRouter()
   const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const [pendingPathname, setPendingPathname] = useState<string | null>(null)
   const { data: session } = useQuery(authSessionQueryOptions())
   const [preferences, setPreferences] = useState<SidebarPreferences>(loadPreferences)
   const [isDesktop, setIsDesktop] = useState(() => window.matchMedia('(min-width: 1100px)').matches)
@@ -148,6 +148,27 @@ export function AppShell({ children }: { children?: ReactNode }) {
     () => (session ? sidebarDestinationsFor(session.permissions) : []),
     [session],
   )
+  const activePath = pendingPathname ?? pathname
+
+  useEffect(() => {
+    const unsubscribeBeforeNavigate = router.subscribe('onBeforeNavigate', (event) => {
+      setPendingPathname((current) => {
+        if (event.pathChanged) {
+          return event.toLocation.pathname
+        }
+        if (current === event.toLocation.pathname) return current
+        return null
+      })
+    })
+    const unsubscribeResolved = router.subscribe('onResolved', () => {
+      setPendingPathname(null)
+    })
+
+    return () => {
+      unsubscribeBeforeNavigate()
+      unsubscribeResolved()
+    }
+  }, [router])
 
   useEffect(() => {
     savePreferences(preferences)
@@ -175,6 +196,30 @@ export function AppShell({ children }: { children?: ReactNode }) {
       if (previouslyFocused?.isConnected) previouslyFocused.focus()
     }
   }, [drawerOpen])
+
+  useLayoutEffect(() => {
+    if (!drawerOpen) return
+    const navigation = drawerRef.current?.querySelector<HTMLElement>(
+      'nav[aria-label="Main navigation"]',
+    )
+    if (!navigation) return
+    const activeLinks = Array.from(
+      navigation.querySelectorAll<HTMLElement>('a[aria-current="page"]'),
+    )
+    const activeLink =
+      activeLinks.find((link) => !link.closest('[aria-label="Pinned destinations"]')) ??
+      activeLinks[0]
+    if (!activeLink) return
+    const activeRow = activeLink.closest<HTMLElement>('.nav-row') ?? activeLink
+    const navigationBounds = navigation.getBoundingClientRect()
+    const activeBounds = activeRow.getBoundingClientRect()
+    const centeredScrollTop =
+      navigation.scrollTop +
+      activeBounds.top -
+      navigationBounds.top -
+      (navigation.clientHeight - activeBounds.height) / 2
+    navigation.scrollTop = Math.max(0, centeredScrollTop)
+  }, [drawerOpen, pathname])
 
   const updatePreferences = useCallback(
     (updater: (current: SidebarPreferences) => SidebarPreferences) => {
@@ -271,7 +316,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
             showNotifications={
               isDesktop && hasPermission(session.permissions, 'notifications', 'list')
             }
-            activePath={pathname}
+            activePath={activePath}
             destinations={sidebarDestinations}
             preferences={preferences}
             transientExpanded={preferences.collapsed && sidebarHoverExpanded}
@@ -318,7 +363,12 @@ export function AppShell({ children }: { children?: ReactNode }) {
           ) : null}
         </header>
 
-        <main className="min-w-0 flex-1">{children ?? <Outlet />}</main>
+        <main className="min-w-0 flex-1">
+          {pendingPathname ? <RouteTransitionSkeleton /> : (children ?? <Outlet />)}
+        </main>
+        {hasPermission(session.permissions, 'notifications', 'list') ? (
+          <NotificationDeliveryBridge session={session} />
+        ) : null}
       </div>
 
       {drawerOpen ? (
@@ -340,7 +390,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
           >
             <Sidebar
               session={session}
-              activePath={pathname}
+              activePath={activePath}
               destinations={sidebarDestinations}
               preferences={{ ...preferences, collapsed: false }}
               onPreferencesChange={updatePreferences}
@@ -376,6 +426,8 @@ export function AppShell({ children }: { children?: ReactNode }) {
         title="Sign out of Bomach OS?"
         description="This will close your current session on this device."
         size="sm"
+        fitContent
+        compactOnMobile
         footer={
           <>
             <Button
@@ -400,16 +452,15 @@ export function AppShell({ children }: { children?: ReactNode }) {
             Check your connection and try again.
           </Alert>
         ) : (
-          <div className="bg-danger-subtle rounded-surface flex items-start gap-3 p-4">
-            <span className="text-danger-foreground mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-white/70">
+          <div className="rounded-control border-border-subtle bg-surface-muted flex items-center gap-3 border p-3">
+            <span className="text-danger-foreground bg-surface flex size-9 shrink-0 items-center justify-center rounded-full">
               <ShellIcon name="logout" className="size-[18px]" />
             </span>
             <div className="min-w-0">
-              <p className="text-label text-danger-foreground font-semibold">End this session?</p>
-              <p className="text-body-sm text-text-secondary mt-1">
-                You will need to sign in again to access your workspace.
+              <p className="text-caption text-text-secondary">Signed in as</p>
+              <p className="text-body-sm text-text-primary truncate font-semibold">
+                {session.user.email}
               </p>
-              <p className="text-caption text-text-muted mt-2 truncate">{session.user.email}</p>
             </div>
           </div>
         )}
@@ -430,15 +481,6 @@ function ProfileDialog({
   onSignOut: () => void
 }) {
   const name = displayName(session)
-  const personalFields = [
-    ['Username', session.employee.username || session.user.username],
-    ['Phone', session.user.phone_number],
-  ].filter((item): item is [string, string] => Boolean(item[1]))
-  const employmentFields = [
-    ['Employee ID', session.employee.employee_id],
-    ['Designation', session.employee.designation],
-    ['Employment status', session.employee.employment_status],
-  ].filter((item): item is [string, string] => Boolean(item[1]))
   const roleNames = session.roles.map((role) => role.name).filter(Boolean)
 
   return (
@@ -447,12 +489,14 @@ function ProfileDialog({
       onOpenChange={onOpenChange}
       title="Your profile"
       description="Account details and profile access"
-      size="lg"
+      size="sm"
+      fitContent
+      compactOnMobile
       footer={
-        <div className="tablet:flex-row tablet:justify-between flex w-full flex-col gap-2">
+        <div className="phone:flex-row phone:justify-between flex w-full flex-col gap-2">
           <Link
             to="/dashboard/my-profile"
-            className="border-border-strong bg-surface text-primary focus-visible:shadow-focus-ring rounded-control text-label hover:bg-surface-muted tablet:w-auto inline-flex min-h-11 w-full items-center justify-center gap-2 border px-4 font-semibold transition-colors focus-visible:outline-none"
+            className="border-border-strong bg-surface text-primary focus-visible:shadow-focus-ring rounded-control text-label hover:bg-surface-muted phone:w-auto inline-flex min-h-11 w-full items-center justify-center gap-2 border px-4 font-semibold transition-colors focus-visible:outline-none"
             onClick={() => onOpenChange(false)}
           >
             <ShellIcon name="user" className="size-4" />
@@ -461,7 +505,7 @@ function ProfileDialog({
           <Button
             variant="danger"
             leadingIcon={<ShellIcon name="logout" className="size-4" />}
-            className="tablet:w-auto w-full"
+            className="phone:w-auto w-full"
             onClick={() => {
               onOpenChange(false)
               onSignOut()
@@ -523,64 +567,13 @@ function ProfileDialog({
           </div>
         </section>
       ) : null}
-      {personalFields.length > 0 ? (
-        <ProfileDetailsSection
-          id="account-personal-heading"
-          title="Personal information"
-          fields={personalFields}
-        />
-      ) : null}
-      {employmentFields.length > 0 ? (
-        <ProfileDetailsSection
-          id="account-employment-heading"
-          title="Employment details"
-          fields={employmentFields}
-        />
-      ) : null}
-      {open ? (
-        <section className="border-border-strong mt-5 border-t pt-5">
-          <TwoFactorSettingsPanel />
-        </section>
-      ) : null}
     </Dialog>
   )
 }
 
-function ProfileDetailsSection({
-  id,
-  title,
-  fields,
-}: {
-  id: string
-  title: string
-  fields: [string, string][]
-}) {
-  return (
-    <section className="mt-5" aria-labelledby={id}>
-      <h3 id={id} className="text-label mb-2 font-semibold">
-        {title}
-      </h3>
-      <dl className="border-border-strong divide-border-strong rounded-control divide-y border px-3">
-        {fields.map(([label, value]) => (
-          <div
-            key={label}
-            className="grid grid-cols-[minmax(6.5rem,0.8fr)_minmax(0,1.2fr)] gap-3 py-3"
-          >
-            <dt className="text-body-sm text-text-secondary">{label}</dt>
-            <dd className="text-body-sm min-w-0 text-right font-medium break-words">{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
-  )
-}
-
 export function ComingSoonPage({ destination }: { destination: ProtectedDestination }) {
-  const { data: session } = useQuery(authSessionQueryOptions())
-  const breadcrumbs = session ? breadcrumbItemsFor(destination, session.permissions) : []
-
   return (
-    <PageLayout title={destination.title} breadcrumbs={<Breadcrumbs items={breadcrumbs} />}>
+    <PageLayout title={destination.title}>
       <section
         className="bg-surface border-border-subtle shadow-elevation-sm rounded-surface phone:p-6 flex items-center gap-4 border p-5"
         aria-labelledby="coming-soon-title"
@@ -598,7 +591,7 @@ export function ComingSoonPage({ destination }: { destination: ProtectedDestinat
 
 export function NoAccessContent() {
   return (
-    <PageLayout title="No available workspace page" eyebrow="Workspace access">
+    <PageLayout title="No available workspace page">
       <div className="mx-auto max-w-2xl">
         <section className="bg-surface border-border-subtle shadow-elevation-sm rounded-surface phone:p-6 tablet:p-8 border p-5">
           <div className="bg-warning-subtle text-warning-foreground rounded-control mb-5 flex size-11 items-center justify-center">

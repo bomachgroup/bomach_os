@@ -3,7 +3,8 @@ import { Link } from '@tanstack/react-router'
 
 import { cn } from '@/shared/lib/cn'
 import { Card } from '@/shared/ui/card'
-import { EmptyState, SectionErrorState, Skeleton } from '@/shared/ui/feedback-states'
+import { EmptyState, Skeleton, SummaryUnavailable } from '@/shared/ui/feedback-states'
+import { ProgressBar } from '@/shared/ui/progress-bar'
 
 export interface DashboardMetric {
   label: string
@@ -131,15 +132,6 @@ export function DashboardMetricStrip({
   onRetry?: () => void
   emptyMessage?: string
 }) {
-  if (error) {
-    return (
-      <SectionErrorState
-        description="These summary figures could not be loaded. Other dashboard sections remain available."
-        onRetry={onRetry ?? (() => undefined)}
-      />
-    )
-  }
-
   if (loading) {
     return (
       <div className="phone:grid-cols-2 desktop:grid-cols-4 tablet:gap-4 grid grid-cols-1 gap-3">
@@ -156,6 +148,10 @@ export function DashboardMetricStrip({
         ))}
       </div>
     )
+  }
+
+  if (error && !metrics.length) {
+    return <SummaryUnavailable onRetry={onRetry} />
   }
 
   if (!metrics.length) {
@@ -319,23 +315,14 @@ export function DashboardScoreBreakdownCard({
             {score === null ? '—' : `${boundedScore}%`}
           </span>
         </div>
-        <div
-          className="mt-2 h-2 overflow-hidden rounded-full bg-neutral-200"
-          role="progressbar"
-          aria-label={`${title} score`}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={score === null ? undefined : boundedScore}
-          aria-valuetext={score === null ? 'Not available' : `${boundedScore}%`}
-        >
-          <div
-            className={cn(
-              'dashboard-ring-fill h-full rounded-full',
-              dashboardToneClasses[tone].ring,
-            )}
-            style={{ width: `${boundedScore}%`, backgroundColor: 'currentColor' }}
-          />
-        </div>
+        <ProgressBar
+          value={boundedScore}
+          label={`${title} score`}
+          valueText={score === null ? 'Not available' : `${boundedScore}%`}
+          className="mt-2"
+          trackClassName="bg-neutral-200"
+          fillClassName={cn('dashboard-ring-fill bg-current', dashboardToneClasses[tone].ring)}
+        />
       </div>
       <dl className="divide-border-subtle mt-3 divide-y">
         {stats.map((stat) => (
