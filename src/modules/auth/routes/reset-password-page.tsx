@@ -1,7 +1,7 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from '@tanstack/react-form'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { authApi } from '@/shared/auth/auth.api'
@@ -21,6 +21,7 @@ export function ResetPasswordPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const formElement = useRef<HTMLFormElement>(null)
   const navigate = useNavigate()
+  const search = useSearch({ from: '/reset-password' })
   const queryClient = useQueryClient()
   const resetMutation = useMutation({ mutationFn: authApi.resetPassword })
   const form = useForm({
@@ -40,7 +41,10 @@ export function ResetPasswordPage() {
         window.sessionStorage.removeItem('bomach:reset-email')
         window.sessionStorage.removeItem(SESSION_ESTABLISHED_KEY)
         queryClient.clear()
-        await navigate({ to: '/login', search: { reset: true } })
+        await navigate({
+          to: '/login',
+          search: { reset: true, returnTo: search.returnTo },
+        })
       } catch (error) {
         setFormError(presentError(error, 'form-submit').message)
       }
@@ -60,10 +64,19 @@ export function ResetPasswordPage() {
           <Alert tone="info" title="Start with a reset request">
             Enter your email address first so we can send a reset code.
           </Alert>
-          <Button className="w-full" onClick={() => void navigate({ to: '/forgot-password' })}>
+          <Button
+            className="w-full"
+            onClick={() =>
+              void navigate({ to: '/forgot-password', search: { returnTo: search.returnTo } })
+            }
+          >
             Request a reset code
           </Button>
-          <Link className="text-body-sm text-text-secondary hover:text-primary" to="/login">
+          <Link
+            className="text-body-sm text-text-secondary hover:text-primary"
+            to="/login"
+            search={{ returnTo: search.returnTo }}
+          >
             Back to Login
           </Link>
         </div>
@@ -189,6 +202,7 @@ export function ResetPasswordPage() {
           <Link
             className="text-body-sm text-text-secondary hover:text-primary"
             to="/forgot-password"
+            search={{ returnTo: search.returnTo }}
           >
             Back
           </Link>

@@ -1,4 +1,5 @@
 import type { AuthenticatedSession } from './session'
+import { canAccessServicesApp } from '@/app/shell/app-catalog'
 import {
   canVisitDestination,
   matchDestinationPath,
@@ -63,6 +64,13 @@ export function resolvePostLoginTarget(
   const safeTarget = safeInternalTarget(returnTo, effectiveOrigin)
   if (safeTarget) {
     const requestedPath = new URL(safeTarget, effectiveOrigin).pathname
+    if (
+      (requestedPath === '/services' || requestedPath.startsWith('/services/')) &&
+      canAccessServicesApp(session.permissions)
+    ) {
+      return safeTarget
+    }
+
     const requestedDestination = destinations.find((item) =>
       matchDestinationPath(item.path, requestedPath),
     )

@@ -114,6 +114,26 @@ describe('auth navigation', () => {
     ).toBe('/company/roles/42?tab=permissions')
   })
 
+  it('returns to a Services deep link only when the account can access a Services destination', () => {
+    expect(
+      resolvePostLoginTarget(
+        '/services/app/quotations?status=draft',
+        session({ quotes: ['list'] }),
+        destinations,
+        origin,
+      ),
+    ).toBe('/services/app/quotations?status=draft')
+
+    expect(
+      resolvePostLoginTarget(
+        '/services/app/quotations',
+        session({ employees: ['list'] }),
+        destinations,
+        origin,
+      ),
+    ).toBe('/dashboard')
+  })
+
   it('uses the first permitted destination when the requested one is forbidden', () => {
     const loggedIn = session({ employees: ['list'] })
     expect(resolvePostLoginTarget('/company/roles/42', loggedIn, destinations, origin)).toBe(

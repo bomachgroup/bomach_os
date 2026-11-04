@@ -201,6 +201,7 @@ export function LoginPage() {
             <Link
               className="text-label text-primary focus-visible:shadow-focus-ring rounded-control px-1 py-1 font-medium hover:underline focus-visible:outline-none"
               to="/forgot-password"
+              search={{ returnTo: search.returnTo }}
             >
               Forgot password?
             </Link>

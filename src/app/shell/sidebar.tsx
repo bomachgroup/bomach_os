@@ -21,6 +21,7 @@ import {
   type ProtectedDestination,
 } from '@/app/navigation/route-manifest'
 import { ShellIcon } from './shell-icons'
+import { AppSwitcher } from './AppSwitcher'
 import { NotificationCenter } from './notification-center'
 import { displayName, initials } from './account-utils'
 import { navigationCategoryLabel, navigationGroupLabel } from './shell-utils'
@@ -202,17 +203,31 @@ export function Sidebar({
           />
         </Link>
         {onCloseDrawer ? (
-          <Button
-            data-drawer-close
-            variant="ghost"
-            size="icon"
-            aria-label="Close navigation menu"
-            onClick={onCloseDrawer}
-          >
-            <ShellIcon name="close" className="size-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <AppSwitcher
+              permissions={session.permissions}
+              currentApp="os"
+              compact
+              placement="right"
+            />
+            <Button
+              data-drawer-close
+              variant="ghost"
+              size="icon"
+              aria-label="Close navigation menu"
+              onClick={onCloseDrawer}
+            >
+              <ShellIcon name="close" className="size-5" />
+            </Button>
+          </div>
         ) : collapsed ? (
           <div className="flex items-center justify-center gap-0">
+            <AppSwitcher
+              permissions={session.permissions}
+              currentApp="os"
+              compact
+              placement="left"
+            />
             {showNotifications ? (
               <NotificationCenter session={session} placement="sidebar" />
             ) : null}
@@ -220,6 +235,7 @@ export function Sidebar({
           </div>
         ) : (
           <div className="flex items-center gap-1">
+            <AppSwitcher permissions={session.permissions} currentApp="os" placement="left" />
             {showNotifications ? (
               <NotificationCenter session={session} placement="sidebar" />
             ) : null}

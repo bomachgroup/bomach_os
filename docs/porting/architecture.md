@@ -14,7 +14,7 @@ The React app owns:
 - The shell, routes, authentication, permissions, and shared controls needed by those screens.
 - Shared loading, empty, error, success, and form behavior.
 
-Separately owned Services, Marketing, and Finance modules stay in their own applications. Their links are temporarily hidden in this React shell by the current phase decision. Do not port their screens, alter their codebases, or assume a new launch/session contract; review reintroduction separately after this phase.
+Separately owned Services, Marketing, and Finance modules stay in their own applications. Services is being reintroduced as a separately deployed app under `/services` using an external rewrite from the React OS Vercel project and the shared browser-cookie session. Marketing and Finance remain hidden until their upstream environments and auth readiness are verified. Do not port their screens into this codebase.
 
 ## Working technology choices
 

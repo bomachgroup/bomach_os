@@ -35,11 +35,24 @@ export const config: VercelConfig = {
     // Match every API path as a regex, including root collection routes with
     // or without a trailing slash, before the SPA fallback can claim it.
     routes.rewrite('/api/(.*)', `${apiOrigin.origin}/api/$1`),
+    // Service documents and estate images are returned as backend-relative media paths.
+    routes.rewrite('/media/(.*)', `${apiOrigin.origin}/media/$1`),
+    // Keep Services independently deployed while composing it under this host.
+    routes.rewrite('/services', 'https://services-mocha-xi.vercel.app/services'),
+    routes.rewrite('/services/(.*)', 'https://services-mocha-xi.vercel.app/services/$1'),
     routes.rewrite('/(.*)', '/index.html'),
   ],
   headers: [
     {
       source: '/api/(.*)',
+      headers: [
+        { key: 'Cache-Control', value: 'private, no-store, max-age=0' },
+        { key: 'CDN-Cache-Control', value: 'no-store' },
+        { key: 'Vercel-CDN-Cache-Control', value: 'no-store' },
+      ],
+    },
+    {
+      source: '/media/(.*)',
       headers: [
         { key: 'Cache-Control', value: 'private, no-store, max-age=0' },
         { key: 'CDN-Cache-Control', value: 'no-store' },

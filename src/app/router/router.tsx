@@ -15,9 +15,9 @@ import {
   requirePermission,
   requireProtectedDestination,
 } from '@/shared/auth/route-guards'
-import { hasPermission } from '@/shared/auth/session'
-import { ErrorState } from '@/shared/ui/feedback-states'
-import { NoAccessPage, RootLayout, RouteError } from './route-components'
+import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
+import { resolvePostLoginTarget } from '@/shared/auth/navigation'
+import { NoAccessPage, NotFoundPage, RootLayout, RouteError } from './route-components'
 import { PROTECTED_DESTINATIONS } from '@/app/navigation/route-manifest'
 import { AppShell, ComingSoonPage } from '@/app/shell/app-shell'
 import { validateMyTasksSearch } from '@/modules/tasks/tasks.search'
@@ -359,14 +359,7 @@ function validateLoginSearch(search: Record<string, unknown>) {
 const rootRoute = createRootRouteWithContext<AppRouterContext>()({
   component: RootLayout,
   errorComponent: RouteError,
-  notFoundComponent: () => (
-    <main className="bg-background text-text-primary flex min-h-svh items-center justify-center p-6">
-      <ErrorState
-        title="Page not found"
-        description="This page is not available in the React port yet."
-      />
-    </main>
-  ),
+  notFoundComponent: NotFoundPage,
 })
 
 const indexRoute = createRoute({
@@ -391,18 +384,32 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
   validateSearch: validateLoginSearch,
+  beforeLoad: async ({ context, location }) => {
+    try {
+      const session = await context.queryClient.ensureQueryData(authSessionQueryOptions())
+      throw redirect({
+        href: resolvePostLoginTarget((location.search as { returnTo?: string }).returnTo, session),
+        replace: true,
+      })
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) return
+      throw error
+    }
+  },
   component: LoginPage,
 })
 
 const forgotPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/forgot-password',
+  validateSearch: validateLoginSearch,
   component: ForgotPasswordPage,
 })
 
 const resetPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/reset-password',
+  validateSearch: validateLoginSearch,
   component: ResetPasswordPage,
 })
 

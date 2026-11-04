@@ -30,6 +30,7 @@ import {
   type ProtectedDestination,
 } from '@/app/navigation/route-manifest'
 import { ShellIcon } from './shell-icons'
+import { AppSwitcher } from './AppSwitcher'
 import { NotificationCenter, NotificationDeliveryBridge } from './notification-center'
 import { Sidebar, type SidebarPreferences } from './sidebar'
 import { handleDrawerKeyDown } from './shell-utils'
@@ -361,9 +362,12 @@ export function AppShell({ children }: { children?: ReactNode }) {
             alt="Bomach OS"
             className="phone:w-[92px] desktop:hidden h-9 w-[76px] shrink-0 object-contain object-left"
           />
-          {!isDesktop && hasPermission(session.permissions, 'notifications', 'list') ? (
-            <NotificationCenter session={session} />
-          ) : null}
+          <div className="ml-auto flex items-center gap-2">
+            <AppSwitcher permissions={session.permissions} currentApp="os" compact />
+            {!isDesktop && hasPermission(session.permissions, 'notifications', 'list') ? (
+              <NotificationCenter session={session} />
+            ) : null}
+          </div>
         </header>
 
         <main className="min-w-0 flex-1">
@@ -602,8 +606,8 @@ export function NoAccessContent() {
             <ShellIcon name="shield" className="size-5" />
           </div>
           <p className="text-body-sm text-text-secondary">
-            Your account is signed in, but none of the React workspace pages are available for your
-            permissions yet. Contact an administrator if you believe this is unexpected.
+            Your account does not currently have access to any workspace pages. Contact your
+            administrator if you need access.
           </p>
         </section>
       </div>

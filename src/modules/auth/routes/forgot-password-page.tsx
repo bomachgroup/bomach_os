@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from '@tanstack/react-form'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { authApi } from '@/shared/auth/auth.api'
@@ -23,6 +23,7 @@ export function ForgotPasswordPage() {
   })
   const formElement = useRef<HTMLFormElement>(null)
   const navigate = useNavigate()
+  const search = useSearch({ from: '/forgot-password' })
   const requestMutation = useMutation({ mutationFn: authApi.forgotPassword })
   useEffect(() => {
     window.sessionStorage.removeItem('bomach:reset-prefill-email')
@@ -87,7 +88,12 @@ export function ForgotPasswordPage() {
             <Alert tone="info" title="Check your email">
               If an account exists for this email address, a password reset code will be sent.
             </Alert>
-            <Button className="w-full" onClick={() => void navigate({ to: '/reset-password' })}>
+            <Button
+              className="w-full"
+              onClick={() =>
+                void navigate({ to: '/reset-password', search: { returnTo: search.returnTo } })
+              }
+            >
               Continue to enter reset code
             </Button>
           </div>
@@ -142,7 +148,11 @@ export function ForgotPasswordPage() {
         )}
 
         <div className="text-center">
-          <Link className="text-body-sm text-text-secondary hover:text-primary" to="/login">
+          <Link
+            className="text-body-sm text-text-secondary hover:text-primary"
+            to="/login"
+            search={{ returnTo: search.returnTo }}
+          >
             Back to Login
           </Link>
         </div>

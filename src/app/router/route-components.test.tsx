@@ -24,7 +24,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   }
 })
 
-import { RouteError, RootLayout } from './route-components'
+import { NotFoundPage, RouteError, RootLayout } from './route-components'
 import { SESSION_EXPIRED_EVENT } from '@/shared/api/api-client'
 import { SessionBootstrapError } from '@/shared/auth/session'
 
@@ -55,6 +55,21 @@ describe('auth route boundaries', () => {
 
     await waitFor(() => expect(reset).toHaveBeenCalledOnce())
     expect(routerMocks.router.invalidate).toHaveBeenCalledOnce()
+  })
+
+  it('shows a real not-found page and offers a route back to the dashboard', async () => {
+    const user = userEvent.setup()
+    renderWithClient(<NotFoundPage />)
+
+    expect(screen.getByText('404')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Page not found' })).toBeInTheDocument()
+    expect(
+      screen.getByText(/address may be incorrect, or the page may have moved/i),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/React port/i)).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Go to dashboard' }))
+    expect(routerMocks.router.navigate).toHaveBeenCalledWith({ to: '/dashboard' })
   })
 
   it('clears protected query state and redirects once when the session expires', async () => {

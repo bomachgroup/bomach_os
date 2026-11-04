@@ -335,7 +335,7 @@ The router also contains detail, legacy, landing, and compatibility routes. Thes
 - Dashboard metric ownership, summary API contracts, permission rules, branch-scope limits, and dashboard verification are recorded in [dashboard-implementation.md](dashboard-implementation.md).
 - **In-scope direct/detail routes:** `/hr/employees/profile`, `/hr/associates`, `/employee`, `/employee/directory`, `/employee/performance`, `/employee/attendance`, `/employee/training`, `/company/enugu`, `/company/roles/detail`, `/company/roles/:roleId`, `/workspace`, and `/workspace-dashboard` (12 unique entries; the dynamic role route is shown in Flutter syntax). The source's legacy `/company/roles/detail` route requires in-memory `state.extra` and otherwise renders an unavailable state; durable role links use the ID route.
 - **Flutter but outside the current Company/HR port focus:** Operations, Events, CRM Clients, Analytics, Legal & Compliance, Security, and the legacy Flutter Services pages listed above.
-- **Stay as separate applications and hide their React shell links for this phase:** Services, Marketing, and Finance. Their codebases and page content are untouched.
+- **Stay as separate applications:** Services is composed under the shared Bomach host at `/services` through an external rewrite; its codebase and page content remain independent. Marketing and Finance remain hidden until their test origins and shared-auth readiness are verified.
 - The Company menu’s `Assets` destination is rendered by `AssetsPage` from the Flutter HR source folder, but ownership in this inventory follows its actual Company sidebar group and `/company/assets` route.
 
 ## Source files checked

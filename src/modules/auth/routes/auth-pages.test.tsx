@@ -149,6 +149,7 @@ describe('authentication pages', () => {
 
   it('waits for a confirmed reset request before offering the code form', async () => {
     const user = userEvent.setup()
+    routerMocks.search.returnTo = '/services/app/quotations?status=draft'
     const forgot = vi.spyOn(authApi, 'forgotPassword').mockResolvedValue({
       success: true,
       detail: 'If an account exists, a password reset code will be sent.',
@@ -162,7 +163,10 @@ describe('authentication pages', () => {
     expect(routerMocks.navigate).not.toHaveBeenCalled()
     expect(forgot.mock.calls[0]?.[0]).toBe('person@example.com')
     await user.click(screen.getByRole('button', { name: 'Continue to enter reset code' }))
-    expect(routerMocks.navigate).toHaveBeenCalledWith({ to: '/reset-password' })
+    expect(routerMocks.navigate).toHaveBeenCalledWith({
+      to: '/reset-password',
+      search: { returnTo: '/services/app/quotations?status=draft' },
+    })
     expect(window.sessionStorage.getItem('bomach:reset-email')).toBe('person@example.com')
   })
 
@@ -241,6 +245,7 @@ describe('authentication pages', () => {
 
   it('returns to login only after a server-confirmed password reset', async () => {
     const user = userEvent.setup()
+    routerMocks.search.returnTo = '/services/app/quotations?status=draft'
     window.sessionStorage.setItem('bomach:reset-email', 'person@example.com')
     window.sessionStorage.setItem(SESSION_ESTABLISHED_KEY, '1')
     const reset = vi.spyOn(authApi, 'resetPassword').mockResolvedValue({ success: true })
@@ -252,7 +257,10 @@ describe('authentication pages', () => {
     await user.click(screen.getByRole('button', { name: 'Reset Password' }))
 
     await waitFor(() =>
-      expect(routerMocks.navigate).toHaveBeenCalledWith({ to: '/login', search: { reset: true } }),
+      expect(routerMocks.navigate).toHaveBeenCalledWith({
+        to: '/login',
+        search: { reset: true, returnTo: '/services/app/quotations?status=draft' },
+      }),
     )
     expect(reset.mock.calls[0]?.[0]).toEqual({
       email: 'person@example.com',

@@ -4,7 +4,7 @@
 
 This document describes the React browser authentication slice and its backend contract. Flutter Bomach OS remains the reference for screen layout, copy, and expected workflow. The browser implementation keeps those screens recognizable while applying the shared form, accessibility, responsive, and session-security rules in [interaction-standards.md](interaction-standards.md).
 
-This is the Bomach OS shell's browser contract. It does not change standalone applications or the existing bearer-token contract used by Flutter, mobile, and other clients. Workspace/Dashboard, Company, and HR protected routes are composed from the shared manifest and guarded before rendering.
+This is the shared Bomach OS browser contract for the default React application and the Services React application mounted at `/services/*`. Flutter, mobile, and other clients retain their existing bearer-token contract. Workspace/Dashboard, Company, HR, and Services protected routes continue to enforce their own existing permission requirements.
 
 ## React routes
 
@@ -84,7 +84,17 @@ Direct visits to `/two-factor-verify` do not assume that a challenge exists. The
 - The shared React client uses `credentials: 'include'`, `cache: 'no-store'`, forwards abort signals, coalesces concurrent refresh attempts in the app runtime, and retries each eligible original request no more than once. A failed refresh clears the TanStack Query cache and sends the user to Login with one session-expired notice.
 - Login and password-reset request rate limits are deferred for this phase as agreed. Existing one-time-code attempt limits remain active.
 
-Set `BOMACH_WEB_AUTH_ORIGINS` to a comma-separated exact list in each backend environment. Local DEBUG defaults include only `http://localhost:5173` and `http://127.0.0.1:5173`. The React Vite dev server proxies `/api` to `BOMACH_API_ORIGIN` (default `http://127.0.0.1:8000`). Vercel Preview and Production use `/api` external rewrites to separately configured HTTPS staging and production origins. API responses receive no-store cache headers. Configure those values in the Vercel environment; no deployment has been performed as part of this implementation.
+Set `BOMACH_WEB_AUTH_ORIGINS` to a comma-separated exact list in each backend environment. Add `https://bomach-os-test.vercel.app` to the test backend and `https://bomach-os.vercel.app` to production, retaining any other intentionally supported browser origins. Local DEBUG defaults include only `http://localhost:5173` and `http://127.0.0.1:5173`. The React Vite dev server proxies `/api` to `BOMACH_API_ORIGIN` (default `http://127.0.0.1:8000`). Vercel Preview and Production use the root project's `/api/*` external rewrite to separately configured HTTPS staging and production origins. API responses receive no-store cache headers.
+
+## Services on the shared host
+
+The React OS Vercel project owns the shared Bomach test and production hosts, `/login`, `/two-factor-verify`, `/forgot-password`, `/reset-password`, session refresh, and the root `/api/*` rewrite. Services remains a separately built and deployed Vite project. The OS project proxies `/services` and `/services/*` to the Services deployment using ordinary external rewrites; the apps do not need to share a Vercel team or account. Both apps appear on the same browser host in the composed experience, so host-only HttpOnly cookies are available to Services' same-origin `/api/v1/*` requests without a token bridge or iframe message.
+
+Services loads the signed-in identity from the existing `/api/v1/auth/me` endpoint, then retains its current `/api/v1/roles/employees/{user_id}` role bootstrap and permission mapping. The backend remains authoritative for each Services read and write. The Services app redirects unauthenticated and expired sessions to the root app's login route with a sanitized `/services/*` return target. The root app honors that target only when the signed-in session has at least one permission corresponding to a real top-level Services destination. Login, two-factor verification, and password-reset navigation retain the target; logout clears the shared cookies. Services' own `RequireAuth` and route permissions still guard its screens.
+
+The Services build produces both a standalone root build and a `/services/` build whose HTML, public files, CSS, and lazy chunks all use the prefix. The standalone deployment keeps its root entry; the shared host serves the prefixed build. The OS rewrite preserves the `/services` prefix, while `/api/*` remains owned by the OS project and `/media/*` routes through its environment-specific backend origin. When Services is mounted on either Bomach host, central login and the app switcher use the current origin, keeping test users on the test host. On a direct Services deployment URL, `VITE_BOMACH_OS_ORIGIN` identifies the root OS host; the supported cross-app session flow returns users to the shared Bomach host.
+
+Release checklist: deploy a prefix-ready build to the existing Services project, then route the OS Preview host to it. Test `/services`, nested-route refreshes, prefixed assets, API routing, login/2FA/reset return targets, refresh, logout, and users with and without Services destination grants. After Preview passes, deploy the matching rewrite to the production OS host. Finance and Marketing remain unlisted until their test destinations and browser-auth readiness are verified; Projects remains deferred until its deployment is identified.
 
 ## Form and feedback behavior
 

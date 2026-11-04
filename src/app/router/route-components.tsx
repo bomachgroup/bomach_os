@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { SearchX } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Outlet, useRouter } from '@tanstack/react-router'
 
@@ -66,6 +67,34 @@ export function RouteError({ error, reset }: { error: unknown; reset: () => void
         description={detail}
         action={<Button onClick={() => void retry()}>Try again</Button>}
       />
+    </main>
+  )
+}
+
+export function NotFoundPage() {
+  const router = useRouter()
+
+  return (
+    <main className="bg-background flex min-h-svh items-center justify-center px-4 py-8">
+      <section
+        className="bg-surface border-border-subtle shadow-elevation-sm rounded-surface phone:p-8 w-full max-w-xl border p-6 text-center"
+        aria-labelledby="not-found-title"
+      >
+        <span className="bg-primary-subtle text-primary rounded-control mx-auto flex size-14 items-center justify-center">
+          <SearchX aria-hidden="true" className="size-7" />
+        </span>
+        <p className="text-caption text-primary mt-5 font-semibold tracking-wide">404</p>
+        <h1 id="not-found-title" className="text-h2 text-text-primary mt-1 font-semibold">
+          Page not found
+        </h1>
+        <p className="text-body-sm text-text-secondary mx-auto mt-2 max-w-md">
+          We couldn’t find the page you’re looking for. The address may be incorrect, or the page
+          may have moved.
+        </p>
+        <Button className="mt-6" onClick={() => void router.navigate({ to: '/dashboard' })}>
+          Go to dashboard
+        </Button>
+      </section>
     </main>
   )
 }
