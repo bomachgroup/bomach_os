@@ -24,11 +24,14 @@ import { SESSION_ESTABLISHED_KEY, SESSION_EXPIRED_NOTICE_KEY } from '@/shared/ap
 import {
   NAVIGATION_CATEGORY_IDS,
   NAVIGATION_GROUPS,
+  canVisitDestination,
+  destinationForPath,
   type NavigationCategoryId,
   sidebarDestinationsFor,
   type NavigationGroup,
   type ProtectedDestination,
 } from '@/app/navigation/route-manifest'
+import { clearWorkspaceMemory, saveWorkspaceLocation } from '@/shared/auth/workspace-memory'
 import { ShellIcon } from './shell-icons'
 import { AppSwitcher } from './AppSwitcher'
 import { NotificationCenter, NotificationDeliveryBridge } from './notification-center'
@@ -131,6 +134,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
   const navigate = useNavigate()
   const router = useRouter()
   const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const locationHref = useRouterState({ select: (state) => state.location.href })
   const [pendingPathname, setPendingPathname] = useState<string | null>(null)
   const [expandedPathname, setExpandedPathname] = useState(pathname)
   const { data: session } = useQuery(authSessionQueryOptions())
@@ -176,6 +180,13 @@ export function AppShell({ children }: { children?: ReactNode }) {
   useEffect(() => {
     savePreferences(preferences)
   }, [preferences])
+
+  useEffect(() => {
+    if (!session) return
+    const destination = destinationForPath(pathname)
+    if (!destination || !canVisitDestination(destination, session.permissions)) return
+    saveWorkspaceLocation(session.user.id, 'os', locationHref)
+  }, [locationHref, pathname, session])
 
   useEffect(() => {
     const media = window.matchMedia('(min-width: 1100px)')
@@ -268,6 +279,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
     onSuccess: async () => {
+      clearWorkspaceMemory(session?.user.id)
       window.sessionStorage.removeItem(SESSION_ESTABLISHED_KEY)
       window.sessionStorage.removeItem(SESSION_EXPIRED_NOTICE_KEY)
       queryClient.clear()
@@ -363,7 +375,12 @@ export function AppShell({ children }: { children?: ReactNode }) {
             className="phone:w-[92px] desktop:hidden h-9 w-[76px] shrink-0 object-contain object-left"
           />
           <div className="ml-auto flex items-center gap-2">
-            <AppSwitcher permissions={session.permissions} currentApp="os" compact />
+            <AppSwitcher
+              permissions={session.permissions}
+              userId={session.user.id}
+              currentApp="os"
+              compact
+            />
             {!isDesktop && hasPermission(session.permissions, 'notifications', 'list') ? (
               <NotificationCenter session={session} />
             ) : null}

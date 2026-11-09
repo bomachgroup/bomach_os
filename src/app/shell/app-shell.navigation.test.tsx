@@ -15,6 +15,7 @@ import {
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AppShell } from './app-shell'
+import { NotFoundPage } from '@/app/router/route-components'
 import { AUTH_SESSION_QUERY_KEY, type AuthenticatedSession } from '@/shared/auth/session'
 import { ToastProvider } from '@/shared/feedback/toast-provider'
 
@@ -68,7 +69,8 @@ function deferred<T>() {
 function createHarness({
   denyEmployees = false,
   redirectEmployees = false,
-}: { denyEmployees?: boolean; redirectEmployees?: boolean } = {}) {
+  initialPath = '/dashboard',
+}: { denyEmployees?: boolean; redirectEmployees?: boolean; initialPath?: string } = {}) {
   const delayedModule = deferred<{ default: ComponentType }>()
   const guardGate = deferred<void>()
   const DelayedEmployeesPage = lazy<ComponentType>(() => delayedModule.promise)
@@ -76,7 +78,10 @@ function createHarness({
     preload: () => delayedModule.promise.then(() => undefined),
   })
 
-  const rootRoute = createRootRoute({
+  const rootRoute = createRootRoute({ component: () => <Outlet /> })
+  const protectedLayoutRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    id: '_protected',
     component: () => (
       <AppShell>
         <Outlet />
@@ -84,7 +89,7 @@ function createHarness({
     ),
   })
   const dashboardRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => protectedLayoutRoute,
     path: '/dashboard',
     component: () => (
       <section>
@@ -94,7 +99,7 @@ function createHarness({
     ),
   })
   const employeesRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => protectedLayoutRoute,
     path: '/hr/employees',
     beforeLoad: async () => {
       if (redirectEmployees) {
@@ -107,12 +112,24 @@ function createHarness({
     errorComponent: () => <div data-testid="destination-error">Destination failed to load</div>,
   })
   const noAccessRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => protectedLayoutRoute,
     path: '/no-access',
     component: () => <h1>Access denied</h1>,
   })
-  const routeTree = rootRoute.addChildren([dashboardRoute, employeesRoute, noAccessRoute])
-  const history = createMemoryHistory({ initialEntries: ['/dashboard'] })
+  const notFoundRoute = createRoute({
+    getParentRoute: () => protectedLayoutRoute,
+    path: '$',
+    component: NotFoundPage,
+  })
+  const routeTree = rootRoute.addChildren([
+    protectedLayoutRoute.addChildren([
+      dashboardRoute,
+      employeesRoute,
+      noAccessRoute,
+      notFoundRoute,
+    ]),
+  ])
+  const history = createMemoryHistory({ initialEntries: [initialPath] })
   const router = createRouter({ routeTree, history, defaultPreload: false })
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, session())
@@ -120,7 +137,11 @@ function createHarness({
   return { delayedModule, guardGate, history, queryClient, router }
 }
 
-async function renderHarness(options?: { denyEmployees?: boolean; redirectEmployees?: boolean }) {
+async function renderHarness(options?: {
+  denyEmployees?: boolean
+  redirectEmployees?: boolean
+  initialPath?: string
+}) {
   const harness = createHarness(options)
   const view = render(
     <QueryClientProvider client={harness.queryClient}>
@@ -129,7 +150,9 @@ async function renderHarness(options?: { denyEmployees?: boolean; redirectEmploy
       </ToastProvider>
     </QueryClientProvider>,
   )
-  await screen.findByRole('heading', { name: 'Workspace overview' })
+  await screen.findByRole('heading', {
+    name: options?.initialPath === '/me' ? 'Page not found' : 'Workspace overview',
+  })
   return { ...harness, ...view }
 }
 
@@ -151,6 +174,14 @@ beforeEach(() => {
 })
 
 describe('route transition feedback', () => {
+  it('renders unknown workspace paths inside the authenticated shell', async () => {
+    await renderHarness({ initialPath: '/me' })
+
+    expect(screen.getByRole('heading', { name: 'Page not found' })).toBeInTheDocument()
+    expect(screen.getByRole('banner', { name: 'Workspace header' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument()
+  })
+
   it('replaces the current page and highlights a sidebar destination while its lazy module loads', async () => {
     const user = userEvent.setup()
     const { delayedModule } = await renderHarness()

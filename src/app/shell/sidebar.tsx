@@ -206,6 +206,7 @@ export function Sidebar({
           <div className="flex items-center gap-2">
             <AppSwitcher
               permissions={session.permissions}
+              userId={session.user.id}
               currentApp="os"
               compact
               placement="right"
@@ -224,6 +225,7 @@ export function Sidebar({
           <div className="flex items-center justify-center gap-0">
             <AppSwitcher
               permissions={session.permissions}
+              userId={session.user.id}
               currentApp="os"
               compact
               placement="left"
@@ -235,7 +237,12 @@ export function Sidebar({
           </div>
         ) : (
           <div className="flex items-center gap-1">
-            <AppSwitcher permissions={session.permissions} currentApp="os" placement="left" />
+            <AppSwitcher
+              permissions={session.permissions}
+              userId={session.user.id}
+              currentApp="os"
+              placement="left"
+            />
             {showNotifications ? (
               <NotificationCenter session={session} placement="sidebar" />
             ) : null}
