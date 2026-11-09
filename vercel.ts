@@ -38,8 +38,21 @@ export const config: VercelConfig = {
     // Service documents and estate images are returned as backend-relative media paths.
     routes.rewrite('/media/(.*)', `${apiOrigin.origin}/media/$1`),
     // Keep Services independently deployed while composing it under this host.
-    routes.rewrite('/services', 'https://services-mocha-xi.vercel.app/services'),
-    routes.rewrite('/services/(.*)', 'https://services-mocha-xi.vercel.app/services/$1'),
+    // This private upstream prefix avoids colliding with standalone-domain redirects.
+    routes.rewrite('/services', 'https://services-mocha-xi.vercel.app/__bomach_shared/services/'),
+    routes.rewrite(
+      '/services/(.*)',
+      'https://services-mocha-xi.vercel.app/__bomach_shared/services/$1',
+    ),
+    // Marketing remains an independent deployment and is composed under the Bomach host.
+    routes.rewrite(
+      '/marketing',
+      'https://marketing-wine-alpha.vercel.app/__bomach_shared/marketing/',
+    ),
+    routes.rewrite(
+      '/marketing/(.*)',
+      'https://marketing-wine-alpha.vercel.app/__bomach_shared/marketing/$1',
+    ),
     routes.rewrite('/(.*)', '/index.html'),
   ],
   headers: [

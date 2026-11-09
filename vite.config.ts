@@ -31,10 +31,27 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
+      port: Number(env.BOMACH_OS_DEV_PORT || 5173),
+      strictPort: true,
+      watch: {
+        ignored: ['**/dist/**'],
+      },
       proxy: {
         '/api': {
           target: env.BOMACH_API_ORIGIN || 'http://127.0.0.1:8000',
           changeOrigin: true,
+        },
+        '/services': {
+          target: env.BOMACH_SERVICES_DEV_ORIGIN || 'http://127.0.0.1:5175',
+          changeOrigin: true,
+          ws: true,
+          rewrite: (path) => path.replace(/^\/services(?=\?|$)/, '/services/'),
+        },
+        '/marketing': {
+          target: env.BOMACH_MARKETING_DEV_ORIGIN || 'http://127.0.0.1:5177',
+          changeOrigin: true,
+          ws: true,
+          rewrite: (path) => path.replace(/^\/marketing(?=\?|$)/, '/marketing/'),
         },
       },
     },

@@ -6,7 +6,7 @@ describe('Vercel routing', () => {
     vi.resetModules()
   })
 
-  it('keeps APIs and Services external rewrites ahead of the React fallback', async () => {
+  it('keeps APIs and product rewrites ahead of the React fallback', async () => {
     vi.stubEnv('VERCEL_ENV', 'preview')
     vi.stubEnv('BOMACH_API_STAGING_ORIGIN', 'https://api.example.test')
 
@@ -24,11 +24,19 @@ describe('Vercel routing', () => {
       },
       {
         source: '/services',
-        destination: 'https://services-mocha-xi.vercel.app/services',
+        destination: 'https://services-mocha-xi.vercel.app/__bomach_shared/services/',
       },
       {
         source: '/services/(.*)',
-        destination: 'https://services-mocha-xi.vercel.app/services/$1',
+        destination: 'https://services-mocha-xi.vercel.app/__bomach_shared/services/$1',
+      },
+      {
+        source: '/marketing',
+        destination: 'https://marketing-wine-alpha.vercel.app/__bomach_shared/marketing/',
+      },
+      {
+        source: '/marketing/(.*)',
+        destination: 'https://marketing-wine-alpha.vercel.app/__bomach_shared/marketing/$1',
       },
       {
         source: '/(.*)',
@@ -50,6 +58,8 @@ describe('Vercel routing', () => {
       source: '/api/(.*)',
       destination: 'https://api.example.prod/api/$1',
     })
-    expect(rewrites[2].destination).toBe('https://services-mocha-xi.vercel.app/services')
+    expect(rewrites[4].destination).toBe(
+      'https://marketing-wine-alpha.vercel.app/__bomach_shared/marketing/',
+    )
   })
 })
