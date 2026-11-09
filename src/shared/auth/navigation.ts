@@ -1,5 +1,6 @@
 import type { AuthenticatedSession } from './session'
-import { canAccessServicesApp } from '@/app/shell/app-catalog'
+import { lastVisitedWorkspaceHref } from './workspace-memory'
+import { canAccessMarketingApp, canAccessServicesApp } from '@/app/shell/app-catalog'
 import {
   canVisitDestination,
   matchDestinationPath,
@@ -11,6 +12,24 @@ export type { ProtectedDestination } from '@/app/navigation/route-manifest'
 export { PROTECTED_DESTINATIONS }
 
 export const NO_ACCESS_PATH = '/no-access'
+
+export function isServicesWorkspaceHref(value: string): boolean {
+  try {
+    const pathname = new URL(value, 'https://bomach.invalid').pathname
+    return pathname === '/services' || pathname.startsWith('/services/')
+  } catch {
+    return false
+  }
+}
+
+export function isMarketingWorkspaceHref(value: string): boolean {
+  try {
+    const pathname = new URL(value, 'https://bomach.invalid').pathname
+    return pathname === '/marketing' || pathname.startsWith('/marketing/')
+  } catch {
+    return false
+  }
+}
 
 const PUBLIC_PATHS = new Set([
   '/splash',
@@ -64,10 +83,10 @@ export function resolvePostLoginTarget(
   const safeTarget = safeInternalTarget(returnTo, effectiveOrigin)
   if (safeTarget) {
     const requestedPath = new URL(safeTarget, effectiveOrigin).pathname
-    if (
-      (requestedPath === '/services' || requestedPath.startsWith('/services/')) &&
-      canAccessServicesApp(session.permissions)
-    ) {
+    if (isServicesWorkspaceHref(requestedPath) && canAccessServicesApp(session.permissions)) {
+      return safeTarget
+    }
+    if (isMarketingWorkspaceHref(requestedPath) && canAccessMarketingApp(session.permissions)) {
       return safeTarget
     }
 
@@ -83,4 +102,12 @@ export function resolvePostLoginTarget(
     destinations.find((destination) => canVisitDestination(destination, session.permissions))
       ?.path ?? NO_ACCESS_PATH
   )
+}
+
+export function resolveWorkspaceEntryTarget(
+  returnTo: unknown,
+  session: AuthenticatedSession,
+): string {
+  const remembered = lastVisitedWorkspaceHref(session.user.id)
+  return resolvePostLoginTarget(returnTo ?? remembered, session)
 }

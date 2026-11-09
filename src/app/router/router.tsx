@@ -16,7 +16,7 @@ import {
   requireProtectedDestination,
 } from '@/shared/auth/route-guards'
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
-import { resolvePostLoginTarget } from '@/shared/auth/navigation'
+import { isMarketingWorkspaceHref, isServicesWorkspaceHref, resolveWorkspaceEntryTarget } from '@/shared/auth/navigation'
 import { NoAccessPage, NotFoundPage, RootLayout, RouteError } from './route-components'
 import { PROTECTED_DESTINATIONS } from '@/app/navigation/route-manifest'
 import { AppShell, ComingSoonPage } from '@/app/shell/app-shell'
@@ -387,8 +387,19 @@ const loginRoute = createRoute({
   beforeLoad: async ({ context, location }) => {
     try {
       const session = await context.queryClient.ensureQueryData(authSessionQueryOptions())
+      const destination = resolveWorkspaceEntryTarget(
+        (location.search as { returnTo?: string }).returnTo,
+        session,
+      )
+      if (isServicesWorkspaceHref(destination) || isMarketingWorkspaceHref(destination)) {
+        throw redirect({
+          to: '/splash',
+          search: { returnTo: destination },
+          replace: true,
+        })
+      }
       throw redirect({
-        href: resolvePostLoginTarget((location.search as { returnTo?: string }).returnTo, session),
+        href: destination,
         replace: true,
       })
     } catch (error) {
@@ -437,6 +448,12 @@ const protectedLayoutRoute = createRoute({
       <Outlet />
     </AppShell>
   ),
+})
+
+const protectedNotFoundRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '$',
+  component: NotFoundPage,
 })
 
 const noAccessRoute = createRoute({
@@ -1287,6 +1304,7 @@ const routeTree = rootRoute.addChildren([
     workReportDetailRoute,
     workReportEditRoute,
     ...protectedDestinationRoutes,
+    protectedNotFoundRoute,
   ]),
   ...(import.meta.env.DEV ? [foundationPreviewRoute] : []),
 ])

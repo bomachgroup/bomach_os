@@ -75,7 +75,7 @@ export function NotFoundPage() {
   const router = useRouter()
 
   return (
-    <main className="bg-background flex min-h-svh items-center justify-center px-4 py-8">
+    <div className="phone:px-5 tablet:px-6 wide:px-8 mx-auto flex min-h-[70svh] w-full max-w-[1440px] items-center justify-center px-4 py-8">
       <section
         className="bg-surface border-border-subtle shadow-elevation-sm rounded-surface phone:p-8 w-full max-w-xl border p-6 text-center"
         aria-labelledby="not-found-title"
@@ -95,7 +95,7 @@ export function NotFoundPage() {
           Go to dashboard
         </Button>
       </section>
-    </main>
+    </div>
   )
 }
 

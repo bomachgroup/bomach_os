@@ -5,10 +5,24 @@ import {
   PROTECTED_DESTINATIONS,
   type ProtectedDestination,
 } from '@/app/navigation/route-manifest'
-import { resolvePostLoginTarget, safeInternalTarget } from './navigation'
+import {
+  isMarketingWorkspaceHref,
+  isServicesWorkspaceHref,
+  resolvePostLoginTarget,
+  resolveWorkspaceEntryTarget,
+  safeInternalTarget,
+} from './navigation'
+import { saveWorkspaceLocation } from './workspace-memory'
 import type { AuthenticatedSession } from './session'
 
 const origin = 'https://os.example.com'
+
+describe('workspace deep links', () => {
+  it('recognizes only Marketing-prefixed routes', () => {
+    expect(isMarketingWorkspaceHref('/marketing/campaigns?status=active')).toBe(true)
+    expect(isMarketingWorkspaceHref('/company/branch')).toBe(false)
+  })
+})
 const destinations: ProtectedDestination[] = [
   {
     path: '/dashboard',
@@ -70,6 +84,13 @@ function session(permissions: Record<string, string[]>): AuthenticatedSession {
 }
 
 describe('auth navigation', () => {
+  it('recognizes the same-origin Services path as a cross-application destination', () => {
+    expect(isServicesWorkspaceHref('/services/app/calculator-library')).toBe(true)
+    expect(isServicesWorkspaceHref('/services?tab=home')).toBe(true)
+    expect(isServicesWorkspaceHref('/hr/employees')).toBe(false)
+    expect(isServicesWorkspaceHref('/services-admin')).toBe(false)
+  })
+
   it('registers sidebar destinations and exposes the Company and HR dashboards first', () => {
     const sidebar = PROTECTED_DESTINATIONS.filter((destination) => destination.inSidebar)
     expect(sidebar).toHaveLength(41)
@@ -132,6 +153,46 @@ describe('auth navigation', () => {
         origin,
       ),
     ).toBe('/dashboard')
+  })
+
+  it('returns to a Marketing deep link only when the account has a Marketing destination grant', () => {
+    expect(
+      resolvePostLoginTarget(
+        '/marketing/campaigns?tab=active',
+        session({ marketing_campaigns: ['list'] }),
+        destinations,
+        origin,
+      ),
+    ).toBe('/marketing/campaigns?tab=active')
+    expect(
+      resolvePostLoginTarget('/marketing/campaigns', session({ hr_employees: ['list'] }), destinations, origin),
+    ).toBe('/dashboard')
+  })
+
+  it('restores the most recently visited app for the same signed-in user from the main entry', () => {
+    window.localStorage.clear()
+    saveWorkspaceLocation(7, 'services', '/app/calculator-library?tab=recent')
+
+    expect(resolveWorkspaceEntryTarget(undefined, session({ dashboard: ['view'] }))).toBe(
+      '/services/app/calculator-library?tab=recent',
+    )
+    expect(resolveWorkspaceEntryTarget(undefined, session({ employees: ['list'] }))).toBe(
+      '/dashboard',
+    )
+    expect(resolveWorkspaceEntryTarget('/hr/employees', session({ employees: ['list'] }))).toBe(
+      '/hr/employees',
+    )
+    window.localStorage.clear()
+  })
+
+  it('restores a remembered Marketing deep link only for a user with Marketing access', () => {
+    window.localStorage.clear()
+    saveWorkspaceLocation(7, 'marketing', '/marketing/campaigns?tab=active')
+    expect(resolveWorkspaceEntryTarget(undefined, session({ marketing_campaigns: ['list'] }))).toBe(
+      '/marketing/campaigns?tab=active',
+    )
+    expect(resolveWorkspaceEntryTarget(undefined, session({ hr_employees: ['list'] }))).toBe('/dashboard')
+    window.localStorage.clear()
   })
 
   it('uses the first permitted destination when the requested one is forbidden', () => {

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 
 import { authSessionQueryOptions } from '@/shared/auth/session'
-import { resolvePostLoginTarget } from '@/shared/auth/navigation'
+import { isMarketingWorkspaceHref, isServicesWorkspaceHref, resolveWorkspaceEntryTarget } from '@/shared/auth/navigation'
 
 export function SplashPage() {
   const { data: session } = useQuery(authSessionQueryOptions())
@@ -12,7 +12,11 @@ export function SplashPage() {
 
   useEffect(() => {
     if (!session) return
-    const destination = resolvePostLoginTarget(search.returnTo, session)
+    const destination = resolveWorkspaceEntryTarget(search.returnTo, session)
+    if (isServicesWorkspaceHref(destination) || isMarketingWorkspaceHref(destination)) {
+      window.location.replace(destination)
+      return
+    }
     void navigate({ to: destination as never, replace: true })
   }, [navigate, search.returnTo, session])
 
