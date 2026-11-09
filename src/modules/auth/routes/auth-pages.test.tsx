@@ -23,7 +23,11 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 
 import { authApi } from '@/shared/auth/auth.api'
 import { ApiError } from '@/shared/api/api-error'
-import { SESSION_ESTABLISHED_KEY } from '@/shared/api/api-client'
+import {
+  SESSION_ESTABLISHED_KEY,
+  SESSION_EXPIRED_NOTICE_CONSUMED,
+  SESSION_EXPIRED_NOTICE_KEY,
+} from '@/shared/api/api-client'
 import { BiometricPage } from './biometric-page'
 import { ForgotPasswordPage } from './forgot-password-page'
 import { LoginPage } from './login-page'
@@ -94,6 +98,41 @@ describe('authentication pages', () => {
     await user.clear(password)
     await user.type(password, 'replacement-password')
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('replaces the expired-session notice with the login error after a failed sign-in', async () => {
+    const user = userEvent.setup()
+    routerMocks.search = {
+      returnTo: '/services/app/dashboard',
+      expired: true,
+      reset: false,
+    }
+    window.sessionStorage.setItem(SESSION_EXPIRED_NOTICE_KEY, '1')
+    vi.spyOn(authApi, 'login').mockRejectedValue(
+      new ApiError('Upstream sign-in failure', { status: 503 }),
+    )
+    const view = renderInQueryProvider(<LoginPage />)
+
+    expect(screen.getByText('Your session expired')).toBeInTheDocument()
+    expect(window.sessionStorage.getItem(SESSION_EXPIRED_NOTICE_KEY)).toBe(
+      SESSION_EXPIRED_NOTICE_CONSUMED,
+    )
+
+    await user.type(screen.getByRole('textbox', { name: 'Email' }), 'person@example.com')
+    await user.type(screen.getByLabelText(/^Password/), 'password')
+    await user.click(screen.getByRole('button', { name: 'Sign in' }))
+
+    expect(
+      await screen.findByText(
+        'The sign-in service is temporarily unavailable. Please try again shortly.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Your session expired')).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/^Password/)).toHaveValue('password')
+
+    view.unmount()
+    renderInQueryProvider(<LoginPage />)
+    expect(screen.queryByText('Your session expired')).not.toBeInTheDocument()
   })
 
   it('focuses the first invalid field after an empty sign-in attempt', async () => {

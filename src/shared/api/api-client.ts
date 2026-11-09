@@ -15,6 +15,7 @@ interface ApiErrorPayload {
 
 export const SESSION_ESTABLISHED_KEY = 'bomach:session-established'
 export const SESSION_EXPIRED_NOTICE_KEY = 'bomach:session-expired-notice'
+export const SESSION_EXPIRED_NOTICE_CONSUMED = 'consumed'
 export const SESSION_EXPIRED_EVENT = 'bomach:session-expired'
 export const BROWSER_REQUEST_HEADER = 'X-Bomach-Request'
 export const BROWSER_REQUEST_VALUE = 'browser'

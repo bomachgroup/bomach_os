@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { apiClient, SESSION_ESTABLISHED_KEY, SESSION_EXPIRED_EVENT } from './api-client'
+import {
+  apiClient,
+  SESSION_ESTABLISHED_KEY,
+  SESSION_EXPIRED_EVENT,
+  SESSION_EXPIRED_NOTICE_CONSUMED,
+  SESSION_EXPIRED_NOTICE_KEY,
+} from './api-client'
 
 function jsonResponse(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {
@@ -67,6 +73,7 @@ describe('shared cookie API client', () => {
 
   it('normalizes request failures and announces an expired known session once', async () => {
     window.sessionStorage.setItem(SESSION_ESTABLISHED_KEY, '1')
+    window.sessionStorage.setItem(SESSION_EXPIRED_NOTICE_KEY, SESSION_EXPIRED_NOTICE_CONSUMED)
     const expiredHandler = vi.fn()
     window.addEventListener(SESSION_EXPIRED_EVENT, expiredHandler)
     fetchMock.mockImplementation(async (input) =>
@@ -78,6 +85,7 @@ describe('shared cookie API client', () => {
     await expect(apiClient.get('/private')).rejects.toMatchObject({ status: 401 })
     expect(expiredHandler).toHaveBeenCalledTimes(1)
     expect(window.sessionStorage.getItem(SESSION_ESTABLISHED_KEY)).toBeNull()
+    expect(window.sessionStorage.getItem(SESSION_EXPIRED_NOTICE_KEY)).toBe('1')
     window.removeEventListener(SESSION_EXPIRED_EVENT, expiredHandler)
   })
 })

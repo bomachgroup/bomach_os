@@ -8,7 +8,11 @@ import { authApi } from '@/shared/auth/auth.api'
 import { presentError } from '@/shared/errors'
 import { authQueryKeys } from '@/shared/auth/auth.queries'
 import { AUTH_SESSION_QUERY_KEY } from '@/shared/auth/session'
-import { SESSION_ESTABLISHED_KEY, SESSION_EXPIRED_NOTICE_KEY } from '@/shared/api/api-client'
+import {
+  SESSION_ESTABLISHED_KEY,
+  SESSION_EXPIRED_NOTICE_CONSUMED,
+  SESSION_EXPIRED_NOTICE_KEY,
+} from '@/shared/api/api-client'
 import { Alert } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { FormControl } from '@/shared/ui/form-control'
@@ -20,22 +24,31 @@ const emailSchema = z.string().trim().email('Enter a valid email address.')
 const passwordSchema = z.string().min(1, 'Enter your password.')
 
 export function LoginPage() {
+  const search = useSearch({ from: '/login' })
   const [formError, setFormError] = useState<string | null>(null)
+  const [expiredNoticeVisible, setExpiredNoticeVisible] = useState(
+    () =>
+      search.expired &&
+      window.sessionStorage.getItem(SESSION_EXPIRED_NOTICE_KEY) !== SESSION_EXPIRED_NOTICE_CONSUMED,
+  )
   const [passwordVisible, setPasswordVisible] = useState(false)
   const formElement = useRef<HTMLFormElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const search = useSearch({ from: '/login' })
   const loginMutation = useMutation({ mutationFn: authApi.login })
 
   useEffect(() => {
-    if (search.expired) window.sessionStorage.removeItem(SESSION_EXPIRED_NOTICE_KEY)
+    if (search.expired) {
+      window.sessionStorage.setItem(SESSION_EXPIRED_NOTICE_KEY, SESSION_EXPIRED_NOTICE_CONSUMED)
+    }
   }, [search.expired])
 
   const form = useForm({
     defaultValues: { email: '', password: '' },
     onSubmit: async ({ value }) => {
       setFormError(null)
+      setExpiredNoticeVisible(false)
+      window.sessionStorage.setItem(SESSION_EXPIRED_NOTICE_KEY, SESSION_EXPIRED_NOTICE_CONSUMED)
       try {
         const response = await loginMutation.mutateAsync({
           email: value.email.trim(),
@@ -78,7 +91,7 @@ export function LoginPage() {
           </p>
         </div>
 
-        {search.expired ? (
+        {expiredNoticeVisible ? (
           <Alert tone="warning" title="Your session expired">
             Sign in again to continue where you left off.
           </Alert>
