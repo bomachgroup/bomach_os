@@ -250,7 +250,9 @@ export function CreationFlowActions({ leading, children, className }: CreationFl
   return (
     <div className={cn('flex w-full flex-wrap items-center justify-between gap-3', className)}>
       {leading ? <div className="mr-auto flex flex-wrap items-center gap-2">{leading}</div> : null}
-      <div className="flex flex-wrap items-center justify-end gap-2">{children}</div>
+      <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2">
+        {children}
+      </div>
     </div>
   )
 }

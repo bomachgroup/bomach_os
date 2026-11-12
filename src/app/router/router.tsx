@@ -16,12 +16,19 @@ import {
   requireProtectedDestination,
 } from '@/shared/auth/route-guards'
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
-import { isMarketingWorkspaceHref, isServicesWorkspaceHref, resolveWorkspaceEntryTarget } from '@/shared/auth/navigation'
+import {
+  isMarketingWorkspaceHref,
+  isServicesWorkspaceHref,
+  resolveWorkspaceEntryTarget,
+} from '@/shared/auth/navigation'
 import { NoAccessPage, NotFoundPage, RootLayout, RouteError } from './route-components'
 import { PROTECTED_DESTINATIONS } from '@/app/navigation/route-manifest'
 import { AppShell, ComingSoonPage } from '@/app/shell/app-shell'
 import { validateMyTasksSearch } from '@/modules/tasks/tasks.search'
-import { validateWorkReportsSearch } from '@/modules/work-reports/work-reports.search'
+import {
+  hasNonCanonicalWorkReportsSearch,
+  validateWorkReportsSearch,
+} from '@/modules/work-reports/work-reports.search'
 import { validateMyTargetsSearch } from '@/modules/targets/targets.search'
 import { validateMyLeavesSearch } from '@/modules/leaves/leaves.search'
 import { validateRecruitmentSearch } from '@/modules/hr/recruitment.search'
@@ -70,6 +77,10 @@ import {
   validateAttendanceSearch,
   validateAttendanceSetupSearch,
 } from '@/modules/attendance/attendance.search'
+import {
+  validateProjectDetailSearch,
+  validateProjectsSearch,
+} from '@/modules/operations/projects.search'
 
 type EmptyRouteProps = Record<string, never>
 
@@ -294,6 +305,30 @@ const WorkReportDetailPage = lazyRouteComponent(
   () => import('@/modules/work-reports/routes/work-report-detail-page'),
   'WorkReportDetailPage',
 )
+const SiteReportDetailPage = lazyRouteComponent(
+  () => import('@/modules/work-reports/routes/site-report-pages'),
+  'SiteReportDetailPage',
+)
+const SiteReportEditPage = lazyRouteComponent(
+  () => import('@/modules/work-reports/routes/site-report-pages'),
+  'SiteReportEditPage',
+)
+const SiteReportCreatePage = lazyRouteComponent(
+  () => import('@/modules/work-reports/routes/site-report-create-page'),
+  'SiteReportCreatePage',
+)
+const OperationsPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/operations-page'),
+  'OperationsPage',
+)
+const ProjectsPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/projects-page'),
+  'ProjectsPage',
+)
+const ProjectDetailPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/project-detail-page'),
+  'ProjectDetailPage',
+)
 const MyTargetsPage = lazyRouteComponent(
   () => import('@/modules/targets/routes/my-targets-page'),
   'MyTargetsPage',
@@ -514,6 +549,11 @@ const assetsDestination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/c
 const knowledgeBaseDestination = PROTECTED_DESTINATIONS.find(
   ({ path }) => path === '/company/knowledge-base',
 )
+const operationsDestination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/operations')
+const projectsDestination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/works/projects')
+const projectDetailDestination = PROTECTED_DESTINATIONS.find(
+  ({ path }) => path === '/works/projects/$projectId',
+)
 
 if (!myTasksDestination) throw new Error('The My Tasks route is missing from the route manifest.')
 if (!myReportsDestination)
@@ -550,6 +590,11 @@ if (!okrBoardDestination) throw new Error('The OKR Board route is missing from t
 if (!assetsDestination) throw new Error('The Assets route is missing from the route manifest.')
 if (!knowledgeBaseDestination)
   throw new Error('The Knowledge Base route is missing from the route manifest.')
+if (!operationsDestination)
+  throw new Error('The Operations route is missing from the route manifest.')
+if (!projectsDestination) throw new Error('The Projects route is missing from the route manifest.')
+if (!projectDetailDestination)
+  throw new Error('The Project Details route is missing from the route manifest.')
 
 const assetsRoute = createRoute({
   getParentRoute: () => protectedLayoutRoute,
@@ -1037,6 +1082,17 @@ const myWorkReportsRoute = createRoute({
   validateSearch: validateWorkReportsSearch,
   beforeLoad: async ({ context, location }) => {
     await requireProtectedDestination(context, location, myReportsDestination)
+    if (hasNonCanonicalWorkReportsSearch(location.searchStr)) {
+      const normalized = validateWorkReportsSearch(
+        Object.fromEntries(new URLSearchParams(location.searchStr)),
+      )
+      const search = new URLSearchParams({
+        type: normalized.type,
+        status: normalized.status,
+        page: String(normalized.page),
+      })
+      throw redirect({ href: `/dashboard/my-reports?${search}`, replace: true })
+    }
   },
   component: MyWorkReportsPage,
 })
@@ -1059,6 +1115,35 @@ const attendanceRoute = createRoute({
     await requireProtectedDestination(context, location, attendanceDestination)
   },
   component: AttendancePage,
+})
+
+const operationsRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/operations',
+  beforeLoad: async ({ context, location }) => {
+    await requireProtectedDestination(context, location, operationsDestination)
+  },
+  component: OperationsPage,
+})
+
+const projectsRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/projects',
+  validateSearch: validateProjectsSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requireProtectedDestination(context, location, projectsDestination)
+  },
+  component: ProjectsPage,
+})
+
+const projectDetailRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/projects/$projectId',
+  validateSearch: validateProjectDetailSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requirePermission(context, location, 'projects', 'view')
+  },
+  component: ProjectDetailPage,
 })
 
 async function requireAnyPermission(
@@ -1150,6 +1235,51 @@ async function requireAnyWorkReportPermission(
   }
 }
 
+async function requireSiteReportPermission(
+  context: AppRouterContext,
+  location: { pathname: string; searchStr: string; hash: string },
+  reportType: string | undefined,
+  action: 'view' | 'update',
+) {
+  const session = await requireAuthenticatedSession(context, location)
+  const resource =
+    reportType === 'engineering'
+      ? 'engineering_site_reports'
+      : reportType === 'survey'
+        ? 'survey_site_reports'
+        : null
+  if (
+    !resource ||
+    ![
+      hasPermission(session.permissions, resource, action),
+      hasPermission(session.permissions, resource, `${action}_own`),
+    ].some(Boolean)
+  ) {
+    throw redirect({ to: '/no-access' })
+  }
+}
+
+async function requireSiteReportCreatePermission(
+  context: AppRouterContext,
+  location: { pathname: string; searchStr: string; hash: string },
+  reportType: string | undefined,
+) {
+  const session = await requireAuthenticatedSession(context, location)
+  const resource =
+    reportType === 'engineering'
+      ? 'engineering_site_reports'
+      : reportType === 'survey'
+        ? 'survey_site_reports'
+        : null
+  if (
+    !resource ||
+    !hasPermission(session.permissions, resource, 'create') ||
+    !hasPermission(session.permissions, 'worksites', 'list')
+  ) {
+    throw redirect({ to: '/no-access' })
+  }
+}
+
 const workReportCreateRoute = createRoute({
   getParentRoute: () => protectedLayoutRoute,
   path: '/dashboard/my-reports/create',
@@ -1158,6 +1288,16 @@ const workReportCreateRoute = createRoute({
     await requireAnyWorkReportPermission(context, location, ['create'])
   },
   component: WorkReportFormPage,
+})
+
+const siteReportCreateRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/dashboard/my-reports/create-site/$reportType',
+  validateSearch: validateWorkReportsSearch,
+  beforeLoad: async ({ context, location, params }) => {
+    await requireSiteReportCreatePermission(context, location, params.reportType)
+  },
+  component: SiteReportCreatePage,
 })
 
 const workReportDetailRoute = createRoute({
@@ -1180,9 +1320,32 @@ const workReportEditRoute = createRoute({
   component: WorkReportFormPage,
 })
 
+const personalSiteReportDetailRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/dashboard/my-reports/site/$reportType/$reportId',
+  validateSearch: validateWorkReportsSearch,
+  beforeLoad: async ({ context, location, params }) => {
+    await requireSiteReportPermission(context, location, params.reportType, 'view')
+  },
+  component: SiteReportDetailPage,
+})
+
+const personalSiteReportEditRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/dashboard/my-reports/site/$reportType/$reportId/edit',
+  validateSearch: validateWorkReportsSearch,
+  beforeLoad: async ({ context, location, params }) => {
+    await requireSiteReportPermission(context, location, params.reportType, 'update')
+  },
+  component: SiteReportEditPage,
+})
+
 const protectedDestinationRoutes = PROTECTED_DESTINATIONS.filter(
   ({ path }) =>
     path !== '/dashboard/my-profile' &&
+    path !== '/operations' &&
+    path !== '/works/projects' &&
+    path !== '/works/projects/$projectId' &&
     path !== '/dashboard/role' &&
     path !== '/notifications' &&
     path !== '/company' &&
@@ -1298,11 +1461,17 @@ const routeTree = rootRoute.addChildren([
     attendanceFaceRegistrationRoute,
     attendanceWorkLocationRegistrationRoute,
     myLeavesRoute,
+    operationsRoute,
+    projectsRoute,
+    projectDetailRoute,
     leaveRequestDetailRoute,
     employeeAttendanceAliasRoute,
     workReportCreateRoute,
+    siteReportCreateRoute,
     workReportDetailRoute,
     workReportEditRoute,
+    personalSiteReportDetailRoute,
+    personalSiteReportEditRoute,
     ...protectedDestinationRoutes,
     protectedNotFoundRoute,
   ]),

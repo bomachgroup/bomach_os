@@ -93,10 +93,11 @@ describe('auth navigation', () => {
 
   it('registers sidebar destinations and exposes the Company and HR dashboards first', () => {
     const sidebar = PROTECTED_DESTINATIONS.filter((destination) => destination.inSidebar)
-    expect(sidebar).toHaveLength(41)
+    expect(sidebar).toHaveLength(49)
     expect(sidebar.filter((destination) => destination.group === 'Dashboard')).toHaveLength(11)
     expect(sidebar.filter((destination) => destination.group === 'Company')).toHaveLength(14)
     expect(sidebar.filter((destination) => destination.group === 'HR/Admin')).toHaveLength(16)
+    expect(sidebar.filter((destination) => destination.group === 'Operations')).toHaveLength(8)
     expect(sidebar.find((destination) => destination.path === '/company/overview')?.order).toBe(9)
     expect(sidebar.find((destination) => destination.path === '/hr')?.order).toBe(29)
     expect(
@@ -165,7 +166,12 @@ describe('auth navigation', () => {
       ),
     ).toBe('/marketing/campaigns?tab=active')
     expect(
-      resolvePostLoginTarget('/marketing/campaigns', session({ hr_employees: ['list'] }), destinations, origin),
+      resolvePostLoginTarget(
+        '/marketing/campaigns',
+        session({ hr_employees: ['list'] }),
+        destinations,
+        origin,
+      ),
     ).toBe('/dashboard')
   })
 
@@ -191,7 +197,9 @@ describe('auth navigation', () => {
     expect(resolveWorkspaceEntryTarget(undefined, session({ marketing_campaigns: ['list'] }))).toBe(
       '/marketing/campaigns?tab=active',
     )
-    expect(resolveWorkspaceEntryTarget(undefined, session({ hr_employees: ['list'] }))).toBe('/dashboard')
+    expect(resolveWorkspaceEntryTarget(undefined, session({ hr_employees: ['list'] }))).toBe(
+      '/dashboard',
+    )
     window.localStorage.clear()
   })
 

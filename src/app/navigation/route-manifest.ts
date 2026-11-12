@@ -5,8 +5,8 @@ export interface PermissionRequirement {
   action: string
 }
 
-export type NavigationGroup = 'Dashboard' | 'Company' | 'HR/Admin'
-export type NavigationSection = 'Workspace' | 'People'
+export type NavigationGroup = 'Dashboard' | 'Company' | 'HR/Admin' | 'Operations'
+export type NavigationSection = 'Workspace' | 'People' | 'Operations'
 export type NavigationCategoryId =
   | 'my-work-output'
   | 'my-work-time'
@@ -48,6 +48,7 @@ export const NAVIGATION_CATEGORIES: Record<
     { id: 'hr-performance', label: 'Performance & reporting' },
     { id: 'hr-recognition', label: 'Recognition & employee relations' },
   ],
+  Operations: [],
 }
 
 export const NAVIGATION_CATEGORY_IDS: readonly NavigationCategoryId[] = Object.values(
@@ -148,7 +149,7 @@ function destination(
     ...(navigationLabel ? { navigationLabel } : {}),
     ...(categoryByPath[path] ? { navigationCategory: categoryByPath[path] } : {}),
     group,
-    section: group === 'HR/Admin' ? 'People' : 'Workspace',
+    section: group === 'Operations' ? 'Operations' : group === 'HR/Admin' ? 'People' : 'Workspace',
     requiredPermissions,
     ...(requiredAllPermissions.length ? { requiredAllPermissions } : {}),
     ...(excludedPermissions.length ? { excludedPermissions } : {}),
@@ -210,8 +211,15 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     '/dashboard/my-reports',
     'Work Reports',
     'Dashboard',
-    any(p('work_reports', 'list_own'), p('work_reports', 'list')),
-    ['work_reports'],
+    any(
+      p('work_reports', 'list_own'),
+      p('work_reports', 'list'),
+      p('engineering_site_reports', 'list_own'),
+      p('engineering_site_reports', 'list'),
+      p('survey_site_reports', 'list_own'),
+      p('survey_site_reports', 'list'),
+    ),
+    ['work_reports', 'engineering_site_reports', 'survey_site_reports'],
     'report',
     4,
   ),
@@ -602,6 +610,92 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     46,
   ),
 
+  // Operations is a separate sidebar section; project details remain nested under Projects.
+  destination(
+    '/operations',
+    'Operations',
+    'Operations',
+    any(p('projects', 'list'), p('tasks', 'list')),
+    ['projects'],
+    'briefcase',
+    47,
+  ),
+  destination(
+    '/works/projects',
+    'Projects',
+    'Operations',
+    any(p('projects', 'list')),
+    ['projects'],
+    'building',
+    48,
+  ),
+  destination(
+    '/works/worksite',
+    'Worksite',
+    'Operations',
+    any(p('worksites', 'list')),
+    ['worksites'],
+    'branch',
+    49,
+  ),
+  destination(
+    '/works/tasks',
+    'Tasks',
+    'Operations',
+    any(p('tasks', 'list')),
+    ['tasks'],
+    'task',
+    50,
+  ),
+  destination(
+    '/works/engineering-site-reports',
+    'Engineering Site Reports',
+    'Operations',
+    any(
+      p('engineering_site_reports', 'list'),
+      p('engineering_site_reports', 'list_own'),
+      p('engineering_site_reports', 'view'),
+      p('engineering_site_reports', 'view_own'),
+      p('engineering_site_reports', 'create'),
+    ),
+    ['engineering_site_reports'],
+    'report',
+    51,
+  ),
+  destination(
+    '/works/survey-site-reports',
+    'Survey Site Reports',
+    'Operations',
+    any(
+      p('survey_site_reports', 'list'),
+      p('survey_site_reports', 'list_own'),
+      p('survey_site_reports', 'view'),
+      p('survey_site_reports', 'view_own'),
+      p('survey_site_reports', 'create'),
+    ),
+    ['survey_site_reports'],
+    'report',
+    52,
+  ),
+  destination(
+    '/works/contracts',
+    'Contracts',
+    'Operations',
+    any(p('contracts', 'list')),
+    ['contracts'],
+    'book',
+    53,
+  ),
+  destination(
+    '/hr/meetings',
+    'Meetings',
+    'Operations',
+    any(p('meetings', 'list')),
+    ['meetings'],
+    'calendar',
+    54,
+  ),
+
   // Active registered direct routes related to the approved Workspace, Company and HR scope.
   // These are intentionally not sidebar entries; they preserve deep links while their pages are queued.
   destination(
@@ -698,6 +792,76 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     110,
     false,
   ),
+  destination(
+    '/works/projects/detail',
+    'Project Details',
+    'Operations',
+    any(p('projects', 'list')),
+    [],
+    'building',
+    120,
+    false,
+  ),
+  destination(
+    '/operations/projects/detail',
+    'Project Details',
+    'Operations',
+    any(p('projects', 'list')),
+    [],
+    'building',
+    121,
+    false,
+  ),
+  destination(
+    '/works/projects/$projectId',
+    'Project Details',
+    'Operations',
+    any(p('projects', 'view')),
+    ['projects'],
+    'building',
+    126,
+    false,
+  ),
+  destination(
+    '/operations/task/detail',
+    'Task Details',
+    'Operations',
+    any(p('tasks', 'list'), p('tasks', 'list_own')),
+    [],
+    'task',
+    122,
+    false,
+  ),
+  destination(
+    '/operations/worksite/detail',
+    'Worksite Details',
+    'Operations',
+    any(p('worksites', 'list')),
+    [],
+    'branch',
+    123,
+    false,
+  ),
+  destination(
+    '/operations/contract/detail',
+    'Contract Details',
+    'Operations',
+    any(p('contracts', 'list')),
+    [],
+    'book',
+    124,
+    false,
+  ),
+  destination(
+    '/operations/timeline/detail',
+    'Timeline Details',
+    'Operations',
+    any(p('projects', 'list')),
+    [],
+    'calendar',
+    125,
+    false,
+  ),
   destination('/workspace', 'Workspace', 'Dashboard', [], [], 'workspace', 111, false),
   destination(
     '/workspace-dashboard',
@@ -711,7 +875,12 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
   ),
 ]
 
-export const NAVIGATION_GROUPS: readonly NavigationGroup[] = ['Dashboard', 'Company', 'HR/Admin']
+export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
+  'Dashboard',
+  'Company',
+  'HR/Admin',
+  'Operations',
+]
 
 export function destinationForPath(pathname: string): ProtectedDestination | undefined {
   return PROTECTED_DESTINATIONS.find((item) => matchDestinationPath(item.path, pathname))

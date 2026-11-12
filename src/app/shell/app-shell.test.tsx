@@ -189,6 +189,60 @@ describe('authenticated app shell', () => {
     expect(screen.queryByRole('link', { name: 'Monthly Scorecard' })).not.toBeInTheDocument()
   })
 
+  it('shows Operations routes in Flutter order and includes them in permitted page search', async () => {
+    const user = userEvent.setup()
+    renderShell({
+      projects: ['list'],
+      worksites: ['list'],
+      tasks: ['list'],
+      engineering_site_reports: ['list'],
+      survey_site_reports: ['list'],
+      contracts: ['list'],
+      meetings: ['list'],
+    })
+
+    const navigation = screen.getByRole('navigation', { name: 'Main navigation' })
+    await user.click(
+      within(navigation).getByRole('button', { name: 'Operations navigation group' }),
+    )
+
+    const links = within(navigation).getAllByRole('link')
+    const operationsPaths = links
+      .map((link) => link.getAttribute('href'))
+      .filter((path) =>
+        [
+          '/operations',
+          '/works/projects',
+          '/works/worksite',
+          '/works/tasks',
+          '/works/engineering-site-reports',
+          '/works/survey-site-reports',
+          '/works/contracts',
+          '/hr/meetings',
+        ].includes(path ?? ''),
+      )
+    expect(operationsPaths).toEqual([
+      '/operations',
+      '/works/projects',
+      '/works/worksite',
+      '/works/tasks',
+      '/works/engineering-site-reports',
+      '/works/survey-site-reports',
+      '/works/contracts',
+      '/hr/meetings',
+    ])
+
+    await user.keyboard('{Control>}k{/Control}')
+    const search = within(screen.getByRole('dialog', { name: 'Workspace navigation' })).getByRole(
+      'combobox',
+      { name: 'Search pages' },
+    )
+    await user.type(search, 'Engineering Site Reports')
+    expect(screen.getByRole('listbox', { name: 'Matching workspace pages' })).toBeInTheDocument()
+    await user.keyboard('{Enter}')
+    expect(routerMocks.navigate).toHaveBeenCalledWith({ to: '/works/engineering-site-reports' })
+  })
+
   it('opens inline page search from Ctrl/Cmd+K and navigates to a permitted result', async () => {
     const user = userEvent.setup()
     renderShell({ employees: ['list'] })

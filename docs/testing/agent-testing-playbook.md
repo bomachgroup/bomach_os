@@ -109,7 +109,7 @@ Use the narrowest test first, then widen coverage based on risk:
 
 ### Commands in this workspace
 
-Run React checks from `bomach_os_react_port`:
+Run React checks from `bomach_os`:
 
 ```bash
 npm run test:run

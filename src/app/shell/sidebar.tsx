@@ -301,7 +301,7 @@ export function Sidebar({
           </section>
         ) : null}
 
-        {(['Workspace', 'People'] as const).map((section) => {
+        {(['Workspace', 'People', 'Operations'] as const).map((section) => {
           const sectionDestinations = destinations.filter((item) => item.section === section)
           const primaryDestinations = sectionDestinations.filter(
             (item) => item.path === '/dashboard',
@@ -315,7 +315,7 @@ export function Sidebar({
               key={section}
               aria-label={section}
               className={
-                section === 'People' ? 'border-border-subtle mt-4 mb-4 border-t pt-4' : 'mb-4'
+                section !== 'Workspace' ? 'border-border-subtle mt-4 mb-4 border-t pt-4' : 'mb-4'
               }
             >
               {!collapsed ? (
@@ -350,7 +350,13 @@ export function Sidebar({
                       currentDestination.path !== '/dashboard')
                   const groupLabel = navigationGroupLabel(group)
                   const groupIcon =
-                    group === 'Dashboard' ? 'task' : group === 'Company' ? 'building' : 'people'
+                    group === 'Dashboard'
+                      ? 'task'
+                      : group === 'Company'
+                        ? 'building'
+                        : group === 'Operations'
+                          ? 'briefcase'
+                          : 'people'
                   const activeGroup =
                     activeDestination?.group === group && activeDestination.path !== '/dashboard'
                   const categories = NAVIGATION_CATEGORIES[group]
@@ -546,6 +552,7 @@ function NavigationLink({
 }) {
   const active =
     activePath === destination.path ||
+    (destination.path === '/works/projects' && activePath.startsWith('/works/projects/')) ||
     (destination.path.includes('$') &&
       destination.path.split('/').length === activePath.split('/').length &&
       destination.path

@@ -50,7 +50,9 @@ The host route is shown first; for embedded pages, the child app route follows `
 
 The React port of Tasks is implemented at `/dashboard/my-tasks`; see [my-tasks-implementation.md](my-tasks-implementation.md) for its URL state, permission contract, data lifecycle, and verification notes.
 
-The React port of personal daily Work Reports is implemented at `/dashboard/my-reports`; see [my-work-reports-implementation.md](my-work-reports-implementation.md) for its routes, editor workflow, backend contract, and data lifecycle. Its list, detail, and editor carry validated filter/page state through canonical parent links. The HR/Admin `/hr/work-report` review queue and Operations site reports remain separate workflows.
+For the ownership boundary between employee-owned My Work views and the upcoming Operations port—including the Flutter personal site-report behavior—see [my-work-operations-scope.md](my-work-operations-scope.md).
+
+The React port of personal Daily, Engineering, and Survey Reports is implemented as one permission-scoped register at `/dashboard/my-reports`; see [my-work-reports-implementation.md](my-work-reports-implementation.md) for its routes, create/detail flows, combined backend contract, access matrix, and data lifecycle. The register uses a dedicated authenticated aggregation endpoint rather than the broader `/reports/` feed. The HR/Admin `/hr/work-report` review queue and Operations registers remain separate workflows.
 
 The employee-facing Targets route is implemented at `/dashboard/my-target-reports`; see [my-targets-implementation.md](my-targets-implementation.md) for the separate target and progress-history sections, permissions, API fields, and refresh lifecycle. KPI measures stay in their own workflows.
 
@@ -106,13 +108,15 @@ The employee Attendance and My Leaves pages are implemented at `/hr/attendance` 
 ### Operations
 
 - **Operations** — `/operations`; Flutter page; Flutter widget: `OperationsPage`.
-- **Project** — `/works/projects`; Flutter page; Flutter widget: `ProjectsPage`.
+- **Projects** — `/works/projects`; Flutter page; Flutter widget: `ProjectsPage`.
 - **Worksite** — `/works/worksite`; Flutter page; Flutter widget: `WorkSite`.
 - **Tasks** — `/works/tasks`; Flutter page; Flutter widget: `TaskPage`.
 - **Engineering Site Reports** — `/works/engineering-site-reports`; Flutter page; Flutter widget: `EngineeringSiteReportsPage`.
 - **Survey Site Reports** — `/works/survey-site-reports`; Flutter page; Flutter widget: `SurveySiteReportsPage`.
 - **Contracts** — `/works/contracts`; Flutter page; Flutter widget: `ContractPage`.
 - **Meetings** — `/hr/meetings`; Flutter page; Flutter widget: `Meetings`.
+
+The React port registers these eight destinations under a separate Operations sidebar section and group. `/operations` now shows permission-aware project and delivery metrics, while `/works/projects` is a searchable, filterable, paginated register with create/edit, archive/restore, and confirmed permanent deletion. Opening a project uses the nested `/works/projects/:projectId` workspace, with URL-backed Overview, Members, Work site, Files, Milestones, Tasks, Associates, and Meetings tabs. Other Operations destinations remain Coming Soon until ported individually. See [projects-implementation.md](projects-implementation.md) for the register interactions, review flow, route permissions, query invalidation, and verification notes.
 
 ### Services
 
@@ -249,6 +253,8 @@ The router also contains detail, legacy, landing, and compatibility routes. Thes
 - `operationsContractDetail` — `/operations/contract/detail`; Flutter page; Flutter widget: `ContractDetailPage`.
 - `operationsTimelineDetail` — `/operations/timeline/detail`; Flutter page; Flutter widget: `TimelineDetailPage`.
 
+The React port implements project details at `/works/projects/:projectId`; the eight project tabs remain inside that route and do not create sidebar entries. The older `/works/projects/detail` and `/operations/projects/detail` aliases, plus task/worksite/contract/timeline detail routes, remain protected non-sidebar placeholders.
+
 ### Services
 
 - `realEstate` — `/services/real-estate`; Flutter page; Flutter widget: `RealEstateScreen`.
@@ -330,18 +336,18 @@ The router also contains detail, legacy, landing, and compatibility routes. Thes
 ## Port scope reading
 
 - **Confirmed Flutter source inventory:** all six Workspace/Dashboard, 15 Company, and 17 HR/Admin destinations (38 source sidebar destinations). React intentionally reorganizes them: Attendance and My Leaves are under My Work, Roles & Permissions is under HR/Admin, and `/hr` is surfaced as the HR dashboard.
-- **React implementation status:** the route manifest has 41 sidebar destinations and the direct/detail routes below. `/dashboard`, `/company`, `/company/overview`, `/company/approval-requests`, `/company/approval-workflow`, `/company/broadcast`, `/company/branch`, `/company/branch/:branchId`, and `/hr` have implemented React pages; remaining destinations use the shared permission-guarded Coming Soon page.
+- **React implementation status:** the route manifest has 49 sidebar destinations and 18 direct/detail routes. Implemented pages include `/dashboard`, `/dashboard/my-reports`, `/operations`, `/works/projects`, `/works/projects/:projectId`, `/company`, `/company/overview`, `/company/approval-requests`, `/company/approval-workflow`, `/company/broadcast`, `/company/branch`, `/company/branch/:branchId`, and `/hr`; remaining destinations use the shared permission-guarded Coming Soon page. My Work Reports combines accessible Daily, Engineering, and Survey history; its type-specific site creation and personal actions do not replace the Operations review registers.
 - **React-only routes:** `/company/overview` consolidates company health metrics; `/company/approval-requests` provides a dedicated approval-request review experience, also available as a tab in Approval Workflows; and `/company/branch/:branchId` is a shareable branch detail route. `/company` is the focused company profile/settings page.
 - Dashboard metric ownership, summary API contracts, permission rules, branch-scope limits, and dashboard verification are recorded in [dashboard-implementation.md](dashboard-implementation.md).
-- **In-scope direct/detail routes:** `/hr/employees/profile`, `/hr/associates`, `/employee`, `/employee/directory`, `/employee/performance`, `/employee/attendance`, `/employee/training`, `/company/enugu`, `/company/roles/detail`, `/company/roles/:roleId`, `/workspace`, and `/workspace-dashboard` (12 unique entries; the dynamic role route is shown in Flutter syntax). The source's legacy `/company/roles/detail` route requires in-memory `state.extra` and otherwise renders an unavailable state; durable role links use the ID route.
-- **Flutter but outside the current Company/HR port focus:** Operations, Events, CRM Clients, Analytics, Legal & Compliance, Security, and the legacy Flutter Services pages listed above.
+- **Direct/detail routes:** the 12 existing routes are `/hr/employees/profile`, `/hr/associates`, `/employee`, `/employee/directory`, `/employee/performance`, `/employee/attendance`, `/employee/training`, `/company/enugu`, `/company/roles/detail`, `/company/roles/:roleId`, `/workspace`, and `/workspace-dashboard`; the six newly scaffolded Operations details are listed above (18 unique entries total). The source's legacy `/company/roles/detail` route requires in-memory `state.extra` and otherwise renders an unavailable state; durable role links use the ID route.
+- **Outside the current port scope:** remaining Operations registers (Worksite, operational Tasks, review reports, Contracts, and Meetings) remain queued for their own page-by-page ports; Events, CRM Clients, Analytics, Legal & Compliance, Security, and the legacy Flutter Services pages remain outside this slice.
 - **Stay as separate applications:** Services is composed under the shared Bomach host at `/services` through an external rewrite; its codebase and page content remain independent. Marketing and Finance remain hidden until their test origins and shared-auth readiness are verified.
 - The Company menu’s `Assets` destination is rendered by `AssetsPage` from the Flutter HR source folder, but ownership in this inventory follows its actual Company sidebar group and `/company/assets` route.
 
 ## Source files checked
 
-- `../bomach_os/lib/src/app_routes/menu_structure.dart`
-- `../bomach_os/lib/src/app_routes/app_route_constants.dart`
-- `../bomach_os/lib/src/app_routes/app_router.dart`
-- `../bomach_os/lib/src/constants/api_constants.dart`
+- `../../bomach_os/lib/src/app_routes/menu_structure.dart`
+- `../../bomach_os/lib/src/app_routes/app_route_constants.dart`
+- `../../bomach_os/lib/src/app_routes/app_router.dart`
+- `../../bomach_os/lib/src/constants/api_constants.dart`
 - Live test shell: `https://bomach-os-test.web.app/#/hr/employees` (read-only navigation inspection; no login or form submission).

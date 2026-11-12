@@ -109,7 +109,7 @@ export function AppSwitcher({
     const menu = menuRef.current
     const positionMenu = () => {
       const anchor = details.getBoundingClientRect()
-      const width = Math.min(296, window.innerWidth - 24)
+      const width = Math.min(320, window.innerWidth - 24)
       const desiredLeft = placement === 'left' ? anchor.left : anchor.right - width
       const viewportLeft = Math.min(Math.max(12, desiredLeft), window.innerWidth - width - 12)
       menu.style.left = `${viewportLeft - anchor.left}px`
@@ -175,11 +175,7 @@ export function AppSwitcher({
           aria-label="Available workspaces"
         >
           <div className="workspace-switch-menu__header">
-            <span className="workspace-switch-menu__eyebrow">BOMACH WORKSPACE</span>
             <span className="workspace-switch-menu__title">Switch workspace</span>
-            <span className="workspace-switch-menu__hint">
-              {currentWorkspace ? `Currently in ${currentWorkspace.label}` : 'Choose an app'}
-            </span>
           </div>
           <div className="workspace-switch-menu__list">
             {apps.map((app) => {

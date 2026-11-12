@@ -11,11 +11,123 @@ import {
   validateEmployeeProfileSearch,
   validateEmployeesSearch,
 } from '@/modules/hr/employees.search'
-import { canVisitDestination, PROTECTED_DESTINATIONS } from '@/app/navigation/route-manifest'
+import {
+  canSeeDestination,
+  canVisitDestination,
+  PROTECTED_DESTINATIONS,
+  sidebarDestinationsFor,
+} from '@/app/navigation/route-manifest'
 
 import { router } from './router'
 
 describe('employee route registrations', () => {
+  it('allows My Work Reports for daily or site-only personal list permissions', () => {
+    const destination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/dashboard/my-reports')
+    expect(destination).toBeDefined()
+    expect(canVisitDestination(destination!, { work_reports: ['list_own'] })).toBe(true)
+    expect(canVisitDestination(destination!, { engineering_site_reports: ['list_own'] })).toBe(true)
+    expect(canVisitDestination(destination!, { survey_site_reports: ['list'] })).toBe(true)
+    expect(canVisitDestination(destination!, {})).toBe(false)
+    expect(canSeeDestination(destination!, { survey_site_reports: ['list_own'] })).toBe(true)
+  })
+
+  it('registers personal site report detail and edit routes with URL-backed daily/site state', () => {
+    const detail = router.buildLocation({
+      to: '/dashboard/my-reports/site/$reportType/$reportId',
+      params: { reportType: 'survey', reportId: '72' },
+      search: { tab: 'site', siteStatus: 'rejected', engineeringPage: 2, surveyPage: 3 },
+    })
+    const edit = router.buildLocation({
+      to: '/dashboard/my-reports/site/$reportType/$reportId/edit',
+      params: { reportType: 'engineering', reportId: '14' },
+      search: { tab: 'site', siteStatus: 'all', engineeringPage: 1, surveyPage: 1 },
+    })
+    expect(detail.pathname).toBe('/dashboard/my-reports/site/survey/72')
+    expect(detail.search).toMatchObject({ tab: 'site', siteStatus: 'rejected', surveyPage: 3 })
+    expect(edit.pathname).toBe('/dashboard/my-reports/site/engineering/14/edit')
+    expect(edit.search).toMatchObject({ tab: 'site' })
+  })
+
+  it('registers the Operations sidebar destinations with their Flutter access rules and order', () => {
+    const operations = PROTECTED_DESTINATIONS.filter(
+      ({ group, inSidebar }) => group === 'Operations' && inSidebar,
+    ).sort((left, right) => left.order - right.order)
+    const expectedPaths = [
+      '/operations',
+      '/works/projects',
+      '/works/worksite',
+      '/works/tasks',
+      '/works/engineering-site-reports',
+      '/works/survey-site-reports',
+      '/works/contracts',
+      '/hr/meetings',
+    ]
+
+    expect(operations.map(({ path }) => path)).toEqual(expectedPaths)
+    expect(operations.every(({ section }) => section === 'Operations')).toBe(true)
+
+    const operationsDestination = operations[0]!
+    expect(canVisitDestination(operationsDestination, { projects: ['list'] })).toBe(true)
+    expect(canVisitDestination(operationsDestination, { tasks: ['list'] })).toBe(true)
+    expect(canVisitDestination(operationsDestination, {})).toBe(false)
+    expect(canSeeDestination(operationsDestination, { tasks: ['list'] })).toBe(false)
+
+    const engineeringReports = operations[4]!
+    expect(
+      canVisitDestination(engineeringReports, { engineering_site_reports: ['list_own'] }),
+    ).toBe(true)
+    expect(canSeeDestination(engineeringReports, { engineering_site_reports: ['list_own'] })).toBe(
+      true,
+    )
+    expect(canVisitDestination(engineeringReports, { survey_site_reports: ['list'] })).toBe(false)
+    expect(
+      sidebarDestinationsFor({ tasks: ['list'] }).some(({ path }) => path === '/works/tasks'),
+    ).toBe(true)
+  })
+
+  it('registers Operations detail paths as protected routes outside the sidebar', () => {
+    const paths = [
+      '/works/projects/detail',
+      '/operations/projects/detail',
+      '/operations/task/detail',
+      '/operations/worksite/detail',
+      '/operations/contract/detail',
+      '/operations/timeline/detail',
+    ]
+
+    for (const path of paths) {
+      const destination = PROTECTED_DESTINATIONS.find((item) => item.path === path)
+      expect(destination, `${path} destination`).toBeDefined()
+      expect(destination?.group).toBe('Operations')
+      expect(destination?.inSidebar).toBe(false)
+      expect(router.routesById[`/_protected${path}`]?.id).toBe(`/_protected${path}`)
+    }
+
+    expect(
+      sidebarDestinationsFor({ projects: ['list'], tasks: ['list'], worksites: ['list'] }).some(
+        ({ path }) => paths.includes(path),
+      ),
+    ).toBe(false)
+  })
+
+  it('routes Operations, the Projects register, and nested project tabs to their pages', () => {
+    const operations = router.getMatchedRoutes('/operations')[2]
+    const projects = router.getMatchedRoutes('/works/projects')[2]
+    const detail = router.buildLocation({
+      to: '/works/projects/$projectId',
+      params: { projectId: '42' },
+      search: { tab: 'milestones' },
+    })
+
+    expect(operations?.id).toBe('/_protected/operations')
+    expect(projects?.id).toBe('/_protected/works/projects')
+    expect(router.getMatchedRoutes(detail.pathname)[2]?.id).toBe(
+      '/_protected/works/projects/$projectId',
+    )
+    expect(detail.pathname).toBe('/works/projects/42')
+    expect(detail.search).toMatchObject({ tab: 'milestones' })
+  })
+
   it('registers notification hooks under their protected route IDs', () => {
     expect(router.routesById['/_protected/notifications']?.id).toBe('/_protected/notifications')
     expect(router.routesById['/_protected/notifications/$notificationId']?.id).toBe(

@@ -447,7 +447,7 @@ export function DatePickerField({
           options={years.map((year) => ({ value: String(year), label: String(year) }))}
           onChange={(value) => changeYear(Number(value))}
           menuMinWidth={160}
-          className="phone:w-24 w-16 shrink-0"
+          className="phone:w-24 w-20 shrink-0"
         />
         <button
           type="button"

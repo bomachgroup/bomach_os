@@ -81,6 +81,7 @@ describe('DatePickerField', () => {
     expect(screen.getByRole('grid', { name: 'September 2026' })).toBeInTheDocument()
 
     const yearPicker = screen.getByRole('combobox', { name: 'Year' })
+    expect(yearPicker.parentElement).toHaveClass('w-20')
     await user.click(yearPicker)
     const yearMenu = screen.getByRole('listbox', { name: 'Year' })
     expect(yearMenu).toHaveStyle({ width: '160px' })

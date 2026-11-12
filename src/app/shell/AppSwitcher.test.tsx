@@ -37,6 +37,10 @@ describe('AppSwitcher arrival transition', () => {
     )
     fireEvent.click(screen.getByLabelText('Switch workspace'))
 
+    expect(screen.getByText('Switch workspace')).toBeInTheDocument()
+    expect(screen.queryByText('BOMACH WORKSPACE')).not.toBeInTheDocument()
+    expect(screen.queryByText('Currently in Bomach OS')).not.toBeInTheDocument()
+
     const marketingLink = screen.getByRole('link', { name: 'Open Marketing in a new tab' })
     expect(marketingLink).toHaveAttribute('target', '_blank')
     expect(marketingLink).toHaveAttribute('rel', 'noopener noreferrer')
@@ -64,7 +68,7 @@ describe('AppSwitcher arrival transition', () => {
     for (const width of [320, 360, 375, 480, 600, 699, 700, 900, 1100, 1280, 1440, 1600]) {
       Object.defineProperty(window, 'innerWidth', { configurable: true, value: width })
       fireEvent.resize(window)
-      expect(menu.style.width).toBe(`${Math.min(296, width - 24)}px`)
+      expect(menu.style.width).toBe(`${Math.min(320, width - 24)}px`)
     }
   })
 })

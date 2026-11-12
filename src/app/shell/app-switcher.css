@@ -17,7 +17,7 @@
 
 .workspace-switch-menu {
   z-index: 60;
-  width: min(18.5rem, calc(100vw - 1.5rem));
+  width: min(20rem, calc(100vw - 1.5rem));
   max-width: calc(100vw - 1.5rem);
   max-height: min(28rem, calc(100dvh - 5rem));
   overflow-y: auto;
@@ -30,12 +30,14 @@
 }
 
 .workspace-switch-menu__header {
-  display: grid;
-  gap: 0.12rem;
-  padding: 0.55rem 0.65rem 0.7rem;
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  margin: 0 0 0.35rem;
+  border-bottom: 1px solid #e7edf5;
+  padding: 0.4rem 0.7rem 0.65rem;
 }
 
-.workspace-switch-menu__eyebrow,
 .workspace-switch-eyebrow {
   color: #64748b;
   font-size: 0.62rem;
@@ -46,16 +48,10 @@
 
 .workspace-switch-menu__title {
   color: #0f172a;
-  font-size: 0.96rem;
-  font-weight: 650;
-  letter-spacing: -0.025em;
-  line-height: 1.45;
-}
-
-.workspace-switch-menu__hint {
-  color: #64748b;
-  font-size: 0.72rem;
-  line-height: 1.45;
+  font-size: 0.94rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
 }
 
 .workspace-switch-menu__list {
@@ -207,7 +203,6 @@
 }
 
 @media (max-width: 380px) {
-  .workspace-switch-menu__hint,
   .workspace-switch-option__description {
     display: none;
   }

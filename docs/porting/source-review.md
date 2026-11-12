@@ -2,8 +2,8 @@
 
 ## Repositories reviewed
 
-- Flutter Bomach OS: sibling checkout ../bomach_os.
-- Service Operations React app: ../bomach_os_frontend/services.
+- Flutter Bomach OS: sibling checkout ../../bomach_os.
+- Service Operations React app: ../services.
 - Port branch: this repository, currently containing planning documents only.
 
 The sibling Flutter checkout has local Company, HR, authentication, routing, permission, and test changes. Keep reading that checkout for the latest behavior; this port branch's Flutter snapshot is historical.

@@ -1,7 +1,7 @@
 # Flutter Route Reachability and Navigation Audit
 
 **Audit date:** 2026-10-16  
-**Source:** current local checkout at `../bomach_os`  
+**Source:** current local checkout at `../../bomach_os`
 **Status:** static source audit; the Flutter checkout is read-only and contains local uncommitted work.
 
 ## Purpose
@@ -271,11 +271,11 @@ Use [route-inventory.md](route-inventory.md) as the complete path/widget checkli
 
 ## Source files reviewed
 
-- `../bomach_os/lib/src/app_routes/menu_structure.dart`
-- `../bomach_os/lib/src/app_routes/app_route_constants.dart`
-- `../bomach_os/lib/src/app_routes/dashboard_route_paths.dart`
-- `../bomach_os/lib/src/app_routes/app_router.dart`
-- `../bomach_os/lib/src/app_routes/detail_fallbacks.dart`
-- `../bomach_os/lib/src/constants/permissions.dart`
-- `../bomach_os/lib/src/services/permission_service.dart`
-- `../bomach_os/lib/pages/company/`, `dashboad/`, `employee/`, `hr/`, `operations/`, `services/`, `legal/`, `marketing/`, `clients_portal/`, and `auth/`
+- `../../bomach_os/lib/src/app_routes/menu_structure.dart`
+- `../../bomach_os/lib/src/app_routes/app_route_constants.dart`
+- `../../bomach_os/lib/src/app_routes/dashboard_route_paths.dart`
+- `../../bomach_os/lib/src/app_routes/app_router.dart`
+- `../../bomach_os/lib/src/app_routes/detail_fallbacks.dart`
+- `../../bomach_os/lib/src/constants/permissions.dart`
+- `../../bomach_os/lib/src/services/permission_service.dart`
+- `../../bomach_os/lib/pages/company/`, `dashboad/`, `employee/`, `hr/`, `operations/`, `services/`, `legal/`, `marketing/`, `clients_portal/`, and `auth/`

@@ -53,8 +53,8 @@ Read the specific document relevant to the slice in addition to the initial requ
 
 ## Source and workspace boundaries
 
-- The Flutter reference is the sibling checkout ../bomach_os. Read it for current behavior and visuals. Do not edit, reset, stash, or commit in that checkout unless the user explicitly asks.
-- The Service Operations React app is ../bomach_os_frontend/services. Use its documented architecture and feedback conventions as references; do not couple this app to its source tree.
+- The Flutter reference is the sibling checkout ../../bomach_os. Read it for current behavior and visuals. Do not edit, reset, stash, or commit in that checkout unless the user explicitly asks.
+- The Service Operations React app is ../services. Use its documented architecture and feedback conventions as references; do not couple this app to its source tree.
 - Work in this repository and its current port branch. Keep the new React app at this repository's root.
 - The Flutter snapshot in this branch's history is archival. The current Flutter checkout is the source for visual and behavioral comparison.
 
