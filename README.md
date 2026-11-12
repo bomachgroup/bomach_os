@@ -10,6 +10,10 @@ Port the Flutter-owned Company and HR experience to a browser-based React applic
 
 The Flutter checkout remains available at ../../bomach_os. The separate Service Operations React app remains at ../services and is a reference for architecture and interaction patterns.
 
+## Deployment branches
+
+Use `main` for production deployments and `test` for the stable Vercel preview environment.
+
 ## Scope
 
 - Port Company and HR pages owned by the Flutter Bomach OS app.
