@@ -39,7 +39,9 @@ export const config: VercelConfig = {
     routes.rewrite('/media/(.*)', `${apiOrigin.origin}/media/$1`),
     // Keep Services independently deployed while composing it under this host.
     // This private upstream prefix avoids colliding with standalone-domain redirects.
-    routes.rewrite('/services', 'https://services-mocha-xi.vercel.app/__bomach_shared/services/'),
+    routes.rewrite('/services', 'https://services-mocha-xi.vercel.app/__bomach_shared/services'),
+    // Keep the shared app root on its prefixed bundle when the URL has a trailing slash.
+    routes.rewrite('/services/', 'https://services-mocha-xi.vercel.app/__bomach_shared/services'),
     routes.rewrite(
       '/services/(.*)',
       'https://services-mocha-xi.vercel.app/__bomach_shared/services/$1',
