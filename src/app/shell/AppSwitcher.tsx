@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+} from 'react'
 import { createPortal } from 'react-dom'
 import {
   ArrowRight,
@@ -14,10 +21,12 @@ import {
 import type { PermissionSet } from '@/shared/auth/session'
 import { rememberedWorkspaceHref } from '@/shared/auth/workspace-memory'
 import {
-  consumeWorkspaceSwitch,
+  consumeWorkspaceSwitchTransition,
   rememberWorkspaceSwitch,
   WORKSPACE_ARRIVAL_MS,
   WORKSPACE_SWITCH_DELAY_MS,
+  type WorkspaceSwitchOrigin,
+  type WorkspaceSwitchTransition,
 } from '@/shared/auth/workspace-switch'
 import { canAccessWorkspaceApp, WORKSPACE_APPS, type WorkspaceApp } from './app-catalog'
 import './app-switcher.css'
@@ -35,14 +44,34 @@ function AppGlyph({ appId }: { appId: WorkspaceApp['id'] }) {
   return <Icon aria-hidden="true" className="size-[18px]" />
 }
 
-function SwitchTransition({ app, phase }: { app: WorkspaceApp; phase: 'switching' | 'arriving' }) {
+function SwitchTransition({
+  source,
+  destination,
+  origin,
+  phase,
+}: {
+  source: WorkspaceApp
+  destination: WorkspaceApp
+  origin: WorkspaceSwitchOrigin
+  phase: 'departing' | 'arriving'
+}) {
+  const style = {
+    '--switch-origin-x': `${origin.x * 100}%`,
+    '--switch-origin-y': `${origin.y * 100}%`,
+  } as CSSProperties
+
   return (
     <div
       className="workspace-switch-overlay"
       data-phase={phase}
+      style={style}
       role="status"
       aria-live="polite"
-      aria-label={`${phase === 'switching' ? 'Switching to' : 'Opening'} ${app.label}`}
+      aria-label={
+        phase === 'departing'
+          ? `Switching to ${destination.label}`
+          : `Opening ${destination.label}`
+      }
     >
       <div className="workspace-switch-card">
         <div className="workspace-switch-brand" aria-hidden="true">
@@ -50,28 +79,56 @@ function SwitchTransition({ app, phase }: { app: WorkspaceApp; phase: 'switching
           <span className="workspace-switch-brand__orbit" />
         </div>
         <div className="workspace-switch-route" aria-hidden="true">
-          <span className="workspace-switch-route__app">
-            <Grid2X2 className="size-[18px]" />
+          <span className="workspace-switch-route__step workspace-switch-route__step--source">
+            <span className="workspace-switch-route__app">
+              <AppGlyph appId={source.id} />
+            </span>
+            <span className="workspace-switch-route__label">{source.label}</span>
           </span>
           <span className="workspace-switch-route__line" />
           <span className="workspace-switch-route__arrow">
             <ArrowRight className="size-4" />
           </span>
-          <span className="workspace-switch-route__destination">
-            <AppGlyph appId={app.id} />
+          <span className="workspace-switch-route__step workspace-switch-route__step--destination">
+            <span className="workspace-switch-route__destination">
+              <AppGlyph appId={destination.id} />
+            </span>
+            <span className="workspace-switch-route__label">{destination.label}</span>
           </span>
         </div>
         <p className="workspace-switch-eyebrow">BOMACH WORKSPACE</p>
         <p className="workspace-switch-title">
-          {phase === 'switching' ? 'Switching to' : 'Welcome to'} {app.label}
+          {phase === 'departing'
+            ? `Leaving ${source.label}`
+            : `${destination.label} is ready`}
         </p>
-        <p className="workspace-switch-description">{app.description}</p>
+        <p className="workspace-switch-description">
+          {phase === 'departing'
+            ? `Opening your ${destination.label} workspace`
+            : destination.description}
+        </p>
         <div className="workspace-switch-progress" aria-hidden="true">
           <span />
         </div>
       </div>
     </div>
   )
+}
+
+function findWorkspaceApp(appId: WorkspaceApp['id']): WorkspaceApp | undefined {
+  return WORKSPACE_APPS.find((app) => app.id === appId)
+}
+
+function randomSwitchOrigin(anchor: HTMLElement | null): WorkspaceSwitchOrigin {
+  if (!anchor) return { x: 0.92, y: 0.08 }
+
+  const bounds = anchor.getBoundingClientRect()
+  const x = bounds.left + bounds.width * (0.25 + Math.random() * 0.5)
+  const y = bounds.top + bounds.height * (0.25 + Math.random() * 0.5)
+  return {
+    x: Math.min(1, Math.max(0, x / Math.max(1, window.innerWidth))),
+    y: Math.min(1, Math.max(0, y / Math.max(1, window.innerHeight))),
+  }
 }
 
 export function AppSwitcher({
@@ -85,20 +142,22 @@ export function AppSwitcher({
   const detailsRef = useRef<HTMLDetailsElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [switchingTo, setSwitchingTo] = useState<WorkspaceApp | null>(null)
-  const [arriving, setArriving] = useState(false)
-  const currentWorkspace = WORKSPACE_APPS.find((app) => app.id === currentApp)
+  const [switching, setSwitching] = useState<WorkspaceSwitchTransition | null>(null)
+  const [arriving, setArriving] = useState<WorkspaceSwitchTransition | null>(null)
+  const currentWorkspace = findWorkspaceApp(currentApp)
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      if (consumeWorkspaceSwitch(currentApp)) setArriving(true)
+      const transition = consumeWorkspaceSwitchTransition(currentApp)
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (transition && !reducedMotion) setArriving(transition)
     }, 0)
     return () => window.clearTimeout(timer)
   }, [currentApp])
 
   useEffect(() => {
     if (!arriving) return
-    const timer = window.setTimeout(() => setArriving(false), WORKSPACE_ARRIVAL_MS)
+    const timer = window.setTimeout(() => setArriving(null), WORKSPACE_ARRIVAL_MS)
     return () => window.clearTimeout(timer)
   }, [arriving])
 
@@ -115,6 +174,10 @@ export function AppSwitcher({
       menu.style.left = `${viewportLeft - anchor.left}px`
       menu.style.right = 'auto'
       menu.style.width = `${width}px`
+      menu.style.transformOrigin = `${Math.min(
+        Math.max(anchor.left + anchor.width / 2 - viewportLeft, 12),
+        width - 12,
+      )}px 0px`
     }
 
     positionMenu()
@@ -124,6 +187,7 @@ export function AppSwitcher({
       menu.style.left = ''
       menu.style.right = ''
       menu.style.width = ''
+      menu.style.transformOrigin = ''
     }
   }, [menuOpen, placement])
 
@@ -140,9 +204,16 @@ export function AppSwitcher({
     }
 
     event.preventDefault()
-    rememberWorkspaceSwitch(app.id)
+    const origin = randomSwitchOrigin(detailsRef.current)
+    const transition: WorkspaceSwitchTransition = {
+      sourceApp: currentApp,
+      targetApp: app.id,
+      origin,
+      startedAt: Date.now(),
+    }
+    rememberWorkspaceSwitch(app.id, { sourceApp: currentApp, origin })
     detailsRef.current?.removeAttribute('open')
-    setSwitchingTo(app)
+    setSwitching(transition)
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     window.setTimeout(
@@ -239,11 +310,38 @@ export function AppSwitcher({
           </div>
         </div>
       </details>
-      {switchingTo
-        ? createPortal(<SwitchTransition app={switchingTo} phase="switching" />, document.body)
-        : null}
-      {!switchingTo && arriving && currentWorkspace
-        ? createPortal(<SwitchTransition app={currentWorkspace} phase="arriving" />, document.body)
+      {switching ? (
+        (() => {
+          const source = findWorkspaceApp(switching.sourceApp)
+          const destination = findWorkspaceApp(switching.targetApp)
+          return source && destination
+            ? createPortal(
+                <SwitchTransition
+                  source={source}
+                  destination={destination}
+                  origin={switching.origin}
+                  phase="departing"
+                />,
+                document.body,
+              )
+            : null
+        })()
+      ) : null}
+      {!switching && arriving && currentWorkspace
+        ? (() => {
+            const source = findWorkspaceApp(arriving.sourceApp)
+            return source
+              ? createPortal(
+                  <SwitchTransition
+                    source={source}
+                    destination={currentWorkspace}
+                    origin={arriving.origin}
+                    phase="arriving"
+                  />,
+                  document.body,
+                )
+              : null
+          })()
         : null}
     </>
   )
