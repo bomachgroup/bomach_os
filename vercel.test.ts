@@ -24,7 +24,11 @@ describe('Vercel routing', () => {
       },
       {
         source: '/services',
-        destination: 'https://services-mocha-xi.vercel.app/__bomach_shared/services/',
+        destination: 'https://services-mocha-xi.vercel.app/__bomach_shared/services',
+      },
+      {
+        source: '/services/',
+        destination: 'https://services-mocha-xi.vercel.app/__bomach_shared/services',
       },
       {
         source: '/services/(.*)',
@@ -58,7 +62,7 @@ describe('Vercel routing', () => {
       source: '/api/(.*)',
       destination: 'https://api.example.prod/api/$1',
     })
-    expect(rewrites[4].destination).toBe(
+    expect(rewrites[5].destination).toBe(
       'https://marketing-wine-alpha.vercel.app/__bomach_shared/marketing/',
     )
   })

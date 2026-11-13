@@ -20,6 +20,13 @@
 - Successful create/update invalidates the project lists and Operations overview, plus the changed detail query for updates. Detail mutations refresh project data and the Operations overview so visible summary values do not remain stale.
 - No backend schema or database migration was required for the register redesign. The current project response returns `client_id` without a client display name; the detail screen therefore uses the explicit `Client #<id>` fallback. Returning a client name would require a backend response change and a permissions review because the client-options endpoint is limited to project create/update access.
 
+## Operations overview data lifecycle and compatibility
+
+- `projectQueries.overview(userId, employeeId)` owns the `/operations/dashboard/overview` query. It uses the standard 60-second freshness age, revalidates when stale on route entry, browser focus, and network reconnect, retries one failed request, and polls every 60 seconds only while this route is active in a foreground tab. Create/update/archive/restore/delete mutations invalidate the Operations query through the project query family.
+- The summary response has changed additively across backend deployments. Older responses may omit `total_tasks`, expense/utilization values, and `recent_projects`; the React overview treats those as unavailable instead of assuming a fixed response version. `recent_projects` is checked as an array before rendering.
+- The project highlights section is shown only when the session has `projects:list`. If the overview response omits the recent list, it explains that highlights are unavailable and links to the scoped Projects register. An omitted field is never presented as an empty project database. A returned empty list represents no active project highlights and may offer project creation when authorized.
+- Cached overview values stay visible during refresh. A first-load query failure uses the page-level retry state; a successful response with an omitted optional summary uses the local unavailable state. No unrelated route is refreshed by this fallback.
+
 ## Verification record — 2026-11-12
 
 - Focused Projects register/form tests passed **8/8**, including live-search route state, status filtering, list-to-detail navigation, detail-tab URL updates, review-without-write, inline validation, cleared-zero progress, and server field errors.

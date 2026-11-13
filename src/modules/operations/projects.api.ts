@@ -46,15 +46,16 @@ export interface ProjectRecentDto {
 
 export interface OperationsOverviewDto {
   total_projects: number | null
-  total_tasks: number | null
   allocated_project_budget: string | null
-  approved_and_paid_expenses: string | null
-  budget_utilization_percent: string | null
   total_worksites: number | null
   total_contracts: number | null
   total_timelines: number | null
   scope_limited: boolean
-  recent_projects: ProjectRecentDto[]
+  // These summary fields are additive and may be absent on older API deployments.
+  total_tasks?: number | null
+  approved_and_paid_expenses?: string | null
+  budget_utilization_percent?: string | null
+  recent_projects?: ProjectRecentDto[] | null
 }
 
 export interface PaginatedDto<T> {
