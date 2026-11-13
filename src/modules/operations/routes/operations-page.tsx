@@ -82,6 +82,7 @@ export function OperationsPage() {
   })
 
   const data = overview.data
+  const recentProjects = Array.isArray(data?.recent_projects) ? data.recent_projects : null
   const utilizationValue =
     data?.budget_utilization_percent == null ? null : Number(data.budget_utilization_percent)
   const utilization =
@@ -149,14 +150,14 @@ export function OperationsPage() {
               <PortfolioMetric
                 label="Projects in scope"
                 value={String(data.total_projects ?? '—')}
-                detail="Archived projects are excluded"
+                detail="Projects included in this overview"
                 icon={<BriefcaseBusiness className="size-5" />}
                 tone="primary"
               />
               <PortfolioMetric
                 label="Allocated project budget"
                 value={money(data.allocated_project_budget)}
-                detail="Across non-archived projects"
+                detail="Summed budgets in this overview"
                 icon={<CircleDollarSign className="size-5" />}
                 tone="success"
               />
@@ -216,18 +217,18 @@ export function OperationsPage() {
             </div>
           </section>
 
-          <section aria-labelledby="recent-projects-heading" className="mt-5 min-w-0">
-            <Card className="min-w-0 p-0" elevation="sm">
-              <div className="border-border-subtle phone:p-5 flex min-w-0 items-start justify-between gap-3 border-b p-4">
-                <div className="min-w-0">
-                  <h2 id="recent-projects-heading" className="text-h3 font-semibold">
-                    Recently updated projects
-                  </h2>
-                  <p className="text-caption text-text-secondary mt-1">
-                    Latest activity across projects you can access.
-                  </p>
-                </div>
-                {canListProjects ? (
+          {canListProjects ? (
+            <section aria-labelledby="recent-projects-heading" className="mt-5 min-w-0">
+              <Card className="min-w-0 p-0" elevation="sm">
+                <div className="border-border-subtle phone:p-5 flex min-w-0 items-start justify-between gap-3 border-b p-4">
+                  <div className="min-w-0">
+                    <h2 id="recent-projects-heading" className="text-h3 font-semibold">
+                      Recently updated projects
+                    </h2>
+                    <p className="text-caption text-text-secondary mt-1">
+                      Latest activity across projects you can access.
+                    </p>
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"
@@ -239,33 +240,42 @@ export function OperationsPage() {
                     <span className="phone:inline hidden">All projects</span>
                     <ArrowRight className="size-4" />
                   </Button>
-                ) : null}
-              </div>
-              {data.recent_projects.length ? (
-                <div className="divide-border-subtle divide-y">
-                  {data.recent_projects.map((project) => (
-                    <ProjectSummary
-                      key={project.id}
-                      project={project}
-                      canView={canViewProject}
-                      money={money}
-                      statusTone={statusTone}
-                    />
-                  ))}
                 </div>
-              ) : (
-                <EmptyState
-                  title="No projects yet"
-                  description="Create the first project to start tracking operations."
-                  action={
-                    canCreate ? (
-                      <Button onClick={() => setCreateOpen(true)}>Add project</Button>
-                    ) : undefined
-                  }
-                />
-              )}
-            </Card>
-          </section>
+                {recentProjects === null ? (
+                  <EmptyState
+                    title="Project highlights are unavailable"
+                    description={
+                      data.scope_limited
+                        ? 'The overview cannot summarize projects in your current scope. Use All projects to review records available to you.'
+                        : 'The overview response did not include recent project details. Use All projects to review records available to you.'
+                    }
+                  />
+                ) : recentProjects.length ? (
+                  <div className="divide-border-subtle divide-y">
+                    {recentProjects.map((project) => (
+                      <ProjectSummary
+                        key={project.id}
+                        project={project}
+                        canView={canViewProject}
+                        money={money}
+                        statusTone={statusTone}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState
+                    title="No active projects yet"
+                    description="Active projects will appear here when they are available."
+                    action={
+                      canCreate ? (
+                        <Button onClick={() => setCreateOpen(true)}>Add project</Button>
+                      ) : undefined
+                    }
+                  />
+                )}
+              </Card>
+            </section>
+          ) : null}
         </>
       ) : null}
       {createOpen ? (
