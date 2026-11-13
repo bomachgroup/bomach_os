@@ -243,3 +243,12 @@ Capture the normal screen plus the important responsive interaction states for t
 - Static alerts stay out of the live announcement stream. Page-level state text is announced when inserted; the route or form owns first-invalid-field focus.
 - Do not communicate state by color alone.
 - Restore focus when a dialog closes and move focus into a dialog when it opens.
+
+### Workspace switcher and handoff
+
+- Keep the workspace menu anchored to its trigger, clamped within the viewport, and consistent across Bomach OS, Services, and Marketing. The menu heading is “Switch workspace”; identify the current app in the selected row.
+- Open the menu from the trigger’s measured position. When navigating, use a small randomized origin within that same trigger so the handoff grows from the actual control the user activated.
+- Show both source and destination apps during the handoff. The source recedes as the destination arrives; after navigation, reveal the loaded destination behind the transition card.
+- Carry only the source app, destination app, animation origin, and start time in a one-use session-storage marker. Do not put workspace transitions in the URL or persistent storage.
+- The transition has a 560ms departure and a 760ms arrival. Respect reduced-motion preferences by skipping both the delay and arrival animation.
+- The switcher has no server-owned data: it does not issue API calls, poll, revalidate queries, or invalidate cache entries. The transition marker is temporary UI state and is removed when consumed or rejected.
