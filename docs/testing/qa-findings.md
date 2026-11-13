@@ -2,6 +2,14 @@
 
 This log records confirmed defects and follow-up findings with their reproduction, code-based cause, remedy, and retest evidence. New testing work should follow [the agent testing playbook](agent-testing-playbook.md).
 
+## 2026-11-13 — Authenticated account has no employee profile
+
+- **Finding:** The production browser can complete authentication and reach `/splash`, but session bootstrap then fails while loading the employee profile. The screen previously displayed a generic permission error with only a Retry action, leaving the signed-in user stuck.
+- **Confirmed cause:** Production browser logs show successful authenticated session bootstrap followed by HTTP 403 from the employee-profile endpoint. Read-only inspection of the main backend database confirmed the associated user is active and has no Employee record. The endpoint's permission decorator requires `request.user.employee_profile` and returns `Employee profile not found.` before evaluating the role's grants or branch scope. This is a missing account-to-employee link, not an incorrect employee ID or a route permission mismatch. The inspection confirms the current state; it does not establish whether the Employee record was never created or was deleted historically.
+- **Remedy:** The route error now recognizes this specific 403, explains that login succeeded but no Employee profile is linked, and offers **Return to login**. The action uses the browser logout endpoint to revoke/clear auth cookies, removes local session markers and cached data, then navigates to Login so the still-valid cookie cannot send the user back to `/splash`. Other profile and permission failures retain their retry behavior. The authentication flow documentation now records this distinction.
+- **Data and deployment:** Inspection was read-only; no production account, Employee row, or backend data was changed. The UI remedy is local and has not been deployed or visually verified against production.
+- **Verification limits:** Source review confirmed the backend's missing-profile response and logout behavior. Automated tests and a post-change browser run have not been performed for this entry.
+
 ## 2026-11-12 — Project detail navigation and oversized dialogs
 
 - **Finding and remedy:** Project detail actions wrapped away from the project title, the project tabs used a horizontal strip unlike the HR employee profile, and short dialogs expanded to leave large blank areas. The project header/actions now stay on one line with accessible icon-only actions on narrow screens; project tabs use the responsive HR profile grid. Project detail, entry, and confirmation dialogs now use the shared gradient-header/muted-body treatment and size to their content while retaining a capped scrolling body and visible footer for long forms.

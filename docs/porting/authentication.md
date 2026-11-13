@@ -18,6 +18,8 @@ This is the shared Bomach OS browser contract for the default React application 
 | `/biometric`         | Preserve Flutter's biometric entry point on web.                       | Display the browser-unavailable state and provide a password-login link. WebAuthn/passkey login is not part of this contract.                 |
 | `/no-access`         | Explain that no implemented route is available to this signed-in user. | This remains protected. Sign out revokes the browser session and returns to Login.                                                            |
 
+When sign-in is valid but there is no linked Employee profile, `/splash` explains the issue and offers sign-out back to Login.
+
 The protected route tree includes 40 sidebar destinations and 12 in-scope direct/detail routes listed in [route-inventory.md](route-inventory.md). `/dashboard`, `/company/overview`, and `/hr` now have permission-aware dashboard implementations; the remaining registered routes render the shared metadata-driven Coming Soon page until their Flutter workflows have been reviewed and ported. Permission checks run before protected content is shown.
 
 Two-factor enable/disable belongs in the existing Profile screen, not a separate authentication route. `TwoFactorSettingsPanel` is the reusable profile section. The React Profile route has not yet been ported, so mount this panel when that route is implemented; do not invent a parallel 2FA settings page.
@@ -28,27 +30,31 @@ The six Dashboard destinations are included in the protected route manifest, wit
 
 ```mermaid
 flowchart TD
-  A[Open /splash or protected link] --> B{Browser session valid?}
-  B -- No --> C[Login, retaining a safe internal return target]
-  B -- Yes --> D[Load current user and permissions, then employee profile]
-  D -- Failure --> E[Block access and offer retry]
-  D -- Success --> F{Requested route is implemented and permitted?}
-  F -- Yes --> G[Requested route]
-  F -- No --> H{Any permitted implemented route?}
-  H -- Yes --> I[First permitted route]
-  H -- No --> J[No access]
-  C --> K{Login requires 2FA?}
-  K -- Yes --> L[Verify code]
-  K -- No --> M[Bootstrap session]
-  L --> M
-  M --> D
+  Open[Open /splash or protected link] --> SessionValid{Browser session valid?}
+  SessionValid -- No --> Login[Login, retaining a safe internal return target]
+  SessionValid -- Yes --> CurrentUser[Load current user and permissions]
+  CurrentUser -- 401 --> Login
+  CurrentUser -- Valid --> EmployeeProfile[Load employee profile]
+  EmployeeProfile -- Missing profile 403 --> MissingEmployee[Explain that no Employee profile is linked]
+  MissingEmployee --> ReturnLogin[Sign out, clear session state, return to Login]
+  EmployeeProfile -- Other failure --> Retry[Block access and offer retry]
+  EmployeeProfile -- Success --> RouteAllowed{Requested route is implemented and permitted?}
+  RouteAllowed -- Yes --> Requested[Requested route]
+  RouteAllowed -- No --> HasRoute{Any permitted implemented route?}
+  HasRoute -- Yes --> FirstRoute[First permitted route]
+  HasRoute -- No --> NoAccess[No access]
+  Login --> Requires2FA{Login requires 2FA?}
+  Requires2FA -- Yes --> Verify2FA[Verify code]
+  Requires2FA -- No --> Bootstrap[Bootstrap session]
+  Verify2FA --> Bootstrap
+  Bootstrap --> CurrentUser
 ```
 
 `safeInternalTarget` accepts only a same-origin relative path. It rejects external/protocol-relative URLs, backslashes, control characters, auth routes, splash, and no-access. The post-login resolver checks the route registry and current permissions before honoring a return target. Otherwise it chooses the first permitted destination in module registration order, then `/no-access`.
 
 Each protected route is placed below the authenticated route parent and reads its OR-list of required resource/action permissions from the route manifest. An empty list means authenticated-only, matching Flutter's explicit public-to-logged-in gates. The sidebar separately checks the source menu's visible resource set and route permission so it does not display links that lead directly to an access denial. Do not put permissions in client-only storage or treat an unresolved permission response as a denial. Backend authorization remains authoritative. Flutter omits explicit route permission entries for role details, so the React manifest requires the parent Roles page's `roles:list` permission instead of retaining that authenticated-only fallback. Other authenticated-only routes match their explicit Flutter configuration or current source behavior; review these again when their real pages are selected.
 
-Session bootstrap calls `GET /api/v1/auth/me` and then `GET /api/v1/employees/employees/{user_id}`. `/auth/me` is the current-user context: alongside its existing identity fields it returns `role: { id, name } | null` and a `permissions` map containing the signed-in employee role's granted actions. A signed-in user without an employee profile or without an assigned role receives `role: null` and `permissions: {}`; React still requires an employee profile for this employee application. React does not call the ID-based role endpoint or load the full permission catalogue during session bootstrap, so a user does not need `roles.view` merely to learn their own grants. Existing `/auth/me` fields and bearer authentication remain unchanged; the new fields are additive. Flutter's current profile bootstrap reads the employee endpoint instead of `/auth/me`, and the staff mobile `/auth/me` mapper selects known identity fields, so both continue to use their existing contracts.
+Session bootstrap calls `GET /api/v1/auth/me` and then `GET /api/v1/employees/employees/{user_id}`. `/auth/me` is the current-user context: alongside its existing identity fields it returns `role: { id, name } | null` and a `permissions` map containing the signed-in employee role's granted actions. A signed-in user without an employee profile or without an assigned role receives `role: null` and `permissions: {}`; React still requires an employee profile for this employee application. The employee endpoint returns 403 when there is no linked Employee record: its permission decorator cannot resolve `request.user.employee_profile`, so it rejects before evaluating role grants or branch scope. React distinguishes this exact missing-profile response from other profile failures, explains that sign-in succeeded but an employee profile is missing, and offers a sign-out action. That action calls the browser logout endpoint (which clears the HttpOnly auth cookies without requiring an Employee profile), clears local session/query state, then opens Login. This prevents the still-valid cookie from immediately routing Login back to `/splash`. Other profile errors continue to offer retry. React does not call the ID-based role endpoint or load the full permission catalogue during session bootstrap, so a user does not need `roles.view` merely to learn their own grants. Existing `/auth/me` fields and bearer authentication remain unchanged; the new fields are additive. Flutter's current profile bootstrap reads the employee endpoint instead of `/auth/me`, and the staff mobile `/auth/me` mapper selects known identity fields, so both continue to use their existing contracts.
 
 `GET /api/v1/roles/permissions-map` remains the full system permission catalogue for permission-management interfaces; it is not a user's grants and is not needed to authorize React navigation. `GET /api/v1/auth/capabilities` remains the staff mobile app's boolean feature-flag projection. React does not use it as its permission source because it is a smaller, client-specific projection; currently the backend hardcodes `attendance.view` and `attendance.manage` to `true`, which should be reviewed separately before that endpoint is used for authorization decisions.
 
