@@ -153,12 +153,25 @@ describe('My Tasks page', () => {
     expect(screen.getByText(/Showing 1–1 of 1 tasks/)).toBeInTheDocument()
   })
 
-  it('keeps filters in the URL and preserves them when opening a task detail panel', async () => {
+  it('keeps filters in the URL and shows centered task details in a shared dialog', async () => {
     const user = userEvent.setup()
     routerState.search = { ...routerState.search, task: 14 }
     renderPage()
 
-    expect(await screen.findByRole('dialog', { name: 'Task details' })).toBeInTheDocument()
+    const dialog = await screen.findByRole('dialog', { name: 'Task details' })
+    expect(dialog).toHaveClass('tablet:top-1/2', 'tablet:max-h-[90dvh]', 'tablet:-translate-y-1/2')
+    expect(dialog).toHaveClass('tablet:max-w-[50rem]', 'flex-col')
+    expect(dialog).not.toHaveClass('desktop:inset-y-0', 'desktop:h-svh')
+    expect(
+      within(dialog).getByRole('heading', { name: 'Prepare site estimate' }),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByRole('heading', { name: 'Task overview' })).toBeInTheDocument()
+    expect(within(dialog).getByText('Workspace rollout')).toBeInTheDocument()
+    expect(
+      within(dialog).getByText('Review quantities and prepare an estimate for the site team.'),
+    ).toBeInTheDocument()
+    expect(within(dialog).getByRole('button', { name: 'Close' })).toBeInTheDocument()
+    expect(within(dialog).getByRole('button', { name: 'Start task' })).toBeInTheDocument()
     expect(myTasksApi.detail).toHaveBeenCalledWith(14, expect.any(AbortSignal))
 
     await user.click(screen.getByRole('button', { name: 'Close dialog' }))
