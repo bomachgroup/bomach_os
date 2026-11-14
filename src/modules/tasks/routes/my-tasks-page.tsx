@@ -432,48 +432,87 @@ function TaskDetails({ task }: { task: MyTaskDto }) {
   const priority = priorityPresentation(task.priority)
   const StatusIcon = status.icon
   const values = [
-    { label: 'Task', value: task.name },
-    { label: 'Project', value: task.project?.name ?? 'Not linked to a project' },
-    { label: 'Milestone', value: task.milestone?.name ?? 'Not linked to a milestone' },
-    { label: 'Due date', value: formatDate(task.due_date) },
-    { label: 'Estimated time', value: estimatedHours(task) },
+    {
+      label: 'Project',
+      value: task.project?.name ?? 'Not linked to a project',
+      icon: ClipboardList,
+    },
+    {
+      label: 'Milestone',
+      value: task.milestone?.name ?? 'Not linked to a milestone',
+      icon: CheckCircle2,
+    },
+    { label: 'Due date', value: formatDate(task.due_date), icon: CalendarDays },
+    { label: 'Estimated time', value: estimatedHours(task), icon: Clock3 },
   ]
+  const updatedDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
+    new Date(task.updated_at),
+  )
+
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap gap-2">
-        <StatusChip
-          label={status.label}
-          tone={status.tone}
-          icon={<StatusIcon className="size-3.5" />}
-        />
-        <StatusChip
-          label={`${priority.label} priority`}
-          tone={priority.tone}
-          icon={<Flag className="size-3.5" />}
-        />
-      </div>
-      <dl className="divide-border-subtle rounded-control border-border-subtle divide-y border px-4">
-        {values.map(({ label, value }) => (
-          <div key={label} className="flex flex-wrap justify-between gap-x-6 gap-y-1 py-3">
-            <dt className="text-body-sm text-text-secondary">{label}</dt>
-            <dd className="text-body-sm text-text-primary max-w-full text-right font-medium">
-              {value}
-            </dd>
+    <div className="space-y-4">
+      <section className="border-border-subtle from-primary-subtle/70 via-primary-subtle/30 to-surface rounded-surface tablet:p-5 border bg-gradient-to-br p-4">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="bg-surface/85 text-primary rounded-control flex size-11 shrink-0 items-center justify-center shadow-sm">
+            <ClipboardList className="size-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-caption text-primary font-semibold tracking-wide uppercase">
+                Task #{task.id}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <StatusChip
+                  label={status.label}
+                  tone={status.tone}
+                  icon={<StatusIcon className="size-3.5" aria-hidden="true" />}
+                />
+                <StatusChip
+                  label={`${priority.label} priority`}
+                  tone={priority.tone}
+                  icon={<Flag className="size-3.5" aria-hidden="true" />}
+                />
+              </div>
+            </div>
+            <h3 className="text-h3 text-text-primary mt-2 font-semibold tracking-tight break-words">
+              {task.name}
+            </h3>
           </div>
-        ))}
-      </dl>
-      <section>
-        <h3 className="text-label text-text-primary font-semibold">Description</h3>
-        <p className="text-body-sm text-text-secondary mt-2 whitespace-pre-wrap">
+        </div>
+      </section>
+
+      <section className="border-border-subtle rounded-surface tablet:p-5 border p-4">
+        <h3 className="text-label text-text-primary font-semibold">Task overview</h3>
+        <dl className="mt-3 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2">
+          {values.map(({ label, value, icon: Icon }) => (
+            <div
+              key={label}
+              className="bg-surface-muted/70 border-border-subtle rounded-control min-w-0 border p-3"
+            >
+              <div className="flex items-center gap-2">
+                <Icon className="text-primary size-4 shrink-0" aria-hidden="true" />
+                <dt className="text-caption text-text-secondary">{label}</dt>
+              </div>
+              <dd className="text-body-sm text-text-primary mt-2 font-medium break-words">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section className="border-border-subtle rounded-surface tablet:p-5 border p-4">
+        <div className="flex items-center gap-2">
+          <ListChecks className="text-primary size-4" aria-hidden="true" />
+          <h3 className="text-label text-text-primary font-semibold">Description</h3>
+        </div>
+        <p className="text-body-sm text-text-secondary mt-3 break-words whitespace-pre-wrap">
           {task.description?.trim() || 'No description was provided for this task.'}
         </p>
+        <p className="border-border-subtle text-caption text-text-muted mt-4 border-t pt-3">
+          Updated {updatedDate}
+        </p>
       </section>
-      <p className="text-caption text-text-muted">
-        Task #{task.id} · Updated{' '}
-        {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
-          new Date(task.updated_at),
-        )}
-      </p>
     </div>
   )
 }
@@ -864,17 +903,20 @@ export function MyTasksPage() {
           if (!open) closeDetails()
         }}
         title="Task details"
-        description="Information for the task assigned to you."
-        size="md"
-        className="desktop:inset-y-0 desktop:right-0 desktop:left-auto desktop:m-0 desktop:h-dvh desktop:min-h-dvh desktop:max-h-none desktop:w-[min(48rem,calc(100vw-6rem))] desktop:max-w-none desktop:translate-y-0 desktop:rounded-none desktop:border-y-0 desktop:border-r-0 desktop:border-l"
+        description="Review the task scope, schedule, and progress."
+        size="lg"
+        fitContent
+        className="max-h-[calc(100dvh-1.5rem)]"
         footer={
           selectedTask ? (
             <div className="flex w-full flex-wrap items-center justify-between gap-2">
-              <span className="text-caption text-text-secondary">Task #{selectedTask.id}</span>
+              <Button variant="outline" onClick={closeDetails}>
+                Close
+              </Button>
               <div className="flex flex-wrap justify-end gap-2">
                 {selectedTask.status === 'pending' && canUpdate ? (
                   <Button
-                    variant="outline"
+                    variant="primary"
                     onClick={() => startTask(selectedTask)}
                     isLoading={updateStatusMutation.isPending}
                   >
