@@ -81,6 +81,16 @@ import {
   validateProjectDetailSearch,
   validateProjectsSearch,
 } from '@/modules/operations/projects.search'
+import {
+  validateEngineeringReportsSearch,
+  validateOperationsTasksSearch,
+  validateWorksitesSearch,
+} from '@/modules/operations/operations-registers.search'
+import {
+  validateContractWorkflowSearch,
+  validateMeetingWorkflowSearch,
+  validateSurveyWorkflowSearch,
+} from '@/modules/operations/operations-workflows.search'
 
 type EmptyRouteProps = Record<string, never>
 
@@ -130,6 +140,10 @@ const ResetPasswordPage = lazyRouteComponent(
 const SplashPage = lazyRouteComponent(
   () => import('@/modules/auth/routes/splash-page'),
   'SplashPage',
+)
+const StaffPrivacyPage = lazyRouteComponent(
+  () => import('@/modules/auth/routes/staff-privacy-page'),
+  'StaffPrivacyPage',
 )
 const TwoFactorVerifyPage = lazyRouteComponent(
   () => import('@/modules/auth/routes/two-factor-verify-page'),
@@ -317,6 +331,50 @@ const SiteReportCreatePage = lazyRouteComponent(
   () => import('@/modules/work-reports/routes/site-report-create-page'),
   'SiteReportCreatePage',
 )
+const OperationsSiteReportCreatePage = lazyRouteComponent(
+  () => import('@/modules/work-reports/routes/site-report-create-page'),
+  'OperationsEngineeringSiteReportCreatePage',
+)
+const OperationsSiteReportEditPage = lazyRouteComponent(
+  () => import('@/modules/work-reports/routes/site-report-pages'),
+  'OperationsEngineeringSiteReportEditPage',
+)
+const WorksiteRegisterPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/worksite-register-page'),
+  'WorksiteRegisterPage',
+)
+const WorksiteDetailPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/worksite-register-page'),
+  'WorksiteDetailPage',
+)
+const OperationsTasksPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/operations-tasks-page'),
+  'OperationsTasksPage',
+)
+const OperationsTaskDetailPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/operations-tasks-page'),
+  'OperationsTaskDetailPage',
+)
+const EngineeringSiteReportsPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/engineering-site-reports-page'),
+  'EngineeringSiteReportsPage',
+)
+const SurveySiteReportsPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/operations-workflow-pages'),
+  'SurveySiteReportsPage',
+)
+const ContractsPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/operations-workflow-pages'),
+  'ContractsPage',
+)
+const MeetingsPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/operations-workflow-pages'),
+  'MeetingsPage',
+)
+const EngineeringSiteReportDetailPage = lazyRouteComponent(
+  () => import('@/modules/operations/routes/engineering-site-reports-page'),
+  'EngineeringSiteReportDetailPage',
+)
 const OperationsPage = lazyRouteComponent(
   () => import('@/modules/operations/routes/operations-page'),
   'OperationsPage',
@@ -470,6 +528,12 @@ const twoFactorRoute = createRoute({
   path: '/two-factor-verify',
   validateSearch: validateLoginSearch,
   component: TwoFactorVerifyPage,
+})
+
+const staffPrivacyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/privacy',
+  component: StaffPrivacyPage,
 })
 
 const protectedLayoutRoute = createRoute({
@@ -1146,6 +1210,124 @@ const projectDetailRoute = createRoute({
   component: ProjectDetailPage,
 })
 
+const worksitesRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/worksite',
+  validateSearch: validateWorksitesSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requirePermission(context, location, 'worksites', 'list')
+  },
+  component: WorksiteRegisterPage,
+})
+
+const worksiteDetailRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/worksite/$worksiteId',
+  beforeLoad: async ({ context, location }) => {
+    await requirePermission(context, location, 'worksites', 'view')
+  },
+  component: WorksiteDetailPage,
+})
+
+const operationsTasksRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/tasks',
+  validateSearch: validateOperationsTasksSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requirePermission(context, location, 'tasks', 'list')
+  },
+  component: OperationsTasksPage,
+})
+
+const operationsTaskDetailRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/tasks/$taskId',
+  beforeLoad: async ({ context, location }) => {
+    await requirePermission(context, location, 'tasks', 'view')
+  },
+  component: OperationsTaskDetailPage,
+})
+
+const engineeringSiteReportsRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/engineering-site-reports',
+  validateSearch: validateEngineeringReportsSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requireAnyPermission(context, location, [
+      { resource: 'engineering_site_reports', actions: ['list', 'list_own'] },
+    ])
+  },
+  component: EngineeringSiteReportsPage,
+})
+
+const surveySiteReportsRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/survey-site-reports',
+  validateSearch: validateSurveyWorkflowSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requireAnyPermission(context, location, [
+      { resource: 'survey_site_reports', actions: ['list', 'list_own'] },
+    ])
+  },
+  component: SurveySiteReportsPage,
+})
+
+const contractsRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/contracts',
+  validateSearch: validateContractWorkflowSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requirePermission(context, location, 'contracts', 'list')
+  },
+  component: ContractsPage,
+})
+
+const meetingsRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/hr/meetings',
+  validateSearch: validateMeetingWorkflowSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requirePermission(context, location, 'meetings', 'list')
+  },
+  component: MeetingsPage,
+})
+
+const engineeringSiteReportDetailRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/engineering-site-reports/$reportId',
+  beforeLoad: async ({ context, location }) => {
+    await requireAnyPermission(context, location, [
+      { resource: 'engineering_site_reports', actions: ['view', 'view_own'] },
+    ])
+  },
+  component: EngineeringSiteReportDetailPage,
+})
+
+const engineeringSiteReportCreateRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/engineering-site-reports/create',
+  beforeLoad: async ({ context, location }) => {
+    const session = await requireAuthenticatedSession(context, location)
+    if (
+      !hasPermission(session.permissions, 'engineering_site_reports', 'create') ||
+      !hasPermission(session.permissions, 'worksites', 'list')
+    )
+      throw redirect({ to: '/no-access' })
+  },
+  component: OperationsSiteReportCreatePage,
+})
+
+const engineeringSiteReportEditRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/works/engineering-site-reports/$reportId/edit',
+  beforeLoad: async ({ context, location }) => {
+    await requireAnyPermission(context, location, [
+      { resource: 'engineering_site_reports', actions: ['update', 'update_own'] },
+    ])
+  },
+  component: OperationsSiteReportEditPage,
+})
+
 async function requireAnyPermission(
   context: AppRouterContext,
   location: { pathname: string; searchStr: string; hash: string },
@@ -1346,6 +1528,12 @@ const protectedDestinationRoutes = PROTECTED_DESTINATIONS.filter(
     path !== '/operations' &&
     path !== '/works/projects' &&
     path !== '/works/projects/$projectId' &&
+    path !== '/works/worksite' &&
+    path !== '/works/tasks' &&
+    path !== '/works/engineering-site-reports' &&
+    path !== '/works/survey-site-reports' &&
+    path !== '/works/contracts' &&
+    path !== '/hr/meetings' &&
     path !== '/dashboard/role' &&
     path !== '/notifications' &&
     path !== '/company' &&
@@ -1412,6 +1600,7 @@ const routeTree = rootRoute.addChildren([
   resetPasswordRoute,
   biometricRoute,
   twoFactorRoute,
+  staffPrivacyRoute,
   protectedLayoutRoute.addChildren([
     noAccessRoute,
     myTasksRoute,
@@ -1464,6 +1653,17 @@ const routeTree = rootRoute.addChildren([
     operationsRoute,
     projectsRoute,
     projectDetailRoute,
+    worksitesRoute,
+    worksiteDetailRoute,
+    operationsTasksRoute,
+    operationsTaskDetailRoute,
+    engineeringSiteReportsRoute,
+    surveySiteReportsRoute,
+    contractsRoute,
+    meetingsRoute,
+    engineeringSiteReportDetailRoute,
+    engineeringSiteReportCreateRoute,
+    engineeringSiteReportEditRoute,
     leaveRequestDetailRoute,
     employeeAttendanceAliasRoute,
     workReportCreateRoute,

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -16,7 +16,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 import { AUTH_SESSION_QUERY_KEY, type AuthenticatedSession } from '@/shared/auth/session'
 import { ToastContext } from '@/shared/feedback/toast-context'
 import * as attendanceModule from '../attendance.api'
-import { attendanceApi, type Coordinates } from '../attendance.api'
+import { attendanceApi, type Coordinates, type WorkLocation } from '../attendance.api'
 import { AttendancePage } from './attendance-page'
 
 const session: AuthenticatedSession = {
@@ -284,5 +284,56 @@ describe('Attendance page', () => {
     expect(await screen.findByRole('heading', { name: 'Work locations' })).toBeInTheDocument()
     expect(attendanceApi.locations).not.toHaveBeenCalled()
     expect(screen.getByRole('button', { name: 'Register work location' })).toBeInTheDocument()
+  })
+
+  it('uses the shared date and time popovers for work-location extension requests', async () => {
+    const user = userEvent.setup()
+    const location: WorkLocation = {
+      id: 31,
+      name: 'Enugu field office',
+      location_type: 'site',
+      latitude: 6.45,
+      longitude: 7.5,
+      allowed_radius_meters: 100,
+      branch_id: 4,
+      branch_name: 'Enugu',
+      status: 'approved',
+      rejection_reason: '',
+      verified_by_name: 'Test Admin',
+      verified_at: '2026-10-20T09:00:00Z',
+      expires_at: '2026-12-01T00:00:00Z',
+      is_active: true,
+      deactivated_at: null,
+      deactivation_reason: '',
+      deactivation_note: '',
+      is_expired: false,
+      can_be_used: true,
+      notes: '',
+      employee_id: 23,
+      employee_name: 'Sam Staff',
+      created_at: '2026-10-01T09:00:00Z',
+    }
+    vi.mocked(attendanceApi.locations).mockResolvedValue({
+      locations: [location],
+      total: 1,
+      attendance_location_status: 'ready',
+    })
+
+    const { container } = renderPage({
+      attendance: ['list_own'],
+      work_locations: ['list_own', 'view_own', 'request_extension'],
+    })
+
+    await user.click(await screen.findByRole('button', { name: 'Request extension' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Request location extension' })
+    const dateTrigger = within(dialog).getByRole('button', { name: 'Expiry date' })
+    const timeTrigger = within(dialog).getByRole('button', { name: 'Expiry time' })
+    expect(container.querySelector('input[type="datetime-local"]')).not.toBeInTheDocument()
+
+    await user.click(dateTrigger)
+    expect(await screen.findByRole('dialog', { name: 'Choose a date' })).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    await user.click(timeTrigger)
+    expect(await screen.findByRole('dialog', { name: 'Choose a time' })).toBeInTheDocument()
   })
 })

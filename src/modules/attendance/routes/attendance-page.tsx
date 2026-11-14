@@ -41,9 +41,10 @@ import {
   Skeleton,
   SummaryUnavailable,
 } from '@/shared/ui/feedback-states'
-import { FormControl, TextArea, TextInput } from '@/shared/ui/form-control'
+import { FormControl, TextArea } from '@/shared/ui/form-control'
 import { FormSection } from '@/shared/ui/form-section'
 import { DatePickerField } from '@/shared/ui/date-picker-field'
+import { TimePickerField } from '@/shared/ui/time-picker-field'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { StatusChip } from '@/shared/ui/status-chip'
 
@@ -371,9 +372,14 @@ function ExtensionDialog({
   onSave: (locationId: number, dateTime: string, reason: string) => Promise<void>
   busy: boolean
 }) {
-  const [dateTime, setDateTime] = useState('')
+  const [expiryDate, setExpiryDate] = useState('')
+  const [expiryTime, setExpiryTime] = useState('')
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const dateTime = expiryDate && expiryTime ? `${expiryDate}T${expiryTime}` : ''
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   return (
     <Dialog
       open={open}
@@ -389,15 +395,22 @@ function ExtensionDialog({
           </Button>
           <Button
             onClick={() => {
-              const requestedExpiry = new Date(dateTime)
-              if (
-                !location ||
-                !dateTime ||
-                !Number.isFinite(requestedExpiry.getTime()) ||
-                requestedExpiry <= new Date() ||
-                reason.trim().length < 3
-              ) {
-                setError('Choose a future expiry date and enter a reason.')
+              const requestedExpiry = dateTime ? new Date(dateTime) : null
+              const expiryIsValid =
+                requestedExpiry &&
+                Number.isFinite(requestedExpiry.getTime()) &&
+                requestedExpiry > new Date()
+              const nextErrors = {
+                ...(!expiryDate || (requestedExpiry && !expiryIsValid)
+                  ? { expiryDate: 'Choose a future expiry date.' }
+                  : {}),
+                ...(!expiryTime ? { expiryTime: 'Choose an expiry time.' } : {}),
+                ...(reason.trim().length < 3
+                  ? { reason: 'Enter a reason of at least 3 characters.' }
+                  : {}),
+              }
+              setFieldErrors(nextErrors)
+              if (!location || Object.keys(nextErrors).length) {
                 return
               }
               setError(null)
@@ -421,18 +434,59 @@ function ExtensionDialog({
               Choose when access should end and explain why it needs to continue.
             </p>
           </div>
-          <FormControl id="extension-expiry" label="Requested expiry" required>
-            <TextInput
-              type="datetime-local"
-              value={dateTime}
-              onChange={(event) => setDateTime(event.target.value)}
-            />
-          </FormControl>
-          <FormControl id="extension-reason" label="Reason" required>
+          <div className="tablet:grid-cols-2 grid min-w-0 gap-4">
+            <FormControl
+              id="extension-expiry-date"
+              label="Expiry date"
+              required
+              error={fieldErrors.expiryDate}
+            >
+              <DatePickerField
+                value={expiryDate}
+                required
+                min={today}
+                onValueChange={(value) => {
+                  setExpiryDate(value)
+                  setFieldErrors((current) => {
+                    const next = { ...current }
+                    delete next.expiryDate
+                    return next
+                  })
+                }}
+              />
+            </FormControl>
+            <FormControl
+              id="extension-expiry-time"
+              label="Expiry time"
+              required
+              error={fieldErrors.expiryTime}
+            >
+              <TimePickerField
+                value={expiryTime}
+                required
+                onValueChange={(value) => {
+                  setExpiryTime(value)
+                  setFieldErrors((current) => {
+                    const next = { ...current }
+                    delete next.expiryTime
+                    return next
+                  })
+                }}
+              />
+            </FormControl>
+          </div>
+          <FormControl id="extension-reason" label="Reason" required error={fieldErrors.reason}>
             <TextArea
               rows={3}
               value={reason}
-              onChange={(event) => setReason(event.target.value)}
+              onChange={(event) => {
+                setReason(event.target.value)
+                setFieldErrors((current) => {
+                  const next = { ...current }
+                  delete next.reason
+                  return next
+                })
+              }}
               maxLength={500}
               placeholder="Why should this location remain available?"
             />

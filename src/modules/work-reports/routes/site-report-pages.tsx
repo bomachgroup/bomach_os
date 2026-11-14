@@ -26,6 +26,7 @@ import { Alert } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Card } from '@/shared/ui/card'
 import { Dialog } from '@/shared/ui/dialog'
+import { DatePickerField } from '@/shared/ui/date-picker-field'
 import { EmptyState, ErrorState, Skeleton } from '@/shared/ui/feedback-states'
 import { FormControl, TextArea, TextInput } from '@/shared/ui/form-control'
 import { PageLayout } from '@/shared/ui/page-layout'
@@ -795,10 +796,10 @@ function pointAsXyzDraft(point: XyzPoint): XyzPointDraft {
   }
 }
 
-export function SiteReportEditPage() {
+export function SiteReportEditPage({ operationsMode = false }: { operationsMode?: boolean } = {}) {
   const params = useParams({ strict: false }) as { reportType?: string; reportId?: string }
   const search = useSearch({ strict: false }) as WorkReportsSearch
-  const type = reportType(params.reportType)
+  const type = operationsMode ? 'engineering' : reportType(params.reportType)
   const reportId = Number(params.reportId)
   const navigate = useNavigate()
   const client = useQueryClient()
@@ -810,6 +811,17 @@ export function SiteReportEditPage() {
   const access = session && type ? reportAccess(session, type) : null
   const canListEquipment = Boolean(
     session && hasPermission(session.permissions, 'site_equipment', 'list'),
+  )
+  const listBackLink = operationsMode ? (
+    <Link
+      to="/works/engineering-site-reports/$reportId"
+      params={{ reportId: String(reportId) }}
+      className={pageBackLinkClassName}
+    >
+      <PageBackLinkContent>Report details</PageBackLinkContent>
+    </Link>
+  ) : (
+    <SiteReportBackLink search={search} />
   )
   const query = useQuery({
     ...siteReportDetailOptions(type ?? 'engineering', userId, employeeId, reportId),
@@ -1036,16 +1048,25 @@ export function SiteReportEditPage() {
         await client.invalidateQueries({
           queryKey: siteReportQueryKeys.lists(type, userId, employeeId),
         })
+        if (operationsMode) {
+          await client.invalidateQueries({
+            queryKey: ['operations-registers', userId, employeeId, 'reports', 'list'],
+          })
+        }
         toast.showToast({
           title: 'Report saved',
           description: 'Your site report changes were saved.',
           tone: 'success',
         })
-        await navigate({
-          to: '/dashboard/my-reports/site/$reportType/$reportId',
-          params: { reportType: type, reportId: String(report.id) },
-          search: { ...search, type: 'site' },
-        })
+        if (operationsMode) {
+          await navigate({ href: `/works/engineering-site-reports/${report.id}` })
+        } else {
+          await navigate({
+            to: '/dashboard/my-reports/site/$reportType/$reportId',
+            params: { reportType: type, reportId: String(report.id) },
+            search: { ...search, type: 'site' },
+          })
+        }
       } catch (error) {
         setFormError(`${presentError(error, 'form-submit').message} Your entries are still here.`)
       }
@@ -1082,7 +1103,7 @@ export function SiteReportEditPage() {
 
   if (!type || !reportId || (session && !access?.canUpdate))
     return (
-      <PageLayout title="Edit site report" backLink={<SiteReportBackLink search={search} />}>
+      <PageLayout title="Edit site report" backLink={listBackLink}>
         <ErrorState
           title="You can’t edit this report"
           description="Your account does not have permission to update this site report."
@@ -1091,13 +1112,13 @@ export function SiteReportEditPage() {
     )
   if (query.isPending)
     return (
-      <PageLayout title="Edit site report" backLink={<SiteReportBackLink search={search} />}>
+      <PageLayout title="Edit site report" backLink={listBackLink}>
         <Skeleton variant="card" className="h-80" />
       </PageLayout>
     )
   if (!report)
     return (
-      <PageLayout title="Edit site report" backLink={<SiteReportBackLink search={search} />}>
+      <PageLayout title="Edit site report" backLink={listBackLink}>
         <ErrorState
           title="Report could not load"
           description="The report may have been removed or you may no longer have access."
@@ -1112,7 +1133,7 @@ export function SiteReportEditPage() {
     )
   if (!['draft', 'rejected'].includes(report.status))
     return (
-      <PageLayout title="Edit site report" backLink={<SiteReportBackLink search={search} />}>
+      <PageLayout title="Edit site report" backLink={listBackLink}>
         <Card>
           <EmptyState
             title="This report can’t be edited"
@@ -1133,14 +1154,18 @@ export function SiteReportEditPage() {
       subtitle={`${report.worksite_name} · ${formatDate(report.date)}`}
       leading={<Pencil className="size-[18px]" aria-hidden="true" />}
       backLink={
-        <Link
-          to="/dashboard/my-reports/site/$reportType/$reportId"
-          params={{ reportType: type, reportId: String(report.id) }}
-          search={{ ...search, type: 'site' }}
-          className={pageBackLinkClassName}
-        >
-          <PageBackLinkContent>Report details</PageBackLinkContent>
-        </Link>
+        operationsMode ? (
+          listBackLink
+        ) : (
+          <Link
+            to="/dashboard/my-reports/site/$reportType/$reportId"
+            params={{ reportType: type, reportId: String(report.id) }}
+            search={{ ...search, type: 'site' }}
+            className={pageBackLinkClassName}
+          >
+            <PageBackLinkContent>Report details</PageBackLinkContent>
+          </Link>
+        )
       }
       contentClassName="space-y-5"
     >
@@ -1166,11 +1191,10 @@ export function SiteReportEditPage() {
           <form.Field name="date">
             {(field) => (
               <FormControl id="site-edit-date" label="Report date" required>
-                <TextInput
+                <DatePickerField
                   required
-                  type="date"
                   value={field.state.value}
-                  onChange={(event) => field.handleChange(event.target.value)}
+                  onValueChange={(value) => field.handleChange(value)}
                 />
               </FormControl>
             )}
@@ -1745,9 +1769,17 @@ export function SiteReportEditPage() {
         </Card>
         <div className="flex flex-wrap justify-end gap-2">
           <Link
-            to="/dashboard/my-reports/site/$reportType/$reportId"
-            params={{ reportType: type, reportId: String(report.id) }}
-            search={{ ...search, type: 'site' }}
+            to={
+              operationsMode
+                ? '/works/engineering-site-reports/$reportId'
+                : '/dashboard/my-reports/site/$reportType/$reportId'
+            }
+            params={
+              operationsMode
+                ? { reportId: String(report.id) }
+                : { reportType: type, reportId: String(report.id) }
+            }
+            search={operationsMode ? undefined : { ...search, type: 'site' }}
             className="rounded-control border-border-subtle bg-surface text-label inline-flex min-h-11 items-center justify-center border px-4 font-semibold"
           >
             Cancel
@@ -1759,4 +1791,8 @@ export function SiteReportEditPage() {
       </form>
     </PageLayout>
   )
+}
+
+export function OperationsEngineeringSiteReportEditPage() {
+  return <SiteReportEditPage operationsMode />
 }

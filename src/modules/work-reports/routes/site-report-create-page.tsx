@@ -64,7 +64,7 @@ type ExpenseDraft = { category: string; name: string; amount: string; descriptio
 type MaterialDraft = { equipmentId: string; quantity: string }
 type BearingDraft = { degrees: string; minutes: string; seconds: string; distance: string }
 type XyzDraft = { northing: string; easting: string; elevation: string }
-type AttachmentDraft = { file: File; url?: string }
+type AttachmentDraft = { file: File; url?: string; description?: string }
 type SiteReportFormStep = 0 | 1 | 2 | 3 | 4
 type SiteReportValidationInput = {
   reportType: SiteReportType
@@ -441,10 +441,15 @@ function ReviewItem({ label, children }: { label: string; children: ReactNode })
   )
 }
 
-export function SiteReportCreatePage() {
+export function SiteReportCreatePage({
+  operationsMode = false,
+}: { operationsMode?: boolean } = {}) {
   const params = useParams({ strict: false }) as { reportType?: string }
-  const type =
-    params.reportType === 'engineering' || params.reportType === 'survey' ? params.reportType : null
+  const type = operationsMode
+    ? 'engineering'
+    : params.reportType === 'engineering' || params.reportType === 'survey'
+      ? params.reportType
+      : null
   const search = useSearch({ strict: false }) as WorkReportsSearch
   const navigate = useNavigate()
   const client = useQueryClient()
@@ -665,12 +670,23 @@ export function SiteReportCreatePage() {
         client.invalidateQueries({
           queryKey: siteReportQueryKeys.lists(type, userId, employeeKey),
         }),
+        ...(operationsMode
+          ? [
+              client.invalidateQueries({
+                queryKey: ['operations-registers', userId, employeeKey, 'reports', 'list'],
+              }),
+            ]
+          : []),
       ])
-      await navigate({
-        to: '/dashboard/my-reports/site/$reportType/$reportId',
-        params: { reportType: type, reportId: String(report.id) },
-        search: { ...search, type: 'site', page: 1 },
-      })
+      if (operationsMode) {
+        await navigate({ href: `/works/engineering-site-reports/${report.id}` })
+      } else {
+        await navigate({
+          to: '/dashboard/my-reports/site/$reportType/$reportId',
+          params: { reportType: type, reportId: String(report.id) },
+          search: { ...search, type: 'site', page: 1 },
+        })
+      }
     },
     onError: (error) => {
       if (error instanceof ApiError && error.fieldErrors) {
@@ -746,12 +762,12 @@ export function SiteReportCreatePage() {
               })),
             }
           : {}),
-        attachments: attachmentUrls,
       }
       if (type === 'engineering') {
         await mutation
           .mutateAsync({
             ...common,
+            attachments: attachmentUrls,
             tomorrow_activities: tomorrow,
             comments_suggestions: comments,
             activities: activityLines.map((item) => ({
@@ -766,6 +782,10 @@ export function SiteReportCreatePage() {
       await mutation
         .mutateAsync({
           ...common,
+          attachments: attachmentUrls.map((url, index) => ({
+            url,
+            description: attachments[index]?.description?.trim() ?? '',
+          })),
           work_data_type: dataType,
           measurement_unit: measurementUnit,
           coordinate_system: coordinateSystem,
@@ -845,7 +865,23 @@ export function SiteReportCreatePage() {
     void form.handleSubmit()
   }
 
-  const listBackLink = (
+  const listBackLink = operationsMode ? (
+    <Link
+      to="/works/engineering-site-reports"
+      search={{
+        status: 'submitted',
+        employeeId: null,
+        projectId: null,
+        worksiteId: null,
+        dateFrom: '',
+        dateTo: '',
+        page: 1,
+      }}
+      className={pageBackLinkClassName}
+    >
+      <PageBackLinkContent>Engineering reports</PageBackLinkContent>
+    </Link>
+  ) : (
     <Link
       to="/dashboard/my-reports"
       search={{ ...search, type: type ?? 'all' }}
@@ -918,14 +954,13 @@ export function SiteReportCreatePage() {
               <Button
                 variant="outline"
                 onClick={() =>
-                  void navigate({
-                    to: '/dashboard/my-reports',
-                    search: { ...search, type },
-                  })
+                  operationsMode
+                    ? void navigate({ href: '/works/engineering-site-reports' })
+                    : void navigate({ to: '/dashboard/my-reports', search: { ...search, type } })
                 }
               >
                 <ArrowLeft className="size-4" aria-hidden="true" />
-                Back to My Work Reports
+                {operationsMode ? 'Back to Engineering reports' : 'Back to My Work Reports'}
               </Button>
             }
           />
@@ -939,15 +974,7 @@ export function SiteReportCreatePage() {
       title={`New ${typeLabel(type).toLocaleLowerCase()}`}
       subtitle="Record site activity and save it as a draft for review."
       leading={<FilePlus2 className="size-[18px]" aria-hidden="true" />}
-      backLink={
-        <Link
-          to="/dashboard/my-reports"
-          search={{ ...search, type: type === 'engineering' ? 'engineering' : 'survey' }}
-          className={pageBackLinkClassName}
-        >
-          <PageBackLinkContent>My Work Reports</PageBackLinkContent>
-        </Link>
-      }
+      backLink={listBackLink}
       actionsInline
       contentClassName="space-y-0"
     >
@@ -1696,6 +1723,31 @@ export function SiteReportCreatePage() {
                     )
                   }}
                 />
+                {type === 'survey' && attachments.length ? (
+                  <div className="space-y-3">
+                    {attachments.map((attachment, index) => (
+                      <FormControl
+                        key={`${attachment.file.name}-${index}`}
+                        id={`survey-attachment-description-${index}`}
+                        label={`Description for ${attachment.file.name}`}
+                      >
+                        <TextInput
+                          value={attachment.description ?? ''}
+                          placeholder="What does this photo or document show?"
+                          onChange={(event) =>
+                            setAttachments((current) =>
+                              current.map((item, itemIndex) =>
+                                itemIndex === index
+                                  ? { ...item, description: event.target.value }
+                                  : item,
+                              ),
+                            )
+                          }
+                        />
+                      </FormControl>
+                    ))}
+                  </div>
+                ) : null}
               </FormSection>
             ) : null}
 
@@ -1995,8 +2047,22 @@ export function SiteReportCreatePage() {
                     </Button>
                   ) : null}
                   <Link
-                    to="/dashboard/my-reports"
-                    search={{ ...search, type }}
+                    to={
+                      operationsMode ? '/works/engineering-site-reports' : '/dashboard/my-reports'
+                    }
+                    search={
+                      operationsMode
+                        ? {
+                            status: 'submitted',
+                            employeeId: null,
+                            projectId: null,
+                            worksiteId: null,
+                            dateFrom: '',
+                            dateTo: '',
+                            page: 1,
+                          }
+                        : { ...search, type }
+                    }
                     className="text-body-sm text-text-secondary hover:text-primary focus-visible:shadow-focus-ring rounded-control inline-flex min-h-10 items-center px-3 font-medium focus-visible:outline-none"
                   >
                     Cancel
@@ -2041,4 +2107,8 @@ export function SiteReportCreatePage() {
       </div>
     </PageLayout>
   )
+}
+
+export function OperationsEngineeringSiteReportCreatePage() {
+  return <SiteReportCreatePage operationsMode />
 }

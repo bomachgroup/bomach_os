@@ -21,6 +21,13 @@ import {
 import { router } from './router'
 
 describe('employee route registrations', () => {
+  it('serves the Staff privacy policy on a public route outside the authenticated shell', () => {
+    const privacyRoute = router.routesById['/privacy']
+
+    expect(privacyRoute).toBeDefined()
+    expect(privacyRoute?.options.beforeLoad).toBeUndefined()
+  })
+
   it('allows My Work Reports for daily or site-only personal list permissions', () => {
     const destination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/dashboard/my-reports')
     expect(destination).toBeDefined()

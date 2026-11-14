@@ -154,7 +154,11 @@ export function Dialog({
         sizeClasses[size],
         compactOnMobile &&
           'rounded-surface border-border-subtle shadow-elevation-lg top-1/2 bottom-auto mx-auto my-0 h-auto max-h-[calc(100dvh-2rem)] w-auto max-w-[30rem] -translate-y-1/2 border',
-        fitContent && 'tablet:top-1/2 tablet:bottom-auto tablet:my-0 tablet:-translate-y-1/2',
+        fitContent &&
+          cn(
+            'tablet:top-1/2 tablet:bottom-auto tablet:my-0 tablet:h-auto tablet:max-h-[90dvh] tablet:-translate-y-1/2 top-1/2 bottom-auto my-0 h-auto -translate-y-1/2',
+            !compactOnMobile && 'max-h-[calc(100dvh-1.5rem)]',
+          ),
         className,
       )}
     >

@@ -359,7 +359,9 @@ describe('Personal site report details and actions', () => {
 
     const activity = await screen.findByRole('textbox', { name: /Activity 1/ })
     expect(activity).toHaveValue('Inspected the foundation.')
-    expect(screen.getByLabelText(/Report date/)).toHaveValue('2026-10-27')
+    expect(screen.getByRole('button', { name: /Report date/ })).toHaveTextContent(
+      /October 27, 2026/,
+    )
     expect(screen.getByLabelText(/Expense name/)).toHaveValue('Site transport')
     expect(screen.getByLabelText(/Amount \(NGN\)/)).toHaveValue('1500')
     expect(screen.getByLabelText(/Quantity \(hours\)/)).toHaveValue('2')
@@ -404,13 +406,30 @@ describe('Personal site report details and actions', () => {
     )
   })
 
+  it('uses the shared date popover in the site report edit flow', async () => {
+    const user = userEvent.setup()
+    const { container } = renderEditPage(report)
+
+    const dateTrigger = await screen.findByRole('button', { name: /Report date/ })
+    expect(container.querySelector('input[type="date"]')).not.toBeInTheDocument()
+    await user.click(dateTrigger)
+
+    expect(await screen.findByRole('dialog', { name: 'Choose a date' })).toBeInTheDocument()
+    expect(document.querySelector('[data-date="2026-10-27"]')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
   it('hydrates saved report fields when mounted under React StrictMode', async () => {
     renderEditPage(report, session.permissions, true)
 
     expect(await screen.findByRole('textbox', { name: /Activity 1/ })).toHaveValue(
       'Inspected the foundation.',
     )
-    expect(screen.getByLabelText(/Report date/)).toHaveValue('2026-10-27')
+    expect(screen.getByRole('button', { name: /Report date/ })).toHaveTextContent(
+      /October 27, 2026/,
+    )
     expect(screen.getByLabelText(/Expense name/)).toHaveValue('Site transport')
     expect(screen.getByLabelText(/Amount \(NGN\)/)).toHaveValue('1500')
     expect(screen.getByLabelText(/Quantity \(hours\)/)).toHaveValue('2')

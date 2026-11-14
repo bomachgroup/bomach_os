@@ -13,7 +13,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ToastProvider } from '@/shared/feedback/toast-provider'
 import { AUTH_SESSION_QUERY_KEY, type AuthenticatedSession } from '@/shared/auth/session'
-import { projectsApi, type PaginatedDto, type ProjectDto } from '../projects.api'
+import {
+  projectsApi,
+  type PaginatedDto,
+  type ProjectDto,
+  type ProjectTimelineDto,
+} from '../projects.api'
 import { validateProjectDetailSearch, validateProjectsSearch } from '../projects.search'
 import { ProjectDetailPage } from './project-detail-page'
 import { ProjectsPage } from './projects-page'
@@ -106,11 +111,14 @@ function page(overrides: Partial<PaginatedDto<ProjectDto>> = {}): PaginatedDto<P
   }
 }
 
-function renderProjects(path = '/works/projects?search=&status=&priority=&page=1&archived=false') {
+function renderProjects(
+  path = '/works/projects?search=&status=&priority=&page=1&archived=false',
+  session = adminSession(),
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { retry: false } },
   })
-  queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, adminSession())
+  queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, session)
 
   const rootRoute = createRootRoute({ component: Outlet })
   const protectedRoute = createRoute({
@@ -167,10 +175,36 @@ describe('ProjectsPage', () => {
     })
     vi.spyOn(projectsApi, 'employees').mockResolvedValue({ items: [], count: 0 })
     vi.spyOn(projectsApi, 'employeeOptions').mockResolvedValue([])
+    vi.spyOn(projectsApi, 'updateEmployees').mockResolvedValue(sampleProject())
+    vi.spyOn(projectsApi, 'worksites').mockResolvedValue({
+      items: [],
+      count: 0,
+      limit: 100,
+      offset: 0,
+    })
+    vi.spyOn(projectsApi, 'files').mockResolvedValue([])
+    vi.spyOn(projectsApi, 'milestones').mockResolvedValue({
+      items: [],
+      count: 0,
+      limit: 100,
+      offset: 0,
+    })
+    vi.spyOn(projectsApi, 'tasks').mockResolvedValue({
+      items: [],
+      count: 0,
+      limit: 100,
+      offset: 0,
+    })
     vi.spyOn(projectsApi, 'associates').mockResolvedValue([])
     vi.spyOn(projectsApi, 'associateOptions').mockResolvedValue([
       { id: 12, name: 'QA construction partner', code: 'QA-PARTNER', category: 'Contractor' },
     ])
+    vi.spyOn(projectsApi, 'meetings').mockResolvedValue({
+      items: [],
+      count: 0,
+      limit: 100,
+      offset: 0,
+    })
   })
 
   it('renders the refined register without a Search or manual Refresh action', async () => {
@@ -312,6 +346,419 @@ describe('ProjectsPage', () => {
     expect(deleteDialog.querySelector('form')).toBeNull()
     expect(within(deleteDialog).getByText('QA project redesign sample')).toBeInTheDocument()
     expect(projectsApi.remove).not.toHaveBeenCalled()
+  })
+
+  it('uses consistent, count-aware list sections across project tabs', async () => {
+    const user = userEvent.setup()
+    const timeline: ProjectTimelineDto = {
+      id: 1,
+      project_id: 101,
+      name: 'Groundworks',
+      description: 'Prepare the construction footprint.',
+      status: 'in_progress',
+      start_date: '2026-11-01',
+      end_date: '2026-12-01',
+    }
+    vi.mocked(projectsApi.timelines).mockResolvedValueOnce({
+      items: [timeline],
+      count: 1,
+      limit: 100,
+      offset: 0,
+    })
+    vi.mocked(projectsApi.employeeOptions).mockResolvedValueOnce([
+      {
+        id: 9,
+        employee_id: 'EMP-009',
+        name: 'Amaka Nwosu',
+        email: 'amaka@example.test',
+        position: 'Site engineer',
+      },
+    ])
+    vi.mocked(projectsApi.worksites).mockResolvedValueOnce({
+      items: [
+        {
+          id: 1,
+          project_id: 101,
+          name: 'North field office',
+          location: 'Emene, Enugu',
+          latitude: null,
+          longitude: null,
+          status: 'active',
+          description: 'Primary site coordination office.',
+          created_at: '2026-11-01T09:00:00Z',
+          updated_at: '2026-11-02T09:00:00Z',
+        },
+      ],
+      count: 1,
+      limit: 100,
+      offset: 0,
+    })
+    vi.mocked(projectsApi.files).mockResolvedValueOnce([
+      {
+        id: 1,
+        original_filename: 'site-brief.pdf',
+        content_type: 'application/pdf',
+        size: 2048,
+        uploaded_by_name: 'Test Admin',
+        created_at: '2026-11-02T09:00:00Z',
+        download_url: '/api/project-files/1',
+      },
+    ])
+    vi.mocked(projectsApi.milestones).mockResolvedValue({
+      items: [
+        {
+          id: 1,
+          project_id: 101,
+          name: 'Foundation works',
+          description: 'Complete the foundation phase.',
+          priority: 'high',
+          status: 'in_progress',
+          budget: '250000.00',
+          progress: 60,
+          start_date: '2026-11-01',
+          end_date: '2026-12-01',
+          created_at: '2026-11-01T09:00:00Z',
+          updated_at: '2026-11-02T09:00:00Z',
+        },
+      ],
+      count: 1,
+      limit: 100,
+      offset: 0,
+    })
+    vi.mocked(projectsApi.tasks).mockResolvedValueOnce({
+      items: [
+        {
+          id: 1,
+          project_id: 101,
+          milestone_id: 1,
+          name: 'Inspect excavation',
+          description: 'Record the inspection findings.',
+          status: 'pending',
+          priority: 'critical',
+          due_date: '2026-11-21',
+          estimated_hours: '4.00',
+          created_at: '2026-11-01T09:00:00Z',
+          updated_at: '2026-11-02T09:00:00Z',
+        },
+      ],
+      count: 1,
+      limit: 100,
+      offset: 0,
+    })
+    vi.mocked(projectsApi.associates).mockResolvedValueOnce([
+      {
+        id: 1,
+        partner_id: 12,
+        name: 'QA Construction Partner',
+        code: 'QA-PARTNER',
+        category: 'Contractor',
+        project_role: 'Civil works contractor',
+      },
+    ])
+    vi.mocked(projectsApi.meetings).mockResolvedValueOnce({
+      items: [
+        {
+          id: 1,
+          meeting_id: 'MTG-001',
+          project_id: 101,
+          title: 'Weekly site review',
+          agenda: 'Review work completed and resolve blockers.',
+          meeting_date: '2026-11-18',
+          meeting_time: '09:30:00',
+          duration_minutes: 60,
+          duration_display: '1 hour',
+          status: 'scheduled',
+          status_display: 'Scheduled',
+          location_type: 'physical',
+          location_type_display: 'In person',
+          location: 'Site office',
+          attendee_count: 4,
+          organizer_id: 7,
+          organizer_name: 'Test Admin',
+          notes: null,
+          created_at: '2026-11-01T09:00:00Z',
+          updated_at: '2026-11-02T09:00:00Z',
+        },
+      ],
+      count: 1,
+      limit: 100,
+      offset: 0,
+    })
+
+    const session = adminSession()
+    session.permissions = {
+      ...session.permissions,
+      worksites: ['create', 'list', 'update', 'delete'],
+      milestones: ['create', 'list', 'update', 'delete'],
+      tasks: ['create', 'list', 'update', 'delete'],
+      meetings: ['create', 'list', 'update', 'delete'],
+    }
+    renderProjects('/works/projects/101?tab=overview', session)
+    const timelinePanel = await screen.findByRole('region', { name: 'Project timeline' })
+    expect(within(timelinePanel).getByText('1 phase')).toBeInTheDocument()
+    expect(within(timelinePanel).getByText('Groundworks')).toBeInTheDocument()
+    expect(
+      within(timelinePanel).getByText('Prepare the construction footprint.'),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Members' }))
+    const membersPanel = await screen.findByRole('region', { name: 'Project members' })
+    expect(within(membersPanel).getByText('1 employee')).toBeInTheDocument()
+    expect(within(membersPanel).getByText('Amaka Nwosu')).toBeInTheDocument()
+    await user.click(within(membersPanel).getByRole('checkbox'))
+    expect(within(membersPanel).getByText('1 selected')).toBeInTheDocument()
+    await user.click(within(membersPanel).getByRole('button', { name: 'Save team' }))
+    await waitFor(() => expect(projectsApi.updateEmployees).toHaveBeenCalledWith(101, [9]))
+
+    await user.click(screen.getByRole('button', { name: 'Work site' }))
+    const worksitePanel = await screen.findByRole('region', { name: 'Project worksites' })
+    expect(within(worksitePanel).getByText('1 worksite')).toBeInTheDocument()
+    expect(within(worksitePanel).getByText('Emene, Enugu')).toBeInTheDocument()
+    expect(
+      within(worksitePanel).getByRole('button', { name: 'Edit North field office' }),
+    ).toHaveTextContent('Edit')
+    expect(
+      within(worksitePanel).getByRole('button', { name: 'Delete North field office' }),
+    ).toHaveTextContent('Delete')
+    const addWorksite = within(worksitePanel).getByRole('button', { name: 'Add worksite' })
+    expect(addWorksite.querySelector('span:first-of-type')).toHaveClass('max-[479px]:hidden')
+    expect(addWorksite.querySelector('span[aria-hidden="true"]')).toHaveClass('max-[360px]:hidden')
+
+    await user.click(screen.getByRole('button', { name: 'Files' }))
+    const filesPanel = await screen.findByRole('region', { name: 'Project files' })
+    expect(within(filesPanel).getByText('1 file')).toBeInTheDocument()
+    expect(within(filesPanel).getByText('site-brief.pdf')).toBeInTheDocument()
+    expect(
+      within(filesPanel).getByRole('link', { name: 'Download site-brief.pdf' }),
+    ).toBeInTheDocument()
+    expect(
+      within(filesPanel).getByRole('button', { name: 'Delete site-brief.pdf' }),
+    ).toHaveTextContent('Delete')
+
+    await user.click(screen.getByRole('button', { name: 'Milestones' }))
+    const milestonesPanel = await screen.findByRole('region', { name: 'Milestones' })
+    expect(within(milestonesPanel).getByText('1 milestone')).toBeInTheDocument()
+    expect(within(milestonesPanel).getByText('60%')).toBeInTheDocument()
+    expect(within(milestonesPanel).getByText('High')).toBeInTheDocument()
+    expect(
+      within(milestonesPanel).getByRole('button', { name: 'Edit milestone' }),
+    ).toHaveTextContent('Edit')
+    expect(
+      within(milestonesPanel).getByRole('button', { name: 'Delete Foundation works' }),
+    ).toHaveTextContent('Delete')
+
+    await user.click(screen.getByRole('button', { name: 'Tasks' }))
+    const tasksPanel = await screen.findByRole('region', { name: 'Project tasks' })
+    expect(within(tasksPanel).getByText('1 task')).toBeInTheDocument()
+    expect(within(tasksPanel).getByText('Foundation works')).toBeInTheDocument()
+    expect(within(tasksPanel).getByText('Critical')).toBeInTheDocument()
+    expect(
+      within(tasksPanel).getByRole('button', { name: 'Edit Inspect excavation' }),
+    ).toHaveTextContent('Edit')
+    expect(
+      within(tasksPanel).getByRole('button', { name: 'Delete Inspect excavation' }),
+    ).toHaveTextContent('Delete')
+
+    await user.click(screen.getByRole('button', { name: 'Associates' }))
+    const associatesPanel = await screen.findByRole('region', { name: 'Project associates' })
+    expect(within(associatesPanel).getByText('1 partner')).toBeInTheDocument()
+    expect(within(associatesPanel).getByText('Civil works contractor')).toBeInTheDocument()
+    expect(
+      within(associatesPanel).getByRole('button', {
+        name: 'Remove QA Construction Partner from project',
+      }),
+    ).toHaveTextContent('Remove')
+
+    await user.click(screen.getByRole('button', { name: 'Meetings' }))
+    const meetingsPanel = await screen.findByRole('region', { name: 'Project meetings' })
+    expect(within(meetingsPanel).getByText('1 meeting')).toBeInTheDocument()
+    expect(within(meetingsPanel).getByText('Weekly site review')).toBeInTheDocument()
+    expect(within(meetingsPanel).getByText('4 people')).toBeInTheDocument()
+    expect(
+      within(meetingsPanel).getByRole('button', { name: 'Edit Weekly site review' }),
+    ).toHaveTextContent('Edit')
+    expect(
+      within(meetingsPanel).getByRole('button', { name: 'Cancel Weekly site review' }),
+    ).toHaveTextContent('Cancel')
+  })
+
+  it('uses shared date and time popovers in project milestone, task, and meeting create/edit dialogs', async () => {
+    const user = userEvent.setup()
+    vi.mocked(projectsApi.milestones).mockResolvedValue({
+      items: [
+        {
+          id: 1,
+          project_id: 101,
+          name: 'Foundation works',
+          description: 'Complete the foundation phase.',
+          priority: 'high',
+          status: 'in_progress',
+          budget: '250000.00',
+          progress: 60,
+          start_date: '2026-11-01',
+          end_date: '2026-12-01',
+          created_at: '2026-11-01T09:00:00Z',
+          updated_at: '2026-11-02T09:00:00Z',
+        },
+      ],
+      count: 1,
+      limit: 100,
+      offset: 0,
+    })
+    vi.mocked(projectsApi.tasks).mockResolvedValue({
+      items: [
+        {
+          id: 1,
+          project_id: 101,
+          milestone_id: 1,
+          name: 'Inspect excavation',
+          description: 'Record the inspection findings.',
+          status: 'pending',
+          priority: 'high',
+          due_date: '2026-11-21',
+          estimated_hours: '4.00',
+          created_at: '2026-11-01T09:00:00Z',
+          updated_at: '2026-11-02T09:00:00Z',
+        },
+      ],
+      count: 1,
+      limit: 100,
+      offset: 0,
+    })
+    vi.mocked(projectsApi.meetings).mockResolvedValue({
+      items: [
+        {
+          id: 1,
+          meeting_id: 'MTG-001',
+          project_id: 101,
+          title: 'Weekly site review',
+          agenda: 'Review work completed and resolve blockers.',
+          meeting_date: '2026-11-18',
+          meeting_time: '09:30:00',
+          duration_minutes: 60,
+          duration_display: '1 hour',
+          status: 'scheduled',
+          status_display: 'Scheduled',
+          location_type: 'physical',
+          location_type_display: 'In person',
+          location: 'Site office',
+          attendee_count: 4,
+          organizer_id: 7,
+          organizer_name: 'Test Admin',
+          notes: null,
+          created_at: '2026-11-01T09:00:00Z',
+          updated_at: '2026-11-02T09:00:00Z',
+        },
+      ],
+      count: 1,
+      limit: 100,
+      offset: 0,
+    })
+    const session = adminSession()
+    session.permissions = {
+      ...session.permissions,
+      milestones: ['create', 'list', 'update', 'delete'],
+      tasks: ['create', 'list', 'update', 'delete'],
+      meetings: ['create', 'list', 'update', 'delete'],
+    }
+    const { container } = renderProjects('/works/projects/101?tab=milestones', session)
+
+    async function openDatePicker(dialog: HTMLElement, label: RegExp) {
+      const trigger = within(dialog).getByRole('button', { name: label })
+      expect(trigger).toHaveAttribute('aria-haspopup', 'dialog')
+      expect(dialog.querySelector('input[type="date"]')).not.toBeInTheDocument()
+      await user.click(trigger)
+      expect(await screen.findByRole('dialog', { name: 'Choose a date' })).toBeInTheDocument()
+      await user.click(trigger)
+    }
+
+    const milestones = await screen.findByRole('region', { name: 'Milestones' })
+    await user.click(within(milestones).getByRole('button', { name: 'Add milestone' }))
+    let dialog = await screen.findByRole('dialog', { name: 'Add milestone' })
+    await openDatePicker(dialog, /Start date/)
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }))
+    await user.click(within(milestones).getByRole('button', { name: 'Edit milestone' }))
+    dialog = await screen.findByRole('dialog', { name: 'Edit milestone' })
+    expect(within(dialog).getByRole('button', { name: /Start date/ })).toHaveAttribute(
+      'aria-haspopup',
+      'dialog',
+    )
+    expect(within(dialog).getByRole('button', { name: /End date/ })).toHaveAttribute(
+      'aria-haspopup',
+      'dialog',
+    )
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }))
+
+    await user.click(screen.getByRole('button', { name: 'Tasks' }))
+    const tasks = await screen.findByRole('region', { name: 'Project tasks' })
+    await user.click(within(tasks).getByRole('button', { name: 'Add task' }))
+    dialog = await screen.findByRole('dialog', { name: 'Add task' })
+    await openDatePicker(dialog, /Due date/)
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }))
+    await user.click(within(tasks).getByRole('button', { name: 'Edit Inspect excavation' }))
+    dialog = await screen.findByRole('dialog', { name: 'Edit task' })
+    expect(within(dialog).getByRole('button', { name: /Due date/ })).toHaveAttribute(
+      'aria-haspopup',
+      'dialog',
+    )
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }))
+
+    await user.click(screen.getByRole('button', { name: 'Meetings' }))
+    const meetings = await screen.findByRole('region', { name: 'Project meetings' })
+    await user.click(within(meetings).getByRole('button', { name: 'Add meeting' }))
+    dialog = await screen.findByRole('dialog', { name: 'Add meeting' })
+    await openDatePicker(dialog, /Date/)
+    const timeTrigger = within(dialog).getByRole('button', { name: /Time/ })
+    expect(dialog.querySelector('input[type="time"]')).not.toBeInTheDocument()
+    await user.click(timeTrigger)
+    expect(await screen.findByRole('dialog', { name: 'Choose a time' })).toBeInTheDocument()
+    await user.click(timeTrigger)
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }))
+    await user.click(within(meetings).getByRole('button', { name: 'Edit Weekly site review' }))
+    dialog = await screen.findByRole('dialog', { name: 'Edit meeting' })
+    expect(dialog.querySelector('input[type="date"]')).not.toBeInTheDocument()
+    expect(dialog.querySelector('input[type="time"]')).not.toBeInTheDocument()
+    expect(within(dialog).getByRole('button', { name: /Date/ })).toHaveAttribute(
+      'aria-haspopup',
+      'dialog',
+    )
+    expect(within(dialog).getByRole('button', { name: /Time/ })).toHaveAttribute(
+      'aria-haspopup',
+      'dialog',
+    )
+    expect(container.querySelector('input[type="date"], input[type="time"]')).toBeNull()
+  })
+
+  it('keeps read-only project lists free of empty action footers', async () => {
+    const session = adminSession()
+    session.permissions.worksites = ['list']
+    vi.mocked(projectsApi.worksites).mockResolvedValueOnce({
+      items: [
+        {
+          id: 3,
+          project_id: 101,
+          name: 'North field office',
+          location: 'Emene, Enugu',
+          latitude: null,
+          longitude: null,
+          status: 'active',
+          description: null,
+          created_at: '2026-11-01T09:00:00Z',
+          updated_at: '2026-11-02T09:00:00Z',
+        },
+      ],
+      count: 1,
+      limit: 100,
+      offset: 0,
+    })
+
+    renderProjects('/works/projects/101?tab=worksite', session)
+
+    const panel = await screen.findByRole('region', { name: 'Project worksites' })
+    const card = panel.querySelector('article')
+    expect(card).not.toBeNull()
+    expect(card?.querySelector('footer')).not.toBeInTheDocument()
+    expect(within(panel).queryByRole('button', { name: 'Add worksite' })).not.toBeInTheDocument()
   })
 
   it('opens create and edit without writing until the final form action', async () => {

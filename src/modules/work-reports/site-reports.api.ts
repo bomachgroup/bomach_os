@@ -71,6 +71,16 @@ export interface SiteReport {
   expenses: SiteReportExpense[]
   materials_used: SiteReportMaterial[]
   attachments: string[]
+  attachment_details?: Array<{ url: string; description: string }>
+  review_history?: Array<{
+    submission_version: number
+    outcome: 'approved' | 'rejected'
+    reviewer_id: number | null
+    reviewer_name: string | null
+    rating: number | null
+    feedback: string
+    reviewed_at: string
+  }>
   bearing_distance_points?: BearingDistancePoint[]
   xyz_points?: XyzPoint[]
   created_at: string
@@ -123,7 +133,7 @@ export interface SurveySiteReportCreate {
   activities: Array<Pick<SiteReportActivity, 'description'>>
   expenses?: Array<Pick<SiteReportExpense, 'expense_category' | 'name' | 'amount' | 'description'>>
   materials_used?: Array<{ equipment_id: number; quantity_used: string | number }>
-  attachments?: string[]
+  attachments?: Array<string | { url: string; description?: string }>
   bearing_distance_points?: Array<Omit<BearingDistancePoint, 'id'>>
   xyz_points?: Array<Omit<XyzPoint, 'id'>>
 }
@@ -172,7 +182,7 @@ export interface SurveySiteReportUpdate {
   activities?: Array<Pick<SiteReportActivity, 'description'>>
   expenses?: Array<Pick<SiteReportExpense, 'expense_category' | 'name' | 'amount' | 'description'>>
   materials_used?: Array<{ equipment_id: number; quantity_used: string | number }>
-  attachments?: string[]
+  attachments?: Array<string | { url: string; description?: string }>
   bearing_distance_points?: Array<Omit<BearingDistancePoint, 'id'>>
   xyz_points?: Array<Omit<XyzPoint, 'id'>>
 }

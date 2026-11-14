@@ -259,6 +259,16 @@ export function LoginPage() {
             Biometric sign-in is currently unavailable.
           </span>
         </form>
+        <p className="text-caption text-text-muted pt-1 text-center">
+          Using BOMACH Staff?{' '}
+          <Link
+            className="text-primary focus-visible:shadow-focus-ring rounded-sm font-semibold underline underline-offset-4 focus-visible:outline-none"
+            to="/privacy"
+          >
+            Read the privacy policy
+          </Link>
+          .
+        </p>
       </div>
     </AuthPageFrame>
   )

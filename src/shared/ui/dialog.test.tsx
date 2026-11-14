@@ -111,6 +111,12 @@ describe('Dialog', () => {
         .getByRole('dialog', { name: 'Edit company' })
         .querySelector(':scope > div.min-h-0.overflow-y-auto'),
     ).toHaveClass('flex-auto')
+    expect(screen.getByRole('dialog', { name: 'Edit company' })).toHaveClass(
+      'top-1/2',
+      'bottom-auto',
+      'h-auto',
+      'max-h-[calc(100dvh-1.5rem)]',
+    )
   })
 
   it('uses the shared compact layout for brief mobile confirmations', async () => {

@@ -61,7 +61,7 @@ These are the Flutter Operations navigation destinations recorded in the route i
 | Contracts                | `/works/contracts`                | Organization/project contract register.                                                                                         |
 | Meetings                 | `/hr/meetings`                    | Listed inside Flutter’s Operations menu despite the `/hr/` URL; keep its established route and Operations navigation ownership. |
 
-The React route manifest registers these as protected sidebar destinations using the Flutter paths, labels, order, route permissions, and menu visibility resources. Operations and Projects are ported. The five other destinations remain individual future page ports; project details and their eight tabs stay nested inside Projects.
+The React route manifest registers these as protected sidebar destinations using the Flutter paths, labels, order, route permissions, and menu visibility resources. Operations, Projects, Worksite, Tasks, and Engineering Site Reports are ported. Survey Site Reports, Contracts, and Meetings remain future page ports; project details and their eight tabs stay nested inside Projects.
 
 ### Detail routes and project/worksite subviews
 
@@ -75,7 +75,7 @@ Flutter also registers detail routes that are not separate sidebar destinations:
 | Contract detail            | `/operations/contract/detail`                              |
 | Operations timeline detail | `/operations/timeline/detail`                              |
 
-The React route manifest now registers all six as protected, non-sidebar Coming Soon routes. Both project paths remain separate URL aliases for compatibility; their eventual page implementation should share one project-detail experience.
+Flutter's task and worksite detail concepts are implemented as protected React routes at `/works/tasks/:taskId` and `/works/worksite/:worksiteId`; Engineering Site Report details use `/works/engineering-site-reports/:reportId`. Project details are implemented at `/works/projects/:projectId`. Contract and timeline detail pages remain future work. Both Flutter project paths remain compatibility references for the same project-detail experience.
 
 Project detail contains these project-scoped tabs: **Overview**, **Members**, **Work site**, **Files**, **Milestone**, **Tasks**, **Associates**, and **Meetings**. Project Tasks remains a project-scoped Operations view; the employee’s assigned items remain in My Tasks.
 
@@ -105,9 +105,17 @@ An assignment created or changed in Operations should appear in the assignee’s
 ## Porting sequence
 
 1. Keep the existing My Tasks and daily My Reports experiences intact while porting Operations.
-2. Port Operations overview, Projects, Worksite, operational Tasks, Engineering Site Reports, Survey Site Reports, Contracts, and Meetings as separate permission-aware destinations.
-3. Port project and worksite detail views with their contextual tabs and record links.
+2. Completed: Operations overview, Projects, Worksite, operational Tasks, and Engineering Site Reports are separate permission-aware destinations. Remaining: Survey Site Reports, Contracts, and Meetings.
+3. Project, worksite, task, and Engineering Site Report details are implemented with contextual links; the remaining detail views follow their destination ports.
 4. Personal Engineering and Survey history and creation are implemented in the unified My Work Reports register. Keep the operational registers separate as their pages are ported; they remain the place for wider-scope review and management.
+
+## Operations register implementation notes
+
+- Worksite, Operations Tasks, and Engineering Site Reports each use URL-backed filters and pagination, scoped React Query cache keys, permission-gated actions, and protected detail routes. Task and report registers open on Active work and Submitted / Needs review respectively; All remains available for historical review.
+- A Task may optionally reference a Worksite. Existing tasks remain unlinked; no migration backfill guesses a site. Project-linked sites and tasks must share a project. Site selection can derive the task project when the chosen site is project-linked.
+- Worksite deletion is allowed only when unused. Linked tasks, reports, or inventory prevent hard deletion; authorized users can instead mark the site inactive.
+- Engineering Site Reports are authored by the signed-in employee. Draft/rejected reports can be edited; submitted reports can be approved or returned by an authorized non-author. Return requires a reason. Report attachments use the existing authenticated upload endpoint and retain previously saved URLs.
+- Implementation, API contracts, backend rules, local fixture safety, and the verified test matrix are recorded in [operations-worksites-tasks-engineering-reports-implementation.md](operations-worksites-tasks-engineering-reports-implementation.md).
 
 ## Source notes
 
