@@ -866,7 +866,7 @@ export function MyTasksPage() {
         title="Task details"
         description="Information for the task assigned to you."
         size="md"
-        className="desktop:inset-y-0 desktop:right-0 desktop:left-auto desktop:m-0 desktop:h-svh desktop:max-h-full desktop:w-[min(48rem,calc(100vw-6rem))] desktop:max-w-none desktop:rounded-none desktop:border-y-0 desktop:border-r-0 desktop:border-l"
+        className="desktop:inset-y-0 desktop:right-0 desktop:left-auto desktop:m-0 desktop:h-dvh desktop:min-h-dvh desktop:max-h-none desktop:w-[min(48rem,calc(100vw-6rem))] desktop:max-w-none desktop:translate-y-0 desktop:rounded-none desktop:border-y-0 desktop:border-r-0 desktop:border-l"
         footer={
           selectedTask ? (
             <div className="flex w-full flex-wrap items-center justify-between gap-2">

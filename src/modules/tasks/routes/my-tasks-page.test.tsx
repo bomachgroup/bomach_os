@@ -158,7 +158,9 @@ describe('My Tasks page', () => {
     routerState.search = { ...routerState.search, task: 14 }
     renderPage()
 
-    expect(await screen.findByRole('dialog', { name: 'Task details' })).toBeInTheDocument()
+    const dialog = await screen.findByRole('dialog', { name: 'Task details' })
+    expect(dialog).toHaveClass('desktop:h-dvh', 'desktop:min-h-dvh', 'desktop:max-h-none')
+    expect(dialog).toHaveClass('desktop:translate-y-0')
     expect(myTasksApi.detail).toHaveBeenCalledWith(14, expect.any(AbortSignal))
 
     await user.click(screen.getByRole('button', { name: 'Close dialog' }))
