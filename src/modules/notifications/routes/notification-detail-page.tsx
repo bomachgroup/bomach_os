@@ -15,6 +15,7 @@ import {
   notificationMoneySummary,
   notificationPriorityLabel,
 } from '@/shared/notifications/notification-presentation'
+import { openNotificationHref } from '@/shared/notifications/open-notification-href'
 import { NotificationTypeIcon } from '@/shared/notifications/notification-type-icon'
 import { notificationApi, notificationKeys } from '@/shared/notifications/notifications.api'
 import { Button } from '@/shared/ui/button'
@@ -361,7 +362,7 @@ export function NotificationDetailPage() {
                       variant={index === 0 ? 'primary' : 'outline'}
                       className="phone:w-auto min-h-11 w-full"
                       leadingIcon={<NotificationTypeIcon name="approvals" className="size-4" />}
-                      onClick={() => void navigate({ to: action.href as never })}
+                      onClick={() => openNotificationHref(action.href, navigate)}
                     >
                       {action.label}
                     </Button>
