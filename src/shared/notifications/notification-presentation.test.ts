@@ -224,4 +224,46 @@ describe('notification presentation and authorized destinations', () => {
       ),
     ).toEqual([{ label: 'Open attendance', href: '/hr/attendance' }])
   })
+
+  it('opens marketing lead details from entity metadata or legacy links', () => {
+    const marketingPermissions: PermissionSet = { leads: ['view', 'list'] }
+
+    expect(
+      notificationActions(
+        makeNotification({
+          title: 'Lead assigned to you',
+          entity_type: 'lead',
+          entity_id: '7',
+          link: '/marketing/leads-detail?id=7',
+          metadata: {
+            lead_id: 7,
+            notification_kind: 'lead_assignment',
+          },
+        }),
+        marketingPermissions,
+      ),
+    ).toEqual([{ label: 'Open lead details', href: '/marketing/leads-detail?id=7' }])
+
+    expect(
+      notificationActions(
+        makeNotification({
+          title: 'Lead assigned to you',
+          link: '/leads-detail?id=42',
+          metadata: { lead_id: 42, notification_kind: 'lead_assignment' },
+        }),
+        marketingPermissions,
+      ),
+    ).toEqual([{ label: 'Open lead details', href: '/marketing/leads-detail?id=42' }])
+
+    expect(
+      notificationActions(
+        makeNotification({
+          entity_type: 'lead',
+          entity_id: '7',
+          link: '/marketing/leads-detail?id=7',
+        }),
+        {},
+      ),
+    ).toEqual([])
+  })
 })
