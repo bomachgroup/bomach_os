@@ -40,6 +40,16 @@ The full detail page uses a presentation mapper keyed by the versioned backend `
 
 The route guard and the UI use the same permission distinctions. The backend remains authoritative and detail lookup cannot return another user's notification. The frontend only follows same-origin links that resolve to a registered React destination and pass that destination's permission check. Unknown, external, and unauthorized links are not rendered as actions.
 
+## Cross-workspace behavior
+
+Bomach OS is the canonical notification detail route and interaction. In all three web apps, selecting the notification title/message opens the OS detail route directly; this navigation does not display the workspace switcher or its transition. A separately labeled related-record action is available only when its destination is registered and authorized, and opens that destination in its owning app.
+
+Browser Back returns to the source app route with the notification panel closed. The source app retains its history entry; Marketing additionally saves/restores its scroll position by router history key while the authenticated shell mounts. If no source history exists, OS detail Back falls back to the inbox and its current filter. The Marketing cross-app return and scroll behavior and the Services route return were verified live.
+
+Services and Marketing notification panels follow the OS panel's visual hierarchy and behavior: All/Unread views, unread state, separate read actions, mark-all where permitted, local loading/empty/error states, keyboard dismissal, and viewport-clamped placement. Marketing exposes the bell in both its desktop top bar and mobile shell. Each app still owns its own typed endpoint/query code; a shared runtime package is deferred.
+
+New-arrival claims are serialized per signed-in user and notification ID with Web Locks where supported, then shared through BroadcastChannel and a local-storage ID set. This prevents simultaneous same-origin tabs from announcing the same item twice on supported browsers. On browsers without Web Locks, the fallback remains best-effort. Only IDs are persisted; notification text and metadata remain in memory/query cache.
+
 ## User experience
 
 - The bell remains in the existing permission-gated shell location. Its panel is a short preview with All/Unread filtering, full-card notification opening, separate read actions, load-older support, and a prominent View all route to the full inbox.
@@ -54,7 +64,7 @@ The route guard and the UI use the same permission distinctions. The backend rem
 - All query keys include the signed-in user ID. List variants also include filter and page size; detail includes notification ID. This prevents user-specific cache data from crossing account boundaries.
 - Inbox list and detail are `standard` freshness (60 seconds), revalidated on stale route entry, focus, and reconnect. They do not poll while a user is reading the page.
 - The shell unread count uses the existing short live cadence (30 seconds while the bell is open, 60 seconds while closed) and pauses while the document is hidden. Focus and reconnect trigger refresh.
-- One shell arrival check requests the newest 20 items every 60 seconds only while the authenticated app is visible. It also rechecks when the page becomes visible, on focus, and after reconnect. This is best-effort in-app polling, not instant delivery.
+- Each authenticated workspace shell requests the newest 20 items every 60 seconds only while visible. Checks pause while hidden and run again on visibility return, focus, and reconnect. Cross-tab claim locking prevents duplicate alerts where Web Locks are available. This is best-effort in-app polling, not instant delivery.
 - The first successful arrival response establishes a baseline. Subsequent IDs are compared during the session. `BroadcastChannel` and a user-scoped local-storage set containing only notification IDs prevent duplicate alerts across tabs where browser storage is available. No notification body or metadata is persisted in browser storage.
 - Read mutations invalidate only the current user's notification query family, including bell/inbox list variants, Workspace Overview updates, detail, arrival window, and unread count. Cached content stays visible during revalidation; errors are presented at the affected list, detail, or action.
 
