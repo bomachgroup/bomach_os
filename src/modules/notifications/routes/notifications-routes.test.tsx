@@ -224,7 +224,7 @@ describe('notification inbox and detail routing', () => {
     expect(notificationMocks.markRead.mock.calls[0]?.[0]).toBe(82)
   })
 
-  it('loads notification params and preserves the inbox filter on back navigation', async () => {
+  it('returns to the notification inbox when a detail page has no previous history entry', async () => {
     const user = userEvent.setup()
     const { router } = renderNotificationRoute('/notifications/81?filter=unread')
 
@@ -233,9 +233,29 @@ describe('notification inbox and detail routing', () => {
     ).toBeInTheDocument()
     expect(notificationMocks.get).toHaveBeenCalledWith(81, expect.anything())
 
-    await user.click(screen.getByRole('link', { name: 'Back to Notifications' }))
+    await user.click(screen.getByRole('button', { name: 'Back to Notifications' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/notifications'))
     expect(router.state.location.search).toMatchObject({ filter: 'unread' })
+  })
+
+  it('uses browser history for the notification detail back action when available', async () => {
+    const user = userEvent.setup()
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => undefined)
+    const originalLength = window.history.length
+    Object.defineProperty(window.history, 'length', { configurable: true, value: 2 })
+
+    try {
+      renderNotificationRoute('/notifications/81?filter=all')
+      const backButton = await screen.findByRole('button', { name: 'Back to previous page' })
+      await user.click(backButton)
+      expect(back).toHaveBeenCalledOnce()
+    } finally {
+      Object.defineProperty(window.history, 'length', {
+        configurable: true,
+        value: originalLength,
+      })
+      back.mockRestore()
+    }
   })
 
   it('shows a safe empty state for an invalid detail identifier without fetching a record', async () => {

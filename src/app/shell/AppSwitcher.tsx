@@ -44,6 +44,10 @@ function AppGlyph({ appId }: { appId: WorkspaceApp['id'] }) {
   return <Icon aria-hidden="true" className="size-[18px]" />
 }
 
+function currentTimestamp() {
+  return Date.now()
+}
+
 function SwitchTransition({
   source,
   destination,
@@ -149,7 +153,8 @@ export function AppSwitcher({
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const transition = consumeWorkspaceSwitchTransition(currentApp)
-      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const reducedMotion =
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
       if (transition && !reducedMotion) setArriving(transition)
     }, 0)
     return () => window.clearTimeout(timer)
@@ -209,13 +214,14 @@ export function AppSwitcher({
       sourceApp: currentApp,
       targetApp: app.id,
       origin,
-      startedAt: Date.now(),
+      startedAt: currentTimestamp(),
     }
     rememberWorkspaceSwitch(app.id, { sourceApp: currentApp, origin })
     detailsRef.current?.removeAttribute('open')
     setSwitching(transition)
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reducedMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
     window.setTimeout(
       () => window.location.assign(href),
       reducedMotion ? 0 : WORKSPACE_SWITCH_DELAY_MS,

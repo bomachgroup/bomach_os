@@ -488,19 +488,25 @@ function readAnnouncedIds(userId: number): number[] {
 }
 
 function claimUnannouncedIds(userId: number, ids: number[]) {
-  const storedIds = readAnnouncedIds(userId)
-  const stored = new Set(storedIds)
-  const claimed = ids.filter((id) => !stored.has(id))
-  if (!claimed.length) return claimed
-  try {
-    window.localStorage.setItem(
-      announcedIdsStorageKey(userId),
-      JSON.stringify([...storedIds, ...claimed].slice(-100)),
-    )
-  } catch {
-    // In-app alerts still work when browser storage is unavailable.
+  const claim = () => {
+    const storedIds = readAnnouncedIds(userId)
+    const stored = new Set(storedIds)
+    const claimed = ids.filter((id) => !stored.has(id))
+    if (!claimed.length) return claimed
+    try {
+      window.localStorage.setItem(
+        announcedIdsStorageKey(userId),
+        JSON.stringify([...storedIds, ...claimed].slice(-100)),
+      )
+    } catch {
+      // In-app alerts still work when browser storage is unavailable.
+    }
+    return claimed
   }
-  return claimed
+  if (navigator.locks) {
+    return navigator.locks.request(`${ANNOUNCED_IDS_KEY}.${userId}`, claim)
+  }
+  return Promise.resolve(claim())
 }
 
 interface ArrivalTracker {
@@ -610,45 +616,42 @@ export function NotificationDeliveryBridge({ session }: { session: Authenticated
     const unseen = ordered.filter(({ id }) => !tracker.ids.has(id))
     if (!unseen.length) return
     unseen.forEach(({ id }) => tracker.ids.add(id))
-    const claimedIds = claimUnannouncedIds(
+    void claimUnannouncedIds(
       userId,
       unseen.map(({ id }) => id),
-    )
-    if (!claimedIds.length) return
+    ).then((claimedIds) => {
+      if (!claimedIds.length) return
 
-    const latest = unseen.find(({ id }) => id === claimedIds[0]) ?? unseen[0]!
-    const relatedAction = notificationActions(latest, session.permissions)[0]
-    const actionLabel =
-      relatedAction?.label ?? (canViewDetail ? 'View notification' : 'View notifications')
+      const latest = unseen.find(({ id }) => id === claimedIds[0]) ?? unseen[0]!
+      const actionLabel = canViewDetail ? 'View notification' : 'View notifications'
 
-    channelRef.current?.postMessage({ ids: claimedIds })
-    void queryClient.invalidateQueries({ queryKey: notificationKeys.lists(userId) })
-    void queryClient.invalidateQueries({ queryKey: notificationKeys.overview(userId) })
-    void queryClient.invalidateQueries({ queryKey: notificationKeys.stats(userId) })
-    showToast({
-      title:
-        claimedIds.length === 1 ? 'New notification' : `${claimedIds.length} new notifications`,
-      description:
-        claimedIds.length === 1
-          ? latest.title
-          : `${latest.title} and ${claimedIds.length - 1} more updates`,
-      tone: 'info',
-      action: {
-        label: actionLabel,
-        onClick: () => {
-          if (relatedAction) {
-            openNotificationHref(relatedAction.href, navigate)
-          } else if (canViewDetail) {
-            void navigate({
-              to: '/notifications/$notificationId',
-              params: { notificationId: String(latest.id) },
-              search: { filter: 'all' },
-            })
-          } else {
-            void navigate({ to: '/notifications', search: { filter: 'all' } })
-          }
+      channelRef.current?.postMessage({ ids: claimedIds })
+      void queryClient.invalidateQueries({ queryKey: notificationKeys.lists(userId) })
+      void queryClient.invalidateQueries({ queryKey: notificationKeys.overview(userId) })
+      void queryClient.invalidateQueries({ queryKey: notificationKeys.stats(userId) })
+      showToast({
+        title:
+          claimedIds.length === 1 ? 'New notification' : `${claimedIds.length} new notifications`,
+        description:
+          claimedIds.length === 1
+            ? latest.title
+            : `${latest.title} and ${claimedIds.length - 1} more updates`,
+        tone: 'info',
+        action: {
+          label: actionLabel,
+          onClick: () => {
+            if (canViewDetail) {
+              void navigate({
+                to: '/notifications/$notificationId',
+                params: { notificationId: String(latest.id) },
+                search: { filter: 'all' },
+              })
+            } else {
+              void navigate({ to: '/notifications', search: { filter: 'all' } })
+            }
+          },
         },
-      },
+      })
     })
   }, [
     arrivalsQuery.data,
