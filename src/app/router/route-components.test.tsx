@@ -8,7 +8,7 @@ const routerMocks = vi.hoisted(() => ({
   navigate: vi.fn(),
   invalidate: vi.fn(async () => undefined),
   router: {
-    state: { location: { href: '/hr/employees?status=active' } },
+    state: { location: { pathname: '/hr/employees', href: '/hr/employees?status=active' } },
     navigate: vi.fn(),
     invalidate: vi.fn(async () => undefined),
   },
@@ -39,6 +39,10 @@ describe('auth route boundaries', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     window.sessionStorage.clear()
+    routerMocks.router.state.location = {
+      pathname: '/hr/employees',
+      href: '/hr/employees?status=active',
+    }
   })
 
   it('blocks on permission bootstrap failure and offers an explicit retry', async () => {
@@ -86,5 +90,23 @@ describe('auth route boundaries', () => {
       }),
     )
     expect(queryClient.getQueryData(['protected'])).toBeUndefined()
+  })
+
+  it('returns expired partner sessions to partner sign-in', async () => {
+    const queryClient = new QueryClient()
+    routerMocks.router.state.location = {
+      pathname: '/partners/app',
+      href: '/partners/app?tab=messages',
+    }
+    renderWithClient(<RootLayout />, queryClient)
+
+    window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
+
+    await waitFor(() =>
+      expect(routerMocks.router.navigate).toHaveBeenCalledWith({
+        to: '/partners/login',
+        search: { expired: true },
+      }),
+    )
   })
 })

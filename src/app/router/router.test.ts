@@ -6,6 +6,10 @@ import { validateBroadcastSearch } from '@/modules/company/broadcast.search'
 import { validateAuditLogSearch } from '@/modules/company/audit-log.search'
 import { validateKpiManagementSearch } from '@/modules/company/kpi-management.search'
 import { validateAssetsSearch } from '@/modules/company/assets.search'
+import {
+  validatePartnerAppSearch,
+  validatePartnerDeskSearch,
+} from '@/modules/partners/partner.search'
 import { validateRolesSearch } from '@/modules/company/roles.search'
 import {
   validateEmployeeProfileSearch,
@@ -21,6 +25,43 @@ import {
 import { router } from './router'
 
 describe('employee route registrations', () => {
+  it('keeps partner access public to its own login/setup shell and protects the staff invitation desk', () => {
+    for (const path of [
+      '/partners/login',
+      '/partners/setup',
+      '/partners/two-factor',
+      '/partners/app',
+    ]) {
+      const route = router.routesById[path]
+      expect(route, `${path} route`).toBeDefined()
+      expect(route?.options.beforeLoad).toBeUndefined()
+    }
+
+    const deskRoute = router.routesById['/_protected/company/partners']
+    expect(deskRoute).toBeDefined()
+    expect(deskRoute?.options.beforeLoad).toBeTypeOf('function')
+    expect(validatePartnerDeskSearch({ search: 'invite', page: 2 })).toEqual({
+      search: 'invite',
+      page: 2,
+    })
+    expect(validatePartnerAppSearch({ tab: 'profile' })).toEqual({ tab: 'profile' })
+
+    const destination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/company/partners')
+    expect(destination).toBeDefined()
+    expect(canVisitDestination(destination!, { partners: ['invite'] })).toBe(true)
+    expect(canVisitDestination(destination!, {})).toBe(false)
+  })
+
+  it('routes the legacy Board partners tab into the dedicated partner desk', () => {
+    const location = router.buildLocation({
+      to: '/company/partners',
+      search: { search: 'survey', page: 3 },
+    })
+    expect(location.pathname).toBe('/company/partners')
+    expect(location.search).toMatchObject({ search: 'survey', page: 3 })
+    expect(router.routesById['/partners/app']?.id).toBe('/partners/app')
+  })
+
   it('serves the Staff privacy policy on a public route outside the authenticated shell', () => {
     const privacyRoute = router.routesById['/privacy']
 

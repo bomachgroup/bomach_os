@@ -26,12 +26,20 @@ export function RootLayout() {
 
   useEffect(() => {
     const onSessionExpired = () => {
-      const returnTo = safeInternalTarget(router.state.location.href)
+      const location = router.state.location
+      const pathname = typeof location?.pathname === 'string' ? location.pathname : ''
+      const href = typeof location?.href === 'string' ? location.href : ''
+      const isPartnerWorkspace = pathname.startsWith('/partners/')
+      const returnTo = safeInternalTarget(href)
       queryClient.clear()
-      void router.navigate({
-        to: '/login',
-        search: { expired: true, ...(returnTo ? { returnTo } : {}) },
-      })
+      if (isPartnerWorkspace) {
+        void router.navigate({ to: '/partners/login', search: { expired: true } })
+      } else {
+        void router.navigate({
+          to: '/login',
+          search: { expired: true, ...(returnTo ? { returnTo } : {}) },
+        })
+      }
     }
 
     window.addEventListener(SESSION_EXPIRED_EVENT, onSessionExpired)

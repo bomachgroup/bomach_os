@@ -71,6 +71,7 @@ const categoryByPath: Partial<Record<string, NavigationCategoryId>> = {
   '/company/department': 'company-organization',
   '/company/org-chart': 'company-organization',
   '/company/board': 'company-governance',
+  '/company/partners': 'company-governance',
   '/company/compliance': 'company-governance',
   '/company/audit-log': 'company-governance',
   '/company/approval-requests': 'company-governance',
@@ -294,6 +295,15 @@ export const PROTECTED_DESTINATIONS: ProtectedDestination[] = [
     ['meetings', 'board_resolutions', 'shareholders', 'employees', 'partners'],
     'board',
     12,
+  ),
+  destination(
+    '/company/partners',
+    'Partners',
+    'Company',
+    any(p('partners', 'list'), p('partners', 'invite')),
+    ['partners'],
+    'people',
+    12.5,
   ),
   destination(
     '/company/broadcast',
