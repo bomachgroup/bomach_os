@@ -13,6 +13,7 @@ import {
   notificationPriorityLabel,
   notificationTone,
 } from '@/shared/notifications/notification-presentation'
+import { openNotificationHref } from '@/shared/notifications/open-notification-href'
 import { NotificationTypeIcon } from '@/shared/notifications/notification-type-icon'
 import { notificationToneClasses } from '@/shared/notifications/notification-tone'
 import {
@@ -299,7 +300,7 @@ export function NotificationsPage() {
         // Opening the authorized related page should remain available after a read update fails.
       }
     }
-    void navigate({ to: target as never })
+    openNotificationHref(target, navigate)
   }
 
   function changeFilter(nextFilter: 'all' | 'unread') {

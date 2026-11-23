@@ -1,3 +1,7 @@
+import {
+  canAccessMarketingApp,
+  canAccessServicesApp,
+} from '@/app/shell/app-catalog'
 import { canVisitDestination, destinationForPath } from '@/app/navigation/route-manifest'
 import { hasPermission, type PermissionSet } from '@/shared/auth/session'
 
@@ -705,8 +709,24 @@ function attendanceReminderActions(
   return []
 }
 
+function normalizeWorkspacePath(pathname: string, search = '', hash = ''): string {
+  if (pathname === '/leads-detail' || pathname.startsWith('/leads-detail/')) {
+    return `/marketing/leads-detail${search}${hash}`
+  }
+  if (pathname === '/campaigns' || pathname.startsWith('/campaigns/')) {
+    return `/marketing${pathname}${search}${hash}`
+  }
+  return `${pathname}${search}${hash}`
+}
+
 function canOpenPath(path: string, permissions: PermissionSet): boolean {
   const pathname = path.split(/[?#]/, 1)[0] ?? path
+  if (pathname === '/marketing' || pathname.startsWith('/marketing/')) {
+    return canAccessMarketingApp(permissions)
+  }
+  if (pathname === '/services' || pathname.startsWith('/services/')) {
+    return canAccessServicesApp(permissions)
+  }
   const destination = destinationForPath(pathname)
   if (destination) return canVisitDestination(destination, permissions)
   if (/^\/hr\/leaves\/\d+\/?$/.test(pathname)) {
@@ -731,10 +751,11 @@ function safeNotificationLink(link: string, permissions: PermissionSet): string 
   if (!link || typeof window === 'undefined') return undefined
   try {
     const url = new URL(link, window.location.origin)
-    if (url.origin !== window.location.origin || !canOpenPath(url.pathname, permissions)) {
-      return undefined
-    }
-    return `${url.pathname}${url.search}${url.hash}`
+    if (url.origin !== window.location.origin) return undefined
+    const normalized = normalizeWorkspacePath(url.pathname, url.search, url.hash)
+    const pathname = normalized.split(/[?#]/, 1)[0] ?? normalized
+    if (!canOpenPath(pathname, permissions)) return undefined
+    return normalized
   } catch {
     return undefined
   }
@@ -742,6 +763,10 @@ function safeNotificationLink(link: string, permissions: PermissionSet): string 
 
 function notificationActionLabel(path: string): string | undefined {
   const pathname = path.split(/[?#]/, 1)[0] ?? path
+  if (pathname === '/marketing/leads-detail') return 'Open lead details'
+  if (pathname.startsWith('/marketing/campaigns')) return 'Open campaign'
+  if (pathname.startsWith('/marketing/')) return 'Open Marketing'
+  if (pathname.startsWith('/services/')) return 'Open Services'
   if (/^\/hr\/leaves\/\d+\/?$/.test(pathname)) return 'Open leave request'
   if (/^\/dashboard\/my-reports\/\d+\/?$/.test(pathname)) return 'Open work report'
   if (/^\/dashboard\/my-reports\/create\/?$/.test(pathname)) return 'Prepare work report'
@@ -755,9 +780,22 @@ function notificationActionLabel(path: string): string | undefined {
 
 function notificationEntityPath(notification: NotificationDto, permissions: PermissionSet) {
   const metadata = record(notification.metadata)
-  const type = (notification.entity_type || text(metadata.entity_type) || '').toLowerCase()
-  const id = notification.entity_id || text(metadata.entity_id) || ''
+  const type = (
+    notification.entity_type ||
+    text(metadata.entity_type) ||
+    text(metadata.notification_kind) ||
+    ''
+  ).toLowerCase()
+  const id =
+    notification.entity_id ||
+    text(metadata.entity_id) ||
+    text(metadata.lead_id) ||
+    ''
   if (!/^\d+$/.test(id) || Number(id) < 1) return undefined
+  if (type === 'lead' || type === 'lead_assignment') {
+    const path = `/marketing/leads-detail?id=${id}`
+    return canOpenPath('/marketing/leads-detail', permissions) ? path : undefined
+  }
   if (type === 'leave_request') {
     const path = `/hr/leaves/${id}`
     return canOpenPath(path, permissions) ? path : undefined

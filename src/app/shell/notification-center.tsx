@@ -21,6 +21,7 @@ import {
   notificationPriorityLabel,
   notificationTone,
 } from '@/shared/notifications/notification-presentation'
+import { openNotificationHref } from '@/shared/notifications/open-notification-href'
 import { NotificationTypeIcon } from '@/shared/notifications/notification-type-icon'
 import { notificationToneClasses } from '@/shared/notifications/notification-tone'
 import { useToast } from '@/shared/feedback/use-toast'
@@ -149,7 +150,7 @@ export function NotificationCenter({
         // Navigation should remain available if read-state updating fails.
       }
     }
-    void navigate({ to: relatedAction.href as never })
+    openNotificationHref(relatedAction.href, navigate)
   }
 
   async function openRelated(notification: NotificationDto) {
@@ -163,7 +164,7 @@ export function NotificationCenter({
         // Navigation should remain available if read-state updating fails.
       }
     }
-    void navigate({ to: relatedAction.href as never })
+    openNotificationHref(relatedAction.href, navigate)
   }
 
   return (
@@ -636,7 +637,7 @@ export function NotificationDeliveryBridge({ session }: { session: Authenticated
         label: actionLabel,
         onClick: () => {
           if (relatedAction) {
-            void navigate({ to: relatedAction.href as never })
+            openNotificationHref(relatedAction.href, navigate)
           } else if (canViewDetail) {
             void navigate({
               to: '/notifications/$notificationId',
