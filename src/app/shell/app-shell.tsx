@@ -32,6 +32,7 @@ import {
   type ProtectedDestination,
 } from '@/app/navigation/route-manifest'
 import { clearWorkspaceMemory, saveWorkspaceLocation } from '@/shared/auth/workspace-memory'
+import { clearWorkspaceMode } from '@/shared/auth/workspace-mode'
 import { ShellIcon } from './shell-icons'
 import { AppSwitcher } from './AppSwitcher'
 import { NotificationCenter, NotificationDeliveryBridge } from './notification-center'
@@ -282,6 +283,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
       clearWorkspaceMemory(session?.user.id)
       window.sessionStorage.removeItem(SESSION_ESTABLISHED_KEY)
       window.sessionStorage.removeItem(SESSION_EXPIRED_NOTICE_KEY)
+      clearWorkspaceMode()
       queryClient.clear()
       setSignOutOpen(false)
       setProfileOpen(false)

@@ -2,6 +2,13 @@
 
 This log records confirmed defects and follow-up findings with their reproduction, code-based cause, remedy, and retest evidence. New testing work should follow [the agent testing playbook](agent-testing-playbook.md).
 
+## 2026-11-23 — Partner workspace route boundary
+
+- **Finding and remedy:** A valid partner session could navigate to staff URLs and encounter staff routes or staff-oriented errors. The app now persists a non-sensitive workspace marker only after the corresponding profile is confirmed. Partner sessions are routed from `/`, `/partner`, and `/partners` to Partner home; staff routes are blocked before staff route work and display a partner-safe 404 with a return-to-home action. Cross-tab marker changes clear cached account data and trigger route revalidation. Backend authentication and permissions remain authoritative.
+- **Automated verification:** Workspace mode, route guards, session bootstrap, router, root boundary, and partner pages passed **55 focused tests** after adding `/partners`. `npm run typecheck`, `npm run lint`, and `npm run build` passed; the build retains the existing large face-model chunk advisory.
+- **Full frontend suite:** **799 passed, 3 failed across 142 files.** The unrelated failures are one My Tasks test expecting the task name as the shared-dialog heading, and two Operations overview tests expecting missing project/empty-state fixture content.
+- **Live/browser verification:** With the existing authenticated partner session on local React `http://localhost:5173`, `/`, `/partner`, and `/partners` each resolved to `/partners/app?tab=home`. Direct navigation to the public staff `/login` route resolved to `/partners/not-found` without rendering staff login; its **Go back** action returned to Partner home. This was a route/auth-surface check, not a responsive visual sweep.
+
 ## 2026-11-13 — Authenticated account has no employee profile
 
 - **Finding:** The production browser can complete authentication and reach `/splash`, but session bootstrap then fails while loading the employee profile. The screen previously displayed a generic permission error with only a Retry action, leaving the signed-in user stuck.

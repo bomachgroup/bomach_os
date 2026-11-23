@@ -4,6 +4,7 @@ import { ApiError } from '@/shared/api/api-error'
 import { SESSION_ESTABLISHED_KEY } from '@/shared/api/api-client'
 import { DATA_FRESHNESS_MS } from '@/shared/query/freshness'
 import { authApi, type CurrentUserDto, type EmployeeProfileDto, type RoleDto } from './auth.api'
+import { setWorkspaceMode } from './workspace-mode'
 
 export const AUTH_SESSION_QUERY_KEY = ['auth', 'session'] as const
 
@@ -68,6 +69,7 @@ export async function loadAuthenticatedSession(
     throw new SessionBootstrapError('profile', { cause })
   }
 
+  setWorkspaceMode('staff')
   const roles = user.role ? [{ ...user.role, permissions: user.permissions }] : []
   return {
     user,

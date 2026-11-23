@@ -6,6 +6,7 @@ import { SESSION_EXPIRED_NOTICE_KEY } from '@/shared/api/api-client'
 import { authSessionQueryOptions, hasPermission } from './session'
 import { safeInternalTarget } from './navigation'
 import { canVisitDestination, type ProtectedDestination } from '@/app/navigation/route-manifest'
+import { getWorkspaceMode } from './workspace-mode'
 
 export interface AuthRouteContext {
   queryClient: QueryClient
@@ -15,6 +16,12 @@ export interface AuthRouteLocation {
   pathname: string
   searchStr: string
   hash: string
+}
+
+export function requireStaffWorkspaceMode(): void {
+  if (getWorkspaceMode() === 'partner') {
+    throw redirect({ to: '/partners/not-found', replace: true })
+  }
 }
 
 function locationTarget(location: AuthRouteLocation): string {

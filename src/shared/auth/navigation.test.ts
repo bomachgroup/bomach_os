@@ -93,9 +93,9 @@ describe('auth navigation', () => {
 
   it('registers sidebar destinations and exposes the Company and HR dashboards first', () => {
     const sidebar = PROTECTED_DESTINATIONS.filter((destination) => destination.inSidebar)
-    expect(sidebar).toHaveLength(49)
+    expect(sidebar).toHaveLength(50)
     expect(sidebar.filter((destination) => destination.group === 'Dashboard')).toHaveLength(11)
-    expect(sidebar.filter((destination) => destination.group === 'Company')).toHaveLength(14)
+    expect(sidebar.filter((destination) => destination.group === 'Company')).toHaveLength(15)
     expect(sidebar.filter((destination) => destination.group === 'HR/Admin')).toHaveLength(16)
     expect(sidebar.filter((destination) => destination.group === 'Operations')).toHaveLength(8)
     expect(sidebar.find((destination) => destination.path === '/company/overview')?.order).toBe(9)
@@ -106,6 +106,7 @@ describe('auth navigation', () => {
     expect(
       PROTECTED_DESTINATIONS.some((destination) => destination.path === '/company/roles/$roleId'),
     ).toBe(true)
+    expect(sidebar.some((destination) => destination.path === '/company/partners')).toBe(true)
     expect(
       PROTECTED_DESTINATIONS.find((destination) => destination.path === '/company/knowledge-base')
         ?.inSidebar,

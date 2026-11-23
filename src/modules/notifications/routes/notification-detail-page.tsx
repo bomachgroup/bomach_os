@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate, useParams, useSearch } from '@tanstack/react-router'
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import { Bell, CheckCheck, Clock3 } from 'lucide-react'
 
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
@@ -137,10 +137,27 @@ export function NotificationDetailPage() {
     )
   }
 
+  const hasPreviousPage = window.history.length > 1
   const backLink = (
-    <Link to="/notifications" search={{ filter: search.filter }} className={pageBackLinkClassName}>
-      <PageBackLinkContent>Notifications</PageBackLinkContent>
-    </Link>
+    <button
+      type="button"
+      className={pageBackLinkClassName}
+      onClick={() => {
+        if (window.history.length > 1) {
+          window.history.back()
+          return
+        }
+        void navigate({
+          to: '/notifications',
+          search: { filter: search.filter },
+          replace: true,
+        })
+      }}
+    >
+      <PageBackLinkContent>
+        {hasPreviousPage ? 'previous page' : 'Notifications'}
+      </PageBackLinkContent>
+    </button>
   )
 
   if (!validId) {

@@ -14,14 +14,23 @@ import {
   requireAuthenticatedSession,
   requirePermission,
   requireProtectedDestination,
+  requireStaffWorkspaceMode,
 } from '@/shared/auth/route-guards'
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
+import { getWorkspaceMode } from '@/shared/auth/workspace-mode'
 import {
   isMarketingWorkspaceHref,
   isServicesWorkspaceHref,
   resolveWorkspaceEntryTarget,
 } from '@/shared/auth/navigation'
-import { NoAccessPage, NotFoundPage, RootLayout, RouteError } from './route-components'
+import {
+  NoAccessPage,
+  NotFoundPage,
+  PartnerNotFoundPage,
+  RootLayout,
+  RouteError,
+  WorkspaceNotFoundPage,
+} from './route-components'
 import { PROTECTED_DESTINATIONS } from '@/app/navigation/route-manifest'
 import { AppShell, ComingSoonPage } from '@/app/shell/app-shell'
 import { validateMyTasksSearch } from '@/modules/tasks/tasks.search'
@@ -73,6 +82,12 @@ import {
 import { validateBranchDirectorySearch } from '@/modules/company/branches.search'
 import { validateAssetsSearch } from '@/modules/company/assets.search'
 import { validateNotificationsSearch } from '@/shared/notifications/notifications.search'
+import {
+  validatePartnerAppSearch,
+  validatePartnerDetailSearch,
+  validatePartnerDeskSearch,
+  validatePartnerTwoFactorSearch,
+} from '@/modules/partners/partner.search'
 import {
   validateAttendanceSearch,
   validateAttendanceSetupSearch,
@@ -144,6 +159,30 @@ const SplashPage = lazyRouteComponent(
 const StaffPrivacyPage = lazyRouteComponent(
   () => import('@/modules/auth/routes/staff-privacy-page'),
   'StaffPrivacyPage',
+)
+const PartnerLoginPage = lazyRouteComponent(
+  () => import('@/modules/partners/routes/partner-auth-pages'),
+  'PartnerLoginPage',
+)
+const PartnerSetupPage = lazyRouteComponent(
+  () => import('@/modules/partners/routes/partner-auth-pages'),
+  'PartnerSetupPage',
+)
+const PartnerTwoFactorPage = lazyRouteComponent(
+  () => import('@/modules/partners/routes/partner-auth-pages'),
+  'PartnerTwoFactorPage',
+)
+const PartnerPortalPage = lazyRouteComponent(
+  () => import('@/modules/partners/routes/partner-portal-page'),
+  'PartnerPortalPage',
+)
+const PartnerDeskPage = lazyRouteComponent(
+  () => import('@/modules/partners/routes/partner-desk-page'),
+  'PartnerDeskPage',
+)
+const PartnerDetailPage = lazyRouteComponent(
+  () => import('@/modules/partners/routes/partner-detail-page'),
+  'PartnerDetailPage',
 )
 const TwoFactorVerifyPage = lazyRouteComponent(
   () => import('@/modules/auth/routes/two-factor-verify-page'),
@@ -452,13 +491,17 @@ function validateLoginSearch(search: Record<string, unknown>) {
 const rootRoute = createRootRouteWithContext<AppRouterContext>()({
   component: RootLayout,
   errorComponent: RouteError,
-  notFoundComponent: NotFoundPage,
+  notFoundComponent: WorkspaceNotFoundPage,
 })
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: () => {
+    if (getWorkspaceMode() === 'partner') {
+      throw redirect({ to: '/partners/app', search: { tab: 'home' }, replace: true })
+    }
+    requireStaffWorkspaceMode()
     throw redirect({ to: '/splash' })
   },
 })
@@ -468,6 +511,7 @@ const splashRoute = createRoute({
   path: '/splash',
   validateSearch: validateLoginSearch,
   beforeLoad: async ({ context, location }) => {
+    requireStaffWorkspaceMode()
     await requireAuthenticatedSession(context, location)
   },
   component: SplashPage,
@@ -478,6 +522,7 @@ const loginRoute = createRoute({
   path: '/login',
   validateSearch: validateLoginSearch,
   beforeLoad: async ({ context, location }) => {
+    requireStaffWorkspaceMode()
     try {
       const session = await context.queryClient.ensureQueryData(authSessionQueryOptions())
       const destination = resolveWorkspaceEntryTarget(
@@ -507,6 +552,7 @@ const forgotPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/forgot-password',
   validateSearch: validateLoginSearch,
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: ForgotPasswordPage,
 })
 
@@ -514,12 +560,14 @@ const resetPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/reset-password',
   validateSearch: validateLoginSearch,
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: ResetPasswordPage,
 })
 
 const biometricRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/biometric',
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: BiometricPage,
 })
 
@@ -527,19 +575,71 @@ const twoFactorRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/two-factor-verify',
   validateSearch: validateLoginSearch,
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: TwoFactorVerifyPage,
 })
 
 const staffPrivacyRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/privacy',
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: StaffPrivacyPage,
+})
+
+const partnerLoginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partners/login',
+  validateSearch: validateLoginSearch,
+  component: PartnerLoginPage,
+})
+
+const partnerSetupRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partners/setup',
+  component: PartnerSetupPage,
+})
+
+const partnerTwoFactorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partners/two-factor',
+  validateSearch: validatePartnerTwoFactorSearch,
+  component: PartnerTwoFactorPage,
+})
+
+const partnerPortalRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partners/app',
+  validateSearch: validatePartnerAppSearch,
+  component: PartnerPortalPage,
+})
+
+const partnerNotFoundRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partners/not-found',
+  component: PartnerNotFoundPage,
+})
+
+const partnerAliasRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partner',
+  beforeLoad: () => {
+    throw redirect({ to: '/partners/app', search: { tab: 'home' }, replace: true })
+  },
+})
+
+const partnersAliasRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partners',
+  beforeLoad: () => {
+    throw redirect({ to: '/partners/app', search: { tab: 'home' }, replace: true })
+  },
 })
 
 const protectedLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: '_protected',
   beforeLoad: async ({ context, location }) => {
+    requireStaffWorkspaceMode()
     await requireAuthenticatedSession(context, location)
   },
   component: () => (
@@ -564,6 +664,7 @@ const noAccessRoute = createRoute({
 const foundationPreviewRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/__foundation',
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: FoundationPreview,
 })
 
@@ -613,6 +714,9 @@ const assetsDestination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/c
 const knowledgeBaseDestination = PROTECTED_DESTINATIONS.find(
   ({ path }) => path === '/company/knowledge-base',
 )
+const partnerDeskDestination = PROTECTED_DESTINATIONS.find(
+  ({ path }) => path === '/company/partners',
+)
 const operationsDestination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/operations')
 const projectsDestination = PROTECTED_DESTINATIONS.find(({ path }) => path === '/works/projects')
 const projectDetailDestination = PROTECTED_DESTINATIONS.find(
@@ -654,6 +758,8 @@ if (!okrBoardDestination) throw new Error('The OKR Board route is missing from t
 if (!assetsDestination) throw new Error('The Assets route is missing from the route manifest.')
 if (!knowledgeBaseDestination)
   throw new Error('The Knowledge Base route is missing from the route manifest.')
+if (!partnerDeskDestination)
+  throw new Error('The Partner Desk route is missing from the route manifest.')
 if (!operationsDestination)
   throw new Error('The Operations route is missing from the route manifest.')
 if (!projectsDestination) throw new Error('The Projects route is missing from the route manifest.')
@@ -803,9 +909,39 @@ const boardRoute = createRoute({
   path: '/company/board',
   validateSearch: validateBoardSearch,
   beforeLoad: async ({ context, location }) => {
+    const boardSearch = validateBoardSearch(location.search as Record<string, unknown>)
+    if (boardSearch.tab === 'partners') {
+      throw redirect({
+        to: '/company/partners',
+        search: { search: boardSearch.search, page: boardSearch.page },
+        replace: true,
+      })
+    }
     await requireProtectedDestination(context, location, boardDestination)
   },
   component: BoardPage,
+})
+
+const partnerDeskRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/company/partners',
+  validateSearch: validatePartnerDeskSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requireAnyPermission(context, location, [
+      { resource: 'partners', actions: ['list', 'invite'] },
+    ])
+  },
+  component: PartnerDeskPage,
+})
+
+const partnerDetailRoute = createRoute({
+  getParentRoute: () => protectedLayoutRoute,
+  path: '/company/partners/$partnerId',
+  validateSearch: validatePartnerDetailSearch,
+  beforeLoad: async ({ context, location }) => {
+    await requireAnyPermission(context, location, [{ resource: 'partners', actions: ['view'] }])
+  },
+  component: PartnerDetailPage,
 })
 
 const boardRecordDetailRoute = createRoute({
@@ -1561,6 +1697,7 @@ const protectedDestinationRoutes = PROTECTED_DESTINATIONS.filter(
     path !== '/company/okr-board' &&
     path !== '/company/assets' &&
     path !== '/company/knowledge-base' &&
+    path !== '/company/partners' &&
     path !== '/company/board' &&
     path !== '/company/compliance' &&
     path !== '/company/broadcast' &&
@@ -1601,6 +1738,13 @@ const routeTree = rootRoute.addChildren([
   biometricRoute,
   twoFactorRoute,
   staffPrivacyRoute,
+  partnerLoginRoute,
+  partnerSetupRoute,
+  partnerTwoFactorRoute,
+  partnerPortalRoute,
+  partnerNotFoundRoute,
+  partnerAliasRoute,
+  partnersAliasRoute,
   protectedLayoutRoute.addChildren([
     noAccessRoute,
     myTasksRoute,
@@ -1638,6 +1782,8 @@ const routeTree = rootRoute.addChildren([
     assetsRoute,
     knowledgeBaseRoute,
     boardRoute,
+    partnerDeskRoute,
+    partnerDetailRoute,
     boardRecordDetailRoute,
     complianceRoute,
     complianceRecordDetailRoute,
