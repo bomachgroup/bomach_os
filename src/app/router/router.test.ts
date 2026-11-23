@@ -21,6 +21,7 @@ import {
   PROTECTED_DESTINATIONS,
   sidebarDestinationsFor,
 } from '@/app/navigation/route-manifest'
+import { clearWorkspaceMode, setWorkspaceMode } from '@/shared/auth/workspace-mode'
 
 import { router } from './router'
 
@@ -35,6 +36,22 @@ describe('employee route registrations', () => {
       const route = router.routesById[path]
       expect(route, `${path} route`).toBeDefined()
       expect(route?.options.beforeLoad).toBeUndefined()
+    }
+
+    expect(router.routesById['/partners/not-found']).toBeDefined()
+    for (const path of [
+      '/',
+      '/splash',
+      '/login',
+      '/forgot-password',
+      '/reset-password',
+      '/biometric',
+      '/two-factor-verify',
+      '/privacy',
+    ]) {
+      expect(router.routesById[path]?.options.beforeLoad, `${path} staff mode gate`).toBeTypeOf(
+        'function',
+      )
     }
 
     const deskRoute = router.routesById['/_protected/company/partners']
@@ -62,11 +79,51 @@ describe('employee route registrations', () => {
     expect(router.routesById['/partners/app']?.id).toBe('/partners/app')
   })
 
-  it('serves the Staff privacy policy on a public route outside the authenticated shell', () => {
+  it('keeps the Staff privacy policy public while applying the workspace boundary', () => {
     const privacyRoute = router.routesById['/privacy']
 
     expect(privacyRoute).toBeDefined()
-    expect(privacyRoute?.options.beforeLoad).toBeUndefined()
+    expect(privacyRoute?.options.beforeLoad).toBeTypeOf('function')
+  })
+
+  it('routes partner root aliases to partner home', () => {
+    setWorkspaceMode('partner')
+    const rootBeforeLoad = router.routesById['/']?.options.beforeLoad as (() => void) | undefined
+    const partnerAliasBeforeLoad = router.routesById['/partner']?.options.beforeLoad as
+      (() => void) | undefined
+    const partnersAliasBeforeLoad = router.routesById['/partners']?.options.beforeLoad as
+      (() => void) | undefined
+    let rootRedirect: unknown
+    let aliasRedirect: unknown
+    let pluralAliasRedirect: unknown
+
+    try {
+      rootBeforeLoad?.()
+    } catch (error) {
+      rootRedirect = error
+    }
+    try {
+      partnerAliasBeforeLoad?.()
+    } catch (error) {
+      aliasRedirect = error
+    }
+    try {
+      partnersAliasBeforeLoad?.()
+    } catch (error) {
+      pluralAliasRedirect = error
+    }
+    clearWorkspaceMode()
+
+    const expectedRedirect = {
+      options: {
+        to: '/partners/app',
+        search: { tab: 'home' },
+        replace: true,
+      },
+    }
+    expect(rootRedirect).toMatchObject(expectedRedirect)
+    expect(aliasRedirect).toMatchObject(expectedRedirect)
+    expect(pluralAliasRedirect).toMatchObject(expectedRedirect)
   })
 
   it('allows My Work Reports for daily or site-only personal list permissions', () => {

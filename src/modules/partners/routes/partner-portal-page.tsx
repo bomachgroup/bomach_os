@@ -31,6 +31,7 @@ import {
   type PartnerRole,
 } from '@/modules/partners/partner.api'
 import { authApi } from '@/shared/auth/auth.api'
+import { clearWorkspaceMode, setWorkspaceMode } from '@/shared/auth/workspace-mode'
 import { presentError } from '@/shared/errors'
 import { useToast } from '@/shared/feedback/use-toast'
 import { Alert } from '@/shared/ui/alert'
@@ -227,6 +228,10 @@ export function PartnerPortalPage() {
   }, [sidebarCollapsed])
 
   useEffect(() => {
+    if (profile) setWorkspaceMode('partner')
+  }, [profile])
+
+  useEffect(() => {
     if (!drawerOpen) return
     const previousFocus =
       document.activeElement instanceof HTMLElement ? document.activeElement : null
@@ -408,6 +413,7 @@ export function PartnerPortalPage() {
     setSigningOut(true)
     await authApi.logout().catch(() => undefined)
     window.sessionStorage.removeItem(SESSION_ESTABLISHED_KEY)
+    clearWorkspaceMode()
     queryClient.clear()
     await navigate({ to: '/partners/login', replace: true })
   }

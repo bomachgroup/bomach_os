@@ -34,6 +34,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 
 import { AUTH_SESSION_QUERY_KEY, type AuthenticatedSession } from '@/shared/auth/session'
 import { authApi } from '@/shared/auth/auth.api'
+import { getWorkspaceMode, WORKSPACE_MODE_KEY } from '@/shared/auth/workspace-mode'
 import { ToastContext } from '@/shared/feedback/toast-context'
 import {
   partnerAdminApi,
@@ -122,6 +123,7 @@ function renderPage(element: ReactNode, session: AuthenticatedSession = staffSes
 
 describe('partner Batch 1 pages', () => {
   beforeEach(() => {
+    window.localStorage.removeItem(WORKSPACE_MODE_KEY)
     window.localStorage.removeItem('bomach.partner.sidebar.collapsed')
     routeState.deskSearch = { search: '', page: 1 }
     routeState.portalSearch = { tab: 'home' }
@@ -448,6 +450,7 @@ describe('partner Batch 1 pages', () => {
       }),
     )
     expect(partnerPortalApi.me).toHaveBeenCalled()
+    expect(getWorkspaceMode()).toBe('partner')
     expect(routeState.navigate).toHaveBeenCalledWith({
       to: '/partners/app',
       search: { tab: 'home' },
@@ -474,6 +477,7 @@ describe('partner Batch 1 pages', () => {
 
     const profileDialog = await screen.findByRole('dialog', { name: 'Complete your profile' })
     expect(profileDialog).toBeInTheDocument()
+    await waitFor(() => expect(getWorkspaceMode()).toBe('partner'))
     await user.clear(screen.getByRole('textbox', { name: /Full name/ }))
     await user.type(screen.getByRole('textbox', { name: /Full name/ }), 'Martha Partner')
     await user.type(screen.getByRole('textbox', { name: /Phone number/ }), '+2348012345678')

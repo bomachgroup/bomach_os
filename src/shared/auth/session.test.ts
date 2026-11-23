@@ -4,10 +4,13 @@ import { ApiError } from '@/shared/api/api-error'
 import { SESSION_ESTABLISHED_KEY } from '@/shared/api/api-client'
 import { authApi } from './auth.api'
 import { loadAuthenticatedSession, SessionBootstrapError } from './session'
+import { getWorkspaceMode } from './workspace-mode'
 
 describe('authenticated session bootstrap', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+    window.localStorage.clear()
+    window.sessionStorage.clear()
     vi.spyOn(authApi, 'currentUser').mockResolvedValue({
       id: 7,
       email: 'person@example.com',
@@ -33,6 +36,7 @@ describe('authenticated session bootstrap', () => {
     expect(session.permissions).toEqual({ employees: ['list'] })
     expect(session.roles).toEqual([{ id: 2, name: 'Staff', permissions: { employees: ['list'] } }])
     expect(window.sessionStorage.getItem(SESSION_ESTABLISHED_KEY)).toBe('1')
+    expect(getWorkspaceMode()).toBe('staff')
   })
 
   it('treats no assigned role as an empty permission set', async () => {
@@ -67,5 +71,6 @@ describe('authenticated session bootstrap', () => {
     await expect(loadAuthenticatedSession()).rejects.toMatchObject<Partial<SessionBootstrapError>>({
       stage: 'profile',
     })
+    expect(getWorkspaceMode()).toBeNull()
   })
 })

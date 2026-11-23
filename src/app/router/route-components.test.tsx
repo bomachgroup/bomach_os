@@ -20,13 +20,19 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     ...actual,
     Outlet: () => null,
     useRouter: () => routerMocks.router,
+    useRouterState: ({
+      select,
+    }: {
+      select: (state: { location: typeof routerMocks.router.state.location }) => unknown
+    }) => select({ location: routerMocks.router.state.location }),
     useNavigate: () => routerMocks.navigate,
   }
 })
 
-import { NotFoundPage, RouteError, RootLayout } from './route-components'
+import { NotFoundPage, PartnerNotFoundPage, RouteError, RootLayout } from './route-components'
 import { SESSION_EXPIRED_EVENT } from '@/shared/api/api-client'
 import { SessionBootstrapError } from '@/shared/auth/session'
+import { setWorkspaceMode } from '@/shared/auth/workspace-mode'
 
 function renderWithClient(children: ReactNode, queryClient = new QueryClient()) {
   return {
@@ -39,6 +45,7 @@ describe('auth route boundaries', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     window.sessionStorage.clear()
+    window.localStorage.clear()
     routerMocks.router.state.location = {
       pathname: '/hr/employees',
       href: '/hr/employees?status=active',
@@ -99,6 +106,53 @@ describe('auth route boundaries', () => {
       href: '/partners/app?tab=messages',
     }
     renderWithClient(<RootLayout />, queryClient)
+
+    window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
+
+    await waitFor(() =>
+      expect(routerMocks.router.navigate).toHaveBeenCalledWith({
+        to: '/partners/login',
+        search: { expired: true },
+      }),
+    )
+  })
+
+  it('shows partners a neutral 404 instead of rendering a staff route', async () => {
+    setWorkspaceMode('partner')
+    routerMocks.router.state.location = {
+      pathname: '/dashboard',
+      href: '/dashboard?tab=overview',
+    }
+    const queryClient = new QueryClient()
+    renderWithClient(<RootLayout />, queryClient)
+
+    expect(screen.getByRole('heading', { name: 'Page not found' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Go back' })).toBeInTheDocument()
+    expect(screen.queryByText(/staff|employee|dashboard/i)).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(routerMocks.router.navigate).toHaveBeenCalledWith({
+        to: '/partners/not-found',
+        replace: true,
+      }),
+    )
+  })
+
+  it('returns from the partner 404 to the partner home without exposing staff navigation', async () => {
+    const user = userEvent.setup()
+    renderWithClient(<PartnerNotFoundPage />)
+
+    await user.click(screen.getByRole('button', { name: 'Go back' }))
+    expect(routerMocks.router.navigate).toHaveBeenCalledWith({
+      to: '/partners/app',
+      search: { tab: 'home' },
+      replace: true,
+    })
+  })
+
+  it('uses the stored partner mode for session expiry even on a staff-looking URL', async () => {
+    setWorkspaceMode('partner')
+    routerMocks.router.state.location = { pathname: '/dashboard', href: '/dashboard' }
+    renderWithClient(<RootLayout />)
 
     window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
 

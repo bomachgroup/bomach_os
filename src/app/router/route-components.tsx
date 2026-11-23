@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { SearchX } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Outlet, useRouter } from '@tanstack/react-router'
+import { Outlet, useRouter, useRouterState } from '@tanstack/react-router'
 
 import { ApiError } from '@/shared/api/api-error'
 import {
@@ -17,19 +17,57 @@ import { Button } from '@/shared/ui/button'
 import { ErrorState } from '@/shared/ui/feedback-states'
 import { ToastProvider } from '@/shared/feedback/toast-provider'
 import { NoAccessContent } from '@/app/shell/app-shell'
+import {
+  clearWorkspaceMode,
+  getWorkspaceMode,
+  isPartnerWorkspacePath,
+  WORKSPACE_MODE_CHANGE_EVENT,
+  WORKSPACE_MODE_KEY,
+  type WorkspaceMode,
+} from '@/shared/auth/workspace-mode'
 
 const EMPLOYEE_PROFILE_NOT_FOUND_DETAIL = 'Employee profile not found.'
 
 export function RootLayout() {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const [workspaceMode, setWorkspaceMode] = useState(getWorkspaceMode)
+  const partnerRouteBlocked = workspaceMode === 'partner' && !isPartnerWorkspacePath(pathname)
+
+  useEffect(() => {
+    const onModeChange = (event: Event) => {
+      const mode = (event as CustomEvent<WorkspaceMode | null>).detail
+      setWorkspaceMode(mode)
+    }
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== WORKSPACE_MODE_KEY && event.key !== null) return
+      setWorkspaceMode(getWorkspaceMode())
+      queryClient.clear()
+      void router.invalidate()
+    }
+
+    window.addEventListener(WORKSPACE_MODE_CHANGE_EVENT, onModeChange)
+    window.addEventListener('storage', onStorage)
+    return () => {
+      window.removeEventListener(WORKSPACE_MODE_CHANGE_EVENT, onModeChange)
+      window.removeEventListener('storage', onStorage)
+    }
+  }, [queryClient, router])
+
+  useEffect(() => {
+    if (!partnerRouteBlocked || pathname === '/partners/not-found') return
+    void router.navigate({ to: '/partners/not-found', replace: true })
+  }, [partnerRouteBlocked, pathname, router])
 
   useEffect(() => {
     const onSessionExpired = () => {
       const location = router.state.location
       const pathname = typeof location?.pathname === 'string' ? location.pathname : ''
       const href = typeof location?.href === 'string' ? location.href : ''
-      const isPartnerWorkspace = pathname.startsWith('/partners/')
+      const activeMode = getWorkspaceMode() ?? workspaceMode
+      const isPartnerWorkspace =
+        activeMode === 'partner' || (!activeMode && pathname.startsWith('/partners/'))
       const returnTo = safeInternalTarget(href)
       queryClient.clear()
       if (isPartnerWorkspace) {
@@ -44,13 +82,9 @@ export function RootLayout() {
 
     window.addEventListener(SESSION_EXPIRED_EVENT, onSessionExpired)
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onSessionExpired)
-  }, [queryClient, router])
+  }, [queryClient, router, workspaceMode])
 
-  return (
-    <ToastProvider>
-      <Outlet />
-    </ToastProvider>
-  )
+  return <ToastProvider>{partnerRouteBlocked ? <PartnerNotFoundPage /> : <Outlet />}</ToastProvider>
 }
 
 export function RouteError({ error, reset }: { error: unknown; reset: () => void }) {
@@ -86,6 +120,7 @@ export function RouteError({ error, reset }: { error: unknown; reset: () => void
       await authApi.logout()
       window.sessionStorage.removeItem(SESSION_ESTABLISHED_KEY)
       window.sessionStorage.removeItem(SESSION_EXPIRED_NOTICE_KEY)
+      clearWorkspaceMode()
       queryClient.clear()
       await router.navigate({ to: '/login', replace: true })
     } catch (logoutError) {
@@ -124,6 +159,43 @@ export function RouteError({ error, reset }: { error: unknown; reset: () => void
   )
 }
 
+export function PartnerNotFoundPage() {
+  const router = useRouter()
+
+  return (
+    <main className="bg-background flex min-h-[70svh] items-center justify-center px-4 py-8">
+      <section
+        className="bg-surface border-border-subtle shadow-elevation-sm rounded-surface phone:p-8 w-full max-w-xl border p-6 text-center"
+        aria-labelledby="partner-not-found-title"
+      >
+        <span className="bg-primary-subtle text-primary rounded-control mx-auto flex size-14 items-center justify-center">
+          <SearchX aria-hidden="true" className="size-7" />
+        </span>
+        <p className="text-caption text-primary mt-5 font-semibold tracking-wide">404</p>
+        <h1 id="partner-not-found-title" className="text-h2 text-text-primary mt-1 font-semibold">
+          Page not found
+        </h1>
+        <p className="text-body-sm text-text-secondary mx-auto mt-2 max-w-md">
+          We couldn’t find the page you’re looking for. The address may be incorrect, or the page
+          may have moved.
+        </p>
+        <Button
+          className="mt-6"
+          onClick={() =>
+            void router.navigate({
+              to: '/partners/app',
+              search: { tab: 'home' },
+              replace: true,
+            })
+          }
+        >
+          Go back
+        </Button>
+      </section>
+    </main>
+  )
+}
+
 export function NotFoundPage() {
   const router = useRouter()
 
@@ -150,6 +222,10 @@ export function NotFoundPage() {
       </section>
     </div>
   )
+}
+
+export function WorkspaceNotFoundPage() {
+  return getWorkspaceMode() === 'partner' ? <PartnerNotFoundPage /> : <NotFoundPage />
 }
 
 export function NoAccessPage() {

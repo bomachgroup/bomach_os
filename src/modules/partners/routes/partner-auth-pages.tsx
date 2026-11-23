@@ -1,10 +1,12 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Eye, EyeOff, Handshake, ShieldCheck } from 'lucide-react'
 
 import { ApiError } from '@/shared/api/api-error'
 import { SESSION_ESTABLISHED_KEY } from '@/shared/api/api-client'
 import { authApi } from '@/shared/auth/auth.api'
+import { clearWorkspaceMode, setWorkspaceMode } from '@/shared/auth/workspace-mode'
 import { presentError } from '@/shared/errors'
 import { Alert } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
@@ -105,6 +107,7 @@ function PartnerAuthFrame({
 
 export function PartnerLoginPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [visible, setVisible] = useState(false)
@@ -125,6 +128,9 @@ export function PartnerLoginPage() {
         await partnerPortalApi.me()
       } catch (cause) {
         await authApi.logout().catch(() => undefined)
+        window.sessionStorage.removeItem(SESSION_ESTABLISHED_KEY)
+        clearWorkspaceMode()
+        queryClient.clear()
         if (cause instanceof ApiError && cause.status === 403) {
           setError(
             'This sign-in is for invited partner accounts. No partner workspace is linked to this account.',
@@ -134,6 +140,8 @@ export function PartnerLoginPage() {
         }
         return
       }
+      queryClient.clear()
+      setWorkspaceMode('partner')
       window.sessionStorage.setItem(SESSION_ESTABLISHED_KEY, '1')
       await navigate({ to: '/partners/app', search: { tab: 'home' }, replace: true })
     } catch (cause) {
@@ -206,6 +214,7 @@ export function PartnerLoginPage() {
 
 export function PartnerSetupPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [token, setToken] = useState(
     () => new URLSearchParams(window.location.search).get('token') ?? '',
   )
@@ -258,6 +267,9 @@ export function PartnerSetupPage() {
         await navigate({ to: '/partners/two-factor', search: { next: 'profile' }, replace: true })
         return
       }
+      await partnerPortalApi.me()
+      queryClient.clear()
+      setWorkspaceMode('partner')
       window.sessionStorage.setItem(SESSION_ESTABLISHED_KEY, '1')
       await navigate({ to: '/partners/app', search: { tab: 'profile' }, replace: true })
     } catch (cause) {
@@ -352,6 +364,7 @@ export function PartnerSetupPage() {
 export function PartnerTwoFactorPage() {
   const routeSearch = useSearch({ from: '/partners/two-factor' }) as PartnerTwoFactorSearch
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -374,12 +387,13 @@ export function PartnerTwoFactorPage() {
     setSubmitting(true)
     try {
       await authApi.verifyTwoFactor(code)
-      window.sessionStorage.setItem(SESSION_ESTABLISHED_KEY, '1')
       try {
         await partnerPortalApi.me()
       } catch (cause) {
         await authApi.logout().catch(() => undefined)
         window.sessionStorage.removeItem(SESSION_ESTABLISHED_KEY)
+        clearWorkspaceMode()
+        queryClient.clear()
         if (cause instanceof ApiError && cause.status === 403) {
           setError(
             'This sign-in is for invited partner accounts. No partner workspace is linked to this account.',
@@ -388,6 +402,9 @@ export function PartnerTwoFactorPage() {
         }
         throw cause
       }
+      queryClient.clear()
+      setWorkspaceMode('partner')
+      window.sessionStorage.setItem(SESSION_ESTABLISHED_KEY, '1')
       await navigate({ to: '/partners/app', search: { tab: routeSearch.next }, replace: true })
     } catch (cause) {
       setError(presentError(cause, 'two-factor').message)

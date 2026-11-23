@@ -14,14 +14,23 @@ import {
   requireAuthenticatedSession,
   requirePermission,
   requireProtectedDestination,
+  requireStaffWorkspaceMode,
 } from '@/shared/auth/route-guards'
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
+import { getWorkspaceMode } from '@/shared/auth/workspace-mode'
 import {
   isMarketingWorkspaceHref,
   isServicesWorkspaceHref,
   resolveWorkspaceEntryTarget,
 } from '@/shared/auth/navigation'
-import { NoAccessPage, NotFoundPage, RootLayout, RouteError } from './route-components'
+import {
+  NoAccessPage,
+  NotFoundPage,
+  PartnerNotFoundPage,
+  RootLayout,
+  RouteError,
+  WorkspaceNotFoundPage,
+} from './route-components'
 import { PROTECTED_DESTINATIONS } from '@/app/navigation/route-manifest'
 import { AppShell, ComingSoonPage } from '@/app/shell/app-shell'
 import { validateMyTasksSearch } from '@/modules/tasks/tasks.search'
@@ -482,13 +491,17 @@ function validateLoginSearch(search: Record<string, unknown>) {
 const rootRoute = createRootRouteWithContext<AppRouterContext>()({
   component: RootLayout,
   errorComponent: RouteError,
-  notFoundComponent: NotFoundPage,
+  notFoundComponent: WorkspaceNotFoundPage,
 })
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: () => {
+    if (getWorkspaceMode() === 'partner') {
+      throw redirect({ to: '/partners/app', search: { tab: 'home' }, replace: true })
+    }
+    requireStaffWorkspaceMode()
     throw redirect({ to: '/splash' })
   },
 })
@@ -498,6 +511,7 @@ const splashRoute = createRoute({
   path: '/splash',
   validateSearch: validateLoginSearch,
   beforeLoad: async ({ context, location }) => {
+    requireStaffWorkspaceMode()
     await requireAuthenticatedSession(context, location)
   },
   component: SplashPage,
@@ -508,6 +522,7 @@ const loginRoute = createRoute({
   path: '/login',
   validateSearch: validateLoginSearch,
   beforeLoad: async ({ context, location }) => {
+    requireStaffWorkspaceMode()
     try {
       const session = await context.queryClient.ensureQueryData(authSessionQueryOptions())
       const destination = resolveWorkspaceEntryTarget(
@@ -537,6 +552,7 @@ const forgotPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/forgot-password',
   validateSearch: validateLoginSearch,
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: ForgotPasswordPage,
 })
 
@@ -544,12 +560,14 @@ const resetPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/reset-password',
   validateSearch: validateLoginSearch,
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: ResetPasswordPage,
 })
 
 const biometricRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/biometric',
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: BiometricPage,
 })
 
@@ -557,12 +575,14 @@ const twoFactorRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/two-factor-verify',
   validateSearch: validateLoginSearch,
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: TwoFactorVerifyPage,
 })
 
 const staffPrivacyRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/privacy',
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: StaffPrivacyPage,
 })
 
@@ -593,10 +613,33 @@ const partnerPortalRoute = createRoute({
   component: PartnerPortalPage,
 })
 
+const partnerNotFoundRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partners/not-found',
+  component: PartnerNotFoundPage,
+})
+
+const partnerAliasRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partner',
+  beforeLoad: () => {
+    throw redirect({ to: '/partners/app', search: { tab: 'home' }, replace: true })
+  },
+})
+
+const partnersAliasRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/partners',
+  beforeLoad: () => {
+    throw redirect({ to: '/partners/app', search: { tab: 'home' }, replace: true })
+  },
+})
+
 const protectedLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: '_protected',
   beforeLoad: async ({ context, location }) => {
+    requireStaffWorkspaceMode()
     await requireAuthenticatedSession(context, location)
   },
   component: () => (
@@ -621,6 +664,7 @@ const noAccessRoute = createRoute({
 const foundationPreviewRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/__foundation',
+  beforeLoad: () => requireStaffWorkspaceMode(),
   component: FoundationPreview,
 })
 
@@ -1698,6 +1742,9 @@ const routeTree = rootRoute.addChildren([
   partnerSetupRoute,
   partnerTwoFactorRoute,
   partnerPortalRoute,
+  partnerNotFoundRoute,
+  partnerAliasRoute,
+  partnersAliasRoute,
   protectedLayoutRoute.addChildren([
     noAccessRoute,
     myTasksRoute,
