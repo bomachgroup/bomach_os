@@ -1,0 +1,29 @@
+name: Redirect retired Bomach OS Firebase web hosting
+
+on:
+  push:
+    branches:
+      - main
+      - production/employee-profile-login
+    paths:
+      - .firebaserc
+      - firebase.json
+      - firebase-live-redirect/public/**
+      - .github/workflows/firebase-live-redirect.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy_live_redirect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BOMACH_OS_APP }}
+          projectId: bomach-os-app
+          target: live
+          channelId: live

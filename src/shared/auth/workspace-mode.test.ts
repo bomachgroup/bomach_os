@@ -2,7 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   clearWorkspaceMode,
+  getWorkspaceHostMode,
   getWorkspaceMode,
+  isPartnerFacingPath,
   isPartnerWorkspacePath,
   setWorkspaceMode,
   WORKSPACE_MODE_CHANGE_EVENT,
@@ -21,6 +23,18 @@ describe('workspace mode', () => {
 
     window.localStorage.setItem(WORKSPACE_MODE_KEY, 'admin')
     expect(getWorkspaceMode()).toBeNull()
+  })
+
+  it('locks the custom domains to their workspace and syncs the existing marker', () => {
+    window.localStorage.setItem(WORKSPACE_MODE_KEY, 'partner')
+
+    expect(getWorkspaceHostMode('OS.BOMACHGROUP.COM')).toBe('staff')
+    expect(getWorkspaceMode('os.bomachgroup.com')).toBe('staff')
+    expect(window.localStorage.getItem(WORKSPACE_MODE_KEY)).toBe('staff')
+
+    expect(getWorkspaceMode('partner.bomachgroup.com')).toBe('partner')
+    expect(window.localStorage.getItem(WORKSPACE_MODE_KEY)).toBe('partner')
+    expect(getWorkspaceHostMode('preview-bomach.vercel.app')).toBeNull()
   })
 
   it('announces mode updates and clears the marker on sign out', () => {
@@ -44,5 +58,12 @@ describe('workspace mode', () => {
     expect(isPartnerWorkspacePath('/partners/setup/')).toBe(true)
     expect(isPartnerWorkspacePath('/partners/invitations')).toBe(false)
     expect(isPartnerWorkspacePath('/dashboard')).toBe(false)
+  })
+
+  it('identifies partner-facing routes without treating the staff partner directory as a partner route', () => {
+    expect(isPartnerFacingPath('/partners/setup/')).toBe(true)
+    expect(isPartnerFacingPath('/partners')).toBe(true)
+    expect(isPartnerFacingPath('/')).toBe(false)
+    expect(isPartnerFacingPath('/company/partners')).toBe(false)
   })
 })

@@ -26,7 +26,7 @@ import { clearWorkspaceMode, setWorkspaceMode } from '@/shared/auth/workspace-mo
 import { router } from './router'
 
 describe('employee route registrations', () => {
-  it('keeps partner access public to its own login/setup shell and protects the staff invitation desk', () => {
+  it('keeps partner login/setup public behind a host gate and protects the staff invitation desk', () => {
     for (const path of [
       '/partners/login',
       '/partners/setup',
@@ -35,10 +35,10 @@ describe('employee route registrations', () => {
     ]) {
       const route = router.routesById[path]
       expect(route, `${path} route`).toBeDefined()
-      expect(route?.options.beforeLoad).toBeUndefined()
+      expect(route?.options.beforeLoad).toBeTypeOf('function')
     }
 
-    expect(router.routesById['/partners/not-found']).toBeDefined()
+    expect(router.routesById['/partners/not-found']?.options.beforeLoad).toBeTypeOf('function')
     for (const path of [
       '/',
       '/splash',
