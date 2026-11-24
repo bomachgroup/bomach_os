@@ -658,7 +658,7 @@ function ApplicantDetails({
                 ) : interviewsQuery.isError ? (
                   <Alert tone="warning" title="Interview history unavailable">
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <span>{presentError(interviewsQuery.error, 'page-load').message}</span>
+                      <span>{presentError(interviewsQuery.error, 'section-load').message}</span>
                       <Button
                         size="sm"
                         variant="outline"
@@ -781,7 +781,7 @@ function ApplicantDetails({
                 ) : offersQuery.isError ? (
                   <Alert tone="warning" title="Offer history unavailable">
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <span>{presentError(offersQuery.error, 'page-load').message}</span>
+                      <span>{presentError(offersQuery.error, 'section-load').message}</span>
                       <Button
                         size="sm"
                         variant="outline"
@@ -861,7 +861,7 @@ function ApplicantDetails({
           interviewersLoading={interviewersQuery.isPending}
           interviewersError={
             interviewersQuery.isError
-              ? presentError(interviewersQuery.error, 'page-load').message
+              ? presentError(interviewersQuery.error, 'section-load').message
               : undefined
           }
           canListInterviewers={canListEmployees}
@@ -1537,6 +1537,7 @@ export function RecruitmentPage() {
                 title="Recruitment records could not load"
                 description="Try reloading this register."
                 error={query.error}
+                errorContext="collection-load"
                 action={
                   <Button variant="outline" onClick={() => void query.refetch()}>
                     Try again

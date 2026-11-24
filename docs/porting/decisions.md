@@ -104,6 +104,11 @@ The framework and data/state-management direction is agreed. These are remaining
 - The unread badge retains its live cadence (30 seconds while the bell is open, 60 seconds while closed) and pauses while the document is hidden. Inbox and details use standard freshness and do not poll while being read.
 - This is best-effort in-app delivery while Bomach is open. No browser notification permission is requested. Web Push remains deferred and requires its own explicit product and backend work; mobile Expo push registration is not reused. See [notifications-implementation.md](notifications-implementation.md).
 
+- Confirmed cross-workspace behavior (2026-11-20): Bomach OS is the canonical notification detail experience. The title/body action from OS, Services, or Marketing opens that notification's OS detail route directly, without showing the workspace switcher or its transition. A related-record action stays separate and opens its permission-checked destination. Browser Back returns to the originating app route with the panel closed and scroll retained where available; Marketing's exact scroll restoration was verified live.
+- Services and Marketing use the Bomach OS notification panel's visual structure and interaction model while keeping their own shells and brand identity. The Marketing top bar exposes the bell at mobile widths as well as desktop widths.
+- Arrival alerts are deduplicated across same-origin app tabs using a user-scoped ID set, BroadcastChannel, and Web Locks where supported. Notification content is never copied to local storage. Without Web Locks, cross-tab claim deduplication is best-effort. The newest-20 arrival check remains a visible-tab-only 60-second poll, paused while hidden and refreshed on focus, reconnect, and visibility return.
+- Each standalone app keeps its own typed API/query implementation for now. Extracting a shared package is deferred until repository and deployment boundaries are deliberately unified. No backend contract or schema changes are part of this slice.
+
 ### Operational choices
 
 - API environment configuration and hosting target, including SPA fallback and eventual cutover. Production cutover remains a separate decision after parity review.

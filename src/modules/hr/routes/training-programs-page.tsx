@@ -571,6 +571,7 @@ export function TrainingProgramsPage() {
               title="Training programs could not load"
               description="Try loading the register again."
               error={listQuery.error}
+              errorContext="collection-load"
               action={
                 <Button variant="outline" onClick={() => void listQuery.refetch()}>
                   Try again

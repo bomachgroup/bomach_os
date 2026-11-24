@@ -234,7 +234,7 @@ export function NotificationsPage() {
   const totalCount = listQuery.data?.pages[0]?.count
   const unreadCount = canViewCount ? statsQuery.data?.unread_count : undefined
   const listPresentation = listQuery.isError
-    ? presentError(listQuery.error, 'section-load')
+    ? presentError(listQuery.error, 'collection-load')
     : undefined
   const mutationFailure = markAllReadMutation.isError
     ? markAllReadMutation.error

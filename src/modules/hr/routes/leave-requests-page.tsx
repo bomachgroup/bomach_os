@@ -677,6 +677,7 @@ export function LeaveRequestsPage() {
                 title="Requests could not load"
                 description="Try reloading the register."
                 error={listQuery.error}
+                errorContext="collection-load"
                 action={
                   <Button variant="outline" onClick={() => void listQuery.refetch()}>
                     Try again

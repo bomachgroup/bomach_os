@@ -1285,6 +1285,7 @@ export function RolesPage() {
             title="Roles could not load"
             description="Try again to reload the role directory."
             error={listQuery.error}
+            errorContext="collection-load"
             action={
               <Button variant="outline" onClick={() => void listQuery.refetch()}>
                 Try again

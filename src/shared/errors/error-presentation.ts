@@ -6,6 +6,7 @@ export type ErrorPresentationContext =
   | 'two-factor'
   | 'form-submit'
   | 'page-load'
+  | 'collection-load'
   | 'section-load'
   | 'background-action'
   | 'destructive-action'
@@ -20,6 +21,7 @@ export interface UserFacingError {
 
 function placementFor(context: ErrorPresentationContext): UserFacingError['placement'] {
   if (context === 'page-load') return 'page'
+  if (context === 'collection-load') return 'page'
   if (context === 'section-load') return 'section'
   if (context === 'form-submit' || context === 'login' || context === 'two-factor') return 'form'
   return 'toast'
@@ -55,7 +57,14 @@ export function presentError(
 ): UserFacingError {
   if (!(error instanceof ApiError)) {
     return {
-      title: context === 'page-load' ? 'Unable to load this page' : 'Something went wrong',
+      title:
+        context === 'page-load'
+          ? 'Unable to load this page'
+          : context === 'collection-load'
+            ? 'This list could not load'
+            : context === 'section-load'
+              ? 'This section could not load'
+              : 'Something went wrong',
       message: 'An unexpected problem occurred. Please try again.',
       placement: placementFor(context),
       retryable: true,
@@ -123,9 +132,11 @@ export function presentError(
       message:
         context === 'page-load'
           ? 'Your account does not have access to this page.'
-          : context === 'section-load'
-            ? 'Your account does not have permission to view this section.'
-            : 'You do not have permission to complete this action.',
+          : context === 'collection-load'
+            ? 'Your account does not have permission to view this list.'
+            : context === 'section-load'
+              ? 'Your account does not have permission to view this section.'
+              : 'You do not have permission to complete this action.',
       placement: placementFor(context),
       retryable: false,
     }
@@ -149,6 +160,22 @@ export function presentError(
   }
 
   if (error.status === 404) {
+    if (context === 'collection-load') {
+      return {
+        title: 'This list could not load',
+        message: 'The server could not find this list. Try again shortly.',
+        placement: 'page',
+        retryable: true,
+      }
+    }
+    if (context === 'section-load') {
+      return {
+        title: 'This section could not load',
+        message: 'The server could not find this section. Try again shortly.',
+        placement: 'section',
+        retryable: true,
+      }
+    }
     return {
       title: 'Record not found',
       message: 'This record may have been removed or you may no longer have access to it.',

@@ -1314,6 +1314,7 @@ export function EmployeesPage() {
               title="Employee directory could not load"
               description="Try again to reload employees in your authorized scope."
               error={listQuery.error}
+              errorContext="collection-load"
               action={
                 <Button variant="outline" onClick={() => void listQuery.refetch()}>
                   Try again

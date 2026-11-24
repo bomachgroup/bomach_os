@@ -791,6 +791,7 @@ export function MyTasksPage() {
               title="Your tasks could not load"
               description="Check your connection and try again."
               error={listQuery.error}
+              errorContext="collection-load"
               action={
                 <Button variant="outline" onClick={() => void listQuery.refetch()}>
                   Try again

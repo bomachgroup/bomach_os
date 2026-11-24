@@ -139,7 +139,7 @@ For a route, show the Forbidden page after auth and permissions have resolved. F
 
 ### 404
 
-For the primary record, show a page-level not-found state. For a secondary row or background action, use contextual feedback if the page remains usable.
+For the primary record, show a page-level not-found state. For a collection or section request, explain that the list or section could not load and offer retry when appropriate; never describe a missing endpoint as a missing record. For a secondary row or background action, use contextual feedback if the page remains usable.
 
 ### 409
 

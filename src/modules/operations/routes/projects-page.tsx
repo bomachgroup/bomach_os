@@ -367,6 +367,7 @@ export function ProjectsPage() {
               title="Projects could not load"
               description="Check your connection and retry the register."
               error={projects.error}
+              errorContext="collection-load"
               action={
                 <Button variant="outline" onClick={() => void projects.refetch()}>
                   Try again
