@@ -29,6 +29,7 @@ import {
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
 import { presentError } from '@/shared/errors'
 import { useToast } from '@/shared/feedback/use-toast'
+import { DATA_FRESHNESS_MS } from '@/shared/query/freshness'
 import { Alert } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Card } from '@/shared/ui/card'
@@ -108,6 +109,7 @@ function InvitePartnerDialog({
   sending,
   error,
   branches,
+  viewerId,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -115,6 +117,7 @@ function InvitePartnerDialog({
   sending: boolean
   error: string
   branches: Array<{ id: number; name: string; code: string }>
+  viewerId?: number
 }) {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
@@ -129,9 +132,12 @@ function InvitePartnerDialog({
   const [primaryContactId, setPrimaryContactId] = useState<number | null>(null)
   const [fieldError, setFieldError] = useState('')
   const contactsQuery = useQuery({
-    queryKey: [...partnerQueryKeys.all, 'invitation-contacts', branchId],
+    queryKey: [...partnerQueryKeys.all, 'invitation-contacts', viewerId, branchId],
     queryFn: ({ signal }) => partnerAdminApi.invitationContacts(Number(branchId), signal),
-    enabled: Boolean(branchId),
+    enabled: open && Boolean(viewerId) && Boolean(branchId),
+    staleTime: DATA_FRESHNESS_MS.reference,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
 
   const branchOptions: DropdownSelectOption[] = useMemo(
@@ -248,41 +254,63 @@ function InvitePartnerDialog({
               required
             />
           </FormControl>
-          <section className="phone:col-span-2 border-border-subtle bg-surface rounded-control min-w-0 border p-4">
-            <div className="flex items-start gap-3">
-              <span className="bg-primary-subtle text-primary flex size-10 shrink-0 items-center justify-center rounded-xl">
-                <UsersRound className="size-5" aria-hidden="true" />
-              </span>
-              <div className="min-w-0">
-                <h3 className="text-label text-text-primary font-semibold">
-                  Partner message contacts
-                </h3>
-                <p className="text-caption text-text-secondary mt-1">
-                  Choose who can receive this partner’s private messages. Select one primary
-                  contact; you can add or change contacts later.
+          <section
+            aria-labelledby="partner-message-contacts-heading"
+            className="phone:col-span-2 border-border-subtle bg-surface-muted/60 min-w-0 rounded-2xl border p-4 sm:p-5"
+          >
+            <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+              <div className="flex min-w-0 items-start gap-3">
+                <span className="bg-primary-subtle text-primary flex size-10 shrink-0 items-center justify-center rounded-xl">
+                  <UsersRound className="size-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <h3
+                    id="partner-message-contacts-heading"
+                    className="text-label text-text-primary font-semibold"
+                  >
+                    Partner message contacts
+                  </h3>
+                  <p className="text-caption text-text-secondary mt-1 max-w-2xl">
+                    Choose who will handle this partner’s private messages. Only active staff with
+                    message and branch access appear here.
+                  </p>
+                </div>
+              </div>
+              {branchId && contactsQuery.isSuccess ? (
+                <span className="text-caption text-text-secondary bg-surface shrink-0 rounded-full px-3 py-1">
+                  {contactsQuery.data.items.length}{' '}
+                  {contactsQuery.data.items.length === 1
+                    ? 'eligible staff member'
+                    : 'eligible staff'}
+                </span>
+              ) : null}
+            </div>
+            {!branchId ? (
+              <div className="border-border-subtle bg-surface mt-4 rounded-xl border border-dashed p-4">
+                <p className="text-body-sm text-text-secondary">
+                  Select an owning branch to see staff who can access partner messages there.
                 </p>
               </div>
-            </div>
-            {contactsQuery.isPending ? (
+            ) : contactsQuery.isPending ? (
               <div className="mt-4 space-y-2" aria-label="Loading eligible contacts">
-                <Skeleton className="h-14" />
-                <Skeleton className="h-14" />
+                <Skeleton className="h-16" />
+                <Skeleton className="h-16" />
               </div>
             ) : contactsQuery.error ? (
               <Alert className="mt-4" tone="danger" role="alert">
-                Eligible staff could not be loaded. You can still invite the partner; you will be
-                the initial contact.
+                Eligible staff could not be loaded. You can still send the invitation and update
+                contacts later.
               </Alert>
             ) : (contactsQuery.data?.items.length ?? 0) > 0 ? (
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 space-y-2" role="group" aria-label="Eligible message contacts">
                 {(contactsQuery.data?.items ?? []).map((contact: PartnerContactCandidate) => {
                   const selected = contactIds.includes(contact.employee_id)
                   return (
                     <div
                       key={contact.employee_id}
-                      className="border-border-subtle bg-background flex min-w-0 flex-wrap items-center gap-3 rounded-xl border p-3"
+                      className={`flex min-w-0 flex-wrap items-center gap-3 rounded-xl border p-3 transition-colors sm:p-3.5 ${selected ? 'border-primary bg-primary-subtle/50' : 'border-border-subtle bg-surface'}`}
                     >
-                      <label className="flex min-w-0 flex-1 items-center gap-3">
+                      <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
                         <input
                           type="checkbox"
                           checked={selected}
@@ -298,17 +326,21 @@ function InvitePartnerDialog({
                           className="accent-primary size-4 shrink-0"
                           aria-label={`Assign ${contact.name} as a partner contact`}
                         />
+                        <span className="bg-primary-subtle text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
+                          <UserRound className="size-4" aria-hidden="true" />
+                        </span>
                         <span className="min-w-0">
                           <span className="text-body-sm text-text-primary block font-semibold break-words">
                             {contact.name}
                           </span>
-                          <span className="text-caption text-text-secondary block break-all">
+                          <span className="text-caption text-text-secondary mt-0.5 block break-all">
                             {contact.designation || contact.email}
+                            {contact.designation ? ` · ${contact.email}` : ''}
                           </span>
                         </span>
                       </label>
                       {selected ? (
-                        <label className="text-caption text-text-secondary phone:ml-0 ml-7 inline-flex items-center gap-2">
+                        <label className="text-caption text-text-secondary ml-7 inline-flex shrink-0 items-center gap-2 sm:ml-0">
                           <input
                             type="radio"
                             name="primary-partner-contact"
@@ -326,8 +358,8 @@ function InvitePartnerDialog({
               </div>
             ) : (
               <Alert className="mt-4" tone="info">
-                No eligible staff are available for this branch. You will be the partner’s message
-                contact until you assign an authorized colleague.
+                No eligible staff have partner-message access for this branch. You can send the
+                invitation without selecting a contact and assign staff later.
               </Alert>
             )}
           </section>
@@ -448,9 +480,14 @@ export function PartnerDeskPage() {
     staleTime: 5 * 60 * 1000,
   })
   const queueQuery = useQuery({
-    queryKey: [...partnerQueryKeys.all, 'unassigned-conversations'],
+    queryKey: partnerQueryKeys.unassignedConversations(sessionQuery.data?.user.id ?? 0),
     queryFn: ({ signal }) => partnerAdminApi.unassignedConversations(signal),
-    enabled: canReceiveQueue && view === 'queue',
+    enabled: canReceiveQueue && Boolean(sessionQuery.data?.user.id),
+    staleTime: DATA_FRESHNESS_MS.live,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: DATA_FRESHNESS_MS.live,
+    refetchIntervalInBackground: false,
   })
 
   const invalidateLists = async () => {
@@ -510,7 +547,9 @@ export function PartnerDeskPage() {
   )
   const pageError =
     view === 'queue'
-      ? queueQuery.error
+      ? queueQuery.data === undefined
+        ? queueQuery.error
+        : null
       : canList
         ? view === 'partners'
           ? listQuery.error
@@ -584,7 +623,7 @@ export function PartnerDeskPage() {
                 >
                   Invitation history
                 </button>
-                {canReceiveQueue ? (
+                {(queueQuery.data?.length ?? 0) > 0 ? (
                   <button
                     type="button"
                     role="tab"
@@ -616,6 +655,16 @@ export function PartnerDeskPage() {
                 </div>
               ) : null}
             </div>
+
+            {canReceiveQueue && queueQuery.error && !queueQuery.data?.length ? (
+              <SectionErrorState
+                className="mt-4"
+                title="Unassigned messages could not be checked"
+                description="The queue tab will appear when messages are available. Retry to check the queue again."
+                error={queueQuery.error}
+                onRetry={() => void queueQuery.refetch()}
+              />
+            ) : null}
 
             {!canList && view !== 'queue' ? (
               <EmptyState
@@ -658,6 +707,14 @@ export function PartnerDeskPage() {
             ) : view === 'queue' ? (
               queueQuery.data?.length ? (
                 <div className="space-y-3">
+                  {queueQuery.error ? (
+                    <SectionErrorState
+                      title="Unassigned messages could not be refreshed"
+                      description="Showing the last loaded conversations. Retry to check for updates."
+                      error={queueQuery.error}
+                      onRetry={() => void queueQuery.refetch()}
+                    />
+                  ) : null}
                   {queueQuery.data.map((conversation) => (
                     <article
                       key={conversation.id}
@@ -706,6 +763,11 @@ export function PartnerDeskPage() {
                   title="Queue is clear"
                   description="Unassigned partner conversations will appear here."
                   icon={<MessageSquareText className="size-6" />}
+                  action={
+                    <Button variant="outline" onClick={() => setView('partners')}>
+                      Return to partner directory
+                    </Button>
+                  }
                 />
               )
             ) : view === 'partners' ? (
@@ -734,15 +796,15 @@ export function PartnerDeskPage() {
                   {listQuery.data?.items.map((partner) => (
                     <article
                       key={partner.id}
-                      className="border-border-subtle bg-surface tablet:grid-cols-[minmax(0,1fr)_auto] tablet:items-center grid min-w-0 gap-4 rounded-2xl border p-4 sm:p-5"
+                      className="border-border-subtle bg-surface hover:border-primary/25 desktop:grid-cols-[minmax(0,1fr)_auto] desktop:items-center grid min-w-0 gap-4 rounded-2xl border p-4 transition-[border-color,box-shadow] hover:shadow-sm sm:p-5"
                     >
-                      <div className="flex min-w-0 gap-3">
-                        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#EAF0FA] text-[#0B3974]">
+                      <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+                        <span className="bg-primary-subtle text-primary flex size-11 shrink-0 items-center justify-center rounded-2xl sm:size-12">
                           <UserRound className="size-5" aria-hidden="true" />
                         </span>
-                        <div className="min-w-0">
-                          <div className="flex min-w-0 flex-wrap items-center gap-2">
-                            <h2 className="text-label text-text-primary min-w-0 font-semibold break-words">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                            <h2 className="text-label text-text-primary min-w-0 leading-snug font-semibold break-words">
                               {partner.name || 'Name to be confirmed'}
                             </h2>
                             <StatusChip
@@ -754,29 +816,44 @@ export function PartnerDeskPage() {
                           <p className="text-body-sm text-text-secondary mt-1 break-all">
                             {partner.email}
                           </p>
-                          <div className="text-caption text-text-secondary mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                          <div className="text-caption text-text-secondary mt-3 flex flex-wrap gap-x-2 gap-y-1.5 sm:gap-x-3">
                             <span>
                               {roleLabels[partner.partner_role] ??
                                 partner.partner_role_display ??
                                 'Partner'}
                             </span>
+                            <span aria-hidden="true" className="text-border-strong">
+                              ·
+                            </span>
                             <span>{partner.primary_branch_name || 'Branch not assigned'}</span>
-                            {partner.phone ? <span>{partner.phone}</span> : null}
+                            {partner.phone ? (
+                              <>
+                                <span aria-hidden="true" className="text-border-strong">
+                                  ·
+                                </span>
+                                <span>{partner.phone}</span>
+                              </>
+                            ) : null}
                           </div>
                         </div>
                       </div>
-                      <div className="tablet:justify-end flex flex-wrap items-center gap-2">
-                        <StatusChip
-                          label={partner.has_login ? 'Workspace active' : 'Setup pending'}
-                          tone={partner.has_login ? 'success' : 'warning'}
-                          dense
-                        />
-                        {partner.code ? (
-                          <span className="text-caption text-text-muted">{partner.code}</span>
-                        ) : null}
+                      <div className="border-border-subtle desktop:justify-end desktop:border-t-0 desktop:pt-0 flex min-w-0 flex-wrap items-center justify-between gap-3 border-t pt-3">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
+                          <StatusChip
+                            label={partner.has_login ? 'Workspace active' : 'Setup pending'}
+                            tone={partner.has_login ? 'success' : 'warning'}
+                            dense
+                          />
+                          {partner.code ? (
+                            <span className="text-caption text-text-muted min-w-0 break-all">
+                              {partner.code}
+                            </span>
+                          ) : null}
+                        </div>
                         <Button
                           variant="outline"
                           size="sm"
+                          className="shrink-0"
                           onClick={() =>
                             void navigate({
                               to: '/company/partners/$partnerId',
@@ -960,6 +1037,7 @@ export function PartnerDeskPage() {
           sending={inviteMutation.isPending}
           error={mutationError}
           branches={choicesQuery.data?.branches ?? []}
+          viewerId={sessionQuery.data?.user.id}
         />
       ) : null}
       <Dialog

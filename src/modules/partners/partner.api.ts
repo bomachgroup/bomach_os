@@ -350,6 +350,8 @@ export const partnerQueryKeys = {
   jobs: [...PARTNER_QUERY_ROOT, 'jobs'] as const,
   notifications: [...PARTNER_QUERY_ROOT, 'notifications'] as const,
   messages: [...PARTNER_QUERY_ROOT, 'messages'] as const,
+  unassignedConversations: (userId: number) =>
+    [...PARTNER_QUERY_ROOT, 'unassigned-conversations', userId] as const,
   conversations: [...PARTNER_QUERY_ROOT, 'conversations'] as const,
   conversationMessages: (conversationId: number | null) =>
     [...PARTNER_QUERY_ROOT, 'conversation-messages', conversationId] as const,
