@@ -1,4 +1,4 @@
-import { redirect } from '@tanstack/react-router'
+import { notFound, redirect } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 
 import { ApiError } from '@/shared/api/api-error'
@@ -6,7 +6,7 @@ import { SESSION_EXPIRED_NOTICE_KEY } from '@/shared/api/api-client'
 import { authSessionQueryOptions, hasPermission } from './session'
 import { safeInternalTarget } from './navigation'
 import { canVisitDestination, type ProtectedDestination } from '@/app/navigation/route-manifest'
-import { getWorkspaceMode } from './workspace-mode'
+import { getWorkspaceHostMode, getWorkspaceMode } from './workspace-mode'
 
 export interface AuthRouteContext {
   queryClient: QueryClient
@@ -22,6 +22,10 @@ export function requireStaffWorkspaceMode(): void {
   if (getWorkspaceMode() === 'partner') {
     throw redirect({ to: '/partners/not-found', replace: true })
   }
+}
+
+export function requirePartnerWorkspaceHost(hostname?: string): void {
+  if (getWorkspaceHostMode(hostname) === 'staff') throw notFound()
 }
 
 function locationTarget(location: AuthRouteLocation): string {

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, max-age=0" />
+    <title>Bomach OS has moved</title>
+    <script>
+      ;(() => {
+        const destination = 'https://os.bomachgroup.com/'
+        let redirected = false
+        const redirect = () => {
+          if (redirected) return
+          redirected = true
+          window.location.replace(destination)
+        }
+
+        const cleanup = (async () => {
+          try {
+            if ('serviceWorker' in navigator) {
+              const registrations = await navigator.serviceWorker.getRegistrations()
+              await Promise.all(registrations.map((registration) => registration.unregister()))
+            }
+            if ('caches' in window) {
+              const cacheNames = await window.caches.keys()
+              await Promise.all(cacheNames.map((cacheName) => window.caches.delete(cacheName)))
+            }
+          } catch (_) {
+            // Redirect even when browser storage cleanup is unavailable.
+          }
+        })()
+
+        window.setTimeout(redirect, 800)
+        cleanup.finally(redirect)
+      })()
+    </script>
+  </head>
+  <body>
+    <main>
+      <h1>Bomach OS has moved</h1>
+      <p>You are being redirected to the new staff site.</p>
+      <p><a href="https://os.bomachgroup.com/">Open Bomach OS</a></p>
+    </main>
+  </body>
+</html>

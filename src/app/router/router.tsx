@@ -13,6 +13,7 @@ import { ApiError } from '@/shared/api/api-error'
 import {
   requireAuthenticatedSession,
   requirePermission,
+  requirePartnerWorkspaceHost,
   requireProtectedDestination,
   requireStaffWorkspaceMode,
 } from '@/shared/auth/route-guards'
@@ -590,12 +591,14 @@ const partnerLoginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/partners/login',
   validateSearch: validateLoginSearch,
+  beforeLoad: () => requirePartnerWorkspaceHost(),
   component: PartnerLoginPage,
 })
 
 const partnerSetupRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/partners/setup',
+  beforeLoad: () => requirePartnerWorkspaceHost(),
   component: PartnerSetupPage,
 })
 
@@ -603,6 +606,7 @@ const partnerTwoFactorRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/partners/two-factor',
   validateSearch: validatePartnerTwoFactorSearch,
+  beforeLoad: () => requirePartnerWorkspaceHost(),
   component: PartnerTwoFactorPage,
 })
 
@@ -610,12 +614,14 @@ const partnerPortalRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/partners/app',
   validateSearch: validatePartnerAppSearch,
+  beforeLoad: () => requirePartnerWorkspaceHost(),
   component: PartnerPortalPage,
 })
 
 const partnerNotFoundRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/partners/not-found',
+  beforeLoad: () => requirePartnerWorkspaceHost(),
   component: PartnerNotFoundPage,
 })
 
@@ -623,6 +629,7 @@ const partnerAliasRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/partner',
   beforeLoad: () => {
+    requirePartnerWorkspaceHost()
     throw redirect({ to: '/partners/app', search: { tab: 'home' }, replace: true })
   },
 })
@@ -631,6 +638,7 @@ const partnersAliasRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/partners',
   beforeLoad: () => {
+    requirePartnerWorkspaceHost()
     throw redirect({ to: '/partners/app', search: { tab: 'home' }, replace: true })
   },
 })
