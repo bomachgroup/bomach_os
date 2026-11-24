@@ -59,4 +59,43 @@ describe('partner APIs', () => {
       signal: undefined,
     })
   })
+
+  it('posts staff conversation files through the private multipart endpoint', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ id: 8 })
+    const file = new File(['private video'], 'walkthrough.mp4', { type: 'video/mp4' })
+
+    await partnerAdminApi.sendStaffConversationMessage(17, 3, {
+      body: '',
+      files: [file],
+    })
+
+    const [url, requestBody] = vi.mocked(apiClient.post).mock.calls[0] ?? []
+    expect(url).toBe('/partners/17/conversations/3/messages/with-attachments')
+    expect(requestBody).toBeInstanceOf(FormData)
+    expect((requestBody as FormData).get('subject')).toBe('')
+    expect((requestBody as FormData).get('body')).toBe('')
+    expect((requestBody as FormData).get('files')).toMatchObject({
+      name: file.name,
+      size: file.size,
+    })
+  })
+
+  it('posts partner conversation files through the partner-scoped multipart endpoint', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ id: 9 })
+    const file = new File(['photo'], 'property-photo.jpg', { type: 'image/jpeg' })
+
+    await partnerPortalApi.sendConversationMessage(44, {
+      body: 'Here is the property photo.',
+      files: [file],
+    })
+
+    const [url, requestBody] = vi.mocked(apiClient.post).mock.calls[0] ?? []
+    expect(url).toBe('/partner/conversations/44/messages/with-attachments')
+    expect(requestBody).toBeInstanceOf(FormData)
+    expect((requestBody as FormData).get('body')).toBe('Here is the property photo.')
+    expect((requestBody as FormData).get('files')).toMatchObject({
+      name: file.name,
+      size: file.size,
+    })
+  })
 })

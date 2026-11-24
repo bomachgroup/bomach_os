@@ -59,19 +59,34 @@ function partnerTone(value: string): StatusTone {
 
 function deliveryLabel(item: PartnerInvitationDto) {
   if (item.delivery_status === 'failed') return 'Email failed'
-  if (item.status === 'accepted' || item.setup_completed_at) return 'Account set up'
-  if (item.status === 'expired') return 'Invitation expired'
-  if (item.status === 'revoked') return 'Invitation revoked'
   if (item.delivery_status === 'sent') return 'Email sent'
-  return 'Sending invitation'
+  return 'Email pending'
 }
 
 function deliveryTone(item: PartnerInvitationDto): StatusTone {
-  if (item.delivery_status === 'failed' || item.status === 'revoked' || item.status === 'expired')
-    return 'danger'
-  if (item.status === 'accepted' || item.setup_completed_at) return 'success'
+  if (item.delivery_status === 'failed') return 'danger'
   if (item.delivery_status === 'sent') return 'info'
   return 'warning'
+}
+
+function invitationStatusLabel(item: PartnerInvitationDto) {
+  if (item.setup_completed_at || item.status === 'accepted') return 'Setup complete'
+  if (item.status === 'expired') return 'Expired'
+  if (item.status === 'revoked') return 'Revoked'
+  return 'Awaiting setup'
+}
+
+function invitationStatusTone(item: PartnerInvitationDto): StatusTone {
+  if (item.setup_completed_at || item.status === 'accepted') return 'success'
+  if (item.status === 'expired' || item.status === 'revoked') return 'danger'
+  return 'warning'
+}
+
+function formatInvitationDate(value: string | null | undefined) {
+  if (!value) return 'Not sent'
+  const date = new Date(value)
+  if (Number.isNaN(date.valueOf())) return 'Date unavailable'
+  return date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 function PartnerSearch({ value, onCommit }: { value: string; onCommit: (value: string) => void }) {
@@ -472,6 +487,9 @@ export function PartnerDeskPage() {
       ),
     enabled: canList && view === 'invitations',
     placeholderData: keepPreviousData,
+    staleTime: DATA_FRESHNESS_MS.standard,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
   const choicesQuery = useQuery({
     queryKey: [...partnerQueryKeys.all, 'invitation-choices'],
@@ -552,8 +570,12 @@ export function PartnerDeskPage() {
         : null
       : canList
         ? view === 'partners'
-          ? listQuery.error
-          : invitationQuery.error
+          ? listQuery.data === undefined
+            ? listQuery.error
+            : null
+          : invitationQuery.data === undefined
+            ? invitationQuery.error
+            : null
         : null
 
   function setPage(page: number) {
@@ -663,6 +685,15 @@ export function PartnerDeskPage() {
                 description="The queue tab will appear when messages are available. Retry to check the queue again."
                 error={queueQuery.error}
                 onRetry={() => void queueQuery.refetch()}
+              />
+            ) : null}
+
+            {view === 'invitations' && invitationQuery.error && invitationQuery.data ? (
+              <SectionErrorState
+                title="Invitation history could not be refreshed"
+                description="Showing the last loaded invitation records. Retry to check for updates."
+                error={invitationQuery.error}
+                onRetry={() => void invitationQuery.refetch()}
               />
             ) : null}
 
@@ -884,51 +915,69 @@ export function PartnerDeskPage() {
                 {invitationQuery.data?.items.map((invitation) => (
                   <article
                     key={invitation.id}
-                    className="border-border-subtle bg-surface tablet:grid-cols-[minmax(0,1fr)_auto] tablet:items-center grid min-w-0 gap-4 rounded-2xl border p-4 sm:p-5"
+                    className="border-border-subtle bg-surface desktop:grid-cols-[minmax(0,1fr)_auto] desktop:items-center grid min-w-0 gap-4 rounded-2xl border p-4 sm:p-5"
                   >
-                    <div className="flex min-w-0 gap-3">
-                      <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#FCECEC] text-[#A9222A]">
+                    <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+                      <span className="bg-danger-subtle text-danger-foreground flex size-11 shrink-0 items-center justify-center rounded-2xl">
                         <Mail className="size-5" aria-hidden="true" />
                       </span>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <h2 className="text-label text-text-primary min-w-0 font-semibold break-words">
                             {invitation.partner_name || invitation.email}
                           </h2>
                           <StatusChip
-                            label={deliveryLabel(invitation)}
-                            tone={deliveryTone(invitation)}
+                            label={invitationStatusLabel(invitation)}
+                            tone={invitationStatusTone(invitation)}
                             dense
                           />
                         </div>
                         <p className="text-body-sm text-text-secondary mt-1 break-all">
                           {invitation.email}
                         </p>
-                        <div className="text-caption text-text-secondary mt-2 flex flex-wrap gap-x-4 gap-y-1">
-                          <span>
-                            {(invitation.partner_role && roleLabels[invitation.partner_role]) ||
-                              'Partner'}
-                          </span>
-                          <span>
-                            Expires {new Date(invitation.expires_at).toLocaleDateString()}
-                          </span>
-                          {invitation.last_sent_at ? (
-                            <span>
-                              Last sent {new Date(invitation.last_sent_at).toLocaleDateString()}
-                            </span>
-                          ) : null}
+                        <dl className="text-caption text-text-secondary phone:grid-cols-2 desktop:grid-cols-3 mt-3 grid min-w-0 grid-cols-1 gap-2">
+                          <div className="min-w-0">
+                            <dt className="text-text-muted">Partner role</dt>
+                            <dd className="mt-0.5 break-words">
+                              {(invitation.partner_role && roleLabels[invitation.partner_role]) ||
+                                'Partner'}
+                            </dd>
+                          </div>
+                          <div className="min-w-0">
+                            <dt className="text-text-muted">Invitation expires</dt>
+                            <dd className="mt-0.5 break-words">
+                              {formatInvitationDate(invitation.expires_at)}
+                            </dd>
+                          </div>
+                          <div className="min-w-0">
+                            <dt className="text-text-muted">Last email</dt>
+                            <dd className="mt-0.5 break-words">
+                              {formatInvitationDate(invitation.last_sent_at)}
+                            </dd>
+                          </div>
+                        </dl>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <span className="text-caption text-text-muted">Email delivery</span>
+                          <StatusChip
+                            label={deliveryLabel(invitation)}
+                            tone={deliveryTone(invitation)}
+                            dense
+                          />
                         </div>
                         {invitation.delivery_status === 'failed' && invitation.delivery_error ? (
-                          <p className="text-caption text-danger mt-2">
-                            {invitation.delivery_error}
-                          </p>
+                          <div className="border-danger/20 bg-danger-subtle/40 text-danger-foreground mt-3 flex min-w-0 items-start gap-2 rounded-xl border p-3">
+                            <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                            <p className="text-caption min-w-0 break-words">
+                              {invitation.delivery_error}
+                            </p>
+                          </div>
                         ) : null}
                       </div>
                     </div>
                     {canInvite &&
                     !invitation.setup_completed_at &&
                     invitation.status !== 'accepted' ? (
-                      <div className="tablet:justify-end flex flex-wrap gap-2">
+                      <div className="border-border-subtle desktop:justify-end desktop:border-t-0 desktop:pt-0 flex min-w-0 flex-wrap gap-2 border-t pt-3">
                         <Button
                           size="sm"
                           variant="outline"
@@ -938,21 +987,24 @@ export function PartnerDeskPage() {
                           onClick={() => resendMutation.mutate(invitation.id)}
                           leadingIcon={<RefreshCw className="size-3.5" />}
                         >
-                          Resend
+                          Resend email
                         </Button>
                         {invitation.status !== 'revoked' ? (
                           <Button
                             size="sm"
                             variant="outline"
+                            isLoading={
+                              revokeMutation.isPending && revokeTarget?.id === invitation.id
+                            }
                             onClick={() => setRevokeTarget(invitation)}
                           >
-                            Revoke
+                            Revoke invite
                           </Button>
                         ) : null}
                       </div>
-                    ) : invitation.setup_completed_at ? (
+                    ) : invitation.setup_completed_at || invitation.status === 'accepted' ? (
                       <span className="text-caption text-success-foreground inline-flex items-center gap-1.5 font-semibold">
-                        <BadgeCheck className="size-4" /> Completed
+                        <BadgeCheck className="size-4" /> Account set up
                       </span>
                     ) : null}
                   </article>

@@ -2,16 +2,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import {
   ArrowLeft,
+  ChevronRight,
   Clock3,
   Mail,
   MessageSquareText,
-  Send,
   ShieldCheck,
   UserRound,
   UsersRound,
 } from 'lucide-react'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 
+import {
+  PartnerMessageComposer,
+  PartnerMessageTimeline,
+} from '@/modules/partners/components/partner-message-ui'
 import {
   partnerAdminApi,
   partnerQueryKeys,
@@ -22,14 +26,14 @@ import {
 import { authSessionQueryOptions, hasPermission } from '@/shared/auth/session'
 import { presentError } from '@/shared/errors'
 import { useToast } from '@/shared/feedback/use-toast'
+import { DATA_FRESHNESS_MS } from '@/shared/query/freshness'
 import { Alert } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Card } from '@/shared/ui/card'
 import { Dialog } from '@/shared/ui/dialog'
 import { EmptyState, ErrorState, SectionErrorState, Skeleton } from '@/shared/ui/feedback-states'
-import { FormControl, TextArea, TextInput } from '@/shared/ui/form-control'
 import { PageLayout } from '@/shared/ui/page-layout'
-import { StatusChip } from '@/shared/ui/status-chip'
+import { StatusChip, type StatusTone } from '@/shared/ui/status-chip'
 
 import type { PartnerDetailSearch } from '../partner.search'
 
@@ -50,6 +54,51 @@ function conversationLabel(conversation: PartnerConversationDto) {
   if (conversation.kind === 'legacy') return 'Earlier shared history'
   if (conversation.kind === 'unassigned') return 'Unassigned support queue'
   return conversation.staff_name
+}
+
+function conversationAccess(
+  conversation: PartnerConversationDto,
+  viewerId: number,
+): { label: string; tone: StatusTone } {
+  const isOwnThread = conversation.kind === 'direct' && conversation.staff_user_id === viewerId
+  if (conversation.kind === 'unassigned') {
+    return conversation.can_claim
+      ? { label: 'Queue · claim to reply', tone: 'warning' as const }
+      : { label: 'Queue · view-only', tone: 'neutral' as const }
+  }
+  if (conversation.status === 'read_only') {
+    return {
+      label: isOwnThread ? 'Previous contact · read-only' : 'Oversight · read-only',
+      tone: 'neutral' as const,
+    }
+  }
+  if (isOwnThread) {
+    return conversation.can_reply
+      ? { label: 'Assigned to you', tone: 'success' as const }
+      : { label: 'Assigned · replies unavailable', tone: 'warning' as const }
+  }
+  return { label: 'Oversight · view-only', tone: 'info' as const }
+}
+
+function conversationAccessDescription(conversation: PartnerConversationDto, viewerId: number) {
+  const isOwnThread = conversation.kind === 'direct' && conversation.staff_user_id === viewerId
+  if (conversation.kind === 'unassigned') {
+    return conversation.can_claim
+      ? 'Shared with authorized support handlers until someone claims it.'
+      : 'Visible to authorized support handlers; you cannot claim or reply.'
+  }
+  if (conversation.status === 'read_only') {
+    return isOwnThread
+      ? 'Your contact assignment ended. This history is retained and cannot receive replies.'
+      : 'Historical thread available to you through message oversight; replies are disabled.'
+  }
+  if (isOwnThread && conversation.can_reply) {
+    return 'Private to you and the partner. Authorized oversight staff can review it.'
+  }
+  if (isOwnThread) {
+    return 'This thread is assigned to you, but your current permissions do not allow replies.'
+  }
+  return 'Oversight view only. The assigned contact and partner can reply.'
 }
 
 function partnerStatusTone(status: string) {
@@ -201,23 +250,33 @@ export function PartnerDetailPage() {
   const canEditContacts = hasPermission(permissions, 'partners', 'update')
   const canCreateMessages = hasPermission(permissions, 'partner_messages', 'create')
   const canMarkMessagesRead = hasPermission(permissions, 'partner_messages', 'mark_read')
+  const canViewAllMessages = hasPermission(permissions, 'partner_messages', 'view_all')
   const [contactEditorOpen, setContactEditorOpen] = useState(false)
-  const [subject, setSubject] = useState('')
-  const [body, setBody] = useState('')
 
   const partnerQuery = useQuery({
     queryKey: [...partnerQueryKeys.all, 'partner', partnerId],
     queryFn: ({ signal }) => partnerAdminApi.partner(partnerId, signal),
+    staleTime: DATA_FRESHNESS_MS.history,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
   const contactsQuery = useQuery({
     queryKey: [...partnerQueryKeys.all, 'contacts', partnerId],
     queryFn: ({ signal }) => partnerAdminApi.contacts(partnerId, signal),
+    staleTime: DATA_FRESHNESS_MS.reference,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
   const conversationsQuery = useQuery({
     queryKey: [...partnerQueryKeys.all, 'conversations', partnerId],
     queryFn: ({ signal }) => partnerAdminApi.conversations(partnerId, signal),
+    staleTime: DATA_FRESHNESS_MS.standard,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
-  const conversations = conversationsQuery.data ?? []
+  const conversations = (conversationsQuery.data ?? []).filter(
+    (conversation) => conversation.kind !== 'legacy',
+  )
   const selectedConversation = conversations.find(
     (conversation) => conversation.id === routeSearch.conversation,
   )
@@ -226,7 +285,22 @@ export function PartnerDetailPage() {
     queryFn: ({ signal }) =>
       partnerAdminApi.staffConversationMessages(partnerId, selectedConversation!.id, signal),
     enabled: Boolean(selectedConversation),
+    staleTime: DATA_FRESHNESS_MS.history,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
+
+  useEffect(() => {
+    if (!routeSearch.conversation || !conversationsQuery.data) return
+    const requestedConversation = conversationsQuery.data.find(
+      (conversation) => conversation.id === routeSearch.conversation,
+    )
+    if (requestedConversation?.kind !== 'legacy') return
+    void navigate({
+      search: (previous: PartnerDetailSearch) => ({ ...previous, conversation: undefined }),
+      replace: true,
+    })
+  }, [conversationsQuery.data, navigate, routeSearch.conversation])
 
   const invalidatePartnerMessages = async () => {
     await Promise.all([
@@ -280,14 +354,18 @@ export function PartnerDetailPage() {
     },
   })
   const replyMutation = useMutation({
-    mutationFn: (input: { conversationId: number; subject: string; body: string }) =>
+    mutationFn: (input: { conversationId: number; body: string; files: File[] }) =>
       partnerAdminApi.sendStaffConversationMessage(partnerId, input.conversationId, {
-        subject: input.subject,
         body: input.body,
+        files: input.files,
       }),
-    onSuccess: async () => {
-      setSubject('')
-      setBody('')
+    onSuccess: async (message, input) => {
+      const queryKey = partnerQueryKeys.conversationMessages(input.conversationId)
+      queryClient.setQueryData<PartnerMessageDto[]>(queryKey, (messages = []) =>
+        messages.some((item) => item.id === message.id)
+          ? messages
+          : [...messages, { ...message, conversation_id: input.conversationId }],
+      )
       await invalidatePartnerMessages()
     },
   })
@@ -329,6 +407,10 @@ export function PartnerDetailPage() {
   const canStartOwnConversation =
     canCreateMessages &&
     effectiveContacts.some((contact) => contact.staff_user_id === sessionQuery.data?.user.id)
+  const ownConversation = conversations.find(
+    (conversation) =>
+      conversation.kind === 'direct' && conversation.staff_user_id === sessionQuery.data?.user.id,
+  )
 
   function selectConversation(conversation: PartnerConversationDto) {
     void navigate({
@@ -337,16 +419,6 @@ export function PartnerDetailPage() {
         tab: 'messages',
         conversation: conversation.id,
       }),
-    })
-  }
-
-  function submitReply(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!selectedConversation || !body.trim()) return
-    replyMutation.mutate({
-      conversationId: selectedConversation.id,
-      subject: subject.trim(),
-      body: body.trim(),
     })
   }
 
@@ -517,68 +589,59 @@ export function PartnerDetailPage() {
                 />
               ) : currentContacts.length ? (
                 <div className="space-y-3">
-                  {currentContacts.map((contact) => (
-                    <article
-                      key={contact.employee_id}
-                      className="border-border-subtle bg-background rounded-control phone:grid-cols-[minmax(0,1fr)_auto] phone:items-center grid min-w-0 gap-4 border p-4"
-                    >
-                      <div className="flex min-w-0 items-start gap-3">
-                        <span className="bg-primary-subtle text-primary flex size-10 shrink-0 items-center justify-center rounded-xl">
-                          <UserRound className="size-5" />
-                        </span>
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-body-sm text-text-primary font-semibold">
-                              {contact.name}
-                            </h3>
-                            {contact.is_primary ? (
-                              <StatusChip label="Primary" tone="info" dense />
-                            ) : null}
-                          </div>
-                          <p className="text-caption text-text-secondary mt-1 break-all">
-                            {contact.email}
-                          </p>
-                          <p className="text-caption text-text-muted mt-1">
-                            {contact.designation || 'Bomach staff'}
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={
-                          !conversations.some(
-                            (item) =>
-                              item.staff_user_id === contact.staff_user_id &&
-                              item.kind === 'direct',
-                          ) &&
-                          (!canCreateMessages ||
-                            sessionQuery.data?.user.id !== contact.staff_user_id)
-                        }
-                        onClick={() => {
-                          const existing = conversations.find(
-                            (item) =>
-                              item.staff_user_id === contact.staff_user_id &&
-                              item.kind === 'direct',
-                          )
-                          if (existing) selectConversation(existing)
-                          else if (sessionQuery.data?.user.id === contact.staff_user_id)
-                            startConversationMutation.mutate()
-                        }}
-                        isLoading={startConversationMutation.isPending}
-                        leadingIcon={<MessageSquareText className="size-4" />}
+                  {currentContacts.map((contact) => {
+                    const thread = conversations.find(
+                      (item) =>
+                        item.staff_user_id === contact.staff_user_id && item.kind === 'direct',
+                    )
+                    const isCurrentContact = sessionQuery.data?.user.id === contact.staff_user_id
+                    return (
+                      <article
+                        key={contact.employee_id}
+                        className="border-border-subtle bg-background rounded-control phone:grid-cols-[minmax(0,1fr)_auto] phone:items-center grid min-w-0 gap-4 border p-4"
                       >
-                        {conversations.some(
-                          (item) =>
-                            item.staff_user_id === contact.staff_user_id && item.kind === 'direct',
-                        )
-                          ? 'Open thread'
-                          : sessionQuery.data?.user.id === contact.staff_user_id
-                            ? 'Start thread'
-                            : 'No thread yet'}
-                      </Button>
-                    </article>
-                  ))}
+                        <div className="flex min-w-0 items-start gap-3">
+                          <span className="bg-primary-subtle text-primary flex size-10 shrink-0 items-center justify-center rounded-xl">
+                            <UserRound className="size-5" />
+                          </span>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="text-body-sm text-text-primary font-semibold">
+                                {contact.name}
+                              </h3>
+                              {contact.is_primary ? (
+                                <StatusChip label="Primary" tone="info" dense />
+                              ) : null}
+                            </div>
+                            <p className="text-caption text-text-secondary mt-1 break-all">
+                              {contact.email}
+                            </p>
+                            <p className="text-caption text-text-muted mt-1">
+                              {contact.designation || 'Bomach staff'}
+                            </p>
+                          </div>
+                        </div>
+                        {!thread && (!canCreateMessages || !isCurrentContact) ? (
+                          <p className="text-caption text-text-secondary">
+                            The assigned staff member starts this private thread.
+                          </p>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (thread) selectConversation(thread)
+                              else startConversationMutation.mutate()
+                            }}
+                            isLoading={startConversationMutation.isPending}
+                            leadingIcon={<MessageSquareText className="size-4" />}
+                          >
+                            {thread ? 'Open thread' : 'Start your thread'}
+                          </Button>
+                        )}
+                      </article>
+                    )
+                  })}
                 </div>
               ) : effectiveContacts.length ? (
                 <Alert tone="info">
@@ -622,10 +685,49 @@ export function PartnerDetailPage() {
             <div className="desktop:grid-cols-[minmax(15rem,0.7fr)_minmax(0,1.5fr)] grid min-w-0 gap-4">
               <Card className="min-w-0 overflow-hidden p-0">
                 <div className="border-border-subtle border-b p-4">
-                  <h2 className="text-label text-text-primary font-semibold">Conversations</h2>
+                  <h2 className="text-label text-text-primary font-semibold">Message threads</h2>
                   <p className="text-caption text-text-secondary mt-1">
-                    Private threads by staff contact.
+                    {canViewAllMessages
+                      ? 'Review staff conversations for this partner.'
+                      : canStartOwnConversation
+                        ? 'Your assigned private conversation with this partner.'
+                        : 'Private conversations are limited to assigned contacts.'}
                   </p>
+                  {canViewAllMessages ? (
+                    <div
+                      className="border-info/20 bg-info-subtle/60 mt-3 flex min-w-0 items-start gap-2 rounded-xl border p-3"
+                      role="note"
+                      aria-label="Message oversight access"
+                    >
+                      <ShieldCheck
+                        className="text-info-foreground mt-0.5 size-4 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <p className="text-caption text-info-foreground min-w-0">
+                        <span className="font-semibold">Message oversight.</span> You can review all
+                        staff threads for this partner. Replies are limited to conversations
+                        assigned to you.
+                      </p>
+                    </div>
+                  ) : null}
+                  {canStartOwnConversation && !ownConversation && conversations.length > 0 ? (
+                    <div className="mt-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startConversationMutation.mutate()}
+                        isLoading={startConversationMutation.isPending}
+                        leadingIcon={<MessageSquareText className="size-4" />}
+                      >
+                        Start your private thread
+                      </Button>
+                    </div>
+                  ) : null}
+                  {startConversationMutation.error ? (
+                    <Alert className="mt-3" tone="danger" role="alert">
+                      {presentError(startConversationMutation.error, 'background-action').message}
+                    </Alert>
+                  ) : null}
                 </div>
                 <div className="max-h-[65dvh] space-y-1 overflow-y-auto p-2">
                   {conversationsQuery.isPending ? (
@@ -642,9 +744,38 @@ export function PartnerDetailPage() {
                   ) : null}
                   {!conversationsQuery.isPending && !conversationsQuery.error && noConversations ? (
                     <EmptyState
-                      title="No conversations yet"
-                      description="Start a private thread with an assigned contact."
+                      title="No message threads yet"
+                      description={
+                        canStartOwnConversation
+                          ? 'Start your assigned private thread to message this partner.'
+                          : canEditContacts
+                            ? 'Assign eligible message contacts. Each contact gets a separate private thread.'
+                            : canViewAllMessages
+                              ? 'There are no threads to review yet. Oversight access does not assign or start a contact thread.'
+                              : 'Ask a partner administrator to assign you as a message contact before starting a thread.'
+                      }
                       icon={<MessageSquareText className="size-5" />}
+                      action={
+                        canStartOwnConversation ? (
+                          <Button
+                            onClick={() => startConversationMutation.mutate()}
+                            isLoading={startConversationMutation.isPending}
+                            leadingIcon={<MessageSquareText className="size-4" />}
+                          >
+                            Start your private thread
+                          </Button>
+                        ) : !canStartOwnConversation && canEditContacts ? (
+                          <Button
+                            variant="outline"
+                            onClick={() => setContactEditorOpen(true)}
+                            disabled={!contactsQuery.data}
+                            isLoading={contactsQuery.isPending}
+                            leadingIcon={<UsersRound className="size-4" />}
+                          >
+                            Manage contacts
+                          </Button>
+                        ) : undefined
+                      }
                     />
                   ) : null}
                   {conversations.map((conversation) => (
@@ -659,41 +790,32 @@ export function PartnerDetailPage() {
                         <MessageSquareText className="size-4" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold">
-                          {conversationLabel(conversation)}
+                        <span className="flex min-w-0 flex-wrap items-center gap-2">
+                          <span className="text-body-sm text-text-primary min-w-0 truncate font-semibold">
+                            {conversationLabel(conversation)}
+                          </span>
+                          <StatusChip
+                            {...conversationAccess(conversation, sessionQuery.data?.user.id ?? -1)}
+                            dense
+                          />
                         </span>
-                        <span className="text-caption block truncate">
+                        <span className="text-caption text-text-muted mt-1 block truncate">
                           {conversation.kind === 'unassigned'
-                            ? 'Needs an owner'
-                            : conversation.status === 'read_only' || conversation.kind === 'legacy'
-                              ? 'Read only'
-                              : displayDate(conversation.last_message_at)}
+                            ? conversation.can_claim
+                              ? 'Waiting for an authorized staff contact to claim'
+                              : 'Support queue · view permission only'
+                            : conversation.status === 'read_only'
+                              ? 'History retained · replies disabled'
+                              : `Last activity · ${displayDate(conversation.last_message_at)}`}
                         </span>
                       </span>
-                      {conversation.can_claim ? (
-                        <StatusChip label="Queue" tone="warning" dense />
-                      ) : null}
+                      <ChevronRight
+                        className="text-text-muted size-4 shrink-0"
+                        aria-hidden="true"
+                      />
                     </button>
                   ))}
                 </div>
-                {canStartOwnConversation ? (
-                  <div className="border-border-subtle border-t p-3">
-                    <Button
-                      className="w-full"
-                      variant="outline"
-                      onClick={() => startConversationMutation.mutate()}
-                      isLoading={startConversationMutation.isPending}
-                      leadingIcon={<MessageSquareText className="size-4" />}
-                    >
-                      Start my conversation
-                    </Button>
-                    {startConversationMutation.error ? (
-                      <p className="text-caption text-danger mt-2">
-                        {presentError(startConversationMutation.error, 'background-action').message}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : null}
               </Card>
 
               <Card className="flex min-h-[28rem] min-w-0 flex-col overflow-hidden p-0">
@@ -705,11 +827,10 @@ export function PartnerDetailPage() {
                           {conversationLabel(selectedConversation)}
                         </h2>
                         <p className="text-caption text-text-secondary mt-1">
-                          {selectedConversation.kind === 'legacy'
-                            ? 'Archived shared history'
-                            : selectedConversation.kind === 'unassigned'
-                              ? 'A staff member must claim this conversation before replying.'
-                              : 'One private thread between this partner and one staff contact.'}
+                          {conversationAccessDescription(
+                            selectedConversation,
+                            sessionQuery.data?.user.id ?? -1,
+                          )}
                         </p>
                       </div>
                       {selectedConversation.can_claim ? (
@@ -720,10 +841,15 @@ export function PartnerDetailPage() {
                         >
                           Claim conversation
                         </Button>
-                      ) : selectedConversation.status === 'read_only' ||
-                        selectedConversation.kind === 'legacy' ? (
-                        <StatusChip label="Read only" tone="neutral" dense />
-                      ) : null}
+                      ) : (
+                        <StatusChip
+                          {...conversationAccess(
+                            selectedConversation,
+                            sessionQuery.data?.user.id ?? -1,
+                          )}
+                          dense
+                        />
+                      )}
                     </div>
                     {claimMutation.error ? (
                       <Alert className="m-4" tone="danger" role="alert">
@@ -743,41 +869,14 @@ export function PartnerDetailPage() {
                           onRetry={() => void messagesQuery.refetch()}
                         />
                       ) : null}
-                      {messagesQuery.data?.length
-                        ? [...messagesQuery.data].reverse().map((message: PartnerMessageDto) => (
-                            <article
-                              key={message.id}
-                              className={`max-w-[92%] rounded-2xl border p-3 sm:p-4 ${message.is_from_partner ? 'border-border-subtle bg-surface' : 'border-primary/15 bg-primary-subtle/50 ml-auto'}`}
-                            >
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <p className="text-caption text-text-primary font-semibold">
-                                  {message.is_from_partner ? partner.name : 'You'}
-                                  {message.subject ? ` · ${message.subject}` : ''}
-                                </p>
-                                <time className="text-caption text-text-muted">
-                                  {displayDate(message.created_at)}
-                                </time>
-                              </div>
-                              <p className="text-body-sm text-text-secondary mt-2 break-words whitespace-pre-wrap">
-                                {message.body}
-                              </p>
-                              {message.attachments?.length ? (
-                                <ul className="mt-3 space-y-1">
-                                  {message.attachments.map((file) => (
-                                    <li key={file.id}>
-                                      <a
-                                        className="text-caption text-primary underline"
-                                        href={file.download_url}
-                                      >
-                                        {file.name}
-                                      </a>
-                                    </li>
-                                  ))}
-                                </ul>
-                              ) : null}
-                            </article>
-                          ))
-                        : null}
+                      {messagesQuery.data?.length ? (
+                        <PartnerMessageTimeline
+                          messages={messagesQuery.data}
+                          isOwnMessage={(message) => !message.is_from_partner}
+                          counterpartName={partner.name}
+                          formatDate={displayDate}
+                        />
+                      ) : null}
                       {!messagesQuery.isPending &&
                       !messagesQuery.error &&
                       !messagesQuery.data?.length ? (
@@ -789,46 +888,37 @@ export function PartnerDetailPage() {
                       ) : null}
                     </div>
                     {selectedConversation.can_reply ? (
-                      <form
-                        className="border-border-subtle space-y-3 border-t p-4 sm:p-5"
-                        onSubmit={submitReply}
-                      >
-                        <FormControl id="partner-thread-subject" label="Subject (optional)">
-                          <TextInput
-                            value={subject}
-                            onChange={(event) => setSubject(event.currentTarget.value)}
-                            maxLength={255}
-                          />
-                        </FormControl>
-                        <FormControl id="partner-thread-reply" label="Reply" required>
-                          <TextArea
-                            rows={3}
-                            value={body}
-                            onChange={(event) => setBody(event.currentTarget.value)}
-                            required
-                          />
-                        </FormControl>
-                        {replyMutation.error ? (
-                          <Alert tone="danger" role="alert">
-                            {presentError(replyMutation.error, 'form-submit').message}
-                          </Alert>
-                        ) : null}
-                        <div className="flex justify-end">
-                          <Button
-                            type="submit"
-                            isLoading={replyMutation.isPending}
-                            leadingIcon={<Send className="size-4" />}
-                          >
-                            Send reply
-                          </Button>
-                        </div>
-                      </form>
+                      <PartnerMessageComposer
+                        key={selectedConversation.id}
+                        sending={replyMutation.isPending}
+                        error={
+                          replyMutation.error
+                            ? presentError(replyMutation.error, 'form-submit').message
+                            : undefined
+                        }
+                        onSend={async (messageBody, files) => {
+                          await replyMutation.mutateAsync({
+                            conversationId: selectedConversation.id,
+                            body: messageBody,
+                            files,
+                          })
+                        }}
+                        placeholder="Message this partner…"
+                      />
                     ) : null}
                   </>
                 ) : (
                   <EmptyState
                     title="Choose a conversation"
-                    description="Select a private staff thread, or start your assigned conversation."
+                    description={
+                      conversations.length
+                        ? 'Select a private staff thread to review its messages.'
+                        : canStartOwnConversation
+                          ? 'Start your private conversation with this partner.'
+                          : canEditContacts
+                            ? 'Assign staff contacts to open private conversations with this partner.'
+                            : 'Only an assigned staff contact can start a private conversation.'
+                    }
                     icon={<Clock3 className="size-6" />}
                   />
                 )}

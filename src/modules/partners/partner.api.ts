@@ -181,7 +181,23 @@ export interface PartnerMessageDto {
   conversation_id?: number | null
   sender_name?: string
   sender_type?: 'partner' | 'staff' | string
-  attachments?: Array<{ id: number; name: string; size: number; download_url: string }>
+  attachments?: Array<{
+    id: number
+    original_filename: string
+    content_type: string
+    size: number
+    download_url: string
+    preview_url?: string
+  }>
+}
+
+function buildMessageRequest(input: { body: string; files?: File[] }) {
+  if (!input.files?.length) return { subject: '', body: input.body }
+  const form = new FormData()
+  form.append('subject', '')
+  form.append('body', input.body)
+  input.files.forEach((file) => form.append('files', file, file.name))
+  return form
 }
 
 export interface PartnerCatalogueDto {
@@ -260,12 +276,14 @@ export const partnerAdminApi = {
   sendStaffConversationMessage: (
     partnerId: number,
     conversationId: number,
-    input: { subject: string; body: string },
-  ) =>
-    apiClient.post<PartnerMessageDto>(
-      `/partners/${partnerId}/conversations/${conversationId}/messages`,
-      input,
-    ),
+    input: { body: string; files?: File[] },
+  ) => {
+    const path = `/partners/${partnerId}/conversations/${conversationId}/messages`
+    const request = buildMessageRequest(input)
+    return input.files?.length
+      ? apiClient.post<PartnerMessageDto>(`${path}/with-attachments`, request)
+      : apiClient.post<PartnerMessageDto>(path, request)
+  },
   markStaffConversationRead: (partnerId: number, conversationId: number) =>
     apiClient.post<{ conversation_id: number; updated_count: number }>(
       `/partners/${partnerId}/conversations/${conversationId}/read`,
@@ -325,8 +343,13 @@ export const partnerPortalApi = {
       `/partner/conversations/${conversationId}/messages?limit=100&offset=0`,
       { signal },
     ),
-  sendConversationMessage: (conversationId: number, input: { subject: string; body: string }) =>
-    apiClient.post<PartnerMessageDto>(`/partner/conversations/${conversationId}/messages`, input),
+  sendConversationMessage: (conversationId: number, input: { body: string; files?: File[] }) => {
+    const path = `/partner/conversations/${conversationId}/messages`
+    const request = buildMessageRequest(input)
+    return input.files?.length
+      ? apiClient.post<PartnerMessageDto>(`${path}/with-attachments`, request)
+      : apiClient.post<PartnerMessageDto>(path, request)
+  },
   markConversationRead: (conversationId: number) =>
     apiClient.post<{ conversation_id: number; updated_count: number }>(
       `/partner/conversations/${conversationId}/read`,

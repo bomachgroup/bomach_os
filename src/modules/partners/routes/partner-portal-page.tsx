@@ -13,7 +13,6 @@ import {
   Handshake,
   Home,
   LogOut,
-  Mail,
   Menu,
   MapPin,
   MessageSquareText,
@@ -24,9 +23,14 @@ import {
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import {
+  PartnerMessageComposer,
+  PartnerMessageTimeline,
+} from '@/modules/partners/components/partner-message-ui'
+import {
   partnerPortalApi,
   partnerQueryKeys,
   type PartnerLeadPreview,
+  type PartnerMessageDto,
   type PartnerProfileDto,
   type PartnerRole,
 } from '@/modules/partners/partner.api'
@@ -39,7 +43,7 @@ import { Button } from '@/shared/ui/button'
 import { Card } from '@/shared/ui/card'
 import { Dialog } from '@/shared/ui/dialog'
 import { EmptyState, ErrorState, SectionErrorState, Skeleton } from '@/shared/ui/feedback-states'
-import { FormControl, TextArea, TextInput } from '@/shared/ui/form-control'
+import { FormControl, TextInput } from '@/shared/ui/form-control'
 import { StatusChip, type StatusTone } from '@/shared/ui/status-chip'
 import { SESSION_ESTABLISHED_KEY } from '@/shared/api/api-client'
 import { handleDrawerKeyDown } from '@/app/shell/shell-utils'
@@ -314,9 +318,6 @@ export function PartnerPortalPage() {
     queryFn: ({ signal }) => partnerPortalApi.unreadMessageCount(signal),
     enabled: routeSearch.tab === 'home' || routeSearch.tab === 'messages',
   })
-  const [subject, setSubject] = useState('')
-  const [message, setMessage] = useState('')
-  const [messageError, setMessageError] = useState('')
   const [signingOut, setSigningOut] = useState(false)
 
   const profileMutation = useMutation({
@@ -340,31 +341,28 @@ export function PartnerPortalPage() {
     },
   })
   const sendMessageMutation = useMutation({
-    mutationFn: () => {
-      if (!selectedConversationId) throw new Error('Choose a message contact first.')
-      return partnerPortalApi.sendConversationMessage(selectedConversationId, {
-        subject: subject.trim(),
-        body: message.trim(),
-      })
-    },
-    onSuccess: async () => {
+    mutationFn: (input: { conversationId: number; body: string; files: File[] }) =>
+      partnerPortalApi.sendConversationMessage(input.conversationId, input),
+    onSuccess: async (message, input) => {
+      const messageKey = partnerQueryKeys.conversationMessages(input.conversationId)
+      queryClient.setQueryData<PartnerMessageDto[]>(messageKey, (messages = []) =>
+        messages.some((item) => item.id === message.id)
+          ? messages
+          : [...messages, { ...message, conversation_id: input.conversationId }],
+      )
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: partnerQueryKeys.conversations }),
         queryClient.invalidateQueries({
-          queryKey: partnerQueryKeys.conversationMessages(selectedConversationId),
+          queryKey: partnerQueryKeys.conversationMessages(input.conversationId),
         }),
         queryClient.invalidateQueries({ queryKey: partnerQueryKeys.unreadMessages }),
       ])
-      setSubject('')
-      setMessage('')
-      setMessageError('')
       showToast({
         title: 'Message sent',
         description: 'Your message is now in your Bomach conversation.',
         tone: 'success',
       })
     },
-    onError: (error) => setMessageError(presentError(error, 'form-submit').message),
   })
   const notificationMutation = useMutation({
     mutationFn: async (id: number | 'all') => {
@@ -398,9 +396,7 @@ export function PartnerPortalPage() {
       await queryClient.invalidateQueries({
         queryKey: partnerQueryKeys.conversationMessages(conversation.id),
       })
-      setMessageError('')
     },
-    onError: (error) => setMessageError(presentError(error, 'background-action').message),
   })
 
   const unreadNotifications =
@@ -444,20 +440,6 @@ export function PartnerPortalPage() {
       phone: String(form.get('phone') ?? '').trim(),
       address: String(form.get('address') ?? '').trim(),
     })
-  }
-
-  function sendMessage(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setMessageError('')
-    if (!subject.trim() || !message.trim()) {
-      setMessageError('Add a subject and message before sending.')
-      return
-    }
-    if (!selectedConversation?.can_reply || selectedConversationId === null) {
-      setMessageError('Choose an available partner contact before sending.')
-      return
-    }
-    sendMessageMutation.mutate()
   }
 
   useEffect(() => {
@@ -1000,51 +982,14 @@ export function PartnerPortalPage() {
                               onRetry={() => void conversationMessagesQuery.refetch()}
                             />
                           ) : null}
-                          {conversationMessagesQuery.data?.length
-                            ? [...conversationMessagesQuery.data].reverse().map((item) => (
-                                <article
-                                  key={item.id}
-                                  className={`max-w-[92%] rounded-2xl border p-3 sm:p-4 ${item.is_from_partner ? 'border-primary/15 bg-primary-subtle/50 ml-auto' : 'border-border-subtle bg-surface'}`}
-                                >
-                                  <div className="flex flex-wrap items-center justify-between gap-2">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <h3 className="text-body-sm text-text-primary font-semibold">
-                                        {item.subject || 'Message'}
-                                      </h3>
-                                      <StatusChip
-                                        dense
-                                        label={
-                                          item.is_from_partner
-                                            ? 'You'
-                                            : item.sender_name || selectedConversation.staff_name
-                                        }
-                                        tone={item.is_from_partner ? 'neutral' : 'info'}
-                                      />
-                                    </div>
-                                    <span className="text-caption text-text-muted">
-                                      {formatDate(item.created_at)}
-                                    </span>
-                                  </div>
-                                  <p className="text-body-sm text-text-secondary mt-3 leading-6 break-words whitespace-pre-wrap">
-                                    {item.body}
-                                  </p>
-                                  {item.attachments?.length ? (
-                                    <ul className="mt-3 space-y-1">
-                                      {item.attachments.map((file) => (
-                                        <li key={file.id}>
-                                          <a
-                                            className="text-caption text-primary underline"
-                                            href={file.download_url}
-                                          >
-                                            {file.name}
-                                          </a>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  ) : null}
-                                </article>
-                              ))
-                            : null}
+                          {conversationMessagesQuery.data?.length ? (
+                            <PartnerMessageTimeline
+                              messages={conversationMessagesQuery.data}
+                              isOwnMessage={(item) => item.is_from_partner}
+                              counterpartName={selectedConversation.staff_name}
+                              formatDate={formatDate}
+                            />
+                          ) : null}
                           {!conversationMessagesQuery.isPending &&
                           !conversationMessagesQuery.error &&
                           !conversationMessagesQuery.data?.length ? (
@@ -1056,47 +1001,39 @@ export function PartnerPortalPage() {
                           ) : null}
                         </div>
                         {selectedConversation.can_reply ? (
-                          <form
-                            className="border-border-subtle space-y-4 border-t p-4"
-                            onSubmit={sendMessage}
-                          >
+                          <div>
                             {selectedConversation.kind === 'unassigned' ? (
-                              <Alert tone="info">
+                              <Alert className="m-3 mb-0" tone="info">
                                 Your message will be visible to the authorized Bomach support team
                                 until a contact claims this conversation.
                               </Alert>
                             ) : null}
-                            <FormControl id="partner-message-subject" label="Subject" required>
-                              <TextInput
-                                value={subject}
-                                onChange={(event) => setSubject(event.currentTarget.value)}
-                                maxLength={255}
-                                required
-                              />
-                            </FormControl>
-                            <FormControl id="partner-message-body" label="Message" required>
-                              <TextArea
-                                rows={4}
-                                value={message}
-                                onChange={(event) => setMessage(event.currentTarget.value)}
-                                required
-                              />
-                            </FormControl>
-                            {messageError ? (
-                              <Alert tone="danger" role="alert">
-                                {messageError}
-                              </Alert>
-                            ) : null}
-                            <div className="flex justify-end">
-                              <Button
-                                type="submit"
-                                isLoading={sendMessageMutation.isPending}
-                                leadingIcon={<Mail className="size-4" />}
-                              >
-                                Send message
-                              </Button>
-                            </div>
-                          </form>
+                            <PartnerMessageComposer
+                              key={selectedConversation.id}
+                              sending={sendMessageMutation.isPending}
+                              error={
+                                sendMessageMutation.error
+                                  ? presentError(sendMessageMutation.error, 'form-submit').message
+                                  : undefined
+                              }
+                              onSend={async (messageBody, files) => {
+                                if (
+                                  !selectedConversation.can_reply ||
+                                  selectedConversationId === null
+                                ) {
+                                  throw new Error(
+                                    'Choose an available partner contact before sending.',
+                                  )
+                                }
+                                await sendMessageMutation.mutateAsync({
+                                  conversationId: selectedConversation.id,
+                                  body: messageBody,
+                                  files,
+                                })
+                              }}
+                              placeholder="Message your Bomach contact…"
+                            />
+                          </div>
                         ) : null}
                       </>
                     ) : (

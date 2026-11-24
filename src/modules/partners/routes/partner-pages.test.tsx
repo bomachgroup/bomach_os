@@ -440,14 +440,288 @@ describe('partner Batch 1 pages', () => {
       },
     ])
 
-    renderPage(<PartnerDetailPage />)
+    renderPage(<PartnerDetailPage />, {
+      ...staffSession,
+      permissions: { partners: ['view'], partner_messages: ['list', 'view_all'] },
+    })
 
     expect(
       await screen.findByText('This message is private to the assigned contact.'),
     ).toBeInTheDocument()
-    expect(screen.getAllByText('Read only').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Oversight · read-only').length).toBeGreaterThan(0)
     expect(screen.queryByRole('button', { name: 'Send reply' })).not.toBeInTheDocument()
     expect(partnerAdminApi.staffConversationMessages).toHaveBeenCalledWith(5, 18, expect.anything())
+  })
+
+  it('sends staff replies without an email subject and supports private attachments', async () => {
+    const user = userEvent.setup()
+    routeState.detailSearch = { tab: 'messages', conversation: 19 }
+    vi.mocked(partnerAdminApi.conversations).mockResolvedValue([
+      {
+        id: 19,
+        partner_id: 5,
+        kind: 'direct',
+        status: 'active',
+        staff_user_id: staffSession.user.id,
+        staff_name: 'Staff User',
+        last_message_at: null,
+        can_reply: true,
+        merged_into_id: null,
+      },
+    ])
+    const incomingMessage = {
+      id: 32,
+      conversation_id: 19,
+      subject: 'Legacy email subject should not be shown',
+      body: 'Can you send the site photos?',
+      is_from_partner: true,
+      is_read: true,
+      created_at: '2026-11-22T10:00:00Z',
+      sender_name: 'Martha Surveyor',
+    }
+    const storedReply = {
+      id: 33,
+      conversation_id: 19,
+      subject: '',
+      body: 'Attached the walkthrough.',
+      is_from_partner: false,
+      is_read: false,
+      created_at: '2026-11-22T11:00:00Z',
+      sender_name: 'Staff User',
+    }
+    vi.mocked(partnerAdminApi.staffConversationMessages)
+      .mockResolvedValueOnce([incomingMessage])
+      .mockResolvedValue([incomingMessage, storedReply])
+    vi.spyOn(partnerAdminApi, 'sendStaffConversationMessage').mockResolvedValue({
+      ...storedReply,
+      id: 33,
+    })
+
+    renderPage(<PartnerDetailPage />)
+    expect(await screen.findByText('Can you send the site photos?')).toBeInTheDocument()
+    expect(screen.getAllByText('Assigned to you').length).toBeGreaterThan(0)
+    expect(screen.queryByRole('button', { name: 'Open my conversation' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Legacy email subject should not be shown')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Subject/)).not.toBeInTheDocument()
+
+    const file = new File(['private video'], 'walkthrough.mp4', { type: 'video/mp4' })
+    await user.upload(screen.getByLabelText('Choose image, video, or document attachments'), file)
+    await user.type(screen.getByRole('textbox', { name: 'Message' }), 'Attached the walkthrough.')
+    await user.click(screen.getByRole('button', { name: 'Send message' }))
+
+    await waitFor(() =>
+      expect(partnerAdminApi.sendStaffConversationMessage).toHaveBeenCalledWith(5, 19, {
+        body: 'Attached the walkthrough.',
+        files: [file],
+      }),
+    )
+    expect(await screen.findByRole('img', { name: 'Stored successfully' })).toBeInTheDocument()
+    expect(screen.getAllByRole('img', { name: 'Stored successfully' })).toHaveLength(1)
+  })
+
+  it('hides legacy shared history and clears a deep link to that thread', async () => {
+    routeState.detailSearch = { tab: 'messages', conversation: 90 }
+    vi.mocked(partnerAdminApi.conversations).mockResolvedValue([
+      {
+        id: 90,
+        partner_id: 5,
+        kind: 'legacy',
+        status: 'read_only',
+        staff_user_id: null,
+        staff_name: '',
+        last_message_at: '2026-11-22T10:00:00Z',
+        can_reply: false,
+        merged_into_id: null,
+      },
+    ])
+
+    renderPage(<PartnerDetailPage />, {
+      ...staffSession,
+      permissions: { partners: ['view'], partner_messages: ['list', 'view_all'] },
+    })
+
+    expect(await screen.findByText('No message threads yet')).toBeInTheDocument()
+    expect(screen.queryByText('Earlier shared history')).not.toBeInTheDocument()
+    expect(partnerAdminApi.staffConversationMessages).not.toHaveBeenCalled()
+    await waitFor(() =>
+      expect(routeState.navigate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          replace: true,
+          search: expect.any(Function),
+        }),
+      ),
+    )
+    const navigation = routeState.navigate.mock.calls.at(-1)?.[0] as {
+      search: (previous: { tab: string; conversation?: number }) => {
+        tab: string
+        conversation?: number
+      }
+    }
+    expect(navigation.search({ tab: 'messages', conversation: 90 })).toEqual({
+      tab: 'messages',
+      conversation: undefined,
+    })
+  })
+
+  it('lets an assigned staff member start their own private conversation', async () => {
+    const user = userEvent.setup()
+    routeState.detailSearch = { tab: 'messages', conversation: undefined }
+    vi.mocked(partnerAdminApi.contacts).mockResolvedValue({
+      contacts: [
+        {
+          employee_id: 11,
+          staff_user_id: 11,
+          name: 'Staff User',
+          email: 'staff@example.com',
+          designation: 'Partner contact',
+          is_primary: true,
+        },
+      ],
+      history: [],
+      effective_contacts: [
+        {
+          staff_user_id: 11,
+          name: 'Staff User',
+          designation: 'Partner contact',
+          is_primary: true,
+          source: 'assigned',
+        },
+      ],
+      eligible_staff: [],
+    })
+    const startConversation = vi
+      .spyOn(partnerAdminApi, 'startStaffConversation')
+      .mockResolvedValue({
+        id: 91,
+        partner_id: 5,
+        kind: 'direct',
+        status: 'active',
+        staff_user_id: 11,
+        staff_name: 'Staff User',
+        last_message_at: null,
+        can_reply: true,
+        merged_into_id: null,
+      })
+
+    renderPage(<PartnerDetailPage />, {
+      ...staffSession,
+      permissions: {
+        partners: ['view', 'update'],
+        partner_messages: ['list', 'create'],
+      },
+    })
+
+    await user.click(await screen.findByRole('button', { name: 'Start your private thread' }))
+
+    await waitFor(() => expect(startConversation).toHaveBeenCalledWith(5))
+    await waitFor(() =>
+      expect(routeState.navigate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          search: expect.any(Function),
+        }),
+      ),
+    )
+    const navigation = routeState.navigate.mock.calls.at(-1)?.[0] as {
+      search: (previous: { tab: string; conversation?: number }) => {
+        tab: string
+        conversation?: number
+      }
+    }
+    expect(navigation.search({ tab: 'contacts' })).toEqual({
+      tab: 'messages',
+      conversation: 91,
+    })
+  })
+
+  it('explains why a non-assigned manager cannot start a private thread', async () => {
+    routeState.detailSearch = { tab: 'messages', conversation: undefined }
+    const startConversation = vi.spyOn(partnerAdminApi, 'startStaffConversation')
+    renderPage(<PartnerDetailPage />, {
+      ...staffSession,
+      permissions: {
+        partners: ['view', 'update'],
+        partner_messages: ['list', 'create', 'view_all'],
+      },
+    })
+
+    expect(await screen.findByText('No message threads yet')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Assign eligible message contacts. Each contact gets a separate private thread.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Manage contacts' })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Start your private thread' }),
+    ).not.toBeInTheDocument()
+    expect(startConversation).not.toHaveBeenCalled()
+  })
+
+  it('shows invitation and email-delivery status separately without exposing setup links', async () => {
+    const user = userEvent.setup()
+    const resendInvitation = vi.spyOn(partnerAdminApi, 'resend').mockResolvedValue({
+      partner: {} as PartnerAdminDto,
+      invitation: {} as PartnerInvitationDto,
+    })
+    const revokeInvitation = vi
+      .spyOn(partnerAdminApi, 'revoke')
+      .mockResolvedValue({ id: 41, status: 'revoked' })
+    vi.mocked(partnerAdminApi.invitations).mockResolvedValue({
+      count: 2,
+      items: [
+        {
+          id: 41,
+          partner_id: 8,
+          partner_name: 'Bianca Eneh',
+          partner_role: 'realtor',
+          email: 'bianca.very.long.partner.address@example.test',
+          status: 'sent',
+          delivery_status: 'failed',
+          delivery_error: 'The email provider did not accept the invitation.',
+          expires_at: '2026-12-08T00:00:00Z',
+          last_sent_at: '2026-11-24T10:00:00Z',
+          setup_completed_at: null,
+        },
+        {
+          id: 42,
+          partner_id: 9,
+          partner_name: 'Revoked Partner',
+          partner_role: 'surveyor',
+          email: 'revoked@example.test',
+          status: 'revoked',
+          delivery_status: 'sent',
+          expires_at: '2026-12-08T00:00:00Z',
+          last_sent_at: '2026-11-23T10:00:00Z',
+          setup_completed_at: null,
+        },
+      ],
+    })
+
+    renderPage(<PartnerDeskPage />)
+    await user.click(await screen.findByRole('tab', { name: 'Invitation history' }))
+
+    expect(await screen.findByText('Bianca Eneh')).toBeInTheDocument()
+    expect(screen.getByText('Awaiting setup')).toBeInTheDocument()
+    expect(screen.getByText('Email failed')).toBeInTheDocument()
+    expect(
+      screen.getByText('The email provider did not accept the invitation.'),
+    ).toBeInTheDocument()
+    expect(screen.getAllByText('Partner role')).toHaveLength(2)
+    expect(screen.getAllByText('Invitation expires')).toHaveLength(2)
+    expect(screen.getAllByText('Last email')).toHaveLength(2)
+    expect(screen.getByText('Revoked')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Resend email' })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: 'Revoke invite' })).toHaveLength(1)
+    expect(screen.queryByRole('button', { name: /share|copy invite/i })).not.toBeInTheDocument()
+    expect(screen.queryByText(/setup token|https?:\/\/|token=/i)).not.toBeInTheDocument()
+
+    await user.click(screen.getAllByRole('button', { name: 'Resend email' })[0])
+    await waitFor(() => expect(resendInvitation).toHaveBeenCalledWith(41))
+
+    await user.click(screen.getByRole('button', { name: 'Revoke invite' }))
+    const revokeDialog = screen.getByRole('dialog', { name: 'Revoke this invitation?' })
+    await user.click(within(revokeDialog).getByRole('button', { name: 'Revoke link' }))
+    await waitFor(() => expect(revokeInvitation).toHaveBeenCalledWith(41))
   })
 
   it('keeps oversight message access read-only and does not start another contact thread', async () => {
@@ -525,7 +799,18 @@ describe('partner Batch 1 pages', () => {
     })
 
     expect(await screen.findByText('Oversight can review this private thread.')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Start my conversation' })).not.toBeInTheDocument()
+    expect(screen.getByRole('note', { name: 'Message oversight access' })).toHaveTextContent(
+      'You can review all staff threads for this partner. Replies are limited to conversations assigned to you.',
+    )
+    expect(screen.getAllByText('Oversight · view-only').length).toBeGreaterThan(0)
+    expect(
+      screen.getByText('Oversight view only. The assigned contact and partner can reply.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Start your private thread' }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Open my conversation' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Message' })).not.toBeInTheDocument()
     await waitFor(() => {
       expect(markRead).not.toHaveBeenCalled()
       expect(startConversation).not.toHaveBeenCalled()
@@ -740,6 +1025,83 @@ describe('partner Batch 1 pages', () => {
     await user.click(screen.getByRole('button', { name: /Second Contact/ }))
     expect(await screen.findByText('Second contact private thread.')).toBeInTheDocument()
     expect(partnerPortalApi.conversationMessages).toHaveBeenCalledWith(41, expect.anything())
+  })
+
+  it('sends partner chat messages with attachments without requiring a subject', async () => {
+    const user = userEvent.setup()
+    routeState.portalSearch = { tab: 'messages' }
+    vi.mocked(partnerPortalApi.me).mockResolvedValue({
+      ...partnerProfile,
+      profile_completed: true,
+      phone: '+2348012345678',
+    })
+    vi.mocked(partnerPortalApi.conversations).mockResolvedValue({
+      contacts: [
+        {
+          staff_user_id: 100,
+          name: 'Bomach Contact',
+          designation: 'Partner manager',
+          is_primary: true,
+          source: 'assigned',
+        },
+      ],
+      conversations: [
+        {
+          id: 44,
+          partner_id: 5,
+          kind: 'direct',
+          status: 'active',
+          staff_user_id: 100,
+          staff_name: 'Bomach Contact',
+          last_message_at: null,
+          can_reply: true,
+          merged_into_id: null,
+        },
+      ],
+      primary_staff_user_id: 100,
+      support_available: false,
+    })
+    const storedMessage = {
+      id: 45,
+      conversation_id: 44,
+      subject: '',
+      body: '',
+      is_from_partner: true,
+      is_read: false,
+      created_at: '2026-11-23T11:00:00Z',
+      sender_name: 'Martha Partner',
+    }
+    vi.mocked(partnerPortalApi.conversationMessages)
+      .mockResolvedValueOnce([])
+      .mockResolvedValue([storedMessage])
+    vi.spyOn(partnerPortalApi, 'sendConversationMessage')
+      .mockRejectedValueOnce(new Error('Temporary network failure'))
+      .mockResolvedValue({
+        ...storedMessage,
+      })
+
+    renderPage(<PartnerPortalPage />)
+    expect(await screen.findByRole('textbox', { name: 'Message' })).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Subject/)).not.toBeInTheDocument()
+    const photo = new File(['photo'], 'property-photo.jpg', { type: 'image/jpeg' })
+    await user.upload(screen.getByLabelText('Choose image, video, or document attachments'), photo)
+    await user.click(screen.getByRole('button', { name: 'Send message' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('An unexpected problem occurred.')
+    expect(screen.getByRole('alert')).toHaveTextContent('Your draft is still here.')
+    expect(screen.getByText('property-photo.jpg')).toBeInTheDocument()
+    const resend = screen.getByRole('button', { name: 'Resend message' })
+    expect(resend).toHaveTextContent('Resend')
+    await user.click(resend)
+
+    await waitFor(() =>
+      expect(partnerPortalApi.sendConversationMessage).toHaveBeenNthCalledWith(2, 44, {
+        conversationId: 44,
+        body: '',
+        files: [photo],
+      }),
+    )
+    expect(await screen.findByRole('img', { name: 'Stored successfully' })).toBeInTheDocument()
   })
 
   it('uses a mobile navigation drawer and confirms sign out', async () => {
