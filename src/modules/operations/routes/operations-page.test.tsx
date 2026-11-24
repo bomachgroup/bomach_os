@@ -163,10 +163,10 @@ describe('OperationsPage', () => {
     expect(await screen.findByRole('region', { name: 'Portfolio snapshot' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Add project' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'All projects' })).not.toBeInTheDocument()
-    expect(screen.getByText('Operations demo project 22')).toBeInTheDocument()
     expect(
-      screen.queryByRole('link', { name: 'Operations demo project 22' }),
+      screen.queryByRole('region', { name: 'Recently updated projects' }),
     ).not.toBeInTheDocument()
+    expect(screen.queryByText('Operations demo project 22')).not.toBeInTheDocument()
   })
 
   it('shows utilization as unavailable when no valid denominator is supplied', async () => {
@@ -197,7 +197,7 @@ describe('OperationsPage', () => {
       await screen.findByRole('status', { name: 'Loading operations overview' }),
     ).toBeInTheDocument()
     finishLoading?.(overview({ recent_projects: [] }))
-    expect(await screen.findByText('No projects yet')).toBeInTheDocument()
+    expect(await screen.findByText('No active projects yet')).toBeInTheDocument()
     loading.unmount()
 
     vi.mocked(projectsApi.overview)
@@ -209,7 +209,7 @@ describe('OperationsPage', () => {
       await screen.findByRole('button', { name: 'Try again' }, { timeout: 5000 }),
     ).toBeInTheDocument()
     await userEvent.setup().click(screen.getByRole('button', { name: 'Try again' }))
-    expect(await screen.findByText('No projects yet')).toBeInTheDocument()
+    expect(await screen.findByText('No active projects yet')).toBeInTheDocument()
     unmount()
   })
 })
