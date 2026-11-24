@@ -59,6 +59,7 @@ export interface MyTasksSummaryDto {
 
 export interface MyTasksListParams {
   status: TaskListStatus
+  search: string
   priority: TaskPriorityFilter
   sort: TaskSort
   limit: number
@@ -72,6 +73,7 @@ function listSearchParams(params: MyTasksListParams): URLSearchParams {
     sort: params.sort,
   })
   if (params.status !== 'all') search.set('status', params.status)
+  if (params.search.trim()) search.set('search', params.search.trim())
   if (params.priority !== 'all') search.set('priority', params.priority)
   return search
 }

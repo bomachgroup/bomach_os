@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import {
@@ -17,6 +17,7 @@ import {
   Flag,
   ListChecks,
   RefreshCw,
+  Search,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -28,6 +29,7 @@ import { Button } from '@/shared/ui/button'
 import { Dialog } from '@/shared/ui/dialog'
 import { EmptyState, ErrorState, Skeleton } from '@/shared/ui/feedback-states'
 import { DropdownSelect } from '@/shared/ui/dropdown-select'
+import { TextInput } from '@/shared/ui/form-control'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { StatusChip, type StatusTone } from '@/shared/ui/status-chip'
 import { useToast } from '@/shared/feedback/use-toast'
@@ -521,9 +523,37 @@ function countLabel(summary: MyTasksSummaryDto | undefined, key: keyof MyTasksSu
   return summary ? String(summary[key]) : '—'
 }
 
+function TaskSearchField({
+  value,
+  onSearch,
+}: {
+  value: string
+  onSearch: (value: string) => void
+}) {
+  const [draft, setDraft] = useState(value)
+
+  useEffect(() => {
+    if (draft === value) return
+    const timeout = window.setTimeout(() => onSearch(draft), 250)
+    return () => window.clearTimeout(timeout)
+  }, [draft, onSearch, value])
+
+  return (
+    <TextInput
+      id="task-search"
+      value={draft}
+      onChange={(event) => setDraft(event.currentTarget.value.slice(0, 120))}
+      placeholder="Search task name or description"
+      autoComplete="off"
+      className="pl-10"
+    />
+  )
+}
+
 function paramsFromSearch(search: MyTasksSearch): MyTasksListParams {
   return {
     status: search.status,
+    search: search.q,
     priority: search.priority,
     sort: search.sort,
     limit: PAGE_SIZE,
@@ -573,6 +603,18 @@ export function MyTasksPage() {
       resetScroll: false,
     })
   }
+
+  const updateQuery = useCallback(
+    (q: string) => {
+      void navigate({
+        to: '/dashboard/my-tasks',
+        search: (previous: MyTasksSearch) => ({ ...previous, q, page: 1 }),
+        replace: true,
+        resetScroll: false,
+      })
+    },
+    [navigate],
+  )
 
   const updateStatusMutation = useMutation({
     mutationFn: ({
@@ -727,7 +769,22 @@ export function MyTasksPage() {
             </div>
           </div>
 
-          <div className="phone:grid-cols-2 grid grid-cols-1 gap-3">
+          <div className="phone:grid-cols-2 desktop:grid-cols-[minmax(0,1fr)_minmax(12rem,auto)_minmax(12rem,auto)] grid grid-cols-1 gap-3">
+            <div className="phone:col-span-2 desktop:col-span-1 min-w-0">
+              <label
+                className="text-label text-text-secondary mb-1.5 block font-medium"
+                htmlFor="task-search"
+              >
+                Search tasks
+              </label>
+              <div className="relative">
+                <Search
+                  className="text-text-muted pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
+                  aria-hidden="true"
+                />
+                <TaskSearchField key={search.q} value={search.q} onSearch={updateQuery} />
+              </div>
+            </div>
             <DropdownSelect
               id="task-priority"
               label="Priority"
@@ -803,23 +860,24 @@ export function MyTasksPage() {
           <section className="border-border-subtle bg-surface rounded-surface border">
             <EmptyState
               title={
-                search.priority !== 'all' || search.status !== 'all'
+                search.q || search.priority !== 'all' || search.status !== 'all'
                   ? 'No tasks match these filters'
                   : 'No tasks assigned yet'
               }
               description={
-                search.priority !== 'all' || search.status !== 'all'
+                search.q || search.priority !== 'all' || search.status !== 'all'
                   ? 'Adjust your filters or clear them to see more tasks.'
                   : 'Tasks assigned to you will appear here.'
               }
               icon={<ClipboardList className="size-5" />}
               action={
-                search.priority !== 'all' || search.status !== 'all' ? (
+                search.q || search.priority !== 'all' || search.status !== 'all' ? (
                   <Button
                     variant="outline"
                     onClick={() => {
                       updateSearch({
                         status: 'all',
+                        q: '',
                         priority: 'all',
                         sort: 'due_date',
                         page: 1,

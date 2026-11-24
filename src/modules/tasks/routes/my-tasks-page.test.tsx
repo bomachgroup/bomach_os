@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const routerState = vi.hoisted(() => ({
   search: {
     status: 'all',
+    q: '',
     priority: 'all',
     sort: 'due_date',
     page: 1,
@@ -122,6 +123,7 @@ describe('My Tasks page', () => {
   beforeEach(() => {
     routerState.search = {
       status: 'all',
+      q: '',
       priority: 'all',
       sort: 'due_date',
       page: 1,
@@ -155,13 +157,14 @@ describe('My Tasks page', () => {
 
   it('keeps filters in the URL and shows centered task details in a shared dialog', async () => {
     const user = userEvent.setup()
-    routerState.search = { ...routerState.search, task: 14 }
+    routerState.search = { ...routerState.search, q: 'estimate', task: 14 }
     renderPage()
 
     const dialog = await screen.findByRole('dialog', { name: 'Task details' })
     expect(dialog).toHaveClass('tablet:top-1/2', 'tablet:max-h-[90dvh]', 'tablet:-translate-y-1/2')
     expect(dialog).toHaveClass('tablet:max-w-[50rem]', 'flex-col')
     expect(dialog).not.toHaveClass('desktop:inset-y-0', 'desktop:h-dvh')
+    await within(dialog).findByRole('heading', { name: 'Prepare site estimate' })
     expect(
       within(dialog).getByRole('heading', { name: 'Prepare site estimate' }),
     ).toBeInTheDocument()
@@ -173,13 +176,31 @@ describe('My Tasks page', () => {
     expect(within(dialog).getByRole('button', { name: 'Close' })).toBeInTheDocument()
     expect(within(dialog).getByRole('button', { name: 'Start task' })).toBeInTheDocument()
     expect(myTasksApi.detail).toHaveBeenCalledWith(14, expect.any(AbortSignal))
+    expect(myTasksApi.list).toHaveBeenCalledWith(
+      expect.objectContaining({ search: 'estimate' }),
+      expect.any(AbortSignal),
+    )
 
     await user.click(screen.getByRole('button', { name: 'Close dialog' }))
     expect(routerState.navigate).toHaveBeenCalled()
     const closeNavigation = routerState.navigate.mock.calls.at(-1)?.[0]
     expect(closeNavigation.search(routerState.search)).toMatchObject({
+      q: 'estimate',
       task: undefined,
     })
+  })
+
+  it('debounces task search into URL state and resets pagination', async () => {
+    const user = userEvent.setup()
+    routerState.search = { ...routerState.search, page: 3 }
+    renderPage()
+
+    await user.type(screen.getByRole('textbox', { name: 'Search tasks' }), 'estimate')
+
+    await waitFor(() => expect(routerState.navigate).toHaveBeenCalled())
+    const searchNavigation = routerState.navigate.mock.calls.at(-1)?.[0]
+    expect(searchNavigation.replace).toBe(true)
+    expect(searchNavigation.search(routerState.search)).toMatchObject({ q: 'estimate', page: 1 })
   })
 
   it('changes task status filters on the visible route path', async () => {

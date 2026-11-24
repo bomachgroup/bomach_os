@@ -7,6 +7,7 @@ describe('validateMyTasksSearch', () => {
     expect(
       validateMyTasksSearch({
         status: 'pending',
+        q: '  estimate  ',
         priority: 'high',
         sort: 'priority',
         page: '3',
@@ -14,6 +15,7 @@ describe('validateMyTasksSearch', () => {
       }),
     ).toEqual({
       status: 'pending',
+      q: 'estimate',
       priority: 'high',
       sort: 'priority',
       page: 3,
@@ -25,6 +27,7 @@ describe('validateMyTasksSearch', () => {
     expect(
       validateMyTasksSearch({
         status: 'deleted',
+        q: 'x'.repeat(121),
         priority: 'urgent',
         sort: 'random',
         page: '-1',
@@ -32,6 +35,7 @@ describe('validateMyTasksSearch', () => {
       }),
     ).toEqual({
       status: 'all',
+      q: '',
       priority: 'all',
       sort: 'due_date',
       page: 1,

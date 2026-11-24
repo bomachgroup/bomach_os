@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 const myTasksSearchSchema = z.object({
   status: z.enum(['all', 'pending', 'in_progress', 'completed']).catch('all'),
+  q: z.string().trim().max(120).catch(''),
   priority: z.enum(['all', 'low', 'medium', 'high']).catch('all'),
   sort: z.enum(['due_date', 'priority']).catch('due_date'),
   page: z.coerce.number().int().min(1).max(10_000).catch(1),
