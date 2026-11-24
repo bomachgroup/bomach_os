@@ -18,7 +18,7 @@ Closing task details removes only `task`; the other URL state remains. Invalid v
 
 - Status tabs show server summary counts. The `All tasks` count includes cancelled assignments; cancelled items have a status label but no dedicated tab.
 - Desktop uses a five-column task table with a flexible title column and bounded metadata/action columns so it fits the shell's content width. Below the desktop breakpoint, each task becomes a card with the same status, priority, due date, project, milestone, and estimated-time information. The filter panel keeps status in a single segmented strip, with priority and sort controls side by side from the phone breakpoint upward.
-- Task details are opened through the `task` URL parameter. They render as a right-side panel on desktop and a full-screen dialog on small screens. Closing the panel returns to the same filtered list state.
+- Task details are opened through the `task` URL parameter. They render in a centered, content-sized shared dialog on tablet and desktop, and stay near full-screen on small screens. The summary, task overview, description, and available task action use the same surface and footer patterns as other dialogs. Closing the dialog returns to the same filtered list state.
 - Employees can start a pending task. Completing an in-progress task requires confirmation because the status is shared with everyone assigned to that task. The UI does not offer transitions from completed/cancelled back to another state.
 - Lists use a ten-item page size, bounded server pagination, and stable ordering. Due-date sorting puts undated tasks last, then uses priority and ID for ties. Priority sorting is high, medium, low, then unspecified, followed by due date and ID.
 
@@ -55,7 +55,7 @@ Inactive Workspace task queries remain cached but stale until Workspace Overview
 - Background refresh keeps the task list visible and shows a local progress line. If refresh fails with cached results, the results stay visible with a retry notice.
 - Summary failure does not block the list or show a separate alert. Unavailable tab counts use an em dash; the summary follows the same shared freshness lifecycle.
 - A successful empty response distinguishes no assigned tasks from no matches for current filters. Clearing filters resets the URL state.
-- Detail loading, failure, permission denial, and missing content stay within the detail panel.
+- Detail loading, failure, permission denial, and missing content stay within the detail dialog.
 - Success toast is shown only after the backend confirms a status transition.
 
 ## Verification

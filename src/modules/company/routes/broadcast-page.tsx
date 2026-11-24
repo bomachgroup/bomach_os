@@ -1523,6 +1523,7 @@ export function BroadcastPage() {
               <ErrorState
                 title="Announcements could not be loaded"
                 error={announcementsQuery.error}
+                errorContext="collection-load"
                 action={
                   <Button variant="outline" onClick={() => void announcementsQuery.refetch()}>
                     Try again
@@ -1683,6 +1684,7 @@ export function BroadcastPage() {
               <ErrorState
                 title="Events could not be loaded"
                 error={eventsQuery.error}
+                errorContext="collection-load"
                 action={
                   <Button variant="outline" onClick={() => void eventsQuery.refetch()}>
                     Try again

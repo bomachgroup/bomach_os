@@ -891,6 +891,7 @@ export function SiteReportCreatePage() {
             title="Worksites could not load"
             description="Retry the worksite lookup before creating a site report."
             error={worksitesQuery.error}
+            errorContext="collection-load"
             action={
               <Button variant="outline" onClick={() => void worksitesQuery.refetch()}>
                 Try again

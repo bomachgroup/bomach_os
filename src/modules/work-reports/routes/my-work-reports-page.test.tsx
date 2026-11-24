@@ -30,6 +30,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 })
 
 import { AUTH_SESSION_QUERY_KEY, type AuthenticatedSession } from '@/shared/auth/session'
+import { ApiError } from '@/shared/api/api-error'
 import { ToastContext } from '@/shared/feedback/toast-context'
 import { myWorkReportsApi, type MyWorkReport } from '../my-work-reports.api'
 import { MyWorkReportsPage } from './my-work-reports-page'
@@ -157,6 +158,25 @@ describe('My Work Reports page', () => {
         expect.any(AbortSignal),
       ),
     )
+  })
+
+  it('shows a retryable list error when the combined endpoint returns 404', async () => {
+    const user = userEvent.setup()
+    vi.mocked(myWorkReportsApi.list).mockRejectedValueOnce(
+      new ApiError('Not Found', { status: 404 }),
+    )
+    renderPage()
+
+    expect(
+      await screen.findByRole('heading', { name: 'This list could not load' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('The server could not find this list. Try again shortly.'),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(await screen.findByText('Clarified the site boundary measurements.')).toBeInTheDocument()
+    expect(myWorkReportsApi.list).toHaveBeenCalledTimes(2)
   })
 
   it('updates type and status filters and resets global pagination', async () => {

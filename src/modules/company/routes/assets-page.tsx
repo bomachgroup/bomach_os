@@ -655,6 +655,7 @@ export function AssetsPage() {
             title="The register could not refresh"
             description="Showing the last loaded results. Retry when your connection is available."
             error={listQuery.error}
+            errorContext="section-load"
             onRetry={() => void listQuery.refetch()}
           />
         ) : null}
@@ -665,7 +666,7 @@ export function AssetsPage() {
           <Card className="p-3">
             <ErrorState
               title="Assets could not be loaded"
-              description={presentError(listQuery.error, 'page-load').message}
+              description={presentError(listQuery.error, 'collection-load').message}
               action={
                 <Button variant="outline" onClick={() => void listQuery.refetch()}>
                   Try again

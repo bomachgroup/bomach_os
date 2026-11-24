@@ -675,6 +675,7 @@ export function ApprovalWorkflowsPage() {
               <ErrorState
                 title="Approval workflows could not be loaded"
                 error={flowQuery.error}
+                errorContext="collection-load"
                 action={
                   <Button variant="outline" onClick={() => void flowQuery.refetch()}>
                     Try again
@@ -848,6 +849,7 @@ export function ApprovalWorkflowsPage() {
                 <ErrorState
                   title="Approval requests could not be loaded"
                   error={requestsQuery.error}
+                  errorContext="collection-load"
                   action={
                     <Button variant="outline" onClick={() => void requestsQuery.refetch()}>
                       Try again

@@ -409,6 +409,7 @@ export function MyWorkReportsPage() {
             title="Reports could not load"
             description="Your work report history is available to retry."
             error={listQuery.error}
+            errorContext="collection-load"
             action={
               <Button variant="outline" onClick={() => void listQuery.refetch()}>
                 Try again

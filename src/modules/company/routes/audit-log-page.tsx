@@ -535,6 +535,7 @@ export function AuditLogPage() {
               title="Audit events are unavailable"
               description="We couldn’t load the audit register. Try again."
               error={listQuery.error}
+              errorContext="collection-load"
               action={<Button onClick={refresh}>Try again</Button>}
             />
           </Card>

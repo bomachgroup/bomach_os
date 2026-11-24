@@ -427,6 +427,7 @@ export function ApprovalRequestsPage() {
               title="Approval requests are unavailable"
               description="We couldn’t load the requests in your scope. Try again."
               error={listQuery.error}
+              errorContext="collection-load"
               action={<Button onClick={retryList}>Try again</Button>}
             />
           </Card>

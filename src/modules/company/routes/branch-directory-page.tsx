@@ -566,7 +566,7 @@ export function BranchDirectoryPage() {
           {listQuery.error && result ? (
             <Alert tone="warning" title="Showing saved branch data" role="status">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span>{presentError(listQuery.error, 'background-action').message}</span>
+                <span>{presentError(listQuery.error, 'section-load').message}</span>
                 <Button variant="ghost" size="sm" onClick={() => void listQuery.refetch()}>
                   Retry
                 </Button>
@@ -584,6 +584,7 @@ export function BranchDirectoryPage() {
             <ErrorState
               title="Branches could not load"
               error={listQuery.error}
+              errorContext="collection-load"
               action={
                 <Button variant="outline" onClick={() => void listQuery.refetch()}>
                   Retry branch list
