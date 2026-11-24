@@ -266,6 +266,9 @@ export function PartnerDetailPage() {
       partnerAdminApi.claimConversation(partnerId, conversationId),
     onSuccess: async (conversation) => {
       await invalidatePartnerMessages()
+      await queryClient.invalidateQueries({
+        queryKey: partnerQueryKeys.unassignedConversations(sessionQuery.data?.user.id ?? 0),
+      })
       void navigate({
         search: (previous: PartnerDetailSearch) => ({
           ...previous,

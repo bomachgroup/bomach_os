@@ -38,6 +38,7 @@ import { getWorkspaceMode, WORKSPACE_MODE_KEY } from '@/shared/auth/workspace-mo
 import { ToastContext } from '@/shared/feedback/toast-context'
 import {
   partnerAdminApi,
+  partnerQueryKeys,
   partnerPortalApi,
   type PartnerAdminDto,
   type PartnerInvitationDto,
@@ -191,6 +192,7 @@ describe('partner Batch 1 pages', () => {
     vi.spyOn(partnerAdminApi, 'conversations').mockResolvedValue([])
     vi.spyOn(partnerAdminApi, 'staffConversationMessages').mockResolvedValue([])
     vi.spyOn(partnerAdminApi, 'invitations').mockResolvedValue({ count: 0, items: [] })
+    vi.spyOn(partnerAdminApi, 'unassignedConversations').mockResolvedValue([])
     vi.spyOn(partnerAdminApi, 'invitationChoices').mockResolvedValue({
       branches: [{ id: 12, name: 'Enugu', code: 'EN-01' }],
       roles: [{ value: 'realtor', label: 'Realtor' }],
@@ -281,6 +283,133 @@ describe('partner Batch 1 pages', () => {
     )
     expect(await screen.findByText('Invitation history')).toBeInTheDocument()
     expect(showToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Invitation sent' }))
+  })
+
+  it('keeps partner identity details grouped and separates status and actions responsively', async () => {
+    renderPage(<PartnerDeskPage />)
+
+    const name = await screen.findByRole('heading', { name: 'Martha Surveyor' })
+    const card = name.closest('article')
+    expect(card).not.toBeNull()
+    expect(card).toHaveClass('desktop:grid-cols-[minmax(0,1fr)_auto]')
+    expect(card).not.toHaveClass('tablet:grid-cols-[minmax(0,1fr)_auto]')
+    expect(card).toHaveTextContent('martha@example.com')
+    expect(card).toHaveTextContent(/Surveyor\s*·\s*Enugu/)
+    expect(card).toHaveTextContent('Setup pending')
+    expect(within(card as HTMLElement).getByRole('button', { name: 'Open' })).toBeInTheDocument()
+  })
+
+  it('explains that a branch is required before eligible message contacts can load', async () => {
+    const user = userEvent.setup()
+    vi.mocked(partnerAdminApi.invitationChoices).mockResolvedValue({
+      branches: [
+        { id: 12, name: 'Enugu', code: 'EN-01' },
+        { id: 13, name: 'Lagos', code: 'LA-01' },
+      ],
+      roles: [{ value: 'realtor', label: 'Realtor' }],
+    })
+    vi.mocked(partnerAdminApi.invitationContacts).mockResolvedValue({
+      items: [
+        {
+          employee_id: 44,
+          staff_user_id: 100,
+          name: 'Staff Contact',
+          email: 'contact@example.com',
+          designation: 'Operations manager',
+        },
+      ],
+    })
+    renderPage(<PartnerDeskPage />)
+
+    await user.click(await screen.findByRole('button', { name: 'Invite partner' }))
+    expect(
+      await screen.findByText(
+        'Select an owning branch to see staff who can access partner messages there.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByLabelText('Loading eligible contacts')).not.toBeInTheDocument()
+    expect(partnerAdminApi.invitationContacts).not.toHaveBeenCalled()
+
+    await user.click(screen.getByRole('combobox', { name: /Owning branch/ }))
+    await user.click(screen.getByRole('option', { name: /Enugu/ }))
+    expect(await screen.findByText('Staff Contact')).toBeInTheDocument()
+    expect(screen.getByText('Operations manager · contact@example.com')).toBeInTheDocument()
+    expect(screen.getByText('1 eligible staff member')).toBeInTheDocument()
+    expect(partnerAdminApi.invitationContacts).toHaveBeenCalledWith(12, expect.anything())
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Assign Staff Contact as a partner contact' }),
+    )
+    expect(
+      screen.getByRole('radio', { name: 'Set Staff Contact as primary contact' }),
+    ).toBeChecked()
+  })
+
+  it('shows the unassigned-message tab only when the authorized queue contains conversations', async () => {
+    const permissions = {
+      partners: ['list', 'invite'],
+      partner_messages: ['list', 'receive_unassigned'],
+    }
+    const conversation = {
+      id: 71,
+      partner_id: 5,
+      kind: 'unassigned' as const,
+      status: 'queued' as const,
+      staff_user_id: null,
+      staff_name: '',
+      last_message_at: '2026-11-23T09:00:00Z',
+      can_reply: false,
+      can_claim: true,
+      merged_into_id: null,
+      partner_name: 'Martha Surveyor',
+      partner_code: 'PT-005',
+    }
+
+    renderPage(<PartnerDeskPage />, { ...staffSession, permissions })
+    await screen.findByText('Martha Surveyor')
+    await waitFor(() => expect(partnerAdminApi.unassignedConversations).toHaveBeenCalled())
+    expect(screen.queryByRole('tab', { name: 'Unassigned messages' })).not.toBeInTheDocument()
+
+    vi.mocked(partnerAdminApi.unassignedConversations).mockResolvedValue([conversation])
+    await queryClient.invalidateQueries({
+      queryKey: partnerQueryKeys.unassignedConversations(staffSession.user.id),
+    })
+
+    const queueTab = await screen.findByRole('tab', { name: 'Unassigned messages' })
+    expect(queueTab).toBeInTheDocument()
+    await userEvent.setup().click(queueTab)
+    expect(await screen.findByRole('button', { name: 'Review and claim' })).toBeInTheDocument()
+
+    vi.mocked(partnerAdminApi.unassignedConversations).mockResolvedValue([])
+    await queryClient.invalidateQueries({
+      queryKey: partnerQueryKeys.unassignedConversations(staffSession.user.id),
+    })
+    await waitFor(() =>
+      expect(screen.queryByRole('tab', { name: 'Unassigned messages' })).not.toBeInTheDocument(),
+    )
+    expect(await screen.findByText('Queue is clear')).toBeInTheDocument()
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Return to partner directory' }))
+    expect(screen.getByRole('tab', { name: 'Partner directory' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+  })
+
+  it('does not treat an unavailable queue as empty without showing retry feedback', async () => {
+    vi.mocked(partnerAdminApi.unassignedConversations).mockRejectedValue(
+      new Error('Temporary queue failure'),
+    )
+    renderPage(<PartnerDeskPage />, {
+      ...staffSession,
+      permissions: {
+        partners: ['list', 'invite'],
+        partner_messages: ['list', 'receive_unassigned'],
+      },
+    })
+
+    expect(await screen.findByRole('button', { name: 'Try again' })).toBeInTheDocument()
+    expect(screen.queryByRole('tab', { name: 'Unassigned messages' })).not.toBeInTheDocument()
   })
 
   it('shows a private conversation workspace for a selected partner thread', async () => {
