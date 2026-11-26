@@ -27,7 +27,16 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     useParams: () => routeState.params,
     useNavigate: (options?: { from?: string }) => {
       routeState.navigateFrom = options?.from
-      return routeState.navigate
+      return (destination: { search?: unknown }) => {
+        routeState.navigate(destination)
+        if (
+          options?.from === '/partners/app' &&
+          destination.search &&
+          typeof destination.search === 'object'
+        ) {
+          routeState.portalSearch = destination.search as typeof routeState.portalSearch
+        }
+      }
     },
   }
 })
@@ -42,6 +51,7 @@ import {
   partnerPortalApi,
   type PartnerAdminDto,
   type PartnerInvitationDto,
+  type PartnerNotificationDto,
   type PartnerProfileDto,
 } from '@/modules/partners/partner.api'
 import { PartnerDeskPage } from './partner-desk-page'
@@ -209,6 +219,11 @@ describe('partner Batch 1 pages', () => {
       } as PartnerInvitationDto,
     })
     vi.spyOn(partnerPortalApi, 'me').mockResolvedValue(partnerProfile)
+    vi.spyOn(partnerPortalApi, 'notifications').mockResolvedValue([])
+    vi.spyOn(partnerPortalApi, 'markNotificationRead').mockResolvedValue({
+      id: 0,
+      is_read: true,
+    })
     vi.spyOn(partnerPortalApi, 'jobs').mockResolvedValue([])
     vi.spyOn(partnerPortalApi, 'unreadNotificationCount').mockResolvedValue({ unread_count: 0 })
     vi.spyOn(partnerPortalApi, 'unreadMessageCount').mockResolvedValue({ unread_count: 0 })
@@ -453,6 +468,53 @@ describe('partner Batch 1 pages', () => {
     expect(partnerAdminApi.staffConversationMessages).toHaveBeenCalledWith(5, 18, expect.anything())
   })
 
+  it('opens an authorized message-only partner thread without loading profile or contact details', async () => {
+    routeState.detailSearch = { tab: 'messages', conversation: 28 }
+    vi.mocked(partnerAdminApi.conversations).mockResolvedValue([
+      {
+        id: 28,
+        partner_id: 5,
+        partner_name: 'Martha Surveyor',
+        partner_code: 'PT-005',
+        kind: 'direct',
+        status: 'active',
+        staff_user_id: staffSession.user.id,
+        staff_name: 'Staff User',
+        last_message_at: '2026-11-22T10:00:00Z',
+        can_reply: true,
+        merged_into_id: null,
+      },
+    ])
+    vi.mocked(partnerAdminApi.staffConversationMessages).mockResolvedValue([
+      {
+        id: 42,
+        conversation_id: 28,
+        subject: '',
+        body: 'The partner message is available in this private thread.',
+        is_from_partner: true,
+        is_read: false,
+        created_at: '2026-11-22T10:00:00Z',
+        sender_name: 'Martha Surveyor',
+      },
+    ])
+
+    renderPage(<PartnerDetailPage />, {
+      ...staffSession,
+      permissions: { partner_messages: ['list', 'create'] },
+    })
+
+    expect(
+      await screen.findByText('The partner message is available in this private thread.'),
+    ).toBeInTheDocument()
+    expect(screen.getAllByText('Martha Surveyor').length).toBeGreaterThan(0)
+    expect(screen.getByText('PT-005')).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Message' })).toBeInTheDocument()
+    expect(screen.queryByText('martha@example.com')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /manage contacts/i })).not.toBeInTheDocument()
+    expect(partnerAdminApi.partner).not.toHaveBeenCalled()
+    expect(partnerAdminApi.contacts).not.toHaveBeenCalled()
+  })
+
   it('sends staff replies without an email subject and supports private attachments', async () => {
     const user = userEvent.setup()
     routeState.detailSearch = { tab: 'messages', conversation: 19 }
@@ -497,7 +559,10 @@ describe('partner Batch 1 pages', () => {
       id: 33,
     })
 
-    renderPage(<PartnerDetailPage />)
+    renderPage(<PartnerDetailPage />, {
+      ...staffSession,
+      permissions: { partners: ['view'], partner_messages: ['list', 'create'] },
+    })
     expect(await screen.findByText('Can you send the site photos?')).toBeInTheDocument()
     expect(screen.getAllByText('Assigned to you').length).toBeGreaterThan(0)
     expect(screen.queryByRole('button', { name: 'Open my conversation' })).not.toBeInTheDocument()
@@ -953,6 +1018,45 @@ describe('partner Batch 1 pages', () => {
     await waitFor(() =>
       expect(window.localStorage.getItem('bomach.partner.sidebar.collapsed')).toBe('false'),
     )
+  })
+
+  it('opens the exact conversation from a partner-message update and marks the update read', async () => {
+    const user = userEvent.setup()
+    routeState.portalSearch = { tab: 'notifications' }
+    vi.mocked(partnerPortalApi.me).mockResolvedValue({
+      ...partnerProfile,
+      profile_completed: true,
+      phone: '+2348012345678',
+    })
+    vi.mocked(partnerPortalApi.notifications).mockResolvedValue([
+      {
+        id: 73,
+        title: 'New message from Bomach',
+        message: 'A Bomach staff member replied in your private conversation.',
+        notification_type: 'info',
+        is_read: false,
+        link: '/partners/app?tab=messages&conversation=41',
+        metadata: {
+          entity_type: 'partner_message',
+          conversation_id: 41,
+          partner_id: partnerProfile.id,
+          message_id: 95,
+        },
+        priority: 'normal',
+        action: 'open_conversation',
+        entity_type: 'partner_message',
+        entity_id: '95',
+        created_at: '2026-11-23T11:00:00Z',
+      } satisfies PartnerNotificationDto,
+    ])
+
+    renderPage(<PartnerPortalPage />)
+    await user.click(await screen.findByRole('button', { name: 'Open conversation' }))
+
+    expect(routeState.navigate).toHaveBeenCalledWith({
+      search: { tab: 'messages', conversation: 41 },
+    })
+    await waitFor(() => expect(partnerPortalApi.markNotificationRead).toHaveBeenCalledWith(73))
   })
 
   it('lets a partner switch between private staff conversations', async () => {

@@ -1,6 +1,6 @@
 import { isMarketingWorkspaceHref, isServicesWorkspaceHref } from '@/shared/auth/navigation'
 
-type NavigateFn = (opts: { to: never }) => unknown
+type NavigateFn = (opts: never) => unknown
 
 /** Open an in-app notification destination, including cross-workspace deep links. */
 export function openNotificationHref(href: string, navigate: NavigateFn) {
@@ -11,5 +11,10 @@ export function openNotificationHref(href: string, navigate: NavigateFn) {
     return
   }
 
-  void navigate({ to: href as never })
+  const url = new URL(href, window.location.origin)
+  void navigate({
+    to: url.pathname,
+    search: Object.fromEntries(url.searchParams),
+    hash: url.hash || undefined,
+  } as never)
 }

@@ -1,7 +1,4 @@
-import {
-  canAccessMarketingApp,
-  canAccessServicesApp,
-} from '@/app/shell/app-catalog'
+import { canAccessMarketingApp, canAccessServicesApp } from '@/app/shell/app-catalog'
 import { canVisitDestination, destinationForPath } from '@/app/navigation/route-manifest'
 import { hasPermission, type PermissionSet } from '@/shared/auth/session'
 
@@ -16,6 +13,7 @@ export type NotificationIconName =
   | 'money'
   | 'page'
   | 'people'
+  | 'message'
   | 'task'
   | 'building'
   | 'approvals'
@@ -82,6 +80,37 @@ function notificationDetails(notification: NotificationDto): RecordValue {
   return record(notification.metadata?.details)
 }
 
+function partnerMessageSender(notification: NotificationDto, details: RecordValue): string {
+  if (details.sender_role === 'partner') return 'Partner'
+  if (details.sender_role === 'staff') return 'Bomach staff'
+  if (/^(new partner message|unassigned partner message)$/i.test(notification.title)) {
+    return 'Partner'
+  }
+  if (/^new message from bomach$/i.test(notification.title)) return 'Bomach staff'
+  return 'Conversation participant'
+}
+
+function partnerMessageIsUnassigned(notification: NotificationDto, details: RecordValue): boolean {
+  return (
+    details.conversation_kind === 'unassigned' ||
+    /unassigned partner message/i.test(notification.title)
+  )
+}
+
+function partnerMessageHasConversation(
+  notification: NotificationDto,
+  metadata: RecordValue,
+): boolean {
+  return Boolean(text(metadata.conversation_id)) || /[?&]conversation=\d+/.test(notification.link)
+}
+
+function partnerMessageThreadLabel(notification: NotificationDto, details: RecordValue): string {
+  if (partnerMessageIsUnassigned(notification, details)) return 'Unassigned support queue'
+  return partnerMessageHasConversation(notification, record(notification.metadata))
+    ? 'Private conversation'
+    : 'Partner messaging'
+}
+
 function canonicalKind(value: unknown): string {
   const kind = (text(value) ?? '').toLowerCase()
   if (kind.includes('attendance') && kind.includes('reminder')) return 'attendance_reminder'
@@ -104,6 +133,19 @@ export function notificationKind(notification: NotificationDto): string {
   const details = notificationDetails(notification)
   const metadata = record(notification.metadata)
   if (text(details.kind)) return canonicalKind(details.kind)
+  if (
+    (notification.entity_type || text(metadata.entity_type) || '').toLowerCase() ===
+    'partner_message'
+  ) {
+    return 'partner_message'
+  }
+  if (
+    /^(new partner message|unassigned partner message|new message from bomach)$/i.test(
+      notification.title,
+    )
+  ) {
+    return 'partner_message'
+  }
   if (text(notification.event_type)) return canonicalKind(notification.event_type)
   if (metadata.reference && metadata.amount !== undefined) return 'payment'
   if (metadata.invoice_number) return 'invoice'
@@ -115,6 +157,7 @@ export function notificationKind(notification: NotificationDto): string {
 export function notificationCategory(notification: NotificationDto): string {
   const kind = notificationKind(notification)
   const details = notificationDetails(notification)
+  if (kind === 'partner_message') return 'Partner message'
   if (kind === 'attendance_reminder') {
     return details.destination === 'work_report' ? 'Work report' : 'Attendance'
   }
@@ -139,6 +182,7 @@ export function notificationCategory(notification: NotificationDto): string {
 export function notificationIcon(notification: NotificationDto): NotificationIconName {
   const kind = notificationKind(notification)
   const details = notificationDetails(notification)
+  if (kind === 'partner_message') return 'message'
   if (kind === 'attendance_reminder') {
     return details.destination === 'work_report' ? 'report' : 'clock'
   }
@@ -417,9 +461,24 @@ export function notificationDetailSections(
   const project = record(details.project)
   const milestone = record(details.milestone)
   const amounts = record(details.amounts)
+  const metadata = record(notification.metadata)
   const rows: Array<NotificationDetailSection | null> = []
 
-  if (kind === 'attendance_reminder') {
+  if (kind === 'partner_message') {
+    const unassigned = partnerMessageIsUnassigned(notification, details)
+    const partnerReference =
+      text(details.partner_code) ||
+      text(metadata.partner_code) ||
+      (text(metadata.partner_id) ? `Partner #${text(metadata.partner_id)}` : undefined)
+    rows.push(
+      section('Partner conversation', 'message', [
+        row('Activity', unassigned ? 'New message needs a contact' : 'New conversation message'),
+        row('From', partnerMessageSender(notification, details)),
+        row('Thread', partnerMessageThreadLabel(notification, details)),
+        row('Partner reference', partnerReference),
+      ]),
+    )
+  } else if (kind === 'attendance_reminder') {
     const isReport = details.destination === 'work_report'
     rows.push(
       section(isReport ? 'Work report' : 'Attendance', isReport ? 'report' : 'clock', [
@@ -669,7 +728,6 @@ export function notificationDetailSections(
         row('Task number', legacy.task_number),
         statusRow('Status', legacy.status),
         row('Due date', legacy.due_date, dateValue),
-        moneyRow('Amount', legacy.amount),
       ]),
     )
   }
@@ -710,6 +768,13 @@ function attendanceReminderActions(
 }
 
 function normalizeWorkspacePath(pathname: string, search = '', hash = ''): string {
+  const legacyPartnerMessages = /^\/partners\/(\d+)\/messages\/?$/.exec(pathname)
+  if (legacyPartnerMessages) {
+    const conversationId = new URLSearchParams(search).get('conversation')
+    const threadQuery =
+      conversationId && /^\d+$/.test(conversationId) ? `&conversation=${conversationId}` : ''
+    return `/company/partners/${legacyPartnerMessages[1]}?tab=messages${threadQuery}${hash}`
+  }
   if (pathname === '/leads-detail' || pathname.startsWith('/leads-detail/')) {
     return `/marketing/leads-detail${search}${hash}`
   }
@@ -721,6 +786,16 @@ function normalizeWorkspacePath(pathname: string, search = '', hash = ''): strin
 
 function canOpenPath(path: string, permissions: PermissionSet): boolean {
   const pathname = path.split(/[?#]/, 1)[0] ?? path
+  if (/^\/company\/partners\/\d+\/?$/.test(pathname)) {
+    const search = path.split('?')[1]?.split('#')[0] ?? ''
+    if (new URLSearchParams(search).get('tab') === 'messages') {
+      return hasPermission(permissions, 'partner_messages', 'list')
+    }
+    return (
+      hasPermission(permissions, 'partners', 'view') ||
+      hasPermission(permissions, 'partner_messages', 'list')
+    )
+  }
   if (pathname === '/marketing' || pathname.startsWith('/marketing/')) {
     return canAccessMarketingApp(permissions)
   }
@@ -753,8 +828,7 @@ function safeNotificationLink(link: string, permissions: PermissionSet): string 
     const url = new URL(link, window.location.origin)
     if (url.origin !== window.location.origin) return undefined
     const normalized = normalizeWorkspacePath(url.pathname, url.search, url.hash)
-    const pathname = normalized.split(/[?#]/, 1)[0] ?? normalized
-    if (!canOpenPath(pathname, permissions)) return undefined
+    if (!canOpenPath(normalized, permissions)) return undefined
     return normalized
   } catch {
     return undefined
@@ -763,6 +837,9 @@ function safeNotificationLink(link: string, permissions: PermissionSet): string 
 
 function notificationActionLabel(path: string): string | undefined {
   const pathname = path.split(/[?#]/, 1)[0] ?? path
+  if (/^\/company\/partners\/\d+\/?$/.test(pathname)) {
+    return /[?&]conversation=\d+/.test(path) ? 'Open conversation' : 'Open partner messages'
+  }
   if (pathname === '/marketing/leads-detail') return 'Open lead details'
   if (pathname.startsWith('/marketing/campaigns')) return 'Open campaign'
   if (pathname.startsWith('/marketing/')) return 'Open Marketing'
@@ -786,11 +863,20 @@ function notificationEntityPath(notification: NotificationDto, permissions: Perm
     text(metadata.notification_kind) ||
     ''
   ).toLowerCase()
-  const id =
-    notification.entity_id ||
-    text(metadata.entity_id) ||
-    text(metadata.lead_id) ||
-    ''
+  if (type === 'partner_message') {
+    const partnerId = text(metadata.partner_id)
+    const conversationId = text(metadata.conversation_id)
+    if (!partnerId || !/^\d+$/.test(partnerId) || Number(partnerId) < 1) {
+      return undefined
+    }
+    const hasValidConversation =
+      Boolean(conversationId) && /^\d+$/.test(conversationId ?? '') && Number(conversationId) > 0
+    const path = hasValidConversation
+      ? `/company/partners/${partnerId}?tab=messages&conversation=${conversationId}`
+      : `/company/partners/${partnerId}?tab=messages`
+    return canOpenPath(path, permissions) ? path : undefined
+  }
+  const id = notification.entity_id || text(metadata.entity_id) || text(metadata.lead_id) || ''
   if (!/^\d+$/.test(id) || Number(id) < 1) return undefined
   if (type === 'lead' || type === 'lead_assignment') {
     const path = `/marketing/leads-detail?id=${id}`
@@ -855,6 +941,12 @@ export function notificationContextSummary(notification: NotificationDto): strin
     const last = dateValue(end)
     if (!first) return undefined
     return last && first !== last ? `${first} – ${last}` : first
+  }
+  if (kind === 'partner_message') {
+    return [
+      partnerMessageThreadLabel(notification, details),
+      `From ${partnerMessageSender(notification, details).toLowerCase()}`,
+    ].join(' · ')
   }
   if (kind === 'attendance_reminder') {
     return [dateValue(details.date), reminderStage(details.stage)].filter(Boolean).join(' · ')

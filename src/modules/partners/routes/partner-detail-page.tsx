@@ -247,7 +247,9 @@ export function PartnerDetailPage() {
   const { showToast } = useToast()
   const sessionQuery = useQuery(authSessionQueryOptions())
   const permissions = sessionQuery.data?.permissions ?? {}
-  const canEditContacts = hasPermission(permissions, 'partners', 'update')
+  const canViewPartner = hasPermission(permissions, 'partners', 'view')
+  const canListMessages = hasPermission(permissions, 'partner_messages', 'list')
+  const canEditContacts = canViewPartner && hasPermission(permissions, 'partners', 'update')
   const canCreateMessages = hasPermission(permissions, 'partner_messages', 'create')
   const canMarkMessagesRead = hasPermission(permissions, 'partner_messages', 'mark_read')
   const canViewAllMessages = hasPermission(permissions, 'partner_messages', 'view_all')
@@ -256,6 +258,7 @@ export function PartnerDetailPage() {
   const partnerQuery = useQuery({
     queryKey: [...partnerQueryKeys.all, 'partner', partnerId],
     queryFn: ({ signal }) => partnerAdminApi.partner(partnerId, signal),
+    enabled: canViewPartner,
     staleTime: DATA_FRESHNESS_MS.history,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
@@ -263,6 +266,7 @@ export function PartnerDetailPage() {
   const contactsQuery = useQuery({
     queryKey: [...partnerQueryKeys.all, 'contacts', partnerId],
     queryFn: ({ signal }) => partnerAdminApi.contacts(partnerId, signal),
+    enabled: canViewPartner,
     staleTime: DATA_FRESHNESS_MS.reference,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
@@ -270,6 +274,7 @@ export function PartnerDetailPage() {
   const conversationsQuery = useQuery({
     queryKey: [...partnerQueryKeys.all, 'conversations', partnerId],
     queryFn: ({ signal }) => partnerAdminApi.conversations(partnerId, signal),
+    enabled: canListMessages,
     staleTime: DATA_FRESHNESS_MS.standard,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
@@ -422,7 +427,7 @@ export function PartnerDetailPage() {
     })
   }
 
-  if (partnerQuery.isPending) {
+  if (canViewPartner && partnerQuery.isPending) {
     return (
       <PageLayout title="Partner">
         <div className="space-y-4">
@@ -432,7 +437,7 @@ export function PartnerDetailPage() {
       </PageLayout>
     )
   }
-  if (partnerQuery.error || !partnerQuery.data) {
+  if (canViewPartner && (partnerQuery.error || !partnerQuery.data)) {
     return (
       <PageLayout
         title="Partner"
@@ -461,21 +466,27 @@ export function PartnerDetailPage() {
     )
   }
 
-  const partner = partnerQuery.data
+  const partner = canViewPartner ? partnerQuery.data : undefined
+  const activeTab = canViewPartner ? routeSearch.tab : 'messages'
   const currentContacts = contactsQuery.data?.contacts ?? []
   const noConversations = conversations.length === 0
+  const canBrowsePartners =
+    hasPermission(permissions, 'partners', 'list') ||
+    hasPermission(permissions, 'partners', 'invite')
 
   return (
     <>
       <PageLayout
-        title={partner.name || partner.email}
+        title={partner?.name || selectedConversation?.partner_name || 'Partner conversation'}
         backLink={
           <button
             type="button"
             onClick={() =>
-              void navigate({ to: '/company/partners', search: { search: '', page: 1 } })
+              void (canBrowsePartners
+                ? navigate({ to: '/company/partners', search: { search: '', page: 1 } })
+                : navigate({ to: '/notifications', search: { filter: 'all' } }))
             }
-            aria-label="Back to partners"
+            aria-label={canBrowsePartners ? 'Back to partners' : 'Back to notifications'}
             className="border-border-subtle bg-surface hover:bg-surface-muted rounded-control flex size-10 items-center justify-center border"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
@@ -499,64 +510,82 @@ export function PartnerDetailPage() {
         }
       >
         <div className="space-y-5">
-          <Card className="flex min-w-0 flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
-            <div className="flex min-w-0 items-center gap-3">
+          {partner ? (
+            <Card className="flex min-w-0 flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="bg-primary-subtle text-primary flex size-11 shrink-0 items-center justify-center rounded-2xl">
+                  <UserRound className="size-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-body-sm text-text-primary font-semibold">{partner.email}</p>
+                    <StatusChip
+                      label={partner.status_display || partner.status}
+                      tone={partnerStatusTone(partner.status)}
+                      dense
+                    />
+                  </div>
+                  <p className="text-caption text-text-secondary mt-1">
+                    {partner.code || 'Partner'} ·{' '}
+                    {partner.partner_role_display || partner.partner_role}
+                    {' · '}
+                    {partner.primary_branch_name || 'No branch'}
+                  </p>
+                </div>
+              </div>
+              <div className="text-caption text-text-secondary flex items-center gap-2">
+                <ShieldCheck className="text-primary size-4" aria-hidden="true" />
+                {currentContact?.source === 'inviter'
+                  ? `Original inviter: ${currentContact.name}`
+                  : currentContact
+                    ? `Primary contact: ${currentContact.name}`
+                    : conversations.some((item) => item.kind === 'unassigned')
+                      ? 'Authorized support queue'
+                      : 'No eligible contact'}
+              </div>
+            </Card>
+          ) : (
+            <Card className="flex min-w-0 flex-wrap items-center gap-3 p-4 sm:p-5">
               <span className="bg-primary-subtle text-primary flex size-11 shrink-0 items-center justify-center rounded-2xl">
-                <UserRound className="size-5" aria-hidden="true" />
+                <MessageSquareText className="size-5" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-body-sm text-text-primary font-semibold">{partner.email}</p>
-                  <StatusChip
-                    label={partner.status_display || partner.status}
-                    tone={partnerStatusTone(partner.status)}
-                    dense
-                  />
-                </div>
+                <p className="text-body-sm text-text-primary font-semibold">
+                  {selectedConversation?.partner_name || 'Partner conversation'}
+                </p>
                 <p className="text-caption text-text-secondary mt-1">
-                  {partner.code || 'Partner'} ·{' '}
-                  {partner.partner_role_display || partner.partner_role}
-                  {' · '}
-                  {partner.primary_branch_name || 'No branch'}
+                  {selectedConversation?.partner_code || 'Private messages only'}
                 </p>
               </div>
-            </div>
-            <div className="text-caption text-text-secondary flex items-center gap-2">
-              <ShieldCheck className="text-primary size-4" aria-hidden="true" />
-              {currentContact?.source === 'inviter'
-                ? `Original inviter: ${currentContact.name}`
-                : currentContact
-                  ? `Primary contact: ${currentContact.name}`
-                  : conversations.some((item) => item.kind === 'unassigned')
-                    ? 'Authorized support queue'
-                    : 'No eligible contact'}
-            </div>
-          </Card>
+            </Card>
+          )}
 
-          <div
-            className="bg-surface-muted flex w-fit max-w-full gap-1 overflow-x-auto rounded-xl p-1"
-            role="tablist"
-            aria-label="Partner details"
-          >
-            {(['contacts', 'messages'] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                role="tab"
-                aria-selected={routeSearch.tab === tab}
-                onClick={() =>
-                  void navigate({
-                    search: (previous: PartnerDetailSearch) => ({ ...previous, tab }),
-                  })
-                }
-                className={`min-h-10 shrink-0 rounded-lg px-4 text-sm font-semibold ${routeSearch.tab === tab ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
-              >
-                {tab === 'contacts' ? 'Contacts' : 'Messages'}
-              </button>
-            ))}
-          </div>
+          {canViewPartner ? (
+            <div
+              className="bg-surface-muted flex w-fit max-w-full gap-1 overflow-x-auto rounded-xl p-1"
+              role="tablist"
+              aria-label="Partner details"
+            >
+              {(['contacts', 'messages'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab}
+                  onClick={() =>
+                    void navigate({
+                      search: (previous: PartnerDetailSearch) => ({ ...previous, tab }),
+                    })
+                  }
+                  className={`min-h-10 shrink-0 rounded-lg px-4 text-sm font-semibold ${activeTab === tab ? 'bg-surface text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+                >
+                  {tab === 'contacts' ? 'Contacts' : 'Messages'}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
-          {routeSearch.tab === 'contacts' ? (
+          {activeTab === 'contacts' ? (
             <Card className="space-y-4 p-4 sm:p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -681,6 +710,11 @@ export function PartnerDetailPage() {
                 </Alert>
               ) : null}
             </Card>
+          ) : !canListMessages ? (
+            <Alert tone="warning">
+              Your account can view this partner record but does not have permission to view message
+              threads.
+            </Alert>
           ) : (
             <div className="desktop:grid-cols-[minmax(15rem,0.7fr)_minmax(0,1.5fr)] grid min-w-0 gap-4">
               <Card className="min-w-0 overflow-hidden p-0">
@@ -873,7 +907,9 @@ export function PartnerDetailPage() {
                         <PartnerMessageTimeline
                           messages={messagesQuery.data}
                           isOwnMessage={(message) => !message.is_from_partner}
-                          counterpartName={partner.name}
+                          counterpartName={
+                            partner?.name || selectedConversation.partner_name || 'Partner'
+                          }
                           formatDate={displayDate}
                         />
                       ) : null}

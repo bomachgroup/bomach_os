@@ -24,6 +24,7 @@ export function validatePartnerDetailSearch(search: Record<string, unknown>): Pa
 
 const partnerAppSchema = z.object({
   tab: z.enum(['home', 'work', 'messages', 'notifications', 'profile']).catch('home'),
+  conversation: z.coerce.number().int().positive().optional(),
 })
 
 export type PartnerAppSearch = z.infer<typeof partnerAppSchema>

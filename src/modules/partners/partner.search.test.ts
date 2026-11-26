@@ -17,6 +17,10 @@ describe('partner workspace URL state', () => {
 
   it('accepts only the supported partner workspace tabs', () => {
     expect(validatePartnerAppSearch({ tab: 'messages' })).toEqual({ tab: 'messages' })
+    expect(validatePartnerAppSearch({ tab: 'messages', conversation: '41' })).toEqual({
+      tab: 'messages',
+      conversation: 41,
+    })
     expect(validatePartnerAppSearch({ tab: 'admin' })).toEqual({ tab: 'home' })
   })
 

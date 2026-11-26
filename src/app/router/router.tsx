@@ -947,7 +947,10 @@ const partnerDetailRoute = createRoute({
   path: '/company/partners/$partnerId',
   validateSearch: validatePartnerDetailSearch,
   beforeLoad: async ({ context, location }) => {
-    await requireAnyPermission(context, location, [{ resource: 'partners', actions: ['view'] }])
+    await requireAnyPermission(context, location, [
+      { resource: 'partners', actions: ['view'] },
+      { resource: 'partner_messages', actions: ['list'] },
+    ])
   },
   component: PartnerDetailPage,
 })

@@ -208,6 +208,123 @@ describe('notification presentation and authorized destinations', () => {
     )
   })
 
+  it('presents partner-message context and opens only the permission-scoped conversation', () => {
+    const item = makeNotification({
+      title: 'New partner message',
+      message: 'A partner sent a message in your private conversation.',
+      entity_type: 'partner_message',
+      entity_id: '91',
+      link: '/company/partners/17?tab=messages&conversation=4',
+      metadata: {
+        partner_id: 17,
+        conversation_id: 4,
+        message_id: 91,
+        amount: 0,
+        details: {
+          schema_version: 1,
+          kind: 'partner_message',
+          conversation_kind: 'direct',
+          sender_role: 'partner',
+          partner_code: 'BOM-REA-017',
+        },
+      },
+    })
+
+    expect(notificationCategory(item)).toBe('Partner message')
+    expect(notificationIcon(item)).toBe('message')
+    expect(notificationContextSummary(item)).toBe('Private conversation · From partner')
+    expect(notificationDetailSections(item)).toEqual([
+      expect.objectContaining({
+        title: 'Partner conversation',
+        rows: expect.arrayContaining([
+          expect.objectContaining({ label: 'From', value: 'Partner' }),
+          expect.objectContaining({ label: 'Thread', value: 'Private conversation' }),
+          expect.objectContaining({ label: 'Partner reference', value: 'BOM-REA-017' }),
+        ]),
+      }),
+    ])
+    expect(notificationDetailSections(item).flatMap((section) => section.rows)).not.toContainEqual(
+      expect.objectContaining({ label: 'Amount' }),
+    )
+    expect(notificationActions(item, { partner_messages: ['list'] })).toEqual([
+      {
+        label: 'Open conversation',
+        href: '/company/partners/17?tab=messages&conversation=4',
+      },
+    ])
+    expect(notificationActions(item, {})).toEqual([])
+  })
+
+  it('maps legacy partner-message links to the authorized message register', () => {
+    const item = makeNotification({
+      title: 'New partner message',
+      message: 'A partner sent a message.',
+      entity_type: 'direct_notification',
+      entity_id: '',
+      link: '/partners/17/messages',
+      metadata: { partner_id: 17 },
+    })
+
+    expect(notificationContextSummary(item)).toBe('Partner messaging · From partner')
+    expect(notificationDetailSections(item)).toEqual([
+      expect.objectContaining({
+        title: 'Partner conversation',
+        rows: expect.arrayContaining([
+          expect.objectContaining({ label: 'From', value: 'Partner' }),
+          expect.objectContaining({ label: 'Thread', value: 'Partner messaging' }),
+          expect.objectContaining({ label: 'Partner reference', value: 'Partner #17' }),
+        ]),
+      }),
+    ])
+    expect(notificationActions(item, { partner_messages: ['list'] })).toEqual([
+      {
+        label: 'Open partner messages',
+        href: '/company/partners/17?tab=messages',
+      },
+    ])
+    expect(notificationActions(item, { partners: ['view'] })).toEqual([])
+  })
+
+  it('opens a typed partner conversation even when its notification entity id is absent', () => {
+    const item = makeNotification({
+      title: 'New partner message',
+      entity_type: 'partner_message',
+      entity_id: '',
+      metadata: { partner_id: 17, conversation_id: 4 },
+    })
+
+    expect(notificationActions(item, { partner_messages: ['list'] })).toEqual([
+      {
+        label: 'Open conversation',
+        href: '/company/partners/17?tab=messages&conversation=4',
+      },
+    ])
+  })
+
+  it('recognizes and links legacy partner-message notifications without exposing generic amount metadata', () => {
+    const item = makeNotification({
+      title: 'New message from Bomach',
+      notification_type: 'direct_notification',
+      entity_type: '',
+      metadata: {
+        entity_type: 'partner_message',
+        entity_id: '25',
+        partner_id: 9,
+        conversation_id: 2,
+        amount: 0,
+      },
+      link: '/partners/app?tab=messages&conversation=2',
+    })
+
+    expect(notificationCategory(item)).toBe('Partner message')
+    expect(notificationDetailSections(item).flatMap((section) => section.rows)).not.toContainEqual(
+      expect.objectContaining({ label: 'Amount' }),
+    )
+    expect(notificationActions(item, { partner_messages: ['list'] })).toEqual([
+      { label: 'Open conversation', href: '/company/partners/9?tab=messages&conversation=2' },
+    ])
+  })
+
   it('does not follow an external backend link or show an unauthorized destination', () => {
     expect(
       notificationActions(makeNotification({ link: 'https://attacker.example/leave/7' }), {

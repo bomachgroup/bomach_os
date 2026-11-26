@@ -31,6 +31,7 @@ import {
   partnerQueryKeys,
   type PartnerLeadPreview,
   type PartnerMessageDto,
+  type PartnerNotificationDto,
   type PartnerProfileDto,
   type PartnerRole,
 } from '@/modules/partners/partner.api'
@@ -281,7 +282,6 @@ export function PartnerPortalPage() {
     queryFn: ({ signal }) => partnerPortalApi.conversations(signal),
     enabled: routeSearch.tab === 'messages',
   })
-  const [activeConversationId, setActiveConversationId] = useState<number | null>(null)
   const partnerConversations = messagesQuery.data?.conversations ?? []
   const primaryConversation = partnerConversations.find(
     (conversation) => conversation.staff_user_id === messagesQuery.data?.primary_staff_user_id,
@@ -290,11 +290,14 @@ export function PartnerPortalPage() {
     primaryConversation ??
     partnerConversations.find((conversation) => conversation.kind !== 'legacy') ??
     partnerConversations[0]
-  const selectedConversationId = partnerConversations.some(
-    (conversation) => conversation.id === activeConversationId,
-  )
-    ? activeConversationId
-    : (defaultConversation?.id ?? null)
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null)
+  const requestedConversationId = routeSearch.conversation ?? activeConversationId
+  const selectedConversationId =
+    requestedConversationId !== null && requestedConversationId !== undefined
+      ? partnerConversations.some((conversation) => conversation.id === requestedConversationId)
+        ? requestedConversationId
+        : null
+      : (defaultConversation?.id ?? null)
   const selectedConversation = partnerConversations.find(
     (conversation) => conversation.id === selectedConversationId,
   )
@@ -396,6 +399,7 @@ export function PartnerPortalPage() {
       await queryClient.invalidateQueries({
         queryKey: partnerQueryKeys.conversationMessages(conversation.id),
       })
+      await navigate({ search: { tab: 'messages', conversation: conversation.id } })
     },
   })
 
@@ -429,7 +433,32 @@ export function PartnerPortalPage() {
       return
     }
     setProfileOpen(false)
-    void navigate({ search: { tab }, replace: false })
+    void navigate({
+      search: {
+        tab,
+        ...(tab === 'messages' && selectedConversationId
+          ? { conversation: selectedConversationId }
+          : {}),
+      },
+      replace: false,
+    })
+  }
+
+  function selectConversation(conversationId: number) {
+    setActiveConversationId(conversationId)
+    void navigate({ search: { tab: 'messages', conversation: conversationId } })
+  }
+
+  function openPartnerMessageNotification(item: PartnerNotificationDto) {
+    if (item.entity_type !== 'partner_message' && item.metadata.entity_type !== 'partner_message') {
+      return
+    }
+    const conversationId = Number(item.metadata.conversation_id)
+    if (!Number.isSafeInteger(conversationId) || conversationId < 1) return
+    if (!item.is_read) notificationMutation.mutate(item.id)
+    setDrawerOpen(false)
+    setProfileOpen(false)
+    void navigate({ search: { tab: 'messages', conversation: conversationId } })
   }
 
   function saveProfile(event: FormEvent<HTMLFormElement>) {
@@ -873,7 +902,7 @@ export function PartnerPortalPage() {
                             type="button"
                             aria-pressed={selected}
                             onClick={() => {
-                              if (conversation) setActiveConversationId(conversation.id)
+                              if (conversation) selectConversation(conversation.id)
                               else startConversationMutation.mutate(contact.staff_user_id)
                             }}
                             className={`focus-visible:shadow-focus-ring flex min-h-14 w-full min-w-0 items-center gap-3 rounded-xl px-3 py-2 text-left ${selected ? 'bg-primary-subtle text-primary' : 'text-text-secondary hover:bg-surface-muted'}`}
@@ -907,7 +936,7 @@ export function PartnerPortalPage() {
                             const existing = messagesQuery.data?.conversations.find(
                               (item) => item.kind === 'unassigned' && item.status === 'queued',
                             )
-                            if (existing) setActiveConversationId(existing.id)
+                            if (existing) selectConversation(existing.id)
                             else startConversationMutation.mutate()
                           }}
                           className={`focus-visible:shadow-focus-ring flex min-h-14 w-full items-center gap-3 rounded-xl px-3 py-2 text-left ${selectedConversation?.kind === 'unassigned' ? 'bg-primary-subtle text-primary' : 'text-text-secondary hover:bg-surface-muted'}`}
@@ -933,7 +962,7 @@ export function PartnerPortalPage() {
                             <button
                               key={conversation.id}
                               type="button"
-                              onClick={() => setActiveConversationId(conversation.id)}
+                              onClick={() => selectConversation(conversation.id)}
                               className={`mt-1 flex min-h-11 w-full items-center gap-2 rounded-xl px-3 text-left text-sm ${selectedConversationId === conversation.id ? 'bg-primary-subtle text-primary' : 'text-text-secondary hover:bg-surface-muted'}`}
                             >
                               <Clock3 className="size-4 shrink-0" />
@@ -1096,42 +1125,66 @@ export function PartnerPortalPage() {
                 />
               ) : notificationsQuery.data?.length ? (
                 <div className="divide-border-subtle divide-y">
-                  {notificationsQuery.data.map((item) => (
-                    <article
-                      key={item.id}
-                      className={`flex min-w-0 gap-3 p-4 sm:px-5 ${item.is_read ? 'bg-surface' : 'bg-[#F3F7FD]'}`}
-                    >
-                      <span
-                        className={`mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl ${item.is_read ? 'bg-surface-muted text-text-secondary' : 'bg-[#E2ECFA] text-[#0B3974]'}`}
+                  {notificationsQuery.data.map((item) => {
+                    const isPartnerMessage =
+                      item.entity_type === 'partner_message' ||
+                      item.metadata.entity_type === 'partner_message'
+                    const conversationId = Number(item.metadata.conversation_id)
+                    const hasConversation =
+                      isPartnerMessage && Number.isSafeInteger(conversationId) && conversationId > 0
+
+                    return (
+                      <article
+                        key={item.id}
+                        className={`flex min-w-0 flex-wrap items-start gap-3 p-4 sm:px-5 ${item.is_read ? 'bg-surface' : 'bg-[#F3F7FD]'}`}
                       >
-                        <Bell className="size-4" aria-hidden="true" />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-text-primary font-semibold break-words">
-                            {item.title}
-                          </h3>
-                          {!item.is_read ? <StatusChip label="New" tone="info" dense /> : null}
-                        </div>
-                        <p className="text-body-sm text-text-secondary mt-1 leading-6 break-words">
-                          {item.message}
-                        </p>
-                        <p className="text-caption text-text-muted mt-2">
-                          {formatDate(item.created_at)}
-                        </p>
-                      </div>
-                      {!item.is_read ? (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Mark ${item.title} as read`}
-                          onClick={() => notificationMutation.mutate(item.id)}
+                        <span
+                          className={`mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl ${item.is_read ? 'bg-surface-muted text-text-secondary' : 'bg-[#E2ECFA] text-[#0B3974]'}`}
                         >
-                          <Check className="size-4" />
-                        </Button>
-                      ) : null}
-                    </article>
-                  ))}
+                          {isPartnerMessage ? (
+                            <MessageSquareText className="size-4" aria-hidden="true" />
+                          ) : (
+                            <Bell className="size-4" aria-hidden="true" />
+                          )}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-text-primary font-semibold break-words">
+                              {item.title}
+                            </h3>
+                            {!item.is_read ? <StatusChip label="New" tone="info" dense /> : null}
+                          </div>
+                          <p className="text-body-sm text-text-secondary mt-1 leading-6 break-words">
+                            {item.message}
+                          </p>
+                          <p className="text-caption text-text-muted mt-2">
+                            {formatDate(item.created_at)}
+                          </p>
+                          {hasConversation ? (
+                            <Button
+                              className="mt-3"
+                              variant="outline"
+                              size="sm"
+                              leadingIcon={<MessageSquareText className="size-4" />}
+                              onClick={() => openPartnerMessageNotification(item)}
+                            >
+                              Open conversation
+                            </Button>
+                          ) : null}
+                        </div>
+                        {!item.is_read ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Mark ${item.title} as read`}
+                            onClick={() => notificationMutation.mutate(item.id)}
+                          >
+                            <Check className="size-4" />
+                          </Button>
+                        ) : null}
+                      </article>
+                    )
+                  })}
                 </div>
               ) : (
                 <EmptyState
