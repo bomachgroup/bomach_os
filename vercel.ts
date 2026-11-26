@@ -55,9 +55,19 @@ export const config: VercelConfig = {
       '/marketing/(.*)',
       'https://marketing-wine-alpha.vercel.app/__bomach_shared/marketing/$1',
     ),
-    routes.rewrite('/(.*)', '/index.html'),
+    // Let Vercel return a real missing-file response for old/missing Vite
+    // chunks instead of disguising the missing asset as the SPA HTML.
+    // Revalidating the HTML also makes a recovery reload pick up the newest
+    // hashed entry and chunk names.
+    routes.rewrite('/((?!assets(?:/|$)).*)', '/index.html'),
   ],
   headers: [
+    {
+      // Browser routes receive fresh app HTML; leave API, media, bundles, and
+      // separately deployed Services/Marketing responses under their own cache policy.
+      source: '/((?!api/|media/|assets/|services(?:/|$)|marketing(?:/|$)).*)',
+      headers: [{ key: 'Cache-Control', value: 'no-cache' }],
+    },
     {
       source: '/api/(.*)',
       headers: [
